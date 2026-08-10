@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="阿杰工作台">
+<meta name="theme-color" content="#15273b">
+<title>阿杰的工作台 · 男生版</title>
+<style>
+  :root{
+    --side-1:#15273b; --side-2:#1e3349; --side-active:#2b4a6b;
+    --side-text:#c4d4e3; --side-text-dim:#7d92a6;
+    --content-bg:#eef2f7; --card:#ffffff;
+    --accent:#2e86de; --accent-2:#1abc9c; --accent-warm:#e67e22;
+    --ink:#1f2d3d; --ink-2:#51637a; --ink-3:#8a9bb0;
+    --line:#e3e9f0; --tag-blue:#dbeafe; --tag-blue-t:#1d6fb8;
+    --tag-mint:#d4f1e4; --tag-mint-t:#128a6a;
+    --tag-amber:#fde8d0; --tag-amber-t:#c4771a;
+    --tag-violet:#e6dcf7; --tag-violet-t:#6b3fa0;
+    --tag-rose:#fbdde6; --tag-rose-t:#b83d63;
+    --shadow:0 6px 20px rgba(20,40,70,.08);
+    --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC","Segoe UI",Roboto,sans-serif;
+    background:#0f1a26; color:var(--ink); overflow:hidden;
+  }
+  .device{
+    width:100%; height:100vh; height:100dvh; max-width:1180px; margin:0 auto;
+    display:flex; flex-direction:column; background:var(--content-bg);
+    position:relative;
+  }
+  /* ===== 顶部状态栏 ===== */
+  .statusbar{
+    height:38px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
+    padding:0 18px; font-size:14px; font-weight:600; color:#fff;
+    background:linear-gradient(90deg,var(--side-1),var(--side-2));
+  }
+  .statusbar .center{width:120px;height:26px;background:#000;border-radius:14px}
+  .statusbar .right{display:flex;align-items:center;gap:6px;font-size:12px}
+  .statusbar .right svg{width:16px;height:11px}
+  .bat{display:inline-flex;align-items:center;gap:2px}
+  .bat-body{width:22px;height:11px;border:1.4px solid #fff;border-radius:3px;position:relative;padding:1.2px}
+  .bat-body i{display:block;height:100%;width:67%;background:#fff;border-radius:1px}
+  .bat-tip{width:2px;height:5px;background:#fff;border-radius:0 2px 2px 0}
+
+  /* ===== 主体分栏 ===== */
+  .main{flex:1; display:flex; overflow:hidden}
+
+  /* ===== 左侧导航 ===== */
+  .sidebar{
+    width:188px; flex-shrink:0; background:linear-gradient(180deg,var(--side-1),var(--side-2));
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .side-head{padding:14px 16px 10px}
+  .side-head .ws-name{color:#fff;font-size:16px;font-weight:700;letter-spacing:.5px}
+  .side-head .ws-sub{color:var(--side-text-dim);font-size:11px;margin-top:3px;display:flex;align-items:center;gap:4px}
+  .side-head .avatar{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:inline-flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px}
+  .nav-scroll{flex:1;overflow-y:auto;padding:4px 8px 16px}
+  .nav-scroll::-webkit-scrollbar{width:0}
+  .nav-item{
+    display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:11px;
+    color:var(--side-text);font-size:13px;cursor:pointer;margin:2px 0;
+    transition:background .18s,color .18s; position:relative; user-select:none;
+  }
+  .nav-item .ico{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:rgba(255,255,255,.08)}
+  .nav-item:hover{background:rgba(255,255,255,.07)}
+  .nav-item.active{background:var(--side-active);color:#fff}
+  .nav-item.active .ico{background:rgba(255,255,255,.18)}
+  .nav-item.active::before{content:"";position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--accent-2);border-radius:0 3px 3px 0}
+  .nav-item .badge{margin-left:auto;background:#e74c3c;color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+
+  /* ===== 右侧内容 ===== */
+  .content{flex:1;overflow-y:auto;position:relative}
+  .content::-webkit-scrollbar{width:6px}
+  .content::-webkit-scrollbar-thumb{background:#c5d2e0;border-radius:3px}
+  .content-inner{padding:16px 20px 80px;max-width:760px}
+
+  .page-head{display:flex;align-items:flex-end;gap:8px;margin-bottom:14px}
+  .page-head .bow{font-size:18px}
+  .page-head h1{font-size:22px;font-weight:800;color:var(--ink)}
+  .page-head .sub{font-size:13px;color:var(--ink-3);font-weight:500;margin-bottom:2px}
+
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+  .card.tint-blue{background:linear-gradient(135deg,#dbeefe,#eaf4ff)}
+  .card.tint-mint{background:linear-gradient(135deg,#d5f1e6,#e8faf2)}
+  .card.tint-amber{background:linear-gradient(135deg,#fdecd6,#fff5e8)}
+  .card.tint-violet{background:linear-gradient(135deg,#e8def7,#f3edfc)}
+  .card.tint-slate{background:linear-gradient(135deg,#e2eaf3,#eef3f9)}
+  .card-h{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:10px}
+  .card-h .right-ml{margin-left:auto;font-size:12px;font-weight:500;color:var(--ink-3)}
+  .card-h .btn{margin-left:auto}
+  .txt{font-size:13px;line-height:1.7;color:var(--ink-2)}
+  .txt b{color:var(--ink)}
+
+  .pill{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:600}
+  .btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:transform .1s,filter .15s}
+  .btn:active{transform:scale(.95)}
+  .btn-accent{background:var(--accent);color:#fff}
+  .btn-mint{background:var(--accent-2);color:#fff}
+  .btn-ghost{background:#f1f5fa;color:var(--ink-2)}
+  .btn:hover{filter:brightness(1.06)}
+
+  /* 待办 */
+  .todo-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .progress{flex:1;height:6px;background:#eaeff5;border-radius:3px;overflow:hidden}
+  .progress i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:3px;transition:width .3s}
+  .todo-item{display:flex;align-items:center;gap:10px;padding:11px 8px;border-bottom:1px solid var(--line);font-size:13px}
+  .todo-item:last-child{border-bottom:none}
+  .todo-item .ck{width:20px;height:20px;border-radius:6px;border:2px solid #c2cdda;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+  .todo-item.done .ck{background:var(--accent-2);border-color:var(--accent-2)}
+  .todo-item.done .ck::after{content:"✓";color:#fff;font-size:12px;font-weight:800}
+  .todo-item.done .label{text-decoration:line-through;color:var(--ink-3)}
+  .todo-item .del{margin-left:auto;color:#c2cdda;cursor:pointer;font-size:14px;opacity:0;transition:opacity .15s}
+  .todo-item:hover .del{opacity:1}
+
+  /* 日历 */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .cal-head .mon{font-size:14px;font-weight:700}
+  .cal-head .nav-btn{cursor:pointer;color:var(--ink-3);font-size:16px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:8px}
+  .cal-head .nav-btn:hover{background:#eef3f9}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+  .cal-grid .wh{font-size:11px;color:var(--ink-3);padding:4px 0;font-weight:600}
+  .cal-grid .d{font-size:12px;padding:6px 0;border-radius:8px;cursor:pointer;position:relative;color:var(--ink-2)}
+  .cal-grid .d.dim{color:#c2cdda}
+  .cal-grid .d.today{border:1.5px solid var(--accent);font-weight:700;color:var(--accent)}
+  .cal-grid .d.checked{background:var(--accent-2);color:#fff;font-weight:700}
+  .cal-grid .d.checked::after{content:"";display:block;width:4px;height:4px;background:#fff;border-radius:50%;margin:1px auto 0}
+  .cal-legend{display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--ink-3)}
+  .cal-legend span{display:flex;align-items:center;gap:4px}
+
+  /* 资源条目 */
+  .res{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .res:last-child{border-bottom:none}
+  .res .num{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#5aa9e6);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .res .num.amber{background:linear-gradient(135deg,var(--accent-warm),#f0a957)}
+  .res .num.violet{background:linear-gradient(135deg,#7e57c2,#a78bda)}
+  .res .body{flex:1}
+  .res .t{font-size:13.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:4px}
+  .res .t .ext{color:var(--ink-3);font-size:12px}
+  .res .meta{font-size:11px;color:var(--ink-3);margin:2px 0 4px}
+  .res .desc{font-size:12.5px;line-height:1.6;color:var(--ink-2)}
+  .res .tags{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+
+  /* 时间线 */
+  .tl{position:relative;padding-left:18px}
+  .tl::before{content:"";position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:var(--line)}
+  .tl-item{position:relative;padding:0 0 14px 14px}
+  .tl-item:last-child{padding-bottom:0}
+  .tl-item::before{content:"";position:absolute;left:-14px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2.5px solid #fff;box-shadow:0 0 0 2px var(--accent)}
+  .tl-item.mint::before{background:var(--accent-2);box-shadow:0 0 0 2px var(--accent-2)}
+  .tl-item.amber::before{background:var(--accent-warm);box-shadow:0 0 0 2px var(--accent-warm)}
+  .tl-item .tm{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:2px}
+  .tl-item .ti{font-size:13px;font-weight:700;color:var(--ink)}
+  .tl-item .td{font-size:12px;color:var(--ink-2);margin-top:2px;line-height:1.5}
+
+  /* 子表格 */
+  .sub-tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+  .sub-tbl th{text-align:left;color:var(--ink-3);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line)}
+  .sub-tbl td{padding:7px 8px;border-bottom:1px solid var(--line);color:var(--ink-2)}
+  .sub-tbl td b{color:var(--ink)}
+
+  /* 浮动按钮 */
+  .fab{position:fixed;right:18px;bottom:18px;width:42px;height:42px;border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-3);cursor:pointer;z-index:50;border:none}
+  .fab:hover{color:var(--accent)}
+
+  /* ===== 添加到桌面引导 ===== */
+  .install-btn{
+    position:fixed;right:14px;bottom:64px;z-index:51;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;
+    border:none;border-radius:22px;padding:10px 16px;font-size:13px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;gap:6px;
+    box-shadow:0 4px 16px rgba(46,134,222,.4);animation:pulse 2s infinite;
+  }
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  .install-btn:active{transform:scale(.95)}
+
+  .guide-mask{
+    position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);
+    z-index:99;display:none;align-items:center;justify-content:center;padding:20px;
+  }
+  .guide-mask.show{display:flex}
+  .guide-box{
+    background:#fff;border-radius:20px;padding:24px 20px;max-width:360px;width:100%;
+    box-shadow:0 20px 60px rgba(0,0,0,.3);animation:pop .3s ease;
+  }
+  @keyframes pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+  .guide-box h2{font-size:18px;font-weight:800;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+  .guide-box .gsub{font-size:12px;color:var(--ink-3);margin-bottom:16px}
+  .guide-step{
+    display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);
+  }
+  .guide-step:last-of-type{border-bottom:none}
+  .guide-step .sn{
+    width:24px;height:24px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;
+    font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  }
+  .guide-step .st{font-size:13px;line-height:1.6;color:var(--ink-2)}
+  .guide-step .st b{color:var(--ink)}
+  .guide-close{
+    width:100%;margin-top:16px;padding:12px;border-radius:14px;border:none;
+    background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;
+  }
+  .guide-close:active{transform:scale(.97)}
+  .not-safari{background:#fff0f0;border:1px solid #ffcdd2;border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#c62828;line-height:1.5;display:none}
+  .not-safari.show{display:block}
+
+  .section{display:none;animation:fade .25s ease}
+  .section.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* 空态 */
+  .empty{text-align:center;padding:30px 16px;color:var(--ink-3);font-size:13px}
+  .empty .big{font-size:40px;margin-bottom:8px}
+
+  /* CRUD 表单 */
+  .crud-input{
+    width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;
+    font-size:13px;color:var(--ink);background:#f8fafd;outline:none;transition:border-color .15s;
+    font-family:inherit;margin-bottom:8px;
+  }
+  .crud-input:focus{border-color:var(--accent);background:#fff}
+  .crud-textarea{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;
+    font-size:13px;color:var(--ink);background:#f8fafd;outline:none;transition:border-color .15s;
+    font-family:inherit;resize:vertical;min-height:60px;margin-bottom:8px;line-height:1.5}
+  .crud-textarea:focus{border-color:var(--accent);background:#fff}
+  .crud-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+  .crud-row .crud-input{flex:1;margin-bottom:0}
+  .crud-select{padding:8px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:13px;
+    background:#f8fafd;outline:none;cursor:pointer;font-family:inherit;color:var(--ink)}
+  .crud-select:focus{border-color:var(--accent)}
+  .crud-item{position:relative;padding:12px 0;border-bottom:1px solid var(--line)}
+  .crud-item:last-child{border-bottom:none}
+  .crud-item .actions{display:flex;gap:6px;margin-top:6px;opacity:0;transition:opacity .15s}
+  .crud-item:hover .actions{opacity:1}
+  @media(max-width:680px){.crud-item .actions{opacity:1}}
+  .btn-sm{padding:4px 10px;font-size:11px;border-radius:8px}
+  .btn-edit{background:var(--tag-blue);color:var(--tag-blue-t)}
+  .btn-del{background:var(--tag-rose);color:var(--tag-rose-t)}
+  .empty-hint{text-align:center;padding:20px;color:var(--ink-3);font-size:13px}
+  .empty-hint .big{font-size:32px;margin-bottom:6px}
+
+  /* 通用弹窗 */
+  .modal-mask{
+    position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:98;
+    display:none;align-items:flex-end;justify-content:center;padding:0;
+  }
+  .modal-mask.show{display:flex}
+  .modal-box{
+    background:#fff;border-radius:20px 20px 0 0;padding:20px 18px;max-width:460px;width:100%;
+    max-height:80vh;overflow-y:auto;animation:slideUp .3s ease;
+  }
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .modal-box h3{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+  .modal-box .modal-close{
+    margin-left:auto;width:28px;height:28px;border-radius:8px;background:#f1f5fa;
+    border:none;font-size:16px;cursor:pointer;color:var(--ink-3);display:flex;align-items:center;justify-content:center;
+  }
+  .modal-box .modal-save{
+    width:100%;margin-top:12px;padding:12px;border-radius:12px;border:none;
+    background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;
+  }
+  .modal-box .modal-save:active{transform:scale(.97)}
+
+  /* 数据管理 */
+  .data-mgr{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .data-mgr .btn{font-size:12px}
+
+  /* 移动端抽屉 */
+  .menu-btn{display:none}
+  .overlay{display:none}
+
+  @media(max-width:680px){
+    .menu-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;font-size:16px;cursor:pointer;margin-right:6px}
+    .sidebar{
+      position:fixed;top:38px;left:0;bottom:0;width:230px;z-index:60;
+      transform:translateX(-100%);transition:transform .28s ease;
+      box-shadow:4px 0 20px rgba(0,0,0,.18);
+    }
+    .sidebar.open{transform:translateX(0)}
+    .overlay{position:fixed;top:38px;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:55}
+    .overlay.show{display:block}
+    .content-inner{padding:14px 14px 80px}
+  }
+</style>
+</head>
+<body>
+<div class="device">
+  <!-- 状态栏 -->
+  <div class="statusbar">
+    <span class="menu-btn" onclick="toggleSidebar()">☰</span><span>21:49</span>
+    <span class="center"></span>
+    <span class="right">
+      <svg viewBox="0 0 18 12" fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".4"/></svg>
+      <span>5G</span>
+      <span class="bat"><span class="bat-body"><i></i></span><span class="bat-tip"></span></span>
+      <span style="font-size:11px">67</span>
+    </span>
+  </div>
+
+  <div class="main">
+    <!-- 左侧导航 -->
+    <aside class="sidebar">
+      <div class="side-head">
+        <div class="avatar">🧑</div>
+        <div class="ws-name">阿杰的工作台</div>
+        <div class="ws-sub">⚙️ 男生版 · 自我精进系统</div>
+      </div>
+      <nav class="nav-scroll" id="nav"></nav>
+    </aside>
+    <div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
+
+    <!-- 右侧内容 -->
+    <main class="content">
+      <div class="content-inner" id="content"></div>
+    </main>
+  </div>
+
+  <button class="fab" title="帮助">?</button>
+
+  <!-- 添加到桌面按钮 -->
+  <button class="install-btn" onclick="showGuide()">📱 保存到桌面</button>
+
+  <!-- 引导弹窗 -->
+  <div class="guide-mask" id="guideMask" onclick="if(event.target===this)closeGuide()">
+    <div class="guide-box">
+      <h2>📲 添加到主屏幕</h2>
+      <div class="gsub">像 App 一样用，桌面图标直达，全屏无地址栏</div>
+      <div class="not-safari" id="notSafari">⚠️ 当前不是 Safari 浏览器！请先点页面右上角/底部「分享」→ 选「在 Safari 中打开」，再按下面步骤操作。</div>
+      <div class="guide-step">
+        <div class="sn">1</div>
+        <div class="st">点击 Safari 底部的<b>「分享」按钮</b>（一个方框 + 向上箭头的图标 ↗）</div>
+      </div>
+      <div class="guide-step">
+        <div class="sn">2</div>
+        <div class="st">在弹出的菜单中，向下滑找到并点击<b>「添加到主屏幕」</b></div>
+      </div>
+      <div class="guide-step">
+        <div class="sn">3</div>
+        <div class="st">点击右上角<b>「添加」</b>，桌面就会多一个「阿杰工作台」图标</div>
+      </div>
+      <div class="guide-step">
+        <div class="sn">4</div>
+        <div class="st">以后点桌面图标即可<b>全屏打开</b>，和原生 App 一样，无需浏览器</div>
+      </div>
+      <button class="guide-close" onclick="closeGuide()">我知道了</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========== 导航数据 ========== */
+const NAV=[
+  {id:'daily',  ico:'📅', name:'每日计划', badge:6},
+  {id:'kids',   ico:'👨\u200d👦', name:'亲子时光'},
+  {id:'skill',  ico:'📚', name:'技能充电'},
+  {id:'fit',    ico:'💪', name:'力量训练'},
+  {id:'eng',    ico:'📖', name:'英语进阶'},
+  {id:'pod',    ico:'🎙️', name:'播客精选'},
+  {id:'speak',  ico:'🗣️', name:'表达能力'},
+  {id:'book',   ico:'📕', name:'读书推荐'},
+  {id:'groom',  ico:'🧔', name:'理容穿搭'},
+  {id:'hustle', ico:'💰', name:'副业搞钱'},
+  {id:'ai',     ico:'🤖', name:'AI学习'},
+  {id:'news',   ico:'📰', name:'行业资讯'},
+  {id:'review', ico:'📝', name:'每日复盘'},
+  {id:'inspo',  ico:'⭐', name:'灵感收藏'},
+  {id:'ledger', ico:'📊', name:'小账本'},
+  {id:'tech',   ico:'🎮', name:'数码电竞'},
+  {id:'weather',ico:'☀️', name:'天气'},
+  {id:'data',  ico:'💾', name:'数据管理'},
+];
+
+/* ========== 各板块内容 ========== */
+const SECTIONS={
+
+daily:`
+  <div class="page-head"><span class="bow">⚡</span><h1>每日计划</h1><span class="sub">· 自律即自由 · 每天进步一点点</span></div>
+
+  <div class="card tint-amber">
+    <div class="card-h">💡 今日箴言</div>
+    <div class="txt" style="font-size:15px;font-weight:700;color:var(--ink)">「你的自律，终将自由。」</div>
+    <div class="txt" style="margin-top:4px">"Discipline equals freedom."</div>
+    <div class="txt" style="margin-top:8px;font-size:12px">🗓️ 2026年8月9日 · 星期日</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">📅 签到日历 <span class="right-ml">本月已签到 7 天</span></div>
+    <div class="cal-head">
+      <span class="nav-btn" onclick="calNav(-1)">‹</span>
+      <span class="mon" id="calMon">2026年8月</span>
+      <span class="nav-btn" onclick="calNav(1)">›</span>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <span>🟢 已签到</span><span>🔵 今天</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="todo-bar">
+      <div class="card-h" style="margin:0">📋 今日待办</div>
+      <div class="progress"><i id="progBar" style="width:0%"></i></div>
+      <span id="progTxt" style="font-size:12px;font-weight:700;color:var(--ink-2)">0 / 6</span>
+      <button class="btn btn-accent" onclick="addTodo()">+ 新增</button>
+    </div>
+    <div id="todoList"></div>
+  </div>
+`,
+
+kids:`
+  <div class="page-head"><span class="bow">👨‍👦</span><h1>亲子时光</h1><span class="sub">· 暑期带娃 · 剩余约 3 周</span></div>
+
+  <div class="card tint-blue">
+    <div class="card-h">📌 总览</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <span class="pill" style="background:var(--tag-mint);color:var(--tag-mint-t)">🗓️ 已规划</span>
+      <span class="pill" style="background:var(--tag-amber);color:var(--tag-amber-t)">🎯 待执行</span>
+      <span class="pill" style="background:var(--tag-blue);color:var(--tag-blue-t)">⏳ 进行中</span>
+    </div>
+    <div class="txt"><b>👦 老大</b> · 9岁 · 小学三升四，重点抓学习衔接与运动习惯</div>
+    <div class="txt" style="margin-top:4px"><b>👶 老二</b> · 4岁 · 中班预备，以游戏 / 绘本 / 习惯养成为主</div>
+    <div class="txt" style="margin-top:8px;border-top:1px dashed #c9dbef;padding-top:8px"><b>策略：</b>工作日晚间陪读 1 小时 + 周末全天带娃户外，每周留 2 个晚上给自己充电。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">⏰ 一日时间表（工作日模板）<span class="right-ml">当前 21:49</span></div>
+    <div class="tl">
+      <div class="tl-item"><div class="tm">07:00 - 07:30</div><div class="ti">起床洗漱 + 早餐</div><div class="td">和老大一起听英语儿歌磨耳朵</div></div>
+      <div class="tl-item mint"><div class="tm">19:30 - 20:30</div><div class="ti">陪老大学习</div><div class="td">数学口算 + 英语单词 + 阅读理解，爸爸在一旁看书陪同</div></div>
+      <div class="tl-item amber"><div class="tm">20:30 - 21:00</div><div class="ti">陪老二读绘本</div><div class="td">亲子共读 2 本，培养阅读习惯</div></div>
+      <div class="tl-item"><div class="tm">21:00 - 21:30</div><div class="ti">洗漱熄灯</div><div class="td">讲睡前故事，准点睡觉</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">🎯 本月重点任务</div>
+    <div style="font-size:13px;font-weight:700;margin:6px 0">👦 老大（9岁 · 三升四）</div>
+    <table class="sub-tbl">
+      <tr><th>科目</th><th>任务</th></tr>
+      <tr><td><b>语文</b></td><td>每日阅读 30min + 暑假作业</td></tr>
+      <tr><td><b>数学</b></td><td>口算 100 题 + 应用题专项</td></tr>
+      <tr><td><b>英语</b></td><td>背单词 15 个 + 听力 15min</td></tr>
+      <tr><td><b>运动</b></td><td>跳绳 500 个 / 游泳 1 小时</td></tr>
+      <tr><td><b>兴趣</b></td><td>Scratch 编程 / 篮球基础</td></tr>
+    </table>
+    <div style="font-size:13px;font-weight:700;margin:14px 0 6px">👶 老二（4岁 · 中班预备）</div>
+    <table class="sub-tbl">
+      <tr><th>活动</th><th>活动</th></tr>
+      <tr><td>绘本阅读</td><td>涂鸦手工</td></tr>
+      <tr><td>积木拼搭</td><td>户外活动</td></tr>
+      <tr><td>生活自理练习</td><td>—</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-h">📋 今日带娃待办 <button class="btn btn-accent btn" style="margin-left:auto" onclick="alert('已新增一条带娃待办')">+ 新增</button></div>
+    <div class="todo-item"><div class="ck" onclick="this.parentElement.classList.toggle('done')"></div><span class="label">陪老大做数学口算 1 页</span></div>
+    <div class="todo-item done"><div class="ck" onclick="this.parentElement.classList.toggle('done')"></div><span class="label">陪老二读绘本 2 本</span></div>
+    <div class="todo-item"><div class="ck" onclick="this.parentElement.classList.toggle('done')"></div><span class="label">带娃楼下跳绳 500 个</span></div>
+  </div>
+`,
+
+skill:`
+  <div class="page-head"><span class="bow">🚀</span><h1>技能充电</h1><span class="sub">· 技术管理 / 全栈开发方向</span></div>
+
+  <div class="card tint-violet">
+    <div class="card-h">🎯 学习目标</div>
+    <div class="txt">三四年经验想往<b>技术管理 + 全栈</b>方向走，核心补齐「系统设计 + 前端工程化 + 团队协作」三块短板。资源以<b>能落地、能写在简历里</b>为标准筛选，不囤课。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">📚 推荐书单（按优先级）</div>
+
+    <div style="font-size:13px;font-weight:700;color:var(--accent);margin:8px 0 4px">① 底层认知 · 系统与架构思维</div>
+    <div class="res">
+      <div class="num">1</div>
+      <div class="body">
+        <div class="t">《数据密集型应用系统设计》 <span class="ext">↗</span></div>
+        <div class="meta">Martin Kleppmann / 机械工业出版社</div>
+        <div class="desc">后端工程师必读，讲清楚分布式系统核心权衡，面试系统设计的高频考点来源。</div>
+        <div class="tags"><span class="pill" style="background:var(--tag-violet);color:var(--tag-violet-t)">🟣 首读</span><span class="pill" style="background:var(--tag-mint);color:var(--tag-mint-t)">🟢 进阶</span></div>
+      </div>
+    </div>
+    <div class="res">
+      <div class="num">2</div>
+      <div class="body">
+        <div class="t">《架构整洁之道》 <span class="ext">↗</span></div>
+        <div class="meta">Robert C. Martin / 电子工业出版社</div>
+        <div class="desc">从 SOLID 到组件边界，建立架构分层思维，写代码不再一团乱麻。</div>
+        <div class="tags"><span class="pill" style="background:var(--tag-mint);color:var(--tag-mint-t)">🟢 进阶</span></div>
+      </div>
+    </div>
+
+    <div style="font-size:13px;font-weight:700;color:var(--accent);margin:16px 0 4px">② 实战技能 · 前端工程化</div>
+    <div class="res">
+      <div class="num amber">3</div>
+      <div class="body">
+        <div class="t">《重构：改善既有代码的设计》 <span class="ext">↗</span></div>
+        <div class="meta">Martin Fowler / 人民邮电出版社</div>
+        <div class="desc">手把手教你把烂代码变干净，团队 Code Review 必备语言体系。</div>
+        <div class="tags"><span class="pill" style="background:var(--tag-amber);color:var(--tag-amber-t)">🟠 实战</span><span class="pill" style="background:var(--tag-mint);color:var(--tag-mint-t)">🟢 入门</span></div>
+      </div>
+    </div>
+    <div class="res">
+      <div class="num amber">4</div>
+      <div class="body">
+        <div class="t">《高效能人士的七个习惯》 <span class="ext">↗</span></div>
+        <div class="meta">史蒂芬·柯维 / 中国青年出版社</div>
+        <div class="desc">想做管理必读，从个人效能到团队协作的思维升级，比技术书更影响职业天花板。</div>
+        <div class="tags"><span class="pill" style="background:var(--tag-amber);color:var(--tag-amber-t)">🟠 管理</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card tint-slate">
+    <div class="card-h">🗂️ 在学课程</div>
+    <div class="txt">• 极客时间《左耳听风》有效练习 ✅ 进行中（第 8/20 讲）</div>
+    <div class="txt">• B站 尚硅谷 React18 全套 ⏳ 计划中</div>
+    <div class="txt">• LeetCode 每日一题 🔥 连续 23 天</div>
+  </div>
+`,
+
+fit:`
+  <div class="page-head"><span class="bow">💪</span><h1>力量训练</h1><span class="sub">· 增肌塑形 · 数据追踪</span></div>
+
+  <div class="card tint-mint">
+    <div class="card-h">🏋️ 我的训练习惯</div>
+    <div class="txt">每周练 <b>4 次</b>，二分法：推 / 拉 / 腿循环 + 1 次有氧。</div>
+    <div class="txt" style="margin-top:4px">时间：工作日 19:00-20:00 居家哑铃训练，周末晨跑 5km + 引体向上。</div>
+    <div class="txt" style="margin-top:8px;border-top:1px dashed #b3e6cf;padding-top:8px"><b>理念：</b>不追求体重数字，追求力量上涨和体型改善。深蹲卧推硬拉三大项稳步加重量。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">📺 跟练视频链接</div>
+    <div class="res">
+      <div class="num">1</div>
+      <div class="body">
+        <div class="t">B站：居家哑铃增肌跟练（男生向） <span class="ext">↗</span></div>
+        <div class="desc">推拉腿分化训练，每次 40 分钟，覆盖胸背肩手臂腿。</div>
+      </div>
+    </div>
+    <div class="res">
+      <div class="num">2</div>
+      <div class="body">
+        <div class="t">B站：徒手核心 + 引体向上进阶 <span class="ext">↗</span></div>
+        <div class="desc">从 0 个引体到 10 个的进阶路线，居家门上单杠即可练。</div>
+      </div>
+    </div>
+    <div class="res">
+      <div class="num">3</div>
+      <div class="body">
+        <div class="t">B站：跑前热身 + 跑后拉伸 <span class="ext">↗</span></div>
+        <div class="desc">10 分钟动态热身防受伤，跑后静态拉伸助恢复。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">📏 力量数据记录 <button class="btn btn-accent" style="margin-left:auto" onclick="alert('已记录一次训练数据')">+ 记录</button></div>
+    <table class="sub-tbl">
+      <tr><th>项目</th><th>1RM</th><th>目标</th><th>状态</th></tr>
+      <tr><td><b>深蹲</b></td><td>90kg</td><td>120kg</td><td>📈 上涨中</td></tr>
+      <tr><td><b>卧推</b></td><td>65kg</td><td>100kg</td><td>📈 上涨中</td></tr>
+      <tr><td><b>硬拉</b></td><td>110kg</td><td>140kg</td><td>📈 上涨中</td></tr>
+      <tr><td><b>引体向上</b></td><td>8 个</td><td>15 个</td><td>✅ 已达标</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-h">📊 变化趋势</div>
+    <div class="txt">体重：72kg → 74.5kg（3 个月增肌 2.5kg）</div>
+    <div class="txt">体脂率：18% → 16%（力量涨、脂肪降，干净增肌中）</div>
+    <div style="height:8px;background:#eef3f9;border-radius:4px;margin-top:10px;overflow:hidden"><div style="width:62%;height:100%;background:linear-gradient(90deg,var(--accent-2),var(--accent));border-radius:4px"></div></div>
+  </div>
+
+  <div class="card tint-blue">
+    <div class="card-h">🏊 老大游泳培训记录</div>
+    <div class="txt">每天 1.5 小时游泳培训，目前学自由泳。记录进度，见证成长 🌊</div>
+  </div>
+`,
+
+eng:`
+  <div class="page-head"><span class="bow">📖</span><h1>英语进阶</h1><span class="sub">· 中级突破 · 看懂技术文档 + 无障碍交流</span></div>
+
+  <div class="card tint-blue">
+    <div class="card-h">🎯 学习定位</div>
+    <div class="txt"><b>基础中级</b>（四级水平重启）→ <b>目标：</b>无障碍读英文技术文档 + GitHub Issue 交流 + 出差开会能开口。</div>
+    <div class="txt" style="margin-top:6px"><b>策略：</b>每天 30 分钟，以「听力输入 + 跟读 + 技术单词」三件套为主，不贪多。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">⏰ 每日 30 分钟学习结构</div>
+    <div class="tl">
+      <div class="tl-item"><div class="tm">0-10 min</div><div class="ti">🎧 听力输入</div><div class="td">多邻国 1 节课 + 听 1 篇技术播客片段（推荐 Syntax / JS Party 入门集）</div></div>
+      <div class="tl-item mint"><div class="tm">10-20 min</div><div class="ti">🎤 跟读模仿</div><div class="td">跟着播客大声读，模仿语音语调，开口比懂更重要</div></div>
+      <div class="tl-item amber"><div class="tm">20-30 min</div><div class="ti">📝 技术单词巩固</div><div class="td">复习昨天 10 个 + 新学 10 个技术高频词，用「墨墨背单词」，结合文档场景记忆</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">🎯 分级资源推荐 <span class="right-ml">APP（免费为主）</span></div>
+    <div class="res">
+      <div class="num">1</div>
+      <div class="body">
+        <div class="t">多邻国 Duolingo <span class="ext">↗</span></div>
+        <div class="meta">免费 · 游戏化学习</div>
+        <div class="desc">零基础友好，每天 15 分钟像闯关，适合保持手感不断签。</div>
+        <div class="tags"><span class="pill" style="background:var(--tag-rose);color:var(--tag-rose-t)">首用</span><span class="pill" style="background:var(--tag-mint);color:var(--tag-mint-t)">入门</span></div>
+      </div>
+    </div>
+    <div class="res">
+      <div class="num">2</div>
+      <div class="body">
+        <div class="t">每日英语听力 <span class="ext">↗</span></div>
+        <div class="meta">免费 · 欧路词典出品</div>
+        <div class="desc">从科技资讯到 TED 演讲分级听力，带字幕跟读，程序员练听力首选。</div>
+        <div class="tags"><span class="pill" style="background:var(--tag-mint);color:var(--tag-mint-t)">进阶</span></div>
+      </div>
+    </div>
+    <div class="res">
+      <div class="num">3</div>
+      <div class="body">
+        <div class="t">GitHub Daily 阅读 <span class="ext">↗</span></div>
+        <div class="meta">免费 · 实战</div>
+        <div class="desc">每天精读 1 个热门项目 README，技术英语 + 开阔视野一举两得。</div>
+        <div class="tags"><span class="pill" style="background:var(--tag-amber);color:var(--tag-amber-t)">实战</span></div>
+      </div>
+    </div>
+  </div>
+`,
+
+pod:`
+  <div class="page-head"><span class="bow">🎙️</span><h1>播客精选</h1><span class="sub">· 用耳朵充电</span></div>
+
+  <div class="card tint-violet">
+    <div class="card-h">✨ 为什么听播客</div>
+    <div class="txt">通勤、健身、做家务时戴上耳机就能学。建议每天听 1 期，每周精听 2 期做笔记。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">💰 商业 / 搞钱类</div>
+    <div class="res">
+      <div class="num">1</div>
+      <div class="body">
+        <div class="t">半途而废 <span class="ext">↗</span></div>
+        <div class="meta">主播：高松 · 小宇宙 / 喜马拉雅</div>
+        <div class="desc">聊副业、个人品牌和搞钱实操，不讲鸡汤只讲方法，适合想做副业的程序员。</div>
+        <div class="tags"><span class="pill" style="background:var(--tag-mint);color:var(--tag-mint-t)">首听</span><span class="pill" style="background:var(--tag-blue);color:var(--tag-blue-t)">通勤听</span></div>
+      </div>
+    </div>
+    <div class="res">
+      <div class="num">2</div>
+      <div class="body">
+        <div class="t">商业就是这样 <span class="ext">↗</span></div>
+        <div class="meta">声东击西 · 小宇宙 / 苹果播客</div>
+        <div class="desc">用商业案例拆解公司运作，建立商业思维，对做产品和副业都有启发。</div>
+        <div class="tags"><span class="pill" style="background:var(--tag-blue);color:var(--tag-blue-t)">健身时听</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">💻 技术 / 个人成长类</div>
+    <div class="res">
+      <div class="num amber">3</div>
+      <div class="body">
+        <div class="t">编码人声 <span class="ext">↗</span></div>
+        <div class="meta">主播：徐昊 · 小宇宙</div>
+        <div class="desc">资深架构师聊技术职业发展、架构与团队，技术人成长路上的指路灯。</div>
+        <div class="tags"><span class="pill" style="background:var(--tag-mint);color:var(--tag-mint-t)">首听</span><span class="pill" style="background:var(--tag-amber);color:var(--tag-amber-t)">睡前听</span></div>
+      </div>
+    </div>
+    <div class="res">
+      <div class="num amber">4</div>
+      <div class="body">
+        <div class="t">忽左忽右 <span class="ext">↗</span></div>
+        <div class="meta">JustPod · 小宇宙</div>
+        <div class="desc">深度对谈节目，聊历史、社会与行业，开阔认知边界，程序员的「精神食粮」。</div>
+        <div class="tags"><span class="pill" style="background:var(--tag-amber);color:var(--tag-amber-t)">通勤听</span></div>
+      </div>
+    </div>
+  </div>
+`,
+
+speak:`
+  <div class="page-head"><span class="bow">🗣️</span><h1>表达能力</h1><span class="sub">· 把事讲清楚 · 把人说服</span></div>
+  <div class="card tint-amber">
+    <div class="card-h">🎯 为什么练表达</div>
+    <div class="txt">技术再强，讲不清楚也难晋升。目标：开会能 3 分钟说清方案，述职能讲出价值，面试不卡壳。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">📝 每日练习清单</div>
+    <div class="todo-item"><div class="ck" onclick="this.parentElement.classList.toggle('done')"></div><span class="label">用「PREP 结构」复述今天一个技术决策（2 分钟）</span></div>
+    <div class="todo-item done"><div class="ck" onclick="this.parentElement.classList.toggle('done')"></div><span class="label">朗读 1 段技术文章，录音回听语速</span></div>
+    <div class="todo-item"><div class="ck" onclick="this.parentElement.classList.toggle('done')"></div><span class="label">模拟面试：讲一个项目难点（STAR 法）</span></div>
+  </div>
+  <div class="card">
+    <div class="card-h">📚 推荐资源</div>
+    <div class="res"><div class="num">1</div><div class="body"><div class="t">《金字塔原理》</div><div class="desc">结构化表达圣经，先结论后论据，写文档做汇报必备。</div></div></div>
+    <div class="res"><div class="num">2</div><div class="body"><div class="t">B站：技术人如何做技术分享</div><div class="desc">从选题到开场到收尾，手把手教做一场不翻车的分享。</div></div></div>
+  </div>
+`,
+
+book:`
+  <div class="page-head"><span class="bow">📕</span><h1>读书推荐</h1><span class="sub">· 每月精读 2 本</span></div>
+  <div class="card tint-slate">
+    <div class="card-h">📖 本月书单</div>
+    <div class="res"><div class="num">1</div><div class="body"><div class="t">《纳瓦尔宝典》 <span class="ext">↗</span></div><div class="meta">财富与幸福</div><div class="desc">硅谷大佬的人生智慧，讲杠杆、专长和复利，适合想清楚长期方向时读。</div><div class="tags"><span class="pill" style="background:var(--tag-mint);color:var(--tag-mint-t)">精读</span></div></div></div>
+    <div class="res"><div class="num">2</div><div class="body"><div class="t">《置身事内》 <span class="ext">↗</span></div><div class="meta">兰小欢 / 上海人民出版社</div><div class="desc">讲中国经济发展逻辑，理解大环境对个人选择的影响，男生理财前必读。</div><div class="tags"><span class="pill" style="background:var(--tag-amber);color:var(--tag-amber-t)">精读</span></div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-h">✅ 已读 · 2026</div>
+    <div class="txt">• 《原子习惯》✅ 1月 · 建立习惯系统</div>
+    <div class="txt">• 《代码大全》✅ 3月 · 工程实践经典</div>
+    <div class="txt">• 《被讨厌的勇气》✅ 5月 · 课题分离</div>
+  </div>
+`,
+
+groom:`
+  <div class="page-head"><span class="bow">🧔</span><h1>理容穿搭</h1><span class="sub">· 干净利落 · 不过度</span></div>
+  <div class="card tint-blue">
+    <div class="card-h">🧴 护肤基础（极简三步）</div>
+    <div class="txt">① 氨基酸洁面 → ② 保湿乳 → ③ 防晒。早晚各一次，坚持比用贵的产品重要。</div>
+    <div class="txt" style="margin-top:6px"><b>理念：</b>男生护肤不复杂，控油 + 防晒 + 保湿三件事做到位，皮肤状态就赢过 80% 的人。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">💈 发型 / 修面</div>
+    <div class="txt">• 每 3 周理发一次，保持两侧干净、顶部有型</div>
+    <div class="txt">• 每天刮胡子或修短胡茬，清爽感第一</div>
+    <div class="txt">• 每 2 周修一次鼻毛 / 眉毛杂毛</div>
+  </div>
+  <div class="card">
+    <div class="card-h">👕 穿搭风格 · 极简通勤</div>
+    <table class="sub-tbl">
+      <tr><th>场景</th><th>公式</th></tr>
+      <tr><td><b>通勤</b></td><td>纯色 T恤 + 直筒裤 + 帆布鞋 / 小白鞋</td></tr>
+      <tr><td><b>开会</b></td><td>牛津纺衬衫 + 卡其裤 + 乐福鞋</td></tr>
+      <tr><td><b>周末</b></td><td>卫衣 + 工装裤 + 运动鞋</td></tr>
+      <tr><td><b>健身</b></td><td>速干 tee + 运动短裤 + 跑鞋</td></tr>
+    </table>
+    <div class="txt" style="margin-top:8px"><b>配色原则：</b>全身不超过 3 个颜色，黑白灰藏青为主，亮色只做点缀。</div>
+  </div>
+`,
+
+hustle:`
+  <div class="page-head"><span class="bow">💰</span><h1>副业搞钱</h1><span class="sub">· 用技能变现 · 不碰不懂的</span></div>
+  <div class="card tint-mint">
+    <div class="card-h">🎯 方向定位</div>
+    <div class="txt">主业是全栈开发，副业围绕<b>「技术能力 + 内容输出」</b>展开，做能复利积累的事，不赚一次性快钱。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">🚀 在做的副业</div>
+    <div class="res"><div class="num">1</div><div class="body"><div class="t">技术博客 / 公众号</div><div class="desc">每周 1 篇技术深度文，积累个人 IP，目前 1200 粉丝。</div><div class="tags"><span class="pill" style="background:var(--tag-mint);color:var(--tag-mint-t)">进行中</span><span class="pill" style="background:var(--tag-blue);color:var(--tag-blue-t)">长期</span></div></div></div>
+    <div class="res"><div class="num">2</div><div class="body"><div class="t">接外包小项目</div><div class="desc">在程序员客栈 / 猪八戒接小程序和企业站，月均 3-5k 额外收入。</div><div class="tags"><span class="pill" style="background:var(--tag-amber);color:var(--tag-amber-t)">进行中</span></div></div></div>
+    <div class="res"><div class="num">3</div><div class="body"><div class="t">独立开发者小工具</div><div class="desc">做一个 Chrome 插件解决开发者痛点，验证后考虑付费。⏳ 计划中</div><div class="tags"><span class="pill" style="background:var(--tag-violet);color:var(--tag-violet-t)">规划中</span></div></div></div>
+  </div>
+  <div class="card tint-amber">
+    <div class="card-h">⚠️ 搞钱原则</div>
+    <div class="txt">• 不碰不懂的理财 / 币圈，亏钱比赚钱快</div>
+    <div class="txt">• 副业不挤占主业精力，主业是基本盘</div>
+    <div class="txt">• 做有复利的事：内容、产品、技能，而非纯卖时间</div>
+  </div>
+`,
+
+ai:`
+  <div class="page-head"><span class="bow">🤖</span><h1>AI学习</h1><span class="sub">· 让 AI 成为生产力工具</span></div>
+  <div class="card tint-violet">
+    <div class="card-h">🎯 学习目标</div>
+    <div class="txt">不追求从零训模型，重点掌握<b>「AI 提效 + 提示词工程 + API 接入业务」</b>，让 AI 真正帮自己写代码、做内容。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">📚 学习路径</div>
+    <div class="res"><div class="num">1</div><div class="body"><div class="t">提示词工程入门</div><div class="desc">学会结构化提问，用 CoT、Few-shot 让输出稳定可控。</div></div></div>
+    <div class="res"><div class="num">2</div><div class="body"><div class="t">大模型 API 接入实战</div><div class="desc">用 OpenAI / 通义千问 API 做一个自己的小应用，跑通完整链路。</div></div></div>
+    <div class="res"><div class="num">3</div><div class="body"><div class="t">AI 辅助编程工作流</div><div class="desc">Cursor + Copilot 日常提效，建立 AI 结对编程习惯。</div></div></div>
+  </div>
+  <div class="card tint-slate">
+    <div class="card-h">🛠️ 常用工具</div>
+    <div class="txt">• 编程：Cursor、GitHub Copilot</div>
+    <div class="txt">• 通用：ChatGPT、Claude、通义千问</div>
+    <div class="txt">• 绘图：Midjourney、即梦</div>
+  </div>
+`,
+
+news:`
+  <div class="page-head"><span class="bow">📰</span><h1>行业资讯</h1><span class="sub">· 每日 15 分钟扫一遍</span></div>
+  <div class="card">
+    <div class="card-h">📡 信息源</div>
+    <div class="res"><div class="num">1</div><div class="body"><div class="t">掘金 / V2EX</div><div class="desc">技术社区热点，看大家在聊什么、踩什么坑。</div></div></div>
+    <div class="res"><div class="num">2</div><div class="body"><div class="t">Hacker News</div><div class="desc">全球技术圈风向标，顺带练英语阅读。</div></div></div>
+    <div class="res"><div class="num">3</div><div class="body"><div class="t">36氪 / 虎嗅</div><div class="desc">商业与科技结合的资讯，了解行业大趋势。</div></div></div>
+  </div>
+  <div class="card tint-amber">
+    <div class="card-h">📌 今日要点</div>
+    <div class="txt">• 关注大模型最新开源动态</div>
+    <div class="txt">• 留意前端框架（React/Vue）版本更新</div>
+  </div>
+`,
+
+review:`
+  <div class="page-head"><span class="bow">📝</span><h1>每日复盘</h1><span class="sub">· 睡前 5 分钟 · 记录与改进</span></div>
+  <div class="card tint-slate">
+    <div class="card-h">🤔 复盘模板</div>
+    <div class="txt"><b>① 今天做对了什么？</b></div>
+    <div class="txt"><b>② 哪里可以更好？</b></div>
+    <div class="txt"><b>③ 明天最重要的 1 件事？</b></div>
+  </div>
+  <div class="card">
+    <div class="card-h">📔 我的复盘 <button class="btn btn-accent" style="margin-left:auto" onclick="openReviewModal()">+ 写一条</button></div>
+    <div id="reviewList"></div>
+  </div>
+`,
+
+inspo:`
+  <div class="page-head"><span class="bow">⭐</span><h1>灵感收藏</h1><span class="sub">· 看到好东西先存下来</span></div>
+  <div class="card">
+    <div class="card-h">💡 灵感库 <button class="btn btn-accent" style="margin-left:auto" onclick="openInspoModal()">+ 收一条</button></div>
+    <div id="inspoList"></div>
+  </div>
+  <div class="card tint-violet">
+    <div class="card-h">🔗 常用链接</div>
+    <div class="txt">• Github Trending — 每周逛一次</div>
+    <div class="txt">• Product Hunt — 找独立开发灵感</div>
+  </div>
+`,
+
+ledger:`
+  <div class="page-head"><span class="bow">📊</span><h1>小账本</h1><span class="sub">· 钱花在哪 · 心里有数</span></div>
+  <div class="card tint-mint">
+    <div class="card-h">💰 本月预算</div>
+    <div id="ledgerSummary" style="font-size:24px;font-weight:800;color:var(--ink)">¥ 0 <span style="font-size:13px;font-weight:500;color:var(--ink-3)">/ 6,000</span></div>
+    <div class="progress" style="margin-top:8px"><i id="ledgerBar" style="width:0%"></i></div>
+    <div class="txt" id="ledgerHint" style="margin-top:6px">还没有记账，点击下方"记一笔"开始。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">📋 支出明细 <button class="btn btn-accent" style="margin-left:auto" onclick="openLedgerModal()">+ 记一笔</button></div>
+    <div id="ledgerList"></div>
+  </div>
+`,
+
+tech:`
+  <div class="page-head"><span class="bow">🎮</span><h1>数码电竞</h1><span class="sub">· 装备清单 · 偶尔放松</span></div>
+  <div class="card tint-slate">
+    <div class="card-h">🖥️ 我的桌面装备</div>
+    <table class="sub-tbl">
+      <tr><th>类别</th><th>型号</th></tr>
+      <tr><td>主机</td><td>自组 13700K + 4070Ti</td></tr>
+      <tr><td>显示器</td><td>27寸 2K 165Hz</td></tr>
+      <tr><td>键盘</td><td>客制化 75% 机械键盘</td></tr>
+      <tr><td>鼠标</td><td>GPW2 无线</td></tr>
+      <tr><td>耳机</td><td>降噪头戴 + 入耳电竞</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-h">🎯 在玩 / 想玩</div>
+    <div class="txt">• 《黑神话：悟空》✅ 通关二周目</div>
+    <div class="txt">• 《艾尔登法环》DLC ⏳ 进行中</div>
+    <div class="txt">• 《赛博朋克 2077》📋 待玩</div>
+    <div class="txt" style="margin-top:8px;color:var(--ink-3);font-size:12px">原则：周末限时玩 2 小时，不熬夜，不影响周一状态。</div>
+  </div>
+  <div class="card tint-amber">
+    <div class="card-h">📱 想入的数码</div>
+    <div class="txt">• 机械键盘客制化键帽一套 📋 观望中</div>
+    <div class="txt">• NAS 旧盘换新 📋 等双 11</div>
+  </div>
+`,
+
+weather:`
+  <div class="page-head"><span class="bow">☀️</span><h1>天气</h1><span class="sub">· 出门前看一眼</span></div>
+  <div class="card tint-amber">
+    <div style="display:flex;align-items:center;gap:16px">
+      <div style="font-size:54px">⛅</div>
+      <div>
+        <div style="font-size:32px;font-weight:800;color:var(--ink)">29°</div>
+        <div class="txt" style="font-size:14px">多云转晴 · 体感 31°</div>
+        <div class="txt" style="font-size:12px">空气质量 优 · 紫外线较强</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-h">📅 未来 5 天</div>
+    <table class="sub-tbl">
+      <tr><th>日期</th><th>天气</th><th>温度</th></tr>
+      <tr><td>今天 周日</td><td>⛅ 多云</td><td>24° / 31°</td></tr>
+      <tr><td>明天 周一</td><td>☀️ 晴</td><td>25° / 33°</td></tr>
+      <tr><td>周二</td><td>🌧️ 雷阵雨</td><td>23° / 29°</td></tr>
+      <tr><td>周三</td><td>⛅ 多云</td><td>24° / 30°</td></tr>
+      <tr><td>周四</td><td>☀️ 晴</td><td>26° / 34°</td></tr>
+    </table>
+  </div>
+  <div class="card tint-blue">
+    <div class="card-h">👕 穿衣 / 运动建议</div>
+    <div class="txt">偏热，穿短袖短裤即可。紫外线强，户外运动记得防晒。下午有雷阵雨，晨跑更合适。</div>
+  </div>
+`,
+
+};
+
+/* ========== 数据层：localStorage 持久化 ========== */
+const STORE_KEY = 'ajie_workbench_data';
+function loadData(){
+  try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; }
+}
+function saveData(){
+  localStorage.setItem(STORE_KEY, JSON.stringify(DB));
+}
+function initData(key, defaults){
+  if(!DB[key]){ DB[key] = defaults; saveData(); }
+}
+
+let DB = loadData();
+// 初始化各数据模块
+initData('todos', [
+  {t:'晨跑 5 公里',done:false},
+  {t:'力量训练 30 分钟',done:false},
+  {t:'学习技术课程 1 小时',done:true},
+  {t:'英语听力打卡 15 分钟',done:false},
+  {t:'陪老大做数学口算',done:false},
+  {t:'睡前复盘 5 分钟',done:false},
+]);
+initData('reviews', []);
+initData('inspos', []);
+initData('ledger', []);
+initData('checkedDays', [1,2,3,4,5,6,7]);
+initData('budget', 6000);
+
+/* ========== 渲染导航 ========== */
+const navEl=document.getElementById('nav');
+NAV.forEach(n=>{
+  const d=document.createElement('div');
+  d.className='nav-item'+(n.id==='daily'?' active':'');
+  d.dataset.id=n.id;
+  d.innerHTML=`<span class="ico">${n.ico}</span><span class="lbl">${n.name}</span>${n.badge?`<span class="badge">${n.badge}</span>`:''}`;
+  d.onclick=()=>switchSection(n.id);
+  navEl.appendChild(d);
+});
+
+/* ========== 切换板块 ========== */
+function toggleSidebar(state){
+  const sb=document.querySelector('.sidebar');
+  const ov=document.getElementById('overlay');
+  const open=state===undefined?!sb.classList.contains('open'):state;
+  sb.classList.toggle('open',open);
+  ov.classList.toggle('show',open);
+}
+function switchSection(id){
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.id===id));
+  const html=SECTIONS[id]||`<div class="empty"><div class="big">🚧</div>板块建设中…</div>`;
+  document.getElementById('content').innerHTML=`<div class="section active">${html}</div>`;
+  if(id==='daily') initDaily();
+  if(id==='review') renderReviews();
+  if(id==='inspo') renderInspos();
+  if(id==='ledger') renderLedger();
+  if(id==='data') renderDataMgr();
+  if(window.innerWidth<=680) toggleSidebar(false);
+}
+
+/* ========== 待办事项 CRUD ========== */
+function renderTodo(){
+  const list=document.getElementById('todoList');
+  if(!list)return;
+  list.innerHTML='';
+  if(DB.todos.length===0){
+    list.innerHTML='<div class="empty-hint"><div class="big">📝</div>暂无待办，点击"新增"添加</div>';
+  }
+  DB.todos.forEach((t,i)=>{
+    const d=document.createElement('div');
+    d.className='todo-item'+(t.done?' done':'');
+    d.innerHTML=`<div class="ck" onclick="toggleTodo(${i})"></div><span class="label" ondblclick="editTodo(${i})">${t.t}</span><span class="del" onclick="delTodo(${i})">✕</span>`;
+    list.appendChild(d);
+  });
+  const done=DB.todos.filter(t=>t.done).length;
+  const bar=document.getElementById('progBar');
+  const txt=document.getElementById('progTxt');
+  if(bar)bar.style.width=(DB.todos.length?done/DB.todos.length*100:0)+'%';
+  if(txt)txt.textContent=`${done} / ${DB.todos.length}`;
+}
+function toggleTodo(i){ DB.todos[i].done=!DB.todos[i].done; saveData(); renderTodo(); }
+function delTodo(i){ DB.todos.splice(i,1); saveData(); renderTodo(); }
+function addTodo(){
+  const v=prompt('输入待办内容：');
+  if(v&&v.trim()){ DB.todos.push({t:v.trim(),done:false}); saveData(); renderTodo(); }
+}
+function editTodo(i){
+  const v=prompt('修改待办内容：', DB.todos[i].t);
+  if(v!==null&&v.trim()){ DB.todos[i].t=v.trim(); saveData(); renderTodo(); }
+}
+
+/* 日历 */
+let calYear=2026,calMonth=7;
+function renderCal(){
+  const grid=document.getElementById('calGrid');if(!grid)return;
+  document.getElementById('calMon').textContent=`${calYear}年${calMonth+1}月`;
+  const first=new Date(calYear,calMonth,1).getDay();
+  const days=new Date(calYear,calMonth+1,0).getDate();
+  const prevDays=new Date(calYear,calMonth,0).getDate();
+  const today=new Date();
+  let html='';
+  ['日','一','二','三','四','五','六'].forEach(w=>html+=`<div class="wh">${w}</div>`);
+  for(let i=first-1;i>=0;i--)html+=`<div class="d dim">${prevDays-i}</div>`;
+  for(let d=1;d<=days;d++){
+    let cls='d';
+    if(calYear===today.getFullYear()&&calMonth===today.getMonth()&&d===today.getDate())cls+=' today';
+    if(DB.checkedDays.includes(d)&&calYear===2026&&calMonth===7)cls+=' checked';
+    html+=`<div class="${cls}" onclick="toggleCheck(${d})">${d}</div>`;
+  }
+  grid.innerHTML=html;
+}
+function toggleCheck(d){
+  if(calYear!==2026||calMonth!==7)return;
+  const idx=DB.checkedDays.indexOf(d);
+  if(idx>=0)DB.checkedDays.splice(idx,1);
+  else DB.checkedDays.push(d);
+  saveData(); renderCal();
+}
+function calNav(dir){
+  calMonth+=dir;
+  if(calMonth<0){calMonth=11;calYear--;}
+  if(calMonth>11){calMonth=0;calYear++;}
+  renderCal();
+}
+function initDaily(){renderTodo();renderCal();}
+
+/* ========== 每日复盘 CRUD ========== */
+function renderReviews(){
+  const list=document.getElementById('reviewList');
+  if(!list)return;
+  if(DB.reviews.length===0){
+    list.innerHTML='<div class="empty-hint"><div class="big">📔</div>还没有复盘记录，点击"写一条"开始</div>';
+    return;
+  }
+  list.innerHTML='';
+  DB.reviews.slice().reverse().forEach((r,idx)=>{
+    const i=DB.reviews.length-1-idx;
+    const d=document.createElement('div');
+    d.className='crud-item';
+    d.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--accent)">📅 ${r.date}</div>
+      <div style="font-size:13px;color:var(--ink);margin-top:4px;white-space:pre-wrap">${r.content}</div>
+      <div class="actions">
+        <button class="btn btn-sm btn-edit" onclick="editReview(${i})">✏️ 编辑</button>
+        <button class="btn btn-sm btn-del" onclick="delReview(${i})">🗑 删除</button>
+      </div>`;
+    list.appendChild(d);
+  });
+}
+function openReviewModal(i){
+  const editing = i !== undefined;
+  const r = editing ? DB.reviews[i] : {date:new Date().toLocaleDateString('zh-CN'),content:''};
+  showModal('📔 写复盘', `
+    <label style="font-size:12px;color:var(--ink-3);font-weight:600">日期</label>
+    <input class="crud-input" id="rvDate" value="${r.date}" placeholder="如：8月10日">
+    <label style="font-size:12px;color:var(--ink-3);font-weight:600">内容（支持换行）</label>
+    <textarea class="crud-textarea" id="rvContent" placeholder="今天做对了什么？哪里可以更好？明天最重要的事？" style="min-height:100px">${r.content}</textarea>
+  `, ()=>{
+    const date=document.getElementById('rvDate').value.trim();
+    const content=document.getElementById('rvContent').value.trim();
+    if(!content){return false;}
+    if(editing){ DB.reviews[i]={date:date||new Date().toLocaleDateString('zh-CN'),content}; }
+    else{ DB.reviews.push({date:date||new Date().toLocaleDateString('zh-CN'),content}); }
+    saveData(); renderReviews();
+    return true;
+  });
+}
+function editReview(i){ openReviewModal(i); }
+function delReview(i){
+  if(confirm('确定删除这条复盘？')){ DB.reviews.splice(i,1); saveData(); renderReviews(); }
+}
+
+/* ========== 灵感收藏 CRUD ========== */
+function renderInspos(){
+  const list=document.getElementById('inspoList');
+  if(!list)return;
+  if(DB.inspos.length===0){
+    list.innerHTML='<div class="empty-hint"><div class="big">💡</div>还没有灵感，点击"收一条"添加</div>';
+    return;
+  }
+  list.innerHTML='';
+  DB.inspos.slice().reverse().forEach((item,idx)=>{
+    const i=DB.inspos.length-1-idx;
+    const d=document.createElement('div');
+    d.className='crud-item';
+    const tagHtml = item.tag ? `<span class="pill" style="background:var(--tag-violet);color:var(--tag-violet-t)">${item.tag}</span>` : '';
+    d.innerHTML=`<div style="font-size:13.5px;font-weight:700;color:var(--ink)">${item.title}</div>
+      ${item.desc?`<div style="font-size:12.5px;color:var(--ink-2);margin-top:3px;line-height:1.5">${item.desc}</div>`:''}
+      <div style="margin-top:5px">${tagHtml}</div>
+      <div class="actions">
+        <button class="btn btn-sm btn-edit" onclick="editInspo(${i})">✏️ 编辑</button>
+        <button class="btn btn-sm btn-del" onclick="delInspo(${i})">🗑 删除</button>
+      </div>`;
+    list.appendChild(d);
+  });
+}
+function openInspoModal(i){
+  const editing = i !== undefined;
+  const item = editing ? DB.inspos[i] : {title:'',desc:'',tag:''};
+  showModal('💡 收灵感', `
+    <label style="font-size:12px;color:var(--ink-3);font-weight:600">标题</label>
+    <input class="crud-input" id="ipTitle" value="${item.title}" placeholder="一句话总结这个灵感">
+    <label style="font-size:12px;color:var(--ink-3);font-weight:600">描述（选填）</label>
+    <textarea class="crud-textarea" id="ipDesc" placeholder="详细说明...">${item.desc}</textarea>
+    <label style="font-size:12px;color:var(--ink-3);font-weight:600">标签（选填）</label>
+    <input class="crud-input" id="ipTag" value="${item.tag}" placeholder="如：产品想法、金句、工具">
+  `, ()=>{
+    const title=document.getElementById('ipTitle').value.trim();
+    const desc=document.getElementById('ipDesc').value.trim();
+    const tag=document.getElementById('ipTag').value.trim();
+    if(!title){return false;}
+    if(editing){ DB.inspos[i]={title,desc,tag}; }
+    else{ DB.inspos.push({title,desc,tag}); }
+    saveData(); renderInspos();
+    return true;
+  });
+}
+function editInspo(i){ openInspoModal(i); }
+function delInspo(i){
+  if(confirm('确定删除这条灵感？')){ DB.inspos.splice(i,1); saveData(); renderInspos(); }
+}
+
+/* ========== 小账本 CRUD ========== */
+const LEDGER_CATS=[
+  {icon:'🍔',name:'餐饮'},{icon:'🛒',name:'日用'},{icon:'🎮',name:'数码娱乐'},
+  {icon:'🏋️',name:'运动健身'},{icon:'📚',name:'学习'},{icon:'🚗',name:'交通'},
+  {icon:'🏠',name:'住房'},{icon:'👤',name:'其他'},
+];
+function renderLedger(){
+  const list=document.getElementById('ledgerList');
+  if(!list)return;
+  const total=DB.ledger.reduce((s,e)=>s+e.amount,0);
+  const budget=DB.budget||6000;
+  const pct=budget>0?Math.round(total/budget*100):0;
+  const summary=document.getElementById('ledgerSummary');
+  const bar=document.getElementById('ledgerBar');
+  const hint=document.getElementById('ledgerHint');
+  if(summary)summary.innerHTML=`¥ ${total.toLocaleString()} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">/ ${budget.toLocaleString()}</span>`;
+  if(bar)bar.style.width=Math.min(pct,100)+'%';
+  if(hint)hint.textContent = DB.ledger.length===0 ? '还没有记账，点击"记一笔"开始。' :
+    pct<50 ? `已用 ${pct}%，节奏不错。` :
+    pct<80 ? `已用 ${pct}%，注意控制。` :
+    pct<100 ? `已用 ${pct}%，预算快满了！` : `已超支 ${pct-100}%！`;
+
+  if(DB.ledger.length===0){
+    list.innerHTML='<div class="empty-hint"><div class="big">📊</div>还没有记账记录</div>';
+    return;
+  }
+  // 按类别汇总
+  const byCat={};
+  DB.ledger.forEach(e=>{
+    const k=e.cat;
+    if(!byCat[k])byCat[k]=0;
+    byCat[k]+=e.amount;
+  });
+  let html='<table class="sub-tbl"><tr><th>类别</th><th>金额</th><th>占比</th><th></th></tr>';
+  DB.ledger.slice().reverse().forEach((e,idx)=>{
+    const i=DB.ledger.length-1-idx;
+    const cat=LEDGER_CATS.find(c=>c.name===e.cat);
+    const icon=cat?cat.icon:'👤';
+    html+=`<tr><td>${icon} ${e.cat}</td><td>¥${e.amount}</td><td>${total>0?Math.round(e.amount/total*100):0}%</td>
+      <td><span style="cursor:pointer;color:#e74c3c;font-size:12px" onclick="delLedger(${i})">✕</span></td></tr>`;
+  });
+  html+='</table>';
+  list.innerHTML=html;
+}
+function openLedgerModal(){
+  let catOpts=LEDGER_CATS.map(c=>`<option value="${c.name}">${c.icon} ${c.name}</option>`).join('');
+  showModal('📊 记一笔', `
+    <label style="font-size:12px;color:var(--ink-3);font-weight:600">类别</label>
+    <select class="crud-input crud-select" id="ldCat" style="margin-bottom:8px">${catOpts}</select>
+    <label style="font-size:12px;color:var(--ink-3);font-weight:600">金额（元）</label>
+    <input class="crud-input" id="ldAmount" type="number" min="0" step="0.01" placeholder="如：35.5">
+    <label style="font-size:12px;color:var(--ink-3);font-weight:600">备注（选填）</label>
+    <input class="crud-input" id="ldNote" placeholder="如：午餐">
+  `, ()=>{
+    const cat=document.getElementById('ldCat').value;
+    const amount=parseFloat(document.getElementById('ldAmount').value);
+    const note=document.getElementById('ldNote').value.trim();
+    if(!amount||amount<=0){return false;}
+    DB.ledger.push({cat,amount,note,date:new Date().toLocaleDateString('zh-CN')});
+    saveData(); renderLedger();
+    return true;
+  });
+}
+function delLedger(i){
+  if(confirm('确定删除这条记录？')){ DB.ledger.splice(i,1); saveData(); renderLedger(); }
+}
+
+/* ========== 数据管理 ========== */
+function renderDataMgr(){
+  const counts={
+    todos:DB.todos.length,
+    reviews:DB.reviews.length,
+    inspos:DB.inspos.length,
+    ledger:DB.ledger.length,
+    checkedDays:DB.checkedDays.length,
+  };
+  const totalSize=new Blob([JSON.stringify(DB)]).size;
+  document.getElementById('content').innerHTML=`<div class="section active">
+    <div class="page-head"><span class="bow">💾</span><h1>数据管理</h1><span class="sub">· 备份 · 导入 · 重置</span></div>
+    <div class="card tint-blue">
+      <div class="card-h">📈 数据概览</div>
+      <table class="sub-tbl">
+        <tr><th>模块</th><th>记录数</th></tr>
+        <tr><td>📋 待办事项</td><td>${counts.todos} 条</td></tr>
+        <tr><td>📔 每日复盘</td><td>${counts.reviews} 条</td></tr>
+        <tr><td>💡 灵感收藏</td><td>${counts.inspos} 条</td></tr>
+        <tr><td>📊 账本记录</td><td>${counts.ledger} 条</td></tr>
+        <tr><td>📅 签到天数</td><td>${counts.checkedDays} 天</td></tr>
+        <tr><td>💾 数据大小</td><td>${(totalSize/1024).toFixed(1)} KB</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-h">📦 备份与恢复</div>
+      <div class="txt">所有数据保存在浏览器本地（localStorage），换设备或清除浏览器数据会丢失。建议定期导出备份。</div>
+      <div class="data-mgr">
+        <button class="btn btn-accent" onclick="exportData()">⬇️ 导出全部数据</button>
+        <button class="btn btn-mint" onclick="importData()">⬆️ 导入数据</button>
+        <button class="btn btn-ghost" onclick="resetData()">🗑️ 清空所有数据</button>
+      </div>
+    </div>
+    <div class="card tint-amber">
+      <div class="card-h">ℹ️ 说明</div>
+      <div class="txt">• 数据存在<b>当前浏览器</b>中，不同设备/浏览器数据不互通。</div>
+      <div class="txt">• 导出后会下载一个 JSON 文件，可在其他设备导入恢复。</div>
+      <div class="txt">• 清空操作不可撤销，请先导出备份。</div>
+    </div>
+  </div>`;
+}
+function exportData(){
+  const data=JSON.stringify(DB,null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='ajie-workbench-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function importData(){
+  const input=document.createElement('input');
+  input.type='file';
+  input.accept='.json';
+  input.onchange=e=>{
+    const file=e.target.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const data=JSON.parse(ev.target.result);
+        if(confirm('导入会覆盖当前所有数据，确定继续？')){
+          DB=data; saveData();
+          alert('导入成功！'); switchSection('data');
+        }
+      }catch(err){ alert('导入失败：文件格式错误'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+function resetData(){
+  if(confirm('确定清空所有数据？此操作不可撤销！建议先导出备份。')){
+    if(confirm('再次确认：真的要清空全部数据吗？')){
+      DB={todos:[],reviews:[],inspos:[],ledger:[],checkedDays:[],budget:6000};
+      saveData();
+      alert('已清空所有数据。'); switchSection('data');
+    }
+  }
+}
+
+/* ========== 通用弹窗 ========== */
+function showModal(title, formHtml, onSave){
+  // 移除已有弹窗
+  const old=document.getElementById('crudModal');
+  if(old)old.remove();
+  const mask=document.createElement('div');
+  mask.className='modal-mask show';
+  mask.id='crudModal';
+  mask.onclick=e=>{if(e.target===mask)mask.remove()};
+  mask.innerHTML=`<div class="modal-box">
+    <h3>${title}<button class="modal-close" onclick="this.closest('.modal-mask').remove()">✕</button></h3>
+    ${formHtml}
+    <button class="modal-save" id="modalSaveBtn">保存</button>
+  </div>`;
+  document.body.appendChild(mask);
+  document.getElementById('modalSaveBtn').onclick=()=>{
+    const ok=onSave();
+    if(ok!==false)mask.remove();
+  };
+}
+function closeModal(){ const m=document.getElementById('crudModal'); if(m)m.remove(); }
+
+/* 初始化 */
+switchSection('daily');
+
+/* ===== 添加到桌面引导 ===== */
+function isSafari(){
+  var ua=navigator.userAgent.toLowerCase();
+  var isIos=/iphone|ipad|ipod/.test(ua);
+  var isSafari=/safari/.test(ua)&&!/crios|fxios|edgios|opr|chrome|ucbrowser|qqbrowser|micromessenger|weibo|baidu|360/.test(ua);
+  return isIos&&isSafari;
+}
+function showGuide(){
+  var mask=document.getElementById('guideMask');
+  var warn=document.getElementById('notSafari');
+  if(!isSafari()){warn.classList.add('show');}else{warn.classList.remove('show');}
+  mask.classList.add('show');
+}
+function closeGuide(){document.getElementById('guideMask').classList.remove('show');}
+/* 非 Safari 首次自动提示一次 */
+setTimeout(function(){
+  if(!isSafari()&&!sessionStorage.getItem('g')){showGuide();sessionStorage.setItem('g','1');}
+},2000);
+</script>
+</body>
+</html>
