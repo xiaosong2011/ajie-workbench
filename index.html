@@ -456,47 +456,18 @@
 /* ========== 导航数据 ========== */
 const NAV=[
   {id:'daily',  ico:'📅', name:'每日计划', badge:6},
-  {id:'kids',   ico:'👨\u200d👦', name:'亲子时光'},
-  {id:'skill',  ico:'📚', name:'技能充电'},
   {id:'fit',    ico:'💪', name:'力量训练'},
-  {id:'eng',    ico:'📖', name:'英语进阶'},
-  {id:'pod',    ico:'🎙️', name:'播客精选'},
-  {id:'speak',  ico:'🗣️', name:'表达能力'},
-  {id:'book',   ico:'📕', name:'读书推荐'},
   {id:'groom',  ico:'🧔', name:'理容穿搭'},
   {id:'hustle', ico:'💰', name:'副业搞钱'},
   {id:'ai',     ico:'🤖', name:'AI学习'},
-  {id:'news',   ico:'📰', name:'行业资讯'},
-  {id:'review', ico:'📝', name:'每日复盘'},
   {id:'inspo',  ico:'⭐', name:'灵感收藏'},
   {id:'ledger', ico:'📊', name:'小账本'},
-  {id:'tech',   ico:'🎮', name:'数码电竞'},
   {id:'weather',ico:'☀️', name:'天气'},
   {id:'data',   ico:'💾', name:'数据管理'},
 ];
 
 /* ========== 通用列表配置（配置驱动 CRUD）========== */
 const LISTS={
-  kidsSchedule:{title:'一日时间表',icon:'⏰',dbKey:'kidsSchedule',fields:[
-    {key:'time',label:'时间段',type:'input',placeholder:'如：07:00 - 07:30',as:'meta'},
-    {key:'title',label:'事项',type:'input',placeholder:'如：起床洗漱',as:'title'},
-    {key:'desc',label:'描述',type:'textarea',placeholder:'详细说明',as:'desc'},
-    {key:'color',label:'颜色标记',type:'select',options:['蓝','绿','橙','灰'],as:'tag'}
-  ]},
-  kidsTasks:{title:'带娃待办',icon:'📋',dbKey:'kidsTasks',fields:[
-    {key:'title',label:'事项',type:'input',placeholder:'如：陪老大做数学口算',as:'title'},
-    {key:'done',label:'已完成',type:'checkbox',as:'checkbox'}
-  ]},
-  skillBooks:{title:'推荐书单',icon:'📚',dbKey:'skillBooks',fields:[
-    {key:'title',label:'书名',type:'input',placeholder:'如：《数据密集型应用系统设计》',as:'title'},
-    {key:'meta',label:'作者/出版社',type:'input',placeholder:'如：Martin Kleppmann / 机械工业出版社',as:'meta'},
-    {key:'desc',label:'简介',type:'textarea',placeholder:'一句话推荐理由',as:'desc'},
-    {key:'tag',label:'标签',type:'input',placeholder:'如：首读/进阶/实战',as:'tag'}
-  ]},
-  skillCourses:{title:'在学课程',icon:'🗂️',dbKey:'skillCourses',fields:[
-    {key:'title',label:'课程名',type:'input',placeholder:'如：极客时间《左耳听风》',as:'title'},
-    {key:'status',label:'状态',type:'select',options:['进行中','计划中','已完成','暂停'],as:'tag'}
-  ]},
   fitVideos:{title:'跟练视频',icon:'📺',dbKey:'fitVideos',fields:[
     {key:'title',label:'标题',type:'input',placeholder:'如：B站：居家哑铃增肌跟练',as:'title'},
     {key:'desc',label:'简介',type:'textarea',placeholder:'视频内容说明',as:'desc'}
@@ -506,42 +477,6 @@ const LISTS={
     {key:'weight',label:'当前重量',type:'input',placeholder:'如：90kg',as:'field'},
     {key:'target',label:'目标',type:'input',placeholder:'如：120kg',as:'field'},
     {key:'status',label:'状态',type:'select',options:['上涨中','已达标','停滞','下降'],as:'tag'}
-  ]},
-  engResources:{title:'资源推荐',icon:'🎯',dbKey:'engResources',fields:[
-    {key:'title',label:'名称',type:'input',placeholder:'如：多邻国 Duolingo',as:'title'},
-    {key:'meta',label:'类型/出处',type:'input',placeholder:'如：免费 · 游戏化学习',as:'meta'},
-    {key:'desc',label:'简介',type:'textarea',placeholder:'推荐理由',as:'desc'},
-    {key:'tag',label:'标签',type:'input',placeholder:'如：入门/进阶/实战',as:'tag'}
-  ]},
-  podBusiness:{title:'商业类播客',icon:'💰',dbKey:'podBusiness',fields:[
-    {key:'title',label:'播客名',type:'input',placeholder:'如：半途而废',as:'title'},
-    {key:'meta',label:'主播/平台',type:'input',placeholder:'如：主播：高松 · 小宇宙',as:'meta'},
-    {key:'desc',label:'简介',type:'textarea',placeholder:'播客内容说明',as:'desc'},
-    {key:'tag',label:'标签',type:'input',placeholder:'如：首听/通勤听',as:'tag'}
-  ]},
-  podTech:{title:'技术类播客',icon:'💻',dbKey:'podTech',fields:[
-    {key:'title',label:'播客名',type:'input',placeholder:'如：编码人声',as:'title'},
-    {key:'meta',label:'主播/平台',type:'input',placeholder:'如：主播：徐昊 · 小宇宙',as:'meta'},
-    {key:'desc',label:'简介',type:'textarea',placeholder:'播客内容说明',as:'desc'},
-    {key:'tag',label:'标签',type:'input',placeholder:'如：首听/睡前听',as:'tag'}
-  ]},
-  speakPractice:{title:'练习清单',icon:'📝',dbKey:'speakPractice',fields:[
-    {key:'title',label:'练习项',type:'input',placeholder:'如：用PREP结构复述技术决策',as:'title'},
-    {key:'done',label:'已完成',type:'checkbox',as:'checkbox'}
-  ]},
-  speakResources:{title:'推荐资源',icon:'📚',dbKey:'speakResources',fields:[
-    {key:'title',label:'名称',type:'input',placeholder:'如：《金字塔原理》',as:'title'},
-    {key:'desc',label:'简介',type:'textarea',placeholder:'推荐理由',as:'desc'}
-  ]},
-  bookReading:{title:'本月书单',icon:'📖',dbKey:'bookReading',fields:[
-    {key:'title',label:'书名',type:'input',placeholder:'如：《纳瓦尔宝典》',as:'title'},
-    {key:'meta',label:'类型/作者',type:'input',placeholder:'如：财富与幸福',as:'meta'},
-    {key:'desc',label:'简介',type:'textarea',placeholder:'推荐理由',as:'desc'},
-    {key:'tag',label:'标签',type:'input',placeholder:'如：精读/速读',as:'tag'}
-  ]},
-  bookRead:{title:'已读书目',icon:'✅',dbKey:'bookRead',fields:[
-    {key:'title',label:'书名',type:'input',placeholder:'如：《原子习惯》',as:'title'},
-    {key:'meta',label:'月份/感想',type:'input',placeholder:'如：1月 · 建立习惯系统',as:'meta'}
   ]},
   groomRoutine:{title:'理容清单',icon:'🧴',dbKey:'groomRoutine',fields:[
     {key:'title',label:'事项',type:'input',placeholder:'如：氨基酸洁面',as:'title'},
@@ -564,25 +499,6 @@ const LISTS={
     {key:'category',label:'分类',type:'input',placeholder:'如：编程',as:'meta'},
     {key:'title',label:'工具',type:'input',placeholder:'如：Cursor、Copilot',as:'title'}
   ]},
-  newsSources:{title:'信息源',icon:'📡',dbKey:'newsSources',fields:[
-    {key:'title',label:'名称',type:'input',placeholder:'如：掘金/V2EX',as:'title'},
-    {key:'desc',label:'简介',type:'textarea',placeholder:'信息源说明',as:'desc'}
-  ]},
-  newsNotes:{title:'今日要点',icon:'📌',dbKey:'newsNotes',fields:[
-    {key:'title',label:'要点',type:'input',placeholder:'如：关注大模型开源动态',as:'title'}
-  ]},
-  techGear:{title:'桌面装备',icon:'🖥️',dbKey:'techGear',fields:[
-    {key:'category',label:'类别',type:'input',placeholder:'如：主机',as:'meta'},
-    {key:'model',label:'型号',type:'input',placeholder:'如：自组13700K+4070Ti',as:'title'}
-  ]},
-  techGames:{title:'游戏清单',icon:'🎯',dbKey:'techGames',fields:[
-    {key:'title',label:'游戏名',type:'input',placeholder:'如：《黑神话：悟空》',as:'title'},
-    {key:'status',label:'状态',type:'select',options:['通关','进行中','待玩','暂停'],as:'tag'}
-  ]},
-  techWishlist:{title:'想买的数码',icon:'📱',dbKey:'techWishlist',fields:[
-    {key:'title',label:'物品',type:'input',placeholder:'如：机械键盘键帽一套',as:'title'},
-    {key:'status',label:'状态',type:'select',options:['观望中','等促销','已下单','已到手'],as:'tag'}
-  ]},
   weatherNotes:{title:'自定义备注',icon:'📝',dbKey:'weatherNotes',fields:[
     {key:'title',label:'备注',type:'input',placeholder:'如：下午有雷阵雨，带伞',as:'title'}
   ]},
@@ -590,18 +506,10 @@ const LISTS={
 
 /* 板块 -> 需要渲染的列表 */
 const SECTION_LISTS={
-  kids:['kidsSchedule','kidsTasks'],
-  skill:['skillBooks','skillCourses'],
   fit:['fitVideos','fitRecords'],
-  eng:['engResources'],
-  pod:['podBusiness','podTech'],
-  speak:['speakPractice','speakResources'],
-  book:['bookReading','bookRead'],
   groom:['groomRoutine','groomOutfit'],
   hustle:['hustleProjects'],
   ai:['aiPath','aiTools'],
-  news:['newsSources','newsNotes'],
-  tech:['techGear','techGames','techWishlist'],
   weather:['weatherNotes'],
 };
 
@@ -637,64 +545,6 @@ daily:`
   </div>
 `,
 
-kids:`
-  <div class="page-head"><span class="bow">👨‍👦</span><h1>亲子时光</h1><span class="sub">· 暑期带娃 · 剩余约 3 周</span></div>
-  <div class="card tint-blue">
-    <div class="card-h">📌 总览</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-      <span class="pill" style="background:var(--tag-mint);color:var(--tag-mint-t)">🗓️ 已规划</span>
-      <span class="pill" style="background:var(--tag-amber);color:var(--tag-amber-t)">🎯 待执行</span>
-      <span class="pill" style="background:var(--tag-blue);color:var(--tag-blue-t)">⏳ 进行中</span>
-    </div>
-    <div class="txt"><b>👦 老大</b> · 9岁 · 小学三升四，重点抓学习衔接与运动习惯</div>
-    <div class="txt" style="margin-top:4px"><b>👶 老二</b> · 4岁 · 中班预备，以游戏 / 绘本 / 习惯养成为主</div>
-    <div class="txt" style="margin-top:8px;border-top:1px dashed #c9dbef;padding-top:8px"><b>策略：</b>工作日晚间陪读 1 小时 + 周末全天带娃户外，每周留 2 个晚上给自己充电。</div>
-  </div>
-  <div class="card">
-    <div class="card-h">⏰ 一日时间表（工作日模板）<button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('kidsSchedule')">+ 新增</button></div>
-    <div id="lc_kidsSchedule"></div>
-  </div>
-  <div class="card">
-    <div class="card-h">🎯 本月重点任务</div>
-    <div style="font-size:13px;font-weight:700;margin:6px 0">👦 老大（9岁 · 三升四）</div>
-    <table class="sub-tbl">
-      <tr><th>科目</th><th>任务</th></tr>
-      <tr><td><b>语文</b></td><td>每日阅读 30min + 暑假作业</td></tr>
-      <tr><td><b>数学</b></td><td>口算 100 题 + 应用题专项</td></tr>
-      <tr><td><b>英语</b></td><td>背单词 15 个 + 听力 15min</td></tr>
-      <tr><td><b>运动</b></td><td>跳绳 500 个 / 游泳 1 小时</td></tr>
-      <tr><td><b>兴趣</b></td><td>Scratch 编程 / 篮球基础</td></tr>
-    </table>
-    <div style="font-size:13px;font-weight:700;margin:14px 0 6px">👶 老二（4岁 · 中班预备）</div>
-    <table class="sub-tbl">
-      <tr><th>活动</th><th>活动</th></tr>
-      <tr><td>绘本阅读</td><td>涂鸦手工</td></tr>
-      <tr><td>积木拼搭</td><td>户外活动</td></tr>
-      <tr><td>生活自理练习</td><td>—</td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <div class="card-h">📋 今日带娃待办 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('kidsTasks')">+ 新增</button></div>
-    <div id="lc_kidsTasks"></div>
-  </div>
-`,
-
-skill:`
-  <div class="page-head"><span class="bow">🚀</span><h1>技能充电</h1><span class="sub">· 技术管理 / 全栈开发方向</span></div>
-  <div class="card tint-violet">
-    <div class="card-h">🎯 学习目标</div>
-    <div class="txt">三四年经验想往<b>技术管理 + 全栈</b>方向走，核心补齐「系统设计 + 前端工程化 + 团队协作」三块短板。资源以<b>能落地、能写在简历里</b>为标准筛选，不囤课。</div>
-  </div>
-  <div class="card">
-    <div class="card-h">📚 推荐书单（按优先级）<button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('skillBooks')">+ 新增</button></div>
-    <div id="lc_skillBooks"></div>
-  </div>
-  <div class="card tint-slate">
-    <div class="card-h">🗂️ 在学课程 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('skillCourses')">+ 新增</button></div>
-    <div id="lc_skillCourses"></div>
-  </div>
-`,
-
 fit:`
   <div class="page-head"><span class="bow">💪</span><h1>力量训练</h1><span class="sub">· 增肌塑形 · 数据追踪</span></div>
   <div class="card tint-mint">
@@ -720,71 +570,6 @@ fit:`
   <div class="card tint-blue">
     <div class="card-h">🏊 老大游泳培训记录</div>
     <div class="txt">每天 1.5 小时游泳培训，目前学自由泳。记录进度，见证成长 🌊</div>
-  </div>
-`,
-
-eng:`
-  <div class="page-head"><span class="bow">📖</span><h1>英语进阶</h1><span class="sub">· 中级突破 · 看懂技术文档 + 无障碍交流</span></div>
-  <div class="card tint-blue">
-    <div class="card-h">🎯 学习定位</div>
-    <div class="txt"><b>基础中级</b>（四级水平重启）→ <b>目标：</b>无障碍读英文技术文档 + GitHub Issue 交流 + 出差开会能开口。</div>
-    <div class="txt" style="margin-top:6px"><b>策略：</b>每天 30 分钟，以「听力输入 + 跟读 + 技术单词」三件套为主，不贪多。</div>
-  </div>
-  <div class="card">
-    <div class="card-h">⏰ 每日 30 分钟学习结构</div>
-    <div class="tl">
-      <div class="tl-item"><div class="tm">0-10 min</div><div class="ti">🎧 听力输入</div><div class="td">多邻国 1 节课 + 听 1 篇技术播客片段（推荐 Syntax / JS Party 入门集）</div></div>
-      <div class="tl-item mint"><div class="tm">10-20 min</div><div class="ti">🎤 跟读模仿</div><div class="td">跟着播客大声读，模仿语音语调，开口比懂更重要</div></div>
-      <div class="tl-item amber"><div class="tm">20-30 min</div><div class="ti">📝 技术单词巩固</div><div class="td">复习昨天 10 个 + 新学 10 个技术高频词，用「墨墨背单词」，结合文档场景记忆</div></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-h">🎯 分级资源推荐 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('engResources')">+ 新增</button></div>
-    <div id="lc_engResources"></div>
-  </div>
-`,
-
-pod:`
-  <div class="page-head"><span class="bow">🎙️</span><h1>播客精选</h1><span class="sub">· 用耳朵充电</span></div>
-  <div class="card tint-violet">
-    <div class="card-h">✨ 为什么听播客</div>
-    <div class="txt">通勤、健身、做家务时戴上耳机就能学。建议每天听 1 期，每周精听 2 期做笔记。</div>
-  </div>
-  <div class="card">
-    <div class="card-h">💰 商业 / 搞钱类 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('podBusiness')">+ 新增</button></div>
-    <div id="lc_podBusiness"></div>
-  </div>
-  <div class="card">
-    <div class="card-h">💻 技术 / 个人成长类 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('podTech')">+ 新增</button></div>
-    <div id="lc_podTech"></div>
-  </div>
-`,
-
-speak:`
-  <div class="page-head"><span class="bow">🗣️</span><h1>表达能力</h1><span class="sub">· 把事讲清楚 · 把人说服</span></div>
-  <div class="card tint-amber">
-    <div class="card-h">🎯 为什么练表达</div>
-    <div class="txt">技术再强，讲不清楚也难晋升。目标：开会能 3 分钟说清方案，述职能讲出价值，面试不卡壳。</div>
-  </div>
-  <div class="card">
-    <div class="card-h">📝 每日练习清单 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('speakPractice')">+ 新增</button></div>
-    <div id="lc_speakPractice"></div>
-  </div>
-  <div class="card">
-    <div class="card-h">📚 推荐资源 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('speakResources')">+ 新增</button></div>
-    <div id="lc_speakResources"></div>
-  </div>
-`,
-
-book:`
-  <div class="page-head"><span class="bow">📕</span><h1>读书推荐</h1><span class="sub">· 每月精读 2 本</span></div>
-  <div class="card tint-slate">
-    <div class="card-h">📖 本月书单 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('bookReading')">+ 新增</button></div>
-    <div id="lc_bookReading"></div>
-  </div>
-  <div class="card">
-    <div class="card-h">✅ 已读 · 2026 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('bookRead')">+ 新增</button></div>
-    <div id="lc_bookRead"></div>
   </div>
 `,
 
@@ -840,32 +625,6 @@ ai:`
   </div>
 `,
 
-news:`
-  <div class="page-head"><span class="bow">📰</span><h1>行业资讯</h1><span class="sub">· 每日 15 分钟扫一遍</span></div>
-  <div class="card">
-    <div class="card-h">📡 信息源 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('newsSources')">+ 新增</button></div>
-    <div id="lc_newsSources"></div>
-  </div>
-  <div class="card tint-amber">
-    <div class="card-h">📌 今日要点 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('newsNotes')">+ 新增</button></div>
-    <div id="lc_newsNotes"></div>
-  </div>
-`,
-
-review:`
-  <div class="page-head"><span class="bow">📝</span><h1>每日复盘</h1><span class="sub">· 睡前 5 分钟 · 记录与改进</span></div>
-  <div class="card tint-slate">
-    <div class="card-h">🤔 复盘模板</div>
-    <div class="txt"><b>① 今天做对了什么？</b></div>
-    <div class="txt"><b>② 哪里可以更好？</b></div>
-    <div class="txt"><b>③ 明天最重要的 1 件事？</b></div>
-  </div>
-  <div class="card">
-    <div class="card-h">📔 我的复盘 <button class="btn btn-accent" style="margin-left:auto" onclick="openReviewModal()">+ 写一条</button></div>
-    <div id="reviewList"></div>
-  </div>
-`,
-
 inspo:`
   <div class="page-head"><span class="bow">⭐</span><h1>灵感收藏</h1><span class="sub">· 看到好东西先存下来</span></div>
   <div class="card">
@@ -890,23 +649,6 @@ ledger:`
   <div class="card">
     <div class="card-h">📋 支出明细 <button class="btn btn-accent" style="margin-left:auto" onclick="openLedgerModal()">+ 记一笔</button></div>
     <div id="ledgerList"></div>
-  </div>
-`,
-
-tech:`
-  <div class="page-head"><span class="bow">🎮</span><h1>数码电竞</h1><span class="sub">· 装备清单 · 偶尔放松</span></div>
-  <div class="card tint-slate">
-    <div class="card-h">🖥️ 我的桌面装备 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('techGear')">+ 新增</button></div>
-    <div id="lc_techGear"></div>
-  </div>
-  <div class="card">
-    <div class="card-h">🎯 在玩 / 想玩 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('techGames')">+ 新增</button></div>
-    <div id="lc_techGames"></div>
-    <div class="txt" style="margin-top:8px;color:var(--ink-3);font-size:12px">原则：周末限时玩 2 小时，不熬夜，不影响周一状态。</div>
-  </div>
-  <div class="card tint-amber">
-    <div class="card-h">📱 想入的数码 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('techWishlist')">+ 新增</button></div>
-    <div id="lc_techWishlist"></div>
   </div>
 `,
 
@@ -951,37 +693,14 @@ const INITIAL={
     {t:'晨跑 5 公里',done:false},
     {t:'力量训练 30 分钟',done:false},
     {t:'学习技术课程 1 小时',done:true},
-    {t:'英语听力打卡 15 分钟',done:false},
-    {t:'陪老大做数学口算',done:false},
-    {t:'睡前复盘 5 分钟',done:false},
+    {t:'理容护肤打卡',done:false},
+    {t:'记录今日支出',done:false},
+    {t:'AI 工具学习 20 分钟',done:false},
   ],
-  reviews:[],
   inspos:[],
   ledger:[],
   checkedDays:[1,2,3,4,5,6,7],
   budget:6000,
-  kidsSchedule:[
-    {time:'07:00 - 07:30',title:'起床洗漱 + 早餐',desc:'和老大一起听英语儿歌磨耳朵',color:'蓝'},
-    {time:'19:30 - 20:30',title:'陪老大学习',desc:'数学口算 + 英语单词 + 阅读理解，爸爸在一旁看书陪同',color:'绿'},
-    {time:'20:30 - 21:00',title:'陪老二读绘本',desc:'亲子共读 2 本，培养阅读习惯',color:'橙'},
-    {time:'21:00 - 21:30',title:'洗漱熄灯',desc:'讲睡前故事，准点睡觉',color:'蓝'},
-  ],
-  kidsTasks:[
-    {title:'陪老大做数学口算 1 页',done:false},
-    {title:'陪老二读绘本 2 本',done:true},
-    {title:'带娃楼下跳绳 500 个',done:false},
-  ],
-  skillBooks:[
-    {title:'《数据密集型应用系统设计》',meta:'Martin Kleppmann / 机械工业出版社',desc:'后端工程师必读，讲清楚分布式系统核心权衡，面试系统设计的高频考点来源。',tag:'首读'},
-    {title:'《架构整洁之道》',meta:'Robert C. Martin / 电子工业出版社',desc:'从 SOLID 到组件边界，建立架构分层思维，写代码不再一团乱麻。',tag:'进阶'},
-    {title:'《重构：改善既有代码的设计》',meta:'Martin Fowler / 人民邮电出版社',desc:'手把手教你把烂代码变干净，团队 Code Review 必备语言体系。',tag:'实战'},
-    {title:'《高效能人士的七个习惯》',meta:'史蒂芬·柯维 / 中国青年出版社',desc:'想做管理必读，从个人效能到团队协作的思维升级，比技术书更影响职业天花板。',tag:'管理'},
-  ],
-  skillCourses:[
-    {title:'极客时间《左耳听风》有效练习',status:'进行中'},
-    {title:'B站 尚硅谷 React18 全套',status:'计划中'},
-    {title:'LeetCode 每日一题',status:'进行中'},
-  ],
   fitVideos:[
     {title:'B站：居家哑铃增肌跟练（男生向）',desc:'推拉腿分化训练，每次 40 分钟，覆盖胸背肩手臂腿。'},
     {title:'B站：徒手核心 + 引体向上进阶',desc:'从 0 个引体到 10 个的进阶路线，居家门上单杠即可练。'},
@@ -992,37 +711,6 @@ const INITIAL={
     {item:'卧推',weight:'65kg',target:'100kg',status:'上涨中'},
     {item:'硬拉',weight:'110kg',target:'140kg',status:'上涨中'},
     {item:'引体向上',weight:'8 个',target:'15 个',status:'已达标'},
-  ],
-  engResources:[
-    {title:'多邻国 Duolingo',meta:'免费 · 游戏化学习',desc:'零基础友好，每天 15 分钟像闯关，适合保持手感不断签。',tag:'入门'},
-    {title:'每日英语听力',meta:'免费 · 欧路词典出品',desc:'从科技资讯到 TED 演讲分级听力，带字幕跟读，程序员练听力首选。',tag:'进阶'},
-    {title:'GitHub Daily 阅读',meta:'免费 · 实战',desc:'每天精读 1 个热门项目 README，技术英语 + 开阔视野一举两得。',tag:'实战'},
-  ],
-  podBusiness:[
-    {title:'半途而废',meta:'主播：高松 · 小宇宙 / 喜马拉雅',desc:'聊副业、个人品牌和搞钱实操，不讲鸡汤只讲方法，适合想做副业的程序员。',tag:'首听'},
-    {title:'商业就是这样',meta:'声东击西 · 小宇宙 / 苹果播客',desc:'用商业案例拆解公司运作，建立商业思维，对做产品和副业都有启发。',tag:'通勤听'},
-  ],
-  podTech:[
-    {title:'编码人声',meta:'主播：徐昊 · 小宇宙',desc:'资深架构师聊技术职业发展、架构与团队，技术人成长路上的指路灯。',tag:'首听'},
-    {title:'忽左忽右',meta:'JustPod · 小宇宙',desc:'深度对谈节目，聊历史、社会与行业，开阔认知边界，程序员的「精神食粮」。',tag:'通勤听'},
-  ],
-  speakPractice:[
-    {title:'用「PREP 结构」复述今天一个技术决策（2 分钟）',done:false},
-    {title:'朗读 1 段技术文章，录音回听语速',done:true},
-    {title:'模拟面试：讲一个项目难点（STAR 法）',done:false},
-  ],
-  speakResources:[
-    {title:'《金字塔原理》',desc:'结构化表达圣经，先结论后论据，写文档做汇报必备。'},
-    {title:'B站：技术人如何做技术分享',desc:'从选题到开场到收尾，手把手教做一场不翻车的分享。'},
-  ],
-  bookReading:[
-    {title:'《纳瓦尔宝典》',meta:'财富与幸福',desc:'硅谷大佬的人生智慧，讲杠杆、专长和复利，适合想清楚长期方向时读。',tag:'精读'},
-    {title:'《置身事内》',meta:'兰小欢 / 上海人民出版社',desc:'讲中国经济发展逻辑，理解大环境对个人选择的影响，男生理财前必读。',tag:'精读'},
-  ],
-  bookRead:[
-    {title:'《原子习惯》',meta:'1月 · 建立习惯系统'},
-    {title:'《代码大全》',meta:'3月 · 工程实践经典'},
-    {title:'《被讨厌的勇气》',meta:'5月 · 课题分离'},
   ],
   groomRoutine:[
     {title:'氨基酸洁面 → 保湿乳 → 防晒',desc:'早晚各一次，坚持比用贵的产品重要。'},
@@ -1050,31 +738,6 @@ const INITIAL={
     {category:'编程',title:'Cursor、GitHub Copilot'},
     {category:'通用',title:'ChatGPT、Claude、通义千问'},
     {category:'绘图',title:'Midjourney、即梦'},
-  ],
-  newsSources:[
-    {title:'掘金 / V2EX',desc:'技术社区热点，看大家在聊什么、踩什么坑。'},
-    {title:'Hacker News',desc:'全球技术圈风向标，顺带练英语阅读。'},
-    {title:'36氪 / 虎嗅',desc:'商业与科技结合的资讯，了解行业大趋势。'},
-  ],
-  newsNotes:[
-    {title:'关注大模型最新开源动态'},
-    {title:'留意前端框架（React/Vue）版本更新'},
-  ],
-  techGear:[
-    {category:'主机',model:'自组 13700K + 4070Ti'},
-    {category:'显示器',model:'27寸 2K 165Hz'},
-    {category:'键盘',model:'客制化 75% 机械键盘'},
-    {category:'鼠标',model:'GPW2 无线'},
-    {category:'耳机',model:'降噪头戴 + 入耳电竞'},
-  ],
-  techGames:[
-    {title:'《黑神话：悟空》',status:'通关'},
-    {title:'《艾尔登法环》DLC',status:'进行中'},
-    {title:'《赛博朋克 2077》',status:'待玩'},
-  ],
-  techWishlist:[
-    {title:'机械键盘客制化键帽一套',status:'观望中'},
-    {title:'NAS 旧盘换新',status:'等促销'},
   ],
   weatherNotes:[
     {title:'下午有雷阵雨，出门带伞'},
@@ -1259,7 +922,6 @@ function saveData(){
 }
 function ensureKeys(){
   if(!Array.isArray(DB.todos))DB.todos=[];
-  if(!Array.isArray(DB.reviews))DB.reviews=[];
   if(!Array.isArray(DB.inspos))DB.inspos=[];
   if(!Array.isArray(DB.ledger))DB.ledger=[];
   if(!Array.isArray(DB.checkedDays))DB.checkedDays=[];
@@ -1320,7 +982,6 @@ function switchSection(id){
   content.innerHTML='<div class="section active">'+html+'</div>';
   /* 后置渲染 */
   if(id==='daily') initDaily();
-  if(id==='review') renderReviews();
   if(id==='inspo') renderInspos();
   if(id==='ledger') renderLedger();
   (SECTION_LISTS[id]||[]).forEach(k=>renderList(k));
@@ -1544,49 +1205,6 @@ function calNav(dir){
 }
 function initDaily(){ renderTodo(); renderCal(); }
 
-/* ========== 每日复盘 CRUD ========== */
-function renderReviews(){
-  const list=document.getElementById('reviewList');
-  if(!list)return;
-  if(DB.reviews.length===0){
-    list.innerHTML='<div class="empty-hint"><div class="big">📔</div>还没有复盘记录，点击"写一条"开始</div>';
-    return;
-  }
-  let html='';
-  DB.reviews.slice().reverse().forEach((r,idx)=>{
-    const i=DB.reviews.length-1-idx;
-    html+='<div class="gitem"><div class="gbody">'+
-      '<div class="gmeta">📅 '+escapeHtml(r.date)+'</div>'+
-      '<div class="gdesc" style="white-space:pre-wrap;margin-top:4px">'+escapeHtml(r.content)+'</div>'+
-      '</div><div class="actions">'+
-      '<button class="btn btn-sm btn-edit" onclick="editReview('+i+')">✏️ 编辑</button>'+
-      '<button class="btn btn-sm btn-del" onclick="delReview('+i+')">🗑 删除</button>'+
-      '</div></div>';
-  });
-  list.innerHTML=html;
-}
-function openReviewModal(i){
-  const editing=i!==undefined;
-  const r=editing?DB.reviews[i]:{date:new Date().toLocaleDateString('zh-CN'),content:''};
-  showModal('📔 写复盘',
-    '<label class="crud-label">日期</label>'+
-    '<input class="crud-input" id="rvDate" value="'+escapeHtml(r.date)+'" placeholder="如：8月10日">'+
-    '<label class="crud-label">内容（支持换行）</label>'+
-    '<textarea class="crud-textarea" id="rvContent" placeholder="今天做对了什么？哪里可以更好？明天最重要的事？" style="min-height:100px">'+escapeHtml(r.content)+'</textarea>',
-    ()=>{
-      const date=document.getElementById('rvDate').value.trim();
-      const content=document.getElementById('rvContent').value.trim();
-      if(!content){ alert('请输入复盘内容'); return false; }
-      const obj={date:date||new Date().toLocaleDateString('zh-CN'),content};
-      if(editing) DB.reviews[i]=obj;
-      else DB.reviews.push(obj);
-      saveData(); renderReviews();
-      return true;
-    });
-}
-function editReview(i){ openReviewModal(i); }
-function delReview(i){ if(confirm('确定删除这条复盘？')){ DB.reviews.splice(i,1); saveData(); renderReviews(); } }
-
 /* ========== 灵感收藏 CRUD ========== */
 function renderInspos(){
   const list=document.getElementById('inspoList');
@@ -1697,7 +1315,6 @@ function renderDataMgr(){
   let rows=[];
   rows.push(['📋 待办事项',DB.todos.length+' 条']);
   rows.push(['📅 签到天数',DB.checkedDays.length+' 天']);
-  rows.push(['📔 每日复盘',DB.reviews.length+' 条']);
   rows.push(['💡 灵感收藏',DB.inspos.length+' 条']);
   rows.push(['📊 账本记录',DB.ledger.length+' 条']);
   Object.keys(LISTS).forEach(k=>{
