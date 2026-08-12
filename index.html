@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="阿杰工作台">
+<meta name="apple-mobile-web-app-title" content="小松工作台">
 <meta name="theme-color" content="#15273b">
 <meta name="format-detection" content="telephone=no">
-<title>阿杰的工作台 · 男生版</title>
+<title>小松的工作台 · 男生版</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 <style>
@@ -394,7 +394,7 @@
     <aside class="sidebar" id="sidebar">
       <div class="side-head">
         <div class="avatar">🧑</div>
-        <div class="ws-name">阿杰的工作台</div>
+        <div class="ws-name">小松的工作台</div>
         <div class="ws-sub">⚙️ 男生版 · 自我精进系统</div>
       </div>
       <nav class="nav-scroll" id="nav"></nav>
@@ -407,7 +407,7 @@
     </main>
   </div>
 
-  <button class="fab" title="帮助" onclick="alert('阿杰的工作台 · 男生版\n\n· 点击左上角☰或左下角菜单按钮打开导航\n· 各板块支持新增/编辑/删除\n· 数据自动保存在本地\n· 点击「保存到桌面」可添加为App')">?</button>
+  <button class="fab" title="帮助" onclick="alert('小松的工作台 · 男生版\n\n· 点击左上角☰或左下角菜单按钮打开导航\n· 各板块支持新增/编辑/删除\n· 数据自动保存在本地\n· 点击「保存到桌面」可添加为App')">?</button>
 
   <!-- 浮动菜单按钮（手机端/PWA 始终可见）-->
   <button class="menu-fab" onclick="toggleSidebar()" title="打开菜单">☰</button>
@@ -1843,9 +1843,9 @@ function copyShareLink(){
 function shareToFriend(){
   const link=generateShareLink();
   if(!link)return;
-  const text='阿杰工作台 - 一起协作！\n打开链接即可加入：\n'+link;
+  const text='小松工作台 - 一起协作！\n打开链接即可加入：\n'+link;
   if(navigator.share){
-    navigator.share({title:'阿杰工作台',text:text,url:link}).catch(()=>{});
+    navigator.share({title:'小松工作台',text:text,url:link}).catch(()=>{});
   }else{
     copyShareLink();
   }
@@ -1856,7 +1856,7 @@ function exportData(){
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.href=url;
-  a.download='ajie-workbench-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.download='xiaosong-workbench-backup-'+new Date().toISOString().slice(0,10)+'.json';
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -1952,7 +1952,7 @@ function showGuide(){
     steps.innerHTML=
       '<div class="guide-step"><div class="sn">1</div><div class="st">点击浏览器右上角或右下角的<b>「⋮」菜单按钮</b>（三个竖点）</div></div>'+
       '<div class="guide-step"><div class="sn">2</div><div class="st">在菜单中找到并点击<b>「添加到主屏幕」</b>或<b>「添加到桌面」</b></div></div>'+
-      '<div class="guide-step"><div class="sn">3</div><div class="st">确认添加，桌面就会多一个<b>「阿杰工作台」</b>图标</div></div>'+
+      '<div class="guide-step"><div class="sn">3</div><div class="st">确认添加，桌面就会多一个<b>「小松工作台」</b>图标</div></div>'+
       '<div class="guide-step"><div class="sn">4</div><div class="st">以后点桌面图标即可<b>全屏打开</b>，和原生 App 一样</div></div>';
   }else{
     warn.classList.add('show');
