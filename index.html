@@ -394,6 +394,222 @@
     .overlay.show{display:block}
     .content-inner{padding:14px 14px calc(90px + var(--safe-bottom))}
   }
+
+  /* ============================== */
+  /* ====== 动态效果增强 ========== */
+  /* ============================== */
+
+  /* 1. 状态栏流光渐变 */
+  .statusbar{
+    background:linear-gradient(90deg,var(--side-1),var(--side-2),var(--side-1));
+    background-size:200% 100%;
+    animation:statusFlow 8s ease infinite;
+  }
+  @keyframes statusFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+  /* 2. 侧栏背景微光呼吸 */
+  .sidebar{
+    position:relative;
+  }
+  .sidebar::before{
+    content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+    background:radial-gradient(ellipse at 50% 0%,rgba(46,134,222,.12),transparent 60%);
+    pointer-events:none;animation:sideGlow 6s ease-in-out infinite;
+  }
+  @keyframes sideGlow{0%,100%{opacity:.4}50%{opacity:.8}}
+
+  /* 3. 导航项激活动画 - 左侧指示条弹入 */
+  .nav-item.active::before{
+    animation:navBarIn .3s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes navBarIn{
+    from{height:0;opacity:0}
+    to{height:18px;opacity:1}
+  }
+  /* 导航项点击涟漪 */
+  .nav-item{overflow:hidden;position:relative}
+  .nav-item .ripple{
+    position:absolute;border-radius:50%;background:rgba(255,255,255,.3);
+    transform:scale(0);animation:ripple .5s ease-out;pointer-events:none;
+  }
+  @keyframes ripple{to{transform:scale(3);opacity:0}}
+
+  /* 4. 卡片入场动画 */
+  .card{
+    animation:cardIn .4s cubic-bezier(.4,0,.2,1) both;
+    transition:transform .15s,box-shadow .15s;
+  }
+  .card:nth-child(1){animation-delay:0s}
+  .card:nth-child(2){animation-delay:.06s}
+  .card:nth-child(3){animation-delay:.12s}
+  .card:nth-child(4){animation-delay:.18s}
+  .card:nth-child(5){animation-delay:.24s}
+  .card:nth-child(6){animation-delay:.30s}
+  .card:nth-child(7){animation-delay:.36s}
+  .card:nth-child(8){animation-delay:.42s}
+  @keyframes cardIn{
+    from{opacity:0;transform:translateY(16px) scale(.97)}
+    to{opacity:1;transform:translateY(0) scale(1)}
+  }
+  /* 卡片悬浮微交互 */
+  @media(hover:hover){
+    .card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 28px rgba(20,40,70,.12);
+    }
+  }
+
+  /* 5. 页面标题入场 */
+  .page-head{
+    animation:titleIn .4s ease both;
+  }
+  @keyframes titleIn{
+    from{opacity:0;transform:translateX(-12px)}
+    to{opacity:1;transform:translateX(0)}
+  }
+
+  /* 6. 进度条流光 */
+  .progress{position:relative;overflow:hidden}
+  .progress i{position:relative}
+  .progress i::after{
+    content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);
+    background-size:200% 100%;
+    animation:shimmer 2s linear infinite;
+  }
+  @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+  /* 7. 待办勾选动画 */
+  .todo-item .ck{transition:all .2s cubic-bezier(.4,0,.2,1)}
+  .todo-item.done .ck{animation:checkPop .3s ease}
+  @keyframes checkPop{0%{transform:scale(1)}50%{transform:scale(1.25)}100%{transform:scale(1)}}
+
+  /* 8. 按钮 ripple 涟漪 */
+  .btn{position:relative;overflow:hidden}
+  .btn .ripple{
+    position:absolute;border-radius:50%;background:rgba(255,255,255,.35);
+    transform:scale(0);animation:ripple .5s ease-out;pointer-events:none;
+  }
+
+  /* 9. 添加按钮脉冲提示 */
+  .btn-accent{
+    position:relative;
+  }
+  .btn-accent::after{
+    content:'';position:absolute;inset:0;border-radius:inherit;
+    box-shadow:0 0 0 0 rgba(46,134,222,.4);
+    animation:btnPulse 2.5s ease-out infinite;pointer-events:none;
+  }
+  @keyframes btnPulse{
+    0%{box-shadow:0 0 0 0 rgba(46,134,222,.3)}
+    70%{box-shadow:0 0 0 8px rgba(46,134,222,0)}
+    100%{box-shadow:0 0 0 0 rgba(46,134,222,0)}
+  }
+
+  /* 10. 签到日历格子动画 */
+  .cal-grid .d.checked{animation:checkPop .3s ease}
+
+  /* 11. 弹窗入场增强 */
+  .modal-box{animation:modalIn .3s cubic-bezier(.34,1.56,.64,1) both}
+  @keyframes modalIn{
+    from{opacity:0;transform:translateY(30px) scale(.9)}
+    to{opacity:1;transform:translateY(0) scale(1)}
+  }
+
+  /* 12. 浮动菜单按钮呼吸光晕 */
+  .menu-fab{
+    animation:fabGlow 3s ease-in-out infinite;
+  }
+  @keyframes fabGlow{
+    0%,100%{box-shadow:0 4px 18px rgba(46,134,222,.45)}
+    50%{box-shadow:0 4px 28px rgba(46,134,222,.65),0 0 0 6px rgba(46,134,222,.08)}
+  }
+
+  /* 13. 头像渐变旋转光 */
+  .side-head .avatar{
+    position:relative;
+  }
+  .side-head .avatar::before{
+    content:'';position:absolute;inset:-3px;border-radius:inherit;
+    background:conic-gradient(from 0deg,var(--accent),var(--accent-2),var(--accent-warm),var(--accent));
+    animation:avatarSpin 4s linear infinite;z-index:-1;
+    filter:blur(2px);opacity:.6;
+  }
+  @keyframes avatarSpin{to{transform:rotate(360deg)}}
+
+  /* 14. 列表项滑入 */
+  .gitem{
+    animation:itemSlideIn .3s ease both;
+  }
+  .gitem:nth-child(1){animation-delay:0s}
+  .gitem:nth-child(2){animation-delay:.04s}
+  .gitem:nth-child(3){animation-delay:.08s}
+  .gitem:nth-child(4){animation-delay:.12s}
+  .gitem:nth-child(5){animation-delay:.16s}
+  .gitem:nth-child(6){animation-delay:.20s}
+  .gitem:nth-child(7){animation-delay:.24s}
+  .gitem:nth-child(8){animation-delay:.28s}
+  @keyframes itemSlideIn{
+    from{opacity:0;transform:translateX(10px)}
+    to{opacity:1;transform:translateX(0)}
+  }
+
+  /* 15. 标签 pill 微弹入 */
+  .pill{animation:pillIn .3s cubic-bezier(.34,1.56,.64,1) both}
+  @keyframes pillIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+
+  /* 16. 内容区域切换淡入 */
+  .content-inner{
+    animation:contentFade .35s ease both;
+  }
+  @keyframes contentFade{
+    from{opacity:0}
+    to{opacity:1}
+  }
+
+  /* 17. ⋯ 菜单弹出增强 */
+  .item-menu{
+    transform-origin:top right;
+  }
+  .item-menu.show{
+    animation:menuPop .18s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes menuPop{
+    from{opacity:0;transform:scale(.85) translateY(-4px)}
+    to{opacity:1;transform:scale(1) translateY(0)}
+  }
+
+  /* 18. 空状态提示动画 */
+  .empty-hint{animation:emptyFloat 3s ease-in-out infinite}
+  @keyframes emptyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+  /* 19. 连接成功提示增强 */
+  .connect-toast{animation:connectPop .4s cubic-bezier(.34,1.56,.64,1) both}
+  @keyframes connectPop{
+    from{opacity:0;transform:translate(-50%,-50%) scale(.8)}
+    to{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  }
+
+  /* 20. 侧栏浮粒子 */
+  .sidebar-particles{
+    position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:hidden;
+  }
+  .sidebar-particles span{
+    position:absolute;width:4px;height:4px;border-radius:50%;
+    background:rgba(255,255,255,.12);
+    animation:particleFloat linear infinite;
+  }
+  @keyframes particleFloat{
+    from{transform:translateY(100vh) translateX(0);opacity:0}
+    10%{opacity:1}
+    90%{opacity:1}
+    to{transform:translateY(-20px) translateX(15px);opacity:0}
+  }
+
+  /* 减少动画偏好 */
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
 </style>
 </head>
 <body>
@@ -1381,6 +1597,13 @@ function switchSection(id){
   if(id==='ledger') renderLedger();
   (SECTION_LISTS[id]||[]).forEach(k=>renderList(k));
   if(window.innerWidth<=768) toggleSidebar(false);
+  /* 重新触发卡片入场动画 */
+  var cards=content.querySelectorAll('.card');
+  cards.forEach(function(c){
+    c.style.animation='none';
+    c.offsetHeight; /* force reflow */
+    c.style.animation='';
+  });
 }
 
 /* ========== 通用列表 CRUD ========== */
@@ -2106,6 +2329,57 @@ initSupabase();
   }
 })();
 switchSection('daily');
+
+/* ========== 动态效果 JS ========== */
+/* 按钮涟漪效果 */
+document.addEventListener('click',function(e){
+  var btn=e.target.closest('.btn');
+  if(!btn) return;
+  var rect=btn.getBoundingClientRect();
+  var size=Math.max(rect.width,rect.height);
+  var ripple=document.createElement('span');
+  ripple.className='ripple';
+  ripple.style.width=ripple.style.height=size+'px';
+  ripple.style.left=(e.clientX-rect.left-size/2)+'px';
+  ripple.style.top=(e.clientY-rect.top-size/2)+'px';
+  btn.appendChild(ripple);
+  setTimeout(function(){ripple.remove();},500);
+},true);
+
+/* 导航项涟漪 */
+document.addEventListener('click',function(e){
+  var item=e.target.closest('.nav-item');
+  if(!item) return;
+  var rect=item.getBoundingClientRect();
+  var size=Math.max(rect.width,rect.height);
+  var ripple=document.createElement('span');
+  ripple.className='ripple';
+  ripple.style.width=ripple.style.height=size+'px';
+  ripple.style.left=(e.clientX-rect.left-size/2)+'px';
+  ripple.style.top=(e.clientY-rect.top-size/2)+'px';
+  item.appendChild(ripple);
+  setTimeout(function(){ripple.remove();},500);
+},true);
+
+/* 侧栏浮粒子 */
+(function(){
+  var sidebar=document.querySelector('.sidebar');
+  if(!sidebar) return;
+  var container=document.createElement('div');
+  container.className='sidebar-particles';
+  sidebar.appendChild(container);
+  var count=12;
+  for(var i=0;i<count;i++){
+    var p=document.createElement('span');
+    p.style.left=Math.random()*100+'%';
+    p.style.animationDuration=(8+Math.random()*12)+'s';
+    p.style.animationDelay=(Math.random()*10)+'s';
+    p.style.opacity=(0.3+Math.random()*0.5);
+    p.style.width=p.style.height=(2+Math.random()*4)+'px';
+    container.appendChild(p);
+  }
+})();
+
 /* 首次访问自动提示添加到桌面 */
 setTimeout(function(){
   if(!sessionStorage.getItem('g')){ showGuide(); sessionStorage.setItem('g','1'); }
