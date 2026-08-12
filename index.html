@@ -1058,6 +1058,7 @@ function updateSyncBadge(state,text){
 }
 
 /* --- 从云端加载数据 --- */
+let lastSyncError='';
 async function loadFromCloud(){
   if(!sbClient)return null;
   try{
@@ -1066,11 +1067,22 @@ async function loadFromCloud(){
       .select('data,updated_at')
       .eq('workspace_id',CLOUD_CFG.workspaceId)
       .maybeSingle();
-    if(error){updateSyncBadge('error','加载失败');return null;}
+    if(error){
+      lastSyncError=error.message||JSON.stringify(error);
+      updateSyncBadge('error','加载失败');
+      console.error('[Supabase] 加载失败:',lastSyncError);
+      return null;
+    }
     if(!data){updateSyncBadge('online','已连接');return null;}
     updateSyncBadge('online','已连接');
+    lastSyncError='';
     return data.data;
-  }catch(e){updateSyncBadge('error','网络错误');return null;}
+  }catch(e){
+    lastSyncError=e.message||String(e);
+    updateSyncBadge('error','网络错误');
+    console.error('[Supabase] 网络异常:',lastSyncError);
+    return null;
+  }
 }
 
 /* --- 保存到云端（防抖） --- */
@@ -1637,9 +1649,20 @@ function saveCloudCfg(){
   CLOUD_CFG={url,anonKey,workspaceId};
   saveCloudConfig(CLOUD_CFG);
   if(initSupabase()){
-    alert('云同步已启用！\n工作区: '+workspaceId+'\n\n现在多人访问同一链接，输入相同的工作区 ID 即可数据共享。');
-    subscribeCloud();
-    (async()=>{ const d=await loadFromCloud(); if(d){DB=d;ensureKeys();saveData();switchSection('data');} })();
+    alert('云同步配置已保存！正在测试连接…');
+    (async()=>{
+      const d=await loadFromCloud();
+      if(d){
+        DB=d;ensureKeys();saveData();switchSection('data');
+        subscribeCloud();
+        alert('✅ 连接成功！数据已从云端加载。\n工作区: '+workspaceId);
+      }else if(lastSyncError){
+        alert('❌ 连接失败：'+lastSyncError+'\n\n请检查：\n1. 是否已在Supabase运行建表SQL\n2. 是否运行了GRANT权限语句\n3. URL和Key是否正确');
+      }else{
+        subscribeCloud();
+        alert('✅ 已连接！工作区为空，数据将在保存时自动上传。\n工作区: '+workspaceId);
+      }
+    })();
   }else{
     alert('连接失败，请检查 URL 和 Key 是否正确');
   }
@@ -1658,7 +1681,10 @@ async function syncNow(){
   updateSyncBadge('syncing','同步中…');
   const {error}=await sbClient.from('workbench_data')
     .upsert({workspace_id:CLOUD_CFG.workspaceId,data:DB,updated_at:new Date().toISOString()});
-  if(error){updateSyncBadge('error','同步失败');alert('同步失败: '+error.message);}
+  if(error){
+    updateSyncBadge('error','同步失败');
+    alert('同步失败: '+error.message+'\n\n常见原因:\n1. 表未创建或权限未设置\n2. URL或Key不正确\n3. 需要在Supabase运行GRANT语句');
+  }
   else{updateSyncBadge('online','已连接');alert('同步成功！');}
 }
 function exportData(){
