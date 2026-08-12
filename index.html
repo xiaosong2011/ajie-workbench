@@ -311,6 +311,31 @@
   @media(max-width:768px){.gitem .actions{opacity:1}}
   .gitem .actions .btn-sm{padding:4px 8px}
 
+  /* ⋯ 更多操作按钮 */
+  .item-more{
+    width:28px;height:28px;border:none;border-radius:8px;background:transparent;
+    color:var(--ink-3);font-size:18px;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    transition:background .12s;
+  }
+  .item-more:active{background:var(--line)}
+  /* 弹出操作菜单 */
+  .item-menu{
+    position:fixed;z-index:9999;background:#fff;border-radius:12px;
+    box-shadow:0 8px 30px rgba(0,0,0,.18);overflow:hidden;min-width:120px;
+    opacity:0;transform:scale(.9);pointer-events:none;transition:all .12s;
+  }
+  .item-menu.show{opacity:1;transform:scale(1);pointer-events:auto}
+  .item-menu .im-btn{
+    display:flex;align-items:center;gap:8px;width:100%;padding:12px 16px;
+    border:none;background:transparent;font-size:14px;color:var(--ink);
+    cursor:pointer;font-family:inherit;transition:background .1s;
+  }
+  .item-menu .im-btn:active{background:var(--line)}
+  .item-menu .im-btn.im-edit{color:#3b82f6}
+  .item-menu .im-btn.im-del{color:#ef4444}
+  .item-menu .im-divider{height:1px;background:var(--line)}
+
   /* 通用弹窗 */
   .modal-mask{
     position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:98;
@@ -1405,13 +1430,68 @@ function renderListItem(listKey,item,i){
   if(fieldParts.length) html+='<div class="gfields">'+fieldParts.join('')+'</div>';
   if(tagParts.length) html+='<div class="gtags">'+tagParts.join('')+'</div>';
   html+='</div>';
-  html+='<div class="actions">'+
-    '<button class="btn btn-sm btn-edit" onclick="openListModal(\''+listKey+'\','+i+')">✏️ 编辑</button>'+
-    '<button class="btn btn-sm btn-del" onclick="delListItem(\''+listKey+'\','+i+')">🗑 删除</button>'+
-    '</div>';
+  html+='<button class="item-more" onclick="showItemMenu(event,\''+listKey+'\','+i+')">⋯</button>';
   html+='</div>';
   return html;
 }
+
+/* ========== ⋯ 操作菜单 ========== */
+let _itemMenu=null;
+function _ensureMenu(){
+  if(_itemMenu) return _itemMenu;
+  _itemMenu=document.createElement('div');
+  _itemMenu.className='item-menu';
+  _itemMenu.innerHTML='';
+  document.body.appendChild(_itemMenu);
+  document.addEventListener('click',function(e){
+    if(_itemMenu&&!_itemMenu.contains(e.target)&&!e.target.classList.contains('item-more')){
+      _itemMenu.classList.remove('show');
+    }
+  });
+  window.addEventListener('scroll',function(){if(_itemMenu)_itemMenu.classList.remove('show');},true);
+  window.addEventListener('resize',function(){if(_itemMenu)_itemMenu.classList.remove('show');});
+  return _itemMenu;
+}
+function _positionMenu(menu,btn){
+  const r=btn.getBoundingClientRect();
+  let x=r.right-120, y=r.bottom+4;
+  if(x<8) x=8;
+  if(y+100>window.innerHeight) y=r.top-104;
+  if(y<8) y=8;
+  menu.style.left=x+'px';
+  menu.style.top=y+'px';
+}
+function showItemMenu(e,listKey,i){
+  e.stopPropagation();
+  const menu=_ensureMenu();
+  const config=LISTS[listKey];
+  menu.innerHTML=
+    '<button class="im-btn im-edit" onclick="_menuEdit(\''+listKey+'\','+i+')">✏️ 编辑</button>'+
+    '<div class="im-divider"></div>'+
+    '<button class="im-btn im-del" onclick="_menuDel(\''+listKey+'\','+i+')">🗑️ 删除</button>';
+  _positionMenu(menu,e.currentTarget);
+  menu.classList.add('show');
+}
+function _menuEdit(listKey,i){
+  _itemMenu.classList.remove('show');
+  openListModal(listKey,i);
+}
+function _menuDel(listKey,i){
+  _itemMenu.classList.remove('show');
+  delListItem(listKey,i);
+}
+function showInspoMenu(e,i){
+  e.stopPropagation();
+  const menu=_ensureMenu();
+  menu.innerHTML=
+    '<button class="im-btn im-edit" onclick="_menuInspoEdit('+i+')">✏️ 编辑</button>'+
+    '<div class="im-divider"></div>'+
+    '<button class="im-btn im-del" onclick="_menuInspoDel('+i+')">🗑️ 删除</button>';
+  _positionMenu(menu,e.currentTarget);
+  menu.classList.add('show');
+}
+function _menuInspoEdit(i){ _itemMenu.classList.remove('show'); editInspo(i); }
+function _menuInspoDel(i){ _itemMenu.classList.remove('show'); delInspo(i); }
 
 function toggleListCheck(listKey,i){
   const config=LISTS[listKey];
@@ -1591,10 +1671,7 @@ function renderInspos(){
       '<div class="gt">'+escapeHtml(item.title)+'</div>'+
       (item.desc?'<div class="gdesc">'+escapeHtml(item.desc)+'</div>':'')+
       tagHtml+
-      '</div><div class="actions">'+
-      '<button class="btn btn-sm btn-edit" onclick="editInspo('+i+')">✏️ 编辑</button>'+
-      '<button class="btn btn-sm btn-del" onclick="delInspo('+i+')">🗑 删除</button>'+
-      '</div></div>';
+      '</div><button class="item-more" onclick="showInspoMenu(event,'+i+')">⋯</button></div>';
   });
   list.innerHTML=html;
 }
