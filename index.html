@@ -1640,11 +1640,14 @@ function renderDataMgr(){
     '</div></div>';
 }
 function saveCloudCfg(){
-  const url=document.getElementById('cfgUrl').value.trim();
+  let url=document.getElementById('cfgUrl').value.trim().replace(/\/+$/,'');
   const anonKey=document.getElementById('cfgKey').value.trim();
   const workspaceId=document.getElementById('cfgWs').value.trim();
   if(!url||!anonKey||!workspaceId){
     alert('请填写完整的 Supabase URL、Anon Key 和工作区 ID');return;
+  }
+  if(!/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(url)){
+    alert('URL格式不正确，应该是 https://xxxxxxxx.supabase.co 格式（不要有末尾斜杠）');return;
   }
   CLOUD_CFG={url,anonKey,workspaceId};
   saveCloudConfig(CLOUD_CFG);
