@@ -84,6 +84,8 @@
   .nav-item.active .ico{background:rgba(255,255,255,.18)}
   .nav-item.active::before{content:"";position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--accent-2);border-radius:0 3px 3px 0}
   .nav-item .badge{margin-left:auto;background:#e74c3c;color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+  .nav-group{font-size:10px;font-weight:700;color:var(--side-text-dim);letter-spacing:1px;padding:14px 10px 4px;text-transform:uppercase;border-top:1px solid rgba(255,255,255,.06);margin-top:6px}
+  .nav-group:first-child{border-top:none;margin-top:2px}
 
   /* ===== 右侧内容 ===== */
   .content{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;touch-action:pan-y}
@@ -696,22 +698,22 @@
 <script>
 /* ========== 导航数据 ========== */
 const NAV=[
-  {id:'daily',    ico:'📅', name:'每日计划', badge:6},
-  {id:'fit',      ico:'💪', name:'力量训练'},
-  {id:'groom',    ico:'🧔', name:'理容穿搭'},
-  {id:'hustle',   ico:'💰', name:'副业搞钱'},
-  {id:'ai',       ico:'🤖', name:'AI学习'},
-  {id:'inspo',    ico:'⭐', name:'灵感收藏'},
-  {id:'ledger',   ico:'📊', name:'小账本'},
-  {id:'anime',    ico:'🎬', name:'动漫追剧'},
-  {id:'salary',   ico:'💰', name:'工资储蓄'},
-  {id:'repay',    ico:'🏦', name:'还款提醒'},
-  {id:'music',    ico:'🎤', name:'KTV歌单'},
-  {id:'selfmedia',ico:'🎥', name:'自媒体学习'},
-  {id:'aitech',   ico:'🤖', name:'AI技术学习'},
-  {id:'bills',    ico:'🧾', name:'房租水电'},
-  {id:'weather',  ico:'☀️', name:'天气'},
-  {id:'data',     ico:'💾', name:'数据管理'},
+  {id:'daily',    ico:'📅', name:'每日计划', badge:6, group:'核心日常'},
+  {id:'inspo',    ico:'⭐', name:'灵感收藏',            group:'核心日常'},
+  {id:'weather',  ico:'☀️', name:'天气',                group:'核心日常'},
+  {id:'salary',   ico:'💰', name:'工资储蓄',            group:'财务理财'},
+  {id:'ledger',   ico:'📊', name:'小账本',              group:'财务理财'},
+  {id:'repay',    ico:'🏦', name:'还款提醒',            group:'财务理财'},
+  {id:'bills',    ico:'🧾', name:'房租水电',            group:'财务理财'},
+  {id:'hustle',   ico:'💼', name:'副业搞钱',            group:'财务理财'},
+  {id:'selfmedia',ico:'🎥', name:'自媒体学习',          group:'学习成长'},
+  {id:'aitech',   ico:'🤖', name:'AI技术学习',          group:'学习成长'},
+  {id:'ai',       ico:'🧠', name:'AI学习',              group:'学习成长'},
+  {id:'fit',      ico:'💪', name:'力量训练',            group:'生活管理'},
+  {id:'groom',    ico:'🧔', name:'理容穿搭',            group:'生活管理'},
+  {id:'anime',    ico:'🎬', name:'动漫追剧',            group:'生活管理'},
+  {id:'music',    ico:'🎤', name:'KTV歌单',             group:'生活管理'},
+  {id:'data',     ico:'💾', name:'数据管理',            group:'系统'},
 ];
 
 /* ========== 通用列表配置（配置驱动 CRUD）========== */
@@ -1567,7 +1569,13 @@ function tagColor(text){
 
 /* ========== 渲染导航 ========== */
 const navEl=document.getElementById('nav');
-NAV.forEach(n=>{
+NAV.forEach((n,idx)=>{
+  if(n.group&&(idx===0||NAV[idx-1].group!==n.group)){
+    const g=document.createElement('div');
+    g.className='nav-group';
+    g.textContent=n.group;
+    navEl.appendChild(g);
+  }
   const d=document.createElement('div');
   d.className='nav-item'+(n.id==='daily'?' active':'');
   d.dataset.id=n.id;
