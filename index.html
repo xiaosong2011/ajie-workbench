@@ -1085,7 +1085,8 @@ async function loadFromCloud(){
   }
 }
 
-/* --- 保存到云端（防抖） --- */
+/* --- 保存到云端（防抖 + 自动重试） --- */
+let saveRetryCount=0;
 function saveToCloud(){
   if(!sbClient)return;
   if(syncTimer)clearTimeout(syncTimer);
@@ -1098,11 +1099,63 @@ function saveToCloud(){
           data:DB,
           updated_at:new Date().toISOString()
         });
-      if(error){updateSyncBadge('error','保存失败');}
-      else{updateSyncBadge('online','已连接');}
-    }catch(e){updateSyncBadge('error','网络错误');}
-  },800);
+      if(error){
+        saveRetryCount++;
+        if(saveRetryCount<=3){
+          updateSyncBadge('error','重试中('+saveRetryCount+'/3)');
+          setTimeout(()=>saveToCloud(),2000*saveRetryCount);
+        }else{
+          updateSyncBadge('error','保存失败');
+          saveRetryCount=0;
+        }
+      }else{
+        saveRetryCount=0;
+        lastCloudSaveTime=Date.now();
+        updateSyncBadge('online','已连接');
+      }
+    }catch(e){
+      saveRetryCount++;
+      if(saveRetryCount<=3){
+        updateSyncBadge('error','重试中('+saveRetryCount+'/3)');
+        setTimeout(()=>saveToCloud(),2000*saveRetryCount);
+      }else{
+        updateSyncBadge('error','网络错误');
+        saveRetryCount=0;
+      }
+    }
+  },500);
 }
+
+/* --- 定期同步（每30秒检查一次云端是否有更新） --- */
+let pollTimer=null;
+function startPolling(){
+  if(pollTimer)clearInterval(pollTimer);
+  pollTimer=setInterval(async()=>{
+    if(!sbClient||isRemoteUpdate)return;
+    try{
+      const {data,error}=await sbClient.from('workbench_data')
+        .select('data,updated_at')
+        .eq('workspace_id',CLOUD_CFG.workspaceId)
+        .maybeSingle();
+      if(!error&&data&&data.data){
+        const cloudTime=new Date(data.updated_at).getTime();
+        const localTime=lastCloudSaveTime||0;
+        if(cloudTime>localTime){
+          isRemoteUpdate=true;
+          DB=data.data;
+          ensureKeys();
+          localStorage.setItem(STORE_KEY,JSON.stringify(DB));
+          const cur=document.querySelector('.nav-item.active');
+          if(cur)switchSection(cur.dataset.id);
+          isRemoteUpdate=false;
+          lastCloudSaveTime=cloudTime;
+        }
+      }
+    }catch(e){}
+  },30000);
+}
+
+let lastCloudSaveTime=0;
 
 /* --- 实时订阅 --- */
 function subscribeCloud(){
@@ -1658,12 +1711,14 @@ function saveCloudCfg(){
       if(d){
         DB=d;ensureKeys();saveData();switchSection('data');
         subscribeCloud();
-        alert('✅ 连接成功！数据已从云端加载。\n工作区: '+workspaceId);
+        startPolling();
+        alert('✅ 连接成功！数据已从云端加载。\n工作区: '+workspaceId+'\n\n数据会自动同步，无需手动操作。');
       }else if(lastSyncError){
         alert('❌ 连接失败：'+lastSyncError+'\n\n请检查：\n1. 是否已在Supabase运行建表SQL\n2. 是否运行了GRANT权限语句\n3. URL和Key是否正确');
       }else{
         subscribeCloud();
-        alert('✅ 已连接！工作区为空，数据将在保存时自动上传。\n工作区: '+workspaceId);
+        startPolling();
+        alert('✅ 已连接！工作区为空，数据将在保存时自动上传。\n工作区: '+workspaceId+'\n\n数据会自动同步，无需手动操作。');
       }
     })();
   }else{
@@ -1671,6 +1726,7 @@ function saveCloudCfg(){
   }
 }
 function disconnectCloud(){
+  if(pollTimer){clearInterval(pollTimer);pollTimer=null;}
   if(sbChannel){sbClient.removeChannel(sbChannel);sbChannel=null;}
   sbClient=null;
   CLOUD_CFG={};
@@ -1784,6 +1840,7 @@ initSupabase();
       if(cur)switchSection(cur.dataset.id);
     }
     subscribeCloud();
+    startPolling();
   }
 })();
 switchSection('daily');
