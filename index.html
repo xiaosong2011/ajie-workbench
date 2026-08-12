@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#15273b">
 <title>阿杰的工作台 · 男生版</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 <style>
   :root{
     --side-1:#15273b; --side-2:#1e3349; --side-active:#2b4a6b;
@@ -223,6 +224,45 @@
   .not-safari{background:#fff0f0;border:1px solid #ffcdd2;border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#c62828;line-height:1.5;display:none}
   .not-safari.show{display:block}
 
+  /* 分享弹窗 */
+  .share-mask{
+    position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.65);
+    z-index:100;display:none;align-items:center;justify-content:center;padding:20px;
+  }
+  .share-mask.show{display:flex}
+  .share-box{
+    background:#fff;border-radius:20px;padding:24px 20px;max-width:340px;width:100%;
+    box-shadow:0 20px 60px rgba(0,0,0,.3);animation:pop .3s ease;max-height:90vh;overflow-y:auto;text-align:center;
+  }
+  .share-box h2{font-size:18px;font-weight:800;color:var(--ink);margin-bottom:4px}
+  .share-box .gsub{font-size:12px;color:var(--ink-3);margin-bottom:16px}
+  #qrcodeBox{display:flex;justify-content:center;margin:10px auto 16px}
+  #qrcodeBox img,#qrcodeBox canvas{border-radius:12px;border:1px solid var(--line)}
+  .share-link-box{
+    background:var(--content-bg);border-radius:12px;padding:10px 12px;margin:10px 0;
+    font-size:11px;color:var(--ink-3);word-break:break-all;line-height:1.5;text-align:left;
+    max-height:60px;overflow-y:auto;
+  }
+  .share-btns{display:flex;gap:8px;margin-top:12px}
+  .share-btns button{flex:1}
+  .share-close{width:100%;margin-top:10px;padding:12px;border-radius:14px;border:none;background:var(--content-bg);color:var(--ink-2);font-size:15px;font-weight:600;cursor:pointer}
+  .share-close:active{transform:scale(.97)}
+
+  /* 连接成功提示 */
+  .connect-toast{
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    background:#fff;border-radius:20px;padding:28px 24px;max-width:320px;width:calc(100% - 40px);
+    box-shadow:0 20px 60px rgba(0,0,0,.3);z-index:101;text-align:center;
+    display:none;animation:pop .3s ease;
+  }
+  .connect-toast.show{display:block}
+  .connect-toast .ct-icon{font-size:48px;margin-bottom:8px}
+  .connect-toast .ct-title{font-size:18px;font-weight:800;color:var(--ink);margin-bottom:6px}
+  .connect-toast .ct-desc{font-size:13px;color:var(--ink-2);line-height:1.6;margin-bottom:16px}
+  .connect-toast .ct-ws{background:var(--content-bg);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--accent);font-weight:600;margin-bottom:14px}
+  .connect-toast button{width:100%;padding:12px;border-radius:14px;border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+  .connect-toast button:active{transform:scale(.97)}
+
   .section{display:none;animation:fade .25s ease}
   .section.active{display:block}
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -384,6 +424,31 @@
       <div class="guide-step"><div class="sn">4</div><div class="st">以后点桌面图标即可<b>全屏打开</b>，和原生 App 一样，无需浏览器</div></div>
       <button class="guide-close" onclick="closeGuide()">我知道了</button>
     </div>
+  </div>
+
+  <!-- 分享弹窗 -->
+  <div class="share-mask" id="shareMask" onclick="if(event.target===this)closeShareModal()">
+    <div class="share-box">
+      <h2>📱 分享工作台</h2>
+      <div class="gsub">朋友扫描二维码或点击链接即可加入，无需配置</div>
+      <div id="qrcodeBox"></div>
+      <div style="font-size:12px;color:var(--ink-3);margin-bottom:8px">↑ 让朋友用手机相机或微信扫一扫</div>
+      <div class="share-link-box" id="shareLinkText"></div>
+      <div class="share-btns">
+        <button class="btn btn-accent" onclick="copyShareLink()">📋 复制链接</button>
+        <button class="btn btn-mint" onclick="shareToFriend()">💬 系统分享</button>
+      </div>
+      <button class="share-close" onclick="closeShareModal()">关闭</button>
+    </div>
+  </div>
+
+  <!-- 连接成功提示 -->
+  <div class="connect-toast" id="connectToast">
+    <div class="ct-icon">🎉</div>
+    <div class="ct-title">已连接到共享工作台</div>
+    <div class="ct-ws" id="ctWsName"></div>
+    <div class="ct-desc">数据将自动同步，你和好友看到的是同一份数据。<br>一人修改，全员实时更新。</div>
+    <button onclick="document.getElementById('connectToast').classList.remove('show')">开始使用</button>
   </div>
 </div>
 
@@ -1076,6 +1141,9 @@ async function loadFromCloud(){
     if(!data){updateSyncBadge('online','已连接');return null;}
     updateSyncBadge('online','已连接');
     lastSyncError='';
+    if(data.updated_at){
+      lastCloudSaveTime=new Date(data.updated_at).getTime();
+    }
     return data.data;
   }catch(e){
     lastSyncError=e.message||String(e);
@@ -1676,6 +1744,16 @@ function renderDataMgr(){
     '</div>'+
     '</div>'+
 
+    '<div class="card tint-mint">'+
+    '<div class="card-h">🔗 分享给他人</div>'+
+    '<div class="txt">让朋友<b>扫描二维码</b>或点击分享链接，打开即自动连接同一工作区，<b>无需任何配置</b>。</div>'+
+    '<div class="data-mgr" style="margin-top:10px">'+
+    '<button class="btn btn-accent" onclick="showShareModal()">📱 生成分享二维码</button>'+
+    '<button class="btn btn-mint" onclick="shareToFriend()">💬 系统分享</button>'+
+    '<button class="btn btn-ghost" onclick="copyShareLink()">📋 复制链接</button>'+
+    '</div>'+
+    '</div>'+
+
     '<div class="card tint-amber"><div class="card-h">ℹ️ 云同步说明</div>'+
     '<div class="txt">• 启用后，所有数据会实时同步到云端，<b>多人共享同一工作区 ID 即可看到同一份数据</b>。</div>'+
     '<div class="txt">• 一个人修改，其他人页面自动刷新，无需手动刷新。</div>'+
@@ -1745,6 +1823,45 @@ async function syncNow(){
     alert('同步失败: '+error.message+'\n\n常见原因:\n1. 表未创建或权限未设置\n2. URL或Key不正确\n3. 需要在Supabase运行GRANT语句');
   }
   else{updateSyncBadge('online','已连接');alert('同步成功！');}
+}
+function showShareModal(){
+  const link=generateShareLink();
+  if(!link)return;
+  const box=document.getElementById('qrcodeBox');
+  box.innerHTML='';
+  try{
+    new QRCode(box,{text:link,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});
+  }catch(e){
+    box.innerHTML='<div style="font-size:13px;color:var(--ink-3);padding:20px">二维码生成失败，请使用复制链接功能</div>';
+  }
+  document.getElementById('shareLinkText').textContent=link;
+  document.getElementById('shareMask').classList.add('show');
+}
+function closeShareModal(){
+  document.getElementById('shareMask').classList.remove('show');
+}
+function copyShareLink(){
+  const link=generateShareLink();
+  if(!link)return;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(link).then(()=>{
+      alert('✅ 分享链接已复制！\n\n发给朋友，他们打开即可自动连接，无需配置。');
+    }).catch(()=>{
+      prompt('请长按复制此链接：',link);
+    });
+  }else{
+    prompt('请长按复制此链接：',link);
+  }
+}
+function shareToFriend(){
+  const link=generateShareLink();
+  if(!link)return;
+  const text='阿杰工作台 - 一起协作！\n打开链接即可加入：\n'+link;
+  if(navigator.share){
+    navigator.share({title:'阿杰工作台',text:text,url:link}).catch(()=>{});
+  }else{
+    copyShareLink();
+  }
 }
 function exportData(){
   const data=JSON.stringify(DB,null,2);
@@ -1825,7 +1942,45 @@ function showGuide(){
 }
 function closeGuide(){ document.getElementById('guideMask').classList.remove('show'); }
 
+/* ========== URL 参数自动配置 ========== */
+function autoConfigFromURL(){
+  const params=new URLSearchParams(window.location.search);
+  const wsUrl=params.get('url');
+  const wsKey=params.get('key');
+  const wsId=params.get('ws');
+  if(wsUrl&&wsKey&&wsId){
+    const cfg={url:wsUrl.replace(/\/+$/,''),anonKey:wsKey,workspaceId:wsId};
+    CLOUD_CFG=cfg;
+    saveCloudConfig(cfg);
+    return true;
+  }
+  return false;
+}
+function showConnectToast(){
+  const toast=document.getElementById('connectToast');
+  const wsName=document.getElementById('ctWsName');
+  if(toast&&wsName&&CLOUD_CFG.workspaceId){
+    wsName.textContent='☁️ 工作区：'+CLOUD_CFG.workspaceId;
+    toast.classList.add('show');
+  }
+}
+function generateShareLink(){
+  if(!CLOUD_CFG.url||!CLOUD_CFG.anonKey||!CLOUD_CFG.workspaceId){
+    alert('请先启用云同步，再生成分享链接');
+    return '';
+  }
+  const base='https://xiaosong2011.github.io/ajie-workbench/';
+  const params=new URLSearchParams({
+    url:CLOUD_CFG.url,
+    key:CLOUD_CFG.anonKey,
+    ws:CLOUD_CFG.workspaceId
+  });
+  return base+'?'+params.toString();
+}
+
 /* ========== 初始化 ========== */
+/* 检查 URL 参数是否包含云同步配置 */
+const fromURL=autoConfigFromURL();
 /* 初始化 Supabase（如果有配置） */
 initSupabase();
 /* 尝试从云端加载最新数据 */
@@ -1833,14 +1988,20 @@ initSupabase();
   if(sbClient){
     const cloudData=await loadFromCloud();
     if(cloudData&&typeof cloudData==='object'){
+      isRemoteUpdate=true;
       DB=cloudData;
       ensureKeys();
-      saveData();
+      localStorage.setItem(STORE_KEY,JSON.stringify(DB));
       const cur=document.querySelector('.nav-item.active');
       if(cur)switchSection(cur.dataset.id);
+      isRemoteUpdate=false;
     }
     subscribeCloud();
     startPolling();
+    /* 如果是通过分享链接打开的，显示连接成功提示 */
+    if(fromURL){
+      setTimeout(showConnectToast,500);
+    }
   }
 })();
 switchSection('daily');
