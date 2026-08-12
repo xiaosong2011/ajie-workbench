@@ -455,15 +455,22 @@
 <script>
 /* ========== 导航数据 ========== */
 const NAV=[
-  {id:'daily',  ico:'📅', name:'每日计划', badge:6},
-  {id:'fit',    ico:'💪', name:'力量训练'},
-  {id:'groom',  ico:'🧔', name:'理容穿搭'},
-  {id:'hustle', ico:'💰', name:'副业搞钱'},
-  {id:'ai',     ico:'🤖', name:'AI学习'},
-  {id:'inspo',  ico:'⭐', name:'灵感收藏'},
-  {id:'ledger', ico:'📊', name:'小账本'},
-  {id:'weather',ico:'☀️', name:'天气'},
-  {id:'data',   ico:'💾', name:'数据管理'},
+  {id:'daily',    ico:'📅', name:'每日计划', badge:6},
+  {id:'fit',      ico:'💪', name:'力量训练'},
+  {id:'groom',    ico:'🧔', name:'理容穿搭'},
+  {id:'hustle',   ico:'💰', name:'副业搞钱'},
+  {id:'ai',       ico:'🤖', name:'AI学习'},
+  {id:'inspo',    ico:'⭐', name:'灵感收藏'},
+  {id:'ledger',   ico:'📊', name:'小账本'},
+  {id:'anime',    ico:'🎬', name:'动漫追剧'},
+  {id:'salary',   ico:'💰', name:'工资储蓄'},
+  {id:'repay',    ico:'🏦', name:'还款提醒'},
+  {id:'music',    ico:'🎤', name:'KTV歌单'},
+  {id:'selfmedia',ico:'🎥', name:'自媒体学习'},
+  {id:'aitech',   ico:'🤖', name:'AI技术学习'},
+  {id:'bills',    ico:'🧾', name:'房租水电'},
+  {id:'weather',  ico:'☀️', name:'天气'},
+  {id:'data',     ico:'💾', name:'数据管理'},
 ];
 
 /* ========== 通用列表配置（配置驱动 CRUD）========== */
@@ -502,6 +509,121 @@ const LISTS={
   weatherNotes:{title:'自定义备注',icon:'📝',dbKey:'weatherNotes',fields:[
     {key:'title',label:'备注',type:'input',placeholder:'如：下午有雷阵雨，带伞',as:'title'}
   ]},
+  /* --- 动漫追剧 --- */
+  animeTracking:{title:'追番清单',icon:'📺',dbKey:'animeTracking',fields:[
+    {key:'title',label:'番剧名',type:'input',placeholder:'如：葬送的芙莉莲',as:'title'},
+    {key:'meta',label:'进度',type:'input',placeholder:'如：第12话 / 共28话',as:'meta'},
+    {key:'status',label:'状态',type:'select',options:['追番中','已追完','暂停','弃番'],as:'tag'}
+  ]},
+  animeWatchlist:{title:'待看动漫',icon:'📋',dbKey:'animeWatchlist',fields:[
+    {key:'title',label:'番剧名',type:'input',placeholder:'如：鬼灭之刃 第四季',as:'title'},
+    {key:'desc',label:'备注',type:'textarea',placeholder:'为什么想看 / 谁推荐的',as:'desc'}
+  ]},
+  animeFav:{title:'动漫收藏',icon:'⭐',dbKey:'animeFav',fields:[
+    {key:'title',label:'作品名',type:'input',placeholder:'如：进击的巨人',as:'title'},
+    {key:'meta',label:'类型/年份',type:'input',placeholder:'如：热血 / 2013',as:'meta'},
+    {key:'desc',label:'推荐理由',type:'textarea',placeholder:'一句话评价',as:'desc'}
+  ]},
+  /* --- 工资储蓄规划 --- */
+  salaryIncome:{title:'每月收入记录',icon:'💸',dbKey:'salaryIncome',fields:[
+    {key:'month',label:'月份',type:'input',placeholder:'如：2026年8月',as:'title'},
+    {key:'amount',label:'到手收入',type:'input',placeholder:'如：15000',as:'field'},
+    {key:'note',label:'备注',type:'input',placeholder:'如：含绩效奖金',as:'desc'}
+  ]},
+  salaryGoal:{title:'储蓄目标',icon:'🎯',dbKey:'salaryGoal',fields:[
+    {key:'title',label:'目标名称',type:'input',placeholder:'如：应急基金3万',as:'title'},
+    {key:'target',label:'目标金额',type:'input',placeholder:'如：30000',as:'field'},
+    {key:'current',label:'已存金额',type:'input',placeholder:'如：12000',as:'field'},
+    {key:'status',label:'状态',type:'select',options:['进行中','已达成','已暂停'],as:'tag'}
+  ]},
+  salaryAlloc:{title:'资金分配',icon:'📂',dbKey:'salaryAlloc',fields:[
+    {key:'category',label:'类别',type:'input',placeholder:'如：固定支出',as:'title'},
+    {key:'amount',label:'金额/比例',type:'input',placeholder:'如：5000 / 33%',as:'meta'},
+    {key:'desc',label:'说明',type:'textarea',placeholder:'如：房租+水电+吃饭',as:'desc'}
+  ]},
+  /* --- 还款提醒 --- */
+  repayList:{title:'还款登记',icon:'📋',dbKey:'repayList',fields:[
+    {key:'title',label:'还款项目',type:'input',placeholder:'如：房贷',as:'title'},
+    {key:'date',label:'还款日',type:'input',placeholder:'如：每月20日',as:'meta'},
+    {key:'amount',label:'还款金额',type:'input',placeholder:'如：5500',as:'field'},
+    {key:'status',label:'状态',type:'select',options:['待还款','已还款','已逾期'],as:'tag'}
+  ]},
+  repayLog:{title:'还款记录',icon:'📜',dbKey:'repayLog',fields:[
+    {key:'title',label:'项目',type:'input',placeholder:'如：房贷',as:'title'},
+    {key:'date',label:'还款日期',type:'input',placeholder:'如：2026-08-20',as:'meta'},
+    {key:'amount',label:'金额',type:'input',placeholder:'如：5500',as:'field'},
+    {key:'note',label:'备注',type:'input',placeholder:'如：8月房贷已扣',as:'desc'}
+  ]},
+  /* --- KTV歌单&音乐收藏 --- */
+  ktvSongs:{title:'KTV必点歌曲',icon:'🎤',dbKey:'ktvSongs',fields:[
+    {key:'title',label:'歌曲名',type:'input',placeholder:'如：十年',as:'title'},
+    {key:'singer',label:'歌手',type:'input',placeholder:'如：陈奕迅',as:'meta'},
+    {key:'note',label:'备注',type:'input',placeholder:'如：开场曲 / 压轴',as:'desc'}
+  ]},
+  musicPlaylist:{title:'日常循环歌单',icon:'🎵',dbKey:'musicPlaylist',fields:[
+    {key:'title',label:'歌曲名',type:'input',placeholder:'如：晴天',as:'title'},
+    {key:'singer',label:'歌手',type:'input',placeholder:'如：周杰伦',as:'meta'}
+  ]},
+  musicNew:{title:'新歌收藏',icon:'🆕',dbKey:'musicNew',fields:[
+    {key:'title',label:'歌曲名',type:'input',placeholder:'如：新歌名',as:'title'},
+    {key:'singer',label:'歌手',type:'input',placeholder:'如：歌手名',as:'meta'},
+    {key:'desc',label:'推荐理由',type:'textarea',placeholder:'为什么收藏',as:'desc'}
+  ]},
+  /* --- 自媒体学习专区 --- */
+  smCases:{title:'爆款案例',icon:'🔥',dbKey:'smCases',fields:[
+    {key:'title',label:'案例标题',type:'input',placeholder:'如：某AI漫剧3天百万播放',as:'title'},
+    {key:'desc',label:'拆解分析',type:'textarea',placeholder:'为什么爆 / 可借鉴的点',as:'desc'},
+    {key:'tag',label:'平台',type:'select',options:['抖音','快手','B站','小红书','其他'],as:'tag'}
+  ]},
+  smTopics:{title:'选题灵感',icon:'💡',dbKey:'smTopics',fields:[
+    {key:'title',label:'选题',type:'input',placeholder:'如：打工人的一天AI漫剧版',as:'title'},
+    {key:'desc',label:'思路',type:'textarea',placeholder:'为什么选这个题材',as:'desc'}
+  ]},
+  smScripts:{title:'脚本素材',icon:'📝',dbKey:'smScripts',fields:[
+    {key:'title',label:'素材标题',type:'input',placeholder:'如：开场白模板',as:'title'},
+    {key:'desc',label:'内容',type:'textarea',placeholder:'脚本内容',as:'desc'}
+  ]},
+  smNotes:{title:'剪辑学习笔记',icon:'✂️',dbKey:'smNotes',fields:[
+    {key:'title',label:'笔记标题',type:'input',placeholder:'如：转场技巧总结',as:'title'},
+    {key:'desc',label:'内容',type:'textarea',placeholder:'学习笔记',as:'desc'}
+  ]},
+  /* --- AI技术学习 --- */
+  aitechPrompts:{title:'提示词库',icon:'💬',dbKey:'aitechPrompts',fields:[
+    {key:'title',label:'提示词名称',type:'input',placeholder:'如：人物一致性提示词',as:'title'},
+    {key:'desc',label:'提示词内容',type:'textarea',placeholder:'完整的prompt',as:'desc'},
+    {key:'tag',label:'类型',type:'select',options:['人物','场景','风格','特效','其他'],as:'tag'}
+  ]},
+  aitechComfy:{title:'ComfyUI资料',icon:'🔧',dbKey:'aitechComfy',fields:[
+    {key:'title',label:'资料名称',type:'input',placeholder:'如：人物换脸工作流',as:'title'},
+    {key:'meta',label:'来源/链接',type:'input',placeholder:'如：B站/GitHub链接',as:'meta'},
+    {key:'desc',label:'说明',type:'textarea',placeholder:'工作流说明',as:'desc'}
+  ]},
+  aitechModels:{title:'模型与工作流',icon:'🗂️',dbKey:'aitechModels',fields:[
+    {key:'title',label:'模型/工作流名称',type:'input',placeholder:'如：SDXL基础模型',as:'title'},
+    {key:'meta',label:'类型',type:'input',placeholder:'如：底模/Lora/工作流',as:'meta'},
+    {key:'desc',label:'说明',type:'textarea',placeholder:'使用场景和效果',as:'desc'}
+  ]},
+  aitechNotes:{title:'学习笔记',icon:'📔',dbKey:'aitechNotes',fields:[
+    {key:'title',label:'笔记标题',type:'input',placeholder:'如：图生图参数调优',as:'title'},
+    {key:'desc',label:'内容',type:'textarea',placeholder:'学习笔记',as:'desc'}
+  ]},
+  /* --- 房租水电账单 --- */
+  billsRent:{title:'房租缴费',icon:'🏠',dbKey:'billsRent',fields:[
+    {key:'title',label:'周期',type:'input',placeholder:'如：2026年8月',as:'title'},
+    {key:'amount',label:'金额',type:'input',placeholder:'如：2500',as:'field'},
+    {key:'status',label:'状态',type:'select',options:['已缴','待缴','已逾期'],as:'tag'},
+    {key:'note',label:'备注',type:'input',placeholder:'如：押一付三',as:'desc'}
+  ]},
+  billsUtility:{title:'水电费用',icon:'💧',dbKey:'billsUtility',fields:[
+    {key:'title',label:'类型',type:'input',placeholder:'如：水费/电费/燃气',as:'title'},
+    {key:'amount',label:'金额',type:'input',placeholder:'如：120',as:'field'},
+    {key:'month',label:'月份',type:'input',placeholder:'如：2026年8月',as:'meta'}
+  ]},
+  billsFixed:{title:'固定生活支出',icon:'📌',dbKey:'billsFixed',fields:[
+    {key:'title',label:'支出项目',type:'input',placeholder:'如：网费',as:'title'},
+    {key:'amount',label:'金额',type:'input',placeholder:'如：100',as:'field'},
+    {key:'cycle',label:'周期',type:'input',placeholder:'如：每月',as:'meta'}
+  ]},
 };
 
 /* 板块 -> 需要渲染的列表 */
@@ -511,6 +633,13 @@ const SECTION_LISTS={
   hustle:['hustleProjects'],
   ai:['aiPath','aiTools'],
   weather:['weatherNotes'],
+  anime:['animeTracking','animeWatchlist','animeFav'],
+  salary:['salaryIncome','salaryGoal','salaryAlloc'],
+  repay:['repayList','repayLog'],
+  music:['ktvSongs','musicPlaylist','musicNew'],
+  selfmedia:['smCases','smTopics','smScripts','smNotes'],
+  aitech:['aitechPrompts','aitechComfy','aitechModels','aitechNotes'],
+  bills:['billsRent','billsUtility','billsFixed'],
 };
 
 /* ========== 各板块内容 ========== */
@@ -685,6 +814,150 @@ weather:`
   </div>
 `,
 
+anime:`
+  <div class="page-head"><span class="bow">🎬</span><h1>动漫追剧</h1><span class="sub">· 追番不迷路 · 好作品不遗忘</span></div>
+  <div class="card tint-violet">
+    <div class="card-h">🎯 追番原则</div>
+    <div class="txt">每周固定时间追番，不熬夜补番。好作品收藏二刷，烂番果断弃。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">📺 追番清单 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('animeTracking')">+ 新增</button></div>
+    <div id="lc_animeTracking"></div>
+  </div>
+  <div class="card tint-amber">
+    <div class="card-h">📋 待看动漫 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('animeWatchlist')">+ 新增</button></div>
+    <div id="lc_animeWatchlist"></div>
+  </div>
+  <div class="card">
+    <div class="card-h">⭐ 动漫收藏 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('animeFav')">+ 新增</button></div>
+    <div id="lc_animeFav"></div>
+  </div>
+`,
+
+salary:`
+  <div class="page-head"><span class="bow">💰</span><h1>工资储蓄规划</h1><span class="sub">· 收入有数 · 储蓄有目标</span></div>
+  <div class="card tint-mint">
+    <div class="card-h">💡 储蓄理念</div>
+    <div class="txt">先存后花，每月工资到账第一时间转储蓄账户。目标：6个月应急基金 + 年度大额支出预留。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">💸 每月收入记录 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('salaryIncome')">+ 记录</button></div>
+    <div id="lc_salaryIncome"></div>
+  </div>
+  <div class="card tint-blue">
+    <div class="card-h">🎯 储蓄目标 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('salaryGoal')">+ 新增</button></div>
+    <div id="lc_salaryGoal"></div>
+  </div>
+  <div class="card">
+    <div class="card-h">📂 资金分配 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('salaryAlloc')">+ 新增</button></div>
+    <div id="lc_salaryAlloc"></div>
+  </div>
+`,
+
+repay:`
+  <div class="page-head"><span class="bow">🏦</span><h1>还款提醒</h1><span class="sub">· 到期不遗忘 · 信用不逾期</span></div>
+  <div class="card tint-amber">
+    <div class="card-h">⚠️ 还款原则</div>
+    <div class="txt">提前 3 天设置提醒，还款日当天确认扣款。保持良好信用记录，避免逾期影响征信。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">📋 还款登记 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('repayList')">+ 新增</button></div>
+    <div id="lc_repayList"></div>
+  </div>
+  <div class="card tint-slate">
+    <div class="card-h">📜 还款记录 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('repayLog')">+ 记录</button></div>
+    <div id="lc_repayLog"></div>
+  </div>
+`,
+
+music:`
+  <div class="page-head"><span class="bow">🎤</span><h1>KTV歌单&音乐收藏</h1><span class="sub">· 麦霸必备 · 好歌不遗漏</span></div>
+  <div class="card tint-violet">
+    <div class="card-h">🎵 音乐让生活更有节奏</div>
+    <div class="txt">KTV必点歌单提前准备好，不用现场翻歌单。日常好歌随时收藏，通勤循环听。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">🎤 KTV必点歌曲 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('ktvSongs')">+ 新增</button></div>
+    <div id="lc_ktvSongs"></div>
+  </div>
+  <div class="card tint-blue">
+    <div class="card-h">🎵 日常循环歌单 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('musicPlaylist')">+ 新增</button></div>
+    <div id="lc_musicPlaylist"></div>
+  </div>
+  <div class="card">
+    <div class="card-h">🆕 新歌收藏 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('musicNew')">+ 收藏</button></div>
+    <div id="lc_musicNew"></div>
+  </div>
+`,
+
+selfmedia:`
+  <div class="page-head"><span class="bow">🎥</span><h1>自媒体学习专区</h1><span class="sub">· AI漫剧 · 内容创作 · 持续输出</span></div>
+  <div class="card tint-mint">
+    <div class="card-h">🎯 学习方向</div>
+    <div class="txt">聚焦<b>AI漫剧</b>赛道，学习爆款逻辑、平台规则、脚本创作和剪辑技巧。目标：从模仿到原创，持续产出优质内容。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">🔥 爆款案例 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('smCases')">+ 新增</button></div>
+    <div id="lc_smCases"></div>
+  </div>
+  <div class="card tint-amber">
+    <div class="card-h">💡 选题灵感 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('smTopics')">+ 新增</button></div>
+    <div id="lc_smTopics"></div>
+  </div>
+  <div class="card">
+    <div class="card-h">📝 脚本素材 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('smScripts')">+ 新增</button></div>
+    <div id="lc_smScripts"></div>
+  </div>
+  <div class="card tint-slate">
+    <div class="card-h">✂️ 剪辑学习笔记 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('smNotes')">+ 新增</button></div>
+    <div id="lc_smNotes"></div>
+  </div>
+`,
+
+aitech:`
+  <div class="page-head"><span class="bow">🤖</span><h1>AI技术学习</h1><span class="sub">· 提示词 · ComfyUI · 工作流</span></div>
+  <div class="card tint-violet">
+    <div class="card-h">🎯 技术栈</div>
+    <div class="txt">围绕<b>AI漫剧制作</b>，掌握提示词工程、ComfyUI工作流、模型选择与调优。从能跑到跑好，建立自己的技术体系。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">💬 提示词库 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('aitechPrompts')">+ 新增</button></div>
+    <div id="lc_aitechPrompts"></div>
+  </div>
+  <div class="card tint-blue">
+    <div class="card-h">🔧 ComfyUI资料 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('aitechComfy')">+ 新增</button></div>
+    <div id="lc_aitechComfy"></div>
+  </div>
+  <div class="card">
+    <div class="card-h">🗂️ 模型与工作流 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('aitechModels')">+ 新增</button></div>
+    <div id="lc_aitechModels"></div>
+  </div>
+  <div class="card tint-amber">
+    <div class="card-h">📔 学习笔记 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('aitechNotes')">+ 新增</button></div>
+    <div id="lc_aitechNotes"></div>
+  </div>
+`,
+
+bills:`
+  <div class="page-head"><span class="bow">🧾</span><h1>房租水电账单</h1><span class="sub">· 固定支出 · 心里有数</span></div>
+  <div class="card tint-amber">
+    <div class="card-h">💡 管理原则</div>
+    <div class="txt">每月固定支出提前预留，缴费后及时记录。水电关注异常波动，避免浪费。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">🏠 房租缴费 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('billsRent')">+ 记录</button></div>
+    <div id="lc_billsRent"></div>
+  </div>
+  <div class="card tint-blue">
+    <div class="card-h">💧 水电费用 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('billsUtility')">+ 记录</button></div>
+    <div id="lc_billsUtility"></div>
+  </div>
+  <div class="card">
+    <div class="card-h">📌 固定生活支出 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('billsFixed')">+ 新增</button></div>
+    <div id="lc_billsFixed"></div>
+  </div>
+`,
+
 };
 
 /* ========== 初始数据 ========== */
@@ -742,6 +1015,103 @@ const INITIAL={
   weatherNotes:[
     {title:'下午有雷阵雨，出门带伞'},
     {title:'紫外线强，户外运动记得防晒'},
+  ],
+  /* --- 动漫追剧 --- */
+  animeTracking:[
+    {title:'葬送的芙莉莲',meta:'第12话 / 共28话',status:'追番中'},
+    {title:'咒术回战 第二季',meta:'已追完',status:'已追完'},
+  ],
+  animeWatchlist:[
+    {title:'鬼灭之刃 柱训练篇',desc:'朋友推荐，说打斗场面很燃'},
+  ],
+  animeFav:[
+    {title:'进击的巨人',meta:'热血 / 2013',desc:'神作，结尾有争议但整体震撼。'},
+    {title:'钢之炼金术师 FA',meta:'冒险 / 2009',desc:'剧情完整，节奏完美，零烂尾。'},
+  ],
+  /* --- 工资储蓄规划 --- */
+  salaryIncome:[
+    {month:'2026年7月',amount:'15000',note:'含季度绩效奖金2000'},
+    {month:'2026年8月',amount:'13000',note:'正常月薪'},
+  ],
+  salaryGoal:[
+    {title:'应急基金（6个月支出）',target:'50000',current:'28000',status:'进行中'},
+    {title:'年度旅游基金',target:'10000',current:'3500',status:'进行中'},
+  ],
+  salaryAlloc:[
+    {category:'固定支出',amount:'5000 / 38%',desc:'房租2500 + 水电300 + 吃饭2200'},
+    {category:'储蓄',amount:'5000 / 38%',desc:'先存后花，到账即转'},
+    {category:'灵活消费',amount:'2000 / 15%',desc:'社交、购物、娱乐'},
+    {category:'自我投资',amount:'1000 / 8%',desc:'课程、书籍、健身'},
+  ],
+  /* --- 还款提醒 --- */
+  repayList:[
+    {title:'房贷',date:'每月20日',amount:'5500',status:'待还款'},
+    {title:'信用卡',date:'每月15日',amount:'2000',status:'待还款'},
+  ],
+  repayLog:[
+    {title:'房贷',date:'2026-07-20',amount:'5500',note:'7月房贷已扣'},
+    {title:'信用卡',date:'2026-07-15',amount:'1800',note:'7月信用卡已还清'},
+  ],
+  /* --- KTV歌单&音乐收藏 --- */
+  ktvSongs:[
+    {title:'十年',singer:'陈奕迅',note:'开场曲，暖场必备'},
+    {title:'浮夸',singer:'陈奕迅',note:'压轴，气氛拉满'},
+    {title:'晴天',singer:'周杰伦',note:'全场大合唱'},
+    {title:'海阔天空',singer:'Beyond',note:'兄弟合唱'},
+  ],
+  musicPlaylist:[
+    {title:'晴天',singer:'周杰伦'},
+    {title:'Shapes',singer:'Mandala'},
+    {title:'夜曲',singer:'周杰伦'},
+  ],
+  musicNew:[
+    {title:'示例新歌',singer:'示例歌手',desc:'在短视频听到的，旋律很抓耳'},
+  ],
+  /* --- 自媒体学习专区 --- */
+  smCases:[
+    {title:'某AI漫剧3天百万播放',desc:'选题切中打工人共鸣，开头3秒hook强，反转意料之外。可借鉴：情绪共鸣+反转结构。',tag:'抖音'},
+  ],
+  smTopics:[
+    {title:'打工人的一天 AI漫剧版',desc:'用AI漫剧形式演绎上班日常，容易引起共鸣'},
+    {title:'如果历史人物有朋友圈',desc:'穿越梗+名人效应，天然有传播力'},
+  ],
+  smScripts:[
+    {title:'开场白模板',desc:'「你绝对想不到...」+ 悬念画面 + 3秒内抛出冲突点'},
+  ],
+  smNotes:[
+    {title:'转场技巧总结',desc:'硬切适合快节奏，叠化适合回忆，匹配剪辑适合平行叙事。AI漫剧多用硬切保持节奏感。'},
+  ],
+  /* --- AI技术学习 --- */
+  aitechPrompts:[
+    {title:'人物一致性提示词',desc:'masterpiece, best quality, 1girl, [角色描述], consistent face, same character',tag:'人物'},
+    {title:'电影感场景提示词',desc:'cinematic lighting, dramatic shadows, depth of field, 8k, ultra detailed',tag:'场景'},
+  ],
+  aitechComfy:[
+    {title:'人物换脸工作流',meta:'B站教程',desc:'用IPAdapter + FaceID实现角色面部一致性'},
+    {title:'图生图风格迁移工作流',meta:'GitHub开源',desc:'ControlNet线稿引导 + 风格Lora'},
+  ],
+  aitechModels:[
+    {title:'SDXL基础模型',meta:'底模',desc:'通用性强，适合大多数场景作为底模使用'},
+    {title:'国风Lora',meta:'Lora',desc:'中式风格人物和场景，适合古风漫剧'},
+  ],
+  aitechNotes:[
+    {title:'图生图参数调优',desc:'Denoise 0.5-0.7之间效果最好，太低变化不大，太高丢失原图结构。CFG 7-9比较稳定。'},
+    {title:'批量生成提速技巧',desc:'先低分辨率批量出图筛选，选定后再高分辨率放大，节省大量时间。'},
+  ],
+  /* --- 房租水电账单 --- */
+  billsRent:[
+    {title:'2026年8月',amount:'2500',status:'待缴',note:'押一付三，下次9月1日缴'},
+    {title:'2026年7月',amount:'2500',status:'已缴',note:'已转账房东'},
+  ],
+  billsUtility:[
+    {title:'电费',amount:'180',month:'2026年7月'},
+    {title:'水费',amount:'45',month:'2026年7月'},
+    {title:'燃气费',amount:'30',month:'2026年7月'},
+  ],
+  billsFixed:[
+    {title:'网费',amount:'100',cycle:'每月'},
+    {title:'手机话费',amount:'59',cycle:'每月'},
+    {title:'视频会员',amount:'25',cycle:'每月'},
   ],
 };
 
