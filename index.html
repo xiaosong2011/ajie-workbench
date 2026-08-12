@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="阿杰工作台">
 <meta name="theme-color" content="#15273b">
 <title>阿杰的工作台 · 男生版</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --side-1:#15273b; --side-2:#1e3349; --side-active:#2b4a6b;
@@ -287,6 +288,28 @@
   .data-mgr{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
   .data-mgr .btn{font-size:12px}
 
+  /* 云同步状态 */
+  .sync-badge{
+    position:fixed;top:calc(var(--safe-top,0px) + 8px);right:14px;z-index:61;
+    display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;
+    font-size:11px;font-weight:700;cursor:pointer;
+    background:rgba(255,255,255,.15);backdrop-filter:blur(8px);color:#fff;
+    transition:background .2s;
+  }
+  .sync-badge.off{background:rgba(255,255,255,.1);color:var(--side-text-dim)}
+  .sync-badge.syncing{background:rgba(46,134,222,.3);color:#fff}
+  .sync-badge.online{background:rgba(26,188,156,.25);color:#aef5e0}
+  .sync-badge.error{background:rgba(231,76,60,.3);color:#ffd0c8}
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+  .sync-badge.syncing .sync-dot{animation:blink 1s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .cloud-config-row{margin-bottom:10px}
+  .cloud-config-row label{display:block;font-size:12px;color:var(--ink-3);font-weight:600;margin-bottom:4px}
+  .cloud-status-box{padding:10px 14px;border-radius:12px;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .cloud-status-box.ok{background:var(--tag-mint);color:var(--tag-mint-t)}
+  .cloud-status-box.off{background:#f1f5fa;color:var(--ink-3)}
+  .cloud-status-box.err{background:var(--tag-rose);color:var(--tag-rose-t)}
+
   /* 移动端抽屉 */
   .menu-btn{display:none}
   .overlay{display:none}
@@ -307,6 +330,10 @@
 </head>
 <body>
 <div class="device">
+  <!-- 云同步状态徽章 -->
+  <div class="sync-badge off" id="syncBadge" onclick="switchSection('data')">
+    <span class="sync-dot"></span><span id="syncText">本地模式</span>
+  </div>
   <!-- 状态栏 -->
   <div class="statusbar">
     <span class="left"><span class="menu-btn" onclick="toggleSidebar()">☰</span><span>21:49</span></span>
@@ -990,12 +1017,113 @@ const INITIAL={
   ],
 };
 
-/* ========== 数据层：localStorage 持久化 ========== */
+/* ========== 数据层：localStorage + Supabase 云同步 ========== */
 const STORE_KEY='ajie_workbench_data';
+const CLOUD_KEY='ajie_cloud_config';
+
+/* --- 云端配置 --- */
+function loadCloudConfig(){
+  try{ return JSON.parse(localStorage.getItem(CLOUD_KEY))||{}; }catch(e){ return {}; }
+}
+function saveCloudConfig(cfg){
+  localStorage.setItem(CLOUD_KEY,JSON.stringify(cfg));
+}
+let CLOUD_CFG=loadCloudConfig();
+let sbClient=null;       // Supabase 客户端实例
+let sbChannel=null;      // 实时订阅通道
+let syncTimer=null;      // 防抖定时器
+let isRemoteUpdate=false;// 标记：当前更新是否来自远端（避免循环同步）
+
+/* --- 初始化 Supabase 客户端 --- */
+function initSupabase(){
+  if(!CLOUD_CFG.url||!CLOUD_CFG.anonKey||!CLOUD_CFG.workspaceId){
+    sbClient=null; updateSyncBadge('off','本地模式'); return false;
+  }
+  try{
+    sbClient=supabase.createClient(CLOUD_CFG.url,CLOUD_CFG.anonKey);
+    updateSyncBadge('online','已连接');
+    return true;
+  }catch(e){
+    sbClient=null; updateSyncBadge('error','连接失败'); return false;
+  }
+}
+
+/* --- 同步状态徽章 --- */
+function updateSyncBadge(state,text){
+  const badge=document.getElementById('syncBadge');
+  const txt=document.getElementById('syncText');
+  if(!badge)return;
+  badge.className='sync-badge '+state;
+  if(txt)txt.textContent=text;
+}
+
+/* --- 从云端加载数据 --- */
+async function loadFromCloud(){
+  if(!sbClient)return null;
+  try{
+    updateSyncBadge('syncing','同步中…');
+    const {data,error}=await sbClient.from('workbench_data')
+      .select('data,updated_at')
+      .eq('workspace_id',CLOUD_CFG.workspaceId)
+      .maybeSingle();
+    if(error){updateSyncBadge('error','加载失败');return null;}
+    if(!data){updateSyncBadge('online','已连接');return null;}
+    updateSyncBadge('online','已连接');
+    return data.data;
+  }catch(e){updateSyncBadge('error','网络错误');return null;}
+}
+
+/* --- 保存到云端（防抖） --- */
+function saveToCloud(){
+  if(!sbClient)return;
+  if(syncTimer)clearTimeout(syncTimer);
+  syncTimer=setTimeout(async()=>{
+    updateSyncBadge('syncing','同步中…');
+    try{
+      const {error}=await sbClient.from('workbench_data')
+        .upsert({
+          workspace_id:CLOUD_CFG.workspaceId,
+          data:DB,
+          updated_at:new Date().toISOString()
+        });
+      if(error){updateSyncBadge('error','保存失败');}
+      else{updateSyncBadge('online','已连接');}
+    }catch(e){updateSyncBadge('error','网络错误');}
+  },800);
+}
+
+/* --- 实时订阅 --- */
+function subscribeCloud(){
+  if(!sbClient||!CLOUD_CFG.workspaceId)return;
+  if(sbChannel)sbClient.removeChannel(sbChannel);
+  sbChannel=sbClient.channel('workbench-sync')
+    .on('postgres_changes',{
+      event:'*',schema:'public',table:'workbench_data',
+      filter:'workspace_id=eq.'+CLOUD_CFG.workspaceId
+    },(payload)=>{
+      if(payload.eventType==='DELETE')return;
+      const newData=payload.new&&payload.new.data;
+      if(newData&&!isRemoteUpdate){
+        isRemoteUpdate=true;
+        DB=newData;
+        ensureKeys();
+        localStorage.setItem(STORE_KEY,JSON.stringify(DB));
+        const cur=document.querySelector('.nav-item.active');
+        if(cur)switchSection(cur.dataset.id);
+        isRemoteUpdate=false;
+      }
+    })
+    .subscribe();
+}
+
+/* --- localStorage 持久化 --- */
 function loadData(){
   try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ return {}; }
 }
-function saveData(){ localStorage.setItem(STORE_KEY,JSON.stringify(DB)); }
+function saveData(){
+  localStorage.setItem(STORE_KEY,JSON.stringify(DB));
+  if(sbClient&&!isRemoteUpdate)saveToCloud();
+}
 function ensureKeys(){
   if(!Array.isArray(DB.todos))DB.todos=[];
   if(!Array.isArray(DB.reviews))DB.reviews=[];
@@ -1448,20 +1576,90 @@ function renderDataMgr(){
   let tblHtml='<table class="sub-tbl"><tr><th>模块</th><th>记录数</th></tr>';
   rows.forEach(r=>{ tblHtml+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>'; });
   tblHtml+='</table>';
-  return '<div class="page-head"><span class="bow">💾</span><h1>数据管理</h1><span class="sub">· 备份 · 导入 · 重置</span></div>'+
+
+  /* 云同步状态 */
+  let cloudStatusHtml='';
+  if(CLOUD_CFG.url&&CLOUD_CFG.anonKey&&CLOUD_CFG.workspaceId){
+    cloudStatusHtml='<div class="cloud-status-box ok">☁️ 云同步已启用 · 工作区: '+escapeHtml(CLOUD_CFG.workspaceId)+'</div>';
+  }else{
+    cloudStatusHtml='<div class="cloud-status-box off">📴 云同步未启用 · 当前为本地模式，数据不共享</div>';
+  }
+
+  return '<div class="page-head"><span class="bow">💾</span><h1>数据管理</h1><span class="sub">· 备份 · 同步 · 重置</span></div>'+
+
     '<div class="card tint-blue"><div class="card-h">📈 数据概览</div>'+tblHtml+'</div>'+
-    '<div class="card"><div class="card-h">📦 备份与恢复</div>'+
-    '<div class="txt">所有数据保存在浏览器本地（localStorage），换设备或清除浏览器数据会丢失。建议定期导出备份。</div>'+
+
+    '<div class="card">'+
+    '<div class="card-h">☁️ 云同步设置</div>'+
+    cloudStatusHtml+
+    '<div class="cloud-config-row">'+
+    '<label>Supabase 项目 URL</label>'+
+    '<input class="crud-input" id="cfgUrl" placeholder="https://xxxx.supabase.co" value="'+escapeHtml(CLOUD_CFG.url||'')+'">'+
+    '</div>'+
+    '<div class="cloud-config-row">'+
+    '<label>Anon Key（匿名密钥）</label>'+
+    '<input class="crud-input" id="cfgKey" placeholder="eyJhbGci..." value="'+escapeHtml(CLOUD_CFG.anonKey||'')+'">'+
+    '</div>'+
+    '<div class="cloud-config-row">'+
+    '<label>工作区 ID（多人共享同一个 ID 即可同步）</label>'+
+    '<input class="crud-input" id="cfgWs" placeholder="如：ajie-team 或 my-workbench" value="'+escapeHtml(CLOUD_CFG.workspaceId||'')+'">'+
+    '</div>'+
+    '<div class="data-mgr">'+
+    '<button class="btn btn-accent" onclick="saveCloudCfg()">☁️ 启用云同步</button>'+
+    '<button class="btn btn-ghost" onclick="disconnectCloud()">📴 断开连接</button>'+
+    '<button class="btn btn-mint" onclick="syncNow()">🔄 立即同步</button>'+
+    '</div>'+
+    '</div>'+
+
+    '<div class="card tint-amber"><div class="card-h">ℹ️ 云同步说明</div>'+
+    '<div class="txt">• 启用后，所有数据会实时同步到云端，<b>多人共享同一工作区 ID 即可看到同一份数据</b>。</div>'+
+    '<div class="txt">• 一个人修改，其他人页面自动刷新，无需手动刷新。</div>'+
+    '<div class="txt">• 需要先在 Supabase 创建项目并运行建表 SQL（见下方指南）。</div>'+
+    '<div class="txt">• 断开连接后回到本地模式，云端数据不受影响。</div>'+
+    '</div>'+
+
+    '<div class="card">'+
+    '<div class="card-h">📦 本地备份与恢复</div>'+
+    '<div class="txt">即使开启云同步，也建议定期导出本地备份。</div>'+
     '<div class="data-mgr">'+
     '<button class="btn btn-accent" onclick="exportData()">⬇️ 导出全部数据</button>'+
     '<button class="btn btn-mint" onclick="importData()">⬆️ 导入数据</button>'+
     '<button class="btn btn-ghost" onclick="resetData()">🗑️ 清空所有数据</button>'+
-    '</div></div>'+
-    '<div class="card tint-amber"><div class="card-h">ℹ️ 说明</div>'+
-    '<div class="txt">• 数据存在<b>当前浏览器</b>中，不同设备/浏览器数据不互通。</div>'+
-    '<div class="txt">• 导出后会下载一个 JSON 文件，可在其他设备导入恢复。</div>'+
-    '<div class="txt">• 清空操作不可撤销，请先导出备份。</div>'+
-    '</div>';
+    '</div></div>';
+}
+function saveCloudCfg(){
+  const url=document.getElementById('cfgUrl').value.trim();
+  const anonKey=document.getElementById('cfgKey').value.trim();
+  const workspaceId=document.getElementById('cfgWs').value.trim();
+  if(!url||!anonKey||!workspaceId){
+    alert('请填写完整的 Supabase URL、Anon Key 和工作区 ID');return;
+  }
+  CLOUD_CFG={url,anonKey,workspaceId};
+  saveCloudConfig(CLOUD_CFG);
+  if(initSupabase()){
+    alert('云同步已启用！\n工作区: '+workspaceId+'\n\n现在多人访问同一链接，输入相同的工作区 ID 即可数据共享。');
+    subscribeCloud();
+    (async()=>{ const d=await loadFromCloud(); if(d){DB=d;ensureKeys();saveData();switchSection('data');} })();
+  }else{
+    alert('连接失败，请检查 URL 和 Key 是否正确');
+  }
+}
+function disconnectCloud(){
+  if(sbChannel){sbClient.removeChannel(sbChannel);sbChannel=null;}
+  sbClient=null;
+  CLOUD_CFG={};
+  saveCloudConfig({});
+  updateSyncBadge('off','本地模式');
+  alert('已断开云同步，回到本地模式。');
+  switchSection('data');
+}
+async function syncNow(){
+  if(!sbClient){alert('请先启用云同步');return;}
+  updateSyncBadge('syncing','同步中…');
+  const {error}=await sbClient.from('workbench_data')
+    .upsert({workspace_id:CLOUD_CFG.workspaceId,data:DB,updated_at:new Date().toISOString()});
+  if(error){updateSyncBadge('error','同步失败');alert('同步失败: '+error.message);}
+  else{updateSyncBadge('online','已连接');alert('同步成功！');}
 }
 function exportData(){
   const data=JSON.stringify(DB,null,2);
@@ -1543,6 +1741,22 @@ function showGuide(){
 function closeGuide(){ document.getElementById('guideMask').classList.remove('show'); }
 
 /* ========== 初始化 ========== */
+/* 初始化 Supabase（如果有配置） */
+initSupabase();
+/* 尝试从云端加载最新数据 */
+(async function(){
+  if(sbClient){
+    const cloudData=await loadFromCloud();
+    if(cloudData&&typeof cloudData==='object'){
+      DB=cloudData;
+      ensureKeys();
+      saveData();
+      const cur=document.querySelector('.nav-item.active');
+      if(cur)switchSection(cur.dataset.id);
+    }
+    subscribeCloud();
+  }
+})();
 switchSection('daily');
 /* 非 Safari 首次自动提示一次 */
 setTimeout(function(){
