@@ -88,7 +88,7 @@
   .nav-group:first-child{border-top:none;margin-top:2px}
 
   /* ===== 右侧内容 ===== */
-  .content{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+  .content{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:var(--content-bg)}
   .content::-webkit-scrollbar{width:6px}
   .content::-webkit-scrollbar-thumb{background:#c5d2e0;border-radius:3px}
   .content-inner{padding:16px 20px calc(80px + var(--safe-bottom));max-width:760px}
@@ -562,7 +562,8 @@
 
   /* 16. 内容区域切换淡入 */
   .content-inner{
-    animation:contentFade .35s ease both;
+    animation:contentFade .35s ease forwards;
+    min-height:100%;
   }
   @keyframes contentFade{
     from{opacity:0}
@@ -1612,6 +1613,10 @@ function switchSection(id){
     c.offsetHeight; /* force reflow */
     c.style.animation='';
   });
+  /* 重新触发内容淡入 */
+  content.style.animation='none';
+  content.offsetHeight;
+  content.style.animation='';
 }
 
 /* ========== 通用列表 CRUD ========== */
