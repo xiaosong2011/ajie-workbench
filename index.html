@@ -410,13 +410,13 @@
   @keyframes statusFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 
   /* 2. 侧栏背景微光呼吸 */
-  .sidebar{
-    position:relative;
-  }
-  .sidebar::before{
-    content:'';position:absolute;top:0;left:0;right:0;bottom:0;
-    background:radial-gradient(ellipse at 50% 0%,rgba(46,134,222,.12),transparent 60%);
-    pointer-events:none;animation:sideGlow 6s ease-in-out infinite;
+  @media(min-width:769px){
+    .sidebar{position:relative}
+    .sidebar::before{
+      content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+      background:radial-gradient(ellipse at 50% 0%,rgba(46,134,222,.12),transparent 60%);
+      pointer-events:none;animation:sideGlow 6s ease-in-out infinite;
+    }
   }
   @keyframes sideGlow{0%,100%{opacity:.4}50%{opacity:.8}}
 
