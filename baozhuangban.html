@@ -124,6 +124,7 @@
   .card.tint-amber{background:linear-gradient(135deg,#fdecd6,#fff5e8);border-left-color:#e67e22}
   .card.tint-violet{background:linear-gradient(135deg,#e8def7,#f3edfc);border-left-color:#7e57c2}
   .card.tint-slate{background:linear-gradient(135deg,#e2eaf3,#eef3f9);border-left-color:#8a9bb0}
+  .card.tint-rose{background:linear-gradient(135deg,#fde8e8,#fff5f5);border-left-color:#e74c3c}
   .card-h{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:10px;flex-wrap:wrap}
   .card-h .right-ml{margin-left:auto;font-size:12px;font-weight:500;color:var(--ink-3)}
   .card-h .btn{margin-left:auto}
@@ -242,6 +243,28 @@
   .sidebar-particles span{position:absolute;width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.12);animation:particleFloat linear infinite}
   @keyframes particleFloat{from{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:1}90%{opacity:1}to{transform:translateY(-20px) translateX(15px);opacity:0}}
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+  /* ===== 尾料发货专用样式 ===== */
+  .wl-customer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:8px}
+  .wl-customer-card{background:linear-gradient(135deg,#e8f4ff,#f0f8ff);border-radius:12px;padding:10px 12px;border-left:3px solid #5aa9e6;animation:cardIn .3s ease both}
+  .wl-customer-card .wl-c-name{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:4px}
+  .wl-customer-card .wl-c-codes{display:flex;flex-wrap:wrap;gap:4px}
+  .wl-customer-card .wl-code{background:#fff;border:1px solid var(--line);border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600;color:var(--tag-blue-t);font-family:Menlo,Monaco,monospace}
+  .wl-ban-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin-top:8px}
+  .wl-ban-item{background:linear-gradient(135deg,#fde8e8,#fff0f0);border-radius:8px;padding:6px 10px;border:1px solid #f5c6c6;font-size:12px;font-weight:700;color:#c0392b;font-family:Menlo,Monaco,monospace;text-align:center;animation:pillIn .3s ease both}
+  .wl-ban-export{background:linear-gradient(135deg,#fff3e0,#fff8ec);border-color:#f5d0a9;color:#d4691a}
+  .wl-rule-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .wl-rule-item:last-child{border-bottom:none}
+  .wl-rule-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .wl-rule-body{flex:1;font-size:13px;line-height:1.6;color:var(--ink-2)}
+  .wl-rule-body b{color:var(--ink)}
+  .wl-note-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:13px;line-height:1.6;color:var(--ink-2)}
+  .wl-note-item:last-child{border-bottom:none}
+  .wl-note-num{color:var(--accent-warm);font-weight:700;flex-shrink:0;font-size:14px}
+  .wl-note-item b{color:var(--ink)}
+  .wl-highlight-box{background:linear-gradient(135deg,#fff8e1,#fffdf5);border:1.5px solid #ffe082;border-radius:12px;padding:12px 14px;margin-top:10px;font-size:13px;color:#8a6d1a;line-height:1.7}
+  .wl-highlight-box b{color:#e65100}
+  .wl-sec-title{font-size:14px;font-weight:800;color:var(--ink);margin:4px 0 8px;display:flex;align-items:center;gap:6px}
+  .wl-sec-title::before{content:'';width:4px;height:16px;border-radius:2px;background:linear-gradient(180deg,var(--accent),var(--accent-2))}
 </style>
 </head>
 <body>
@@ -310,6 +333,7 @@ updateClock();setInterval(updateClock,30000);
 /* ========== 导航 ========== */
 const NAV=[
   {id:'overview',ico:'📋',name:'工作总况',group:'主菜单'},
+  {id:'tailings',ico:'🚚',name:'尾料发货',group:'主菜单'},
   {id:'data',    ico:'💾',name:'数据管理',group:'系统'},
 ];
 
@@ -639,6 +663,102 @@ overview:`
       '<div id="lc_'+k+'"></div>'+
     '</div>';
   }).join('')}
+`,
+tailings:`
+  <div class="page-head"><span class="bow">🚚</span><h1>尾料发货</h1><span class="sub">· 初1品-初3品尾料发货规则</span></div>
+
+  <div class="card tint-blue">
+    <div class="wl-sec-title">📌 客户代码参考</div>
+    <div class="wl-customer-grid">
+      <div class="wl-customer-card">
+        <div class="wl-c-name">🚗 五菱</div>
+        <div class="wl-c-codes">
+          <span class="wl-code">02225</span><span class="wl-code">03301</span>
+          <span class="wl-code">03001</span><span class="wl-code">03322</span>
+          <span class="wl-code">01325</span><span class="wl-code">03328</span>
+        </div>
+      </div>
+      <div class="wl-customer-card">
+        <div class="wl-c-name">🚙 日产</div>
+        <div class="wl-c-codes">
+          <span class="wl-code">04433</span><span class="wl-code">04417</span>
+        </div>
+      </div>
+      <div class="wl-customer-card">
+        <div class="wl-c-name">🏭 柳州双林</div>
+        <div class="wl-c-codes">
+          <span class="wl-code">03330</span>
+        </div>
+      </div>
+      <div class="wl-customer-card">
+        <div class="wl-c-name">🏭 重庆八菱</div>
+        <div class="wl-c-codes">
+          <span class="wl-code">01167</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card tint-rose">
+    <div class="wl-sec-title" style="color:#c0392b">🚫 禁止发货客户清单</div>
+    <div class="txt" style="margin-bottom:6px">以下客户尾料<b>禁止发货</b>，其余客户均可正常发尾料：</div>
+    <div class="wl-ban-grid">
+      <div class="wl-ban-item">01101</div>
+      <div class="wl-ban-item">01001</div>
+      <div class="wl-ban-item">02231</div>
+      <div class="wl-ban-item">04548</div>
+      <div class="wl-ban-item">02563</div>
+      <div class="wl-ban-item">03690</div>
+      <div class="wl-ban-item">03800</div>
+    </div>
+    <div class="txt" style="margin:10px 0 6px;font-weight:600;color:#c0392b">🌍 出口客户同样禁止：</div>
+    <div class="wl-ban-grid">
+      <div class="wl-ban-item wl-ban-export">09540<br><span style="font-size:10px;font-weight:400">五菱印尼</span></div>
+      <div class="wl-ban-item wl-ban-export">02794<br><span style="font-size:10px;font-weight:400">瑞源国际</span></div>
+      <div class="wl-ban-item wl-ban-export">09003<br><span style="font-size:10px;font-weight:400">马来西亚关西</span></div>
+      <div class="wl-ban-item wl-ban-export">09688<br><span style="font-size:10px;font-weight:400">泰国关西</span></div>
+    </div>
+  </div>
+
+  <div class="card tint-mint">
+    <div class="wl-sec-title">✅ 尾料发货要求</div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">1</div>
+      <div class="wl-rule-body">小桶尾料净重 <b>≥5kg</b>，按实际重量入库发货</div>
+    </div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">2</div>
+      <div class="wl-rule-body">大桶尾料净重 <b>≥20kg</b>，按实际重量入库发货</div>
+    </div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">3</div>
+      <div class="wl-rule-body">初1～初3品预留<b>空白商标</b>，毛重净重信息由包装人员填写打印并张贴</div>
+    </div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">4</div>
+      <div class="wl-rule-body">所有出库尾料必须粘贴<b>【非整桶】</b>标签</div>
+    </div>
+  </div>
+
+  <div class="card tint-amber">
+    <div class="wl-sec-title">⚠️ 注意事项</div>
+    <div class="wl-note-item">
+      <span class="wl-note-num">①</span>
+      <div>每批次<b>最后一桶以及尾料</b>，必须复核重量，数据登记至<b>《工程记录表》</b></div>
+    </div>
+    <div class="wl-note-item">
+      <span class="wl-note-num">②</span>
+      <div>核对尾料<b>毛重、净重</b>，保证数据准确</div>
+    </div>
+    <div class="wl-note-item">
+      <span class="wl-note-num">③</span>
+      <div><b>色浆、乳液、稀释剂、固化剂、方厅产品</b>，尾料一律不发货</div>
+    </div>
+  </div>
+
+  <div class="wl-highlight-box">
+    💡 <b>快速记忆：</b>小桶5kg、大桶20kg起发 → 空白商标手填贴 → 非整桶标签必贴 → 禁发客户查清单 → 色浆乳液稀释剂固化剂方厅不发
+  </div>
 `,
 };
 
