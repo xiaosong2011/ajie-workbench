@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="包装班工作台">
+<meta name="theme-color" content="#15273b">
+<meta name="format-detection" content="telephone=no">
+<title>包装班工作台</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+<style>
+  :root{
+    --side-1:#15273b; --side-2:#1e3349; --side-active:#2b4a6b;
+    --side-text:#c4d4e3; --side-text-dim:#7d92a6;
+    --content-bg:#eef2f7; --card:#ffffff;
+    --accent:#2e86de; --accent-2:#1abc9c; --accent-warm:#e67e22;
+    --ink:#1f2d3d; --ink-2:#51637a; --ink-3:#8a9bb0;
+    --line:#e3e9f0; --tag-blue:#dbeafe; --tag-blue-t:#1d6fb8;
+    --tag-mint:#d4f1e4; --tag-mint-t:#128a6a;
+    --tag-amber:#fde8d0; --tag-amber-t:#c4771a;
+    --tag-violet:#e6dcf7; --tag-violet-t:#6b3fa0;
+    --tag-rose:#fbdde6; --tag-rose-t:#b83d63;
+    --shadow:0 6px 20px rgba(20,40,70,.08);
+    --radius:16px;
+    --safe-top:env(safe-area-inset-top,0px);
+    --safe-bottom:env(safe-area-inset-bottom,0px);
+    --statusbar-h:calc(38px + var(--safe-top));
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+  html{background:var(--content-bg)}
+  html,body{height:100%;touch-action:manipulation;overscroll-behavior:none}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC","Segoe UI",Roboto,sans-serif;
+    background:var(--content-bg); color:var(--ink); overflow:hidden;
+    -webkit-text-size-adjust:100%;-moz-text-size-adjust:100%;text-size-adjust:100%;
+  }
+  .device{
+    width:100%;min-height:100vh;min-height:100dvh;min-height:-webkit-fill-available;
+    height:100vh;height:100dvh;height:-webkit-fill-available;
+    max-width:1180px;margin:0 auto;display:flex;flex-direction:column;background:var(--content-bg);position:relative;
+  }
+  .statusbar{
+    height:var(--statusbar-h);padding-top:var(--safe-top);flex-shrink:0;
+    display:flex;align-items:center;justify-content:space-between;
+    padding-left:18px;padding-right:18px;font-size:14px;font-weight:600;color:#fff;
+    background:linear-gradient(90deg,var(--side-1),var(--side-2),var(--side-1));
+    background-size:200% 100%;animation:statusFlow 8s ease infinite;
+  }
+  @keyframes statusFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  .statusbar .left{display:flex;align-items:center;gap:8px}
+  .statusbar .center{width:120px;height:26px;background:#000;border-radius:14px}
+  .statusbar .right{display:flex;align-items:center;gap:6px;font-size:12px}
+  .statusbar .right svg{width:16px;height:11px}
+  .bat{display:inline-flex;align-items:center;gap:2px}
+  .bat-body{width:22px;height:11px;border:1.4px solid #fff;border-radius:3px;position:relative;padding:1.2px}
+  .bat-body i{display:block;height:100%;width:67%;background:#fff;border-radius:1px}
+  .bat-tip{width:2px;height:5px;background:#fff;border-radius:0 2px 2px 0}
+  .menu-btn{display:none}
+  .main{flex:1 1 auto;display:flex;overflow:hidden;min-height:0;background:var(--content-bg)}
+  .sidebar{
+    width:188px;flex-shrink:0;background:linear-gradient(180deg,var(--side-1),var(--side-2));
+    display:flex;flex-direction:column;overflow:hidden;position:relative;
+  }
+  @media(min-width:769px){
+    .sidebar::before{
+      content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+      background:radial-gradient(ellipse at 50% 0%,rgba(46,134,222,.12),transparent 60%);
+      pointer-events:none;animation:sideGlow 6s ease-in-out infinite;
+    }
+  }
+  @keyframes sideGlow{0%,100%{opacity:.4}50%{opacity:.8}}
+  .side-head{padding:14px 16px 10px}
+  .side-head .avatar{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:inline-flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px;position:relative}
+  .side-head .avatar::before{content:'';position:absolute;inset:-3px;border-radius:inherit;background:conic-gradient(from 0deg,var(--accent),var(--accent-2),var(--accent-warm),var(--accent));animation:avatarSpin 4s linear infinite;z-index:-1;filter:blur(2px);opacity:.6}
+  @keyframes avatarSpin{to{transform:rotate(360deg)}}
+  .side-head .ws-name{color:#fff;font-size:16px;font-weight:700;letter-spacing:.5px}
+  .side-head .ws-sub{color:var(--side-text-dim);font-size:11px;margin-top:3px}
+  .nav-scroll{flex:1;overflow-y:auto;padding:4px 8px 16px;-webkit-overflow-scrolling:touch}
+  .nav-scroll::-webkit-scrollbar{width:0}
+  .nav-item{
+    display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:11px;
+    color:var(--side-text);font-size:13px;cursor:pointer;margin:2px 0;
+    transition:background .18s,color .18s;position:relative;user-select:none;overflow:hidden;
+  }
+  .nav-item .ico{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:rgba(255,255,255,.08)}
+  .nav-item:hover{background:rgba(255,255,255,.07)}
+  .nav-item.active{background:var(--side-active);color:#fff}
+  .nav-item.active .ico{background:rgba(255,255,255,.18)}
+  .nav-item.active::before{content:"";position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--accent-2);border-radius:0 3px 3px 0;animation:navBarIn .3s cubic-bezier(.4,0,.2,1)}
+  @keyframes navBarIn{from{height:0;opacity:0}to{height:18px;opacity:1}}
+  .nav-item .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.3);transform:scale(0);animation:ripple .5s ease-out;pointer-events:none}
+  @keyframes ripple{to{transform:scale(3);opacity:0}}
+  .nav-group{font-size:10px;font-weight:700;color:var(--side-text-dim);letter-spacing:1px;padding:14px 10px 4px;text-transform:uppercase;border-top:1px solid rgba(255,255,255,.06);margin-top:6px}
+  .nav-group:first-child{border-top:none;margin-top:2px}
+  .overlay{display:none}
+  @media(max-width:768px){
+    .menu-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;font-size:20px;cursor:pointer}
+    .sidebar{position:fixed;top:var(--statusbar-h);left:0;bottom:0;width:240px;z-index:60;transform:translateX(-100%);transition:transform .28s ease;box-shadow:4px 0 20px rgba(0,0,0,.18)}
+    .sidebar.open{transform:translateX(0)}
+    .overlay{position:fixed;top:var(--statusbar-h);left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:55}
+    .overlay.show{display:block}
+  }
+  .content{flex:1 1 auto;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:var(--content-bg);min-height:0;background-image:radial-gradient(circle at 1px 1px,rgba(0,0,0,.02) 1px,transparent 0);background-size:20px 20px}
+  .content::-webkit-scrollbar{width:6px}
+  .content::-webkit-scrollbar-thumb{background:#c5d2e0;border-radius:3px}
+  .content-inner{padding:16px 20px calc(80px + var(--safe-bottom));max-width:760px;min-height:100%;animation:contentFade .35s ease forwards}
+  @keyframes contentFade{from{opacity:0}to{opacity:1}}
+  @media(max-width:768px){.content-inner{padding:14px 14px calc(90px + var(--safe-bottom))}}
+  .page-head{display:flex;align-items:flex-end;gap:8px;margin-bottom:14px;flex-wrap:wrap;animation:titleIn .4s ease both}
+  @keyframes titleIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+  .page-head .bow{font-size:18px}
+  .page-head h1{font-size:22px;font-weight:800;color:var(--ink)}
+  .page-head .sub{font-size:13px;color:var(--ink-3);font-weight:500;margin-bottom:2px}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px;border-left:3px solid transparent;animation:cardIn .4s cubic-bezier(.4,0,.2,1) both;transition:transform .15s,box-shadow .15s}
+  .card:nth-child(1){animation-delay:0s}.card:nth-child(2){animation-delay:.06s}.card:nth-child(3){animation-delay:.12s}.card:nth-child(4){animation-delay:.18s}.card:nth-child(5){animation-delay:.24s}.card:nth-child(6){animation-delay:.30s}.card:nth-child(7){animation-delay:.36s}.card:nth-child(8){animation-delay:.42s}
+  @keyframes cardIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+  @media(hover:hover){.card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(20,40,70,.12)}}
+  .card.tint-blue{background:linear-gradient(135deg,#dbeefe,#eaf4ff);border-left-color:#5aa9e6}
+  .card.tint-mint{background:linear-gradient(135deg,#d5f1e6,#e8faf2);border-left-color:#1abc9c}
+  .card.tint-amber{background:linear-gradient(135deg,#fdecd6,#fff5e8);border-left-color:#e67e22}
+  .card.tint-violet{background:linear-gradient(135deg,#e8def7,#f3edfc);border-left-color:#7e57c2}
+  .card.tint-slate{background:linear-gradient(135deg,#e2eaf3,#eef3f9);border-left-color:#8a9bb0}
+  .card-h{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:10px;flex-wrap:wrap}
+  .card-h .right-ml{margin-left:auto;font-size:12px;font-weight:500;color:var(--ink-3)}
+  .card-h .btn{margin-left:auto}
+  .txt{font-size:13px;line-height:1.7;color:var(--ink-2)}
+  .txt b{color:var(--ink)}
+  .pill{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:600;animation:pillIn .3s cubic-bezier(.34,1.56,.64,1) both}
+  @keyframes pillIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+  .btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:transform .1s,filter .15s;font-family:inherit;position:relative;overflow:hidden}
+  .btn:active{transform:scale(.95)}
+  .btn-accent{background:var(--accent);color:#fff}
+  .btn-accent::after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 0 rgba(46,134,222,.4);animation:btnPulse 2.5s ease-out infinite;pointer-events:none}
+  @keyframes btnPulse{0%{box-shadow:0 0 0 0 rgba(46,134,222,.3)}70%{box-shadow:0 0 0 8px rgba(46,134,222,0)}100%{box-shadow:0 0 0 0 rgba(46,134,222,0)}}
+  .btn-mint{background:var(--accent-2);color:#fff}
+  .btn-ghost{background:#f1f5fa;color:var(--ink-2)}
+  .btn:hover{filter:brightness(1.06)}
+  .btn .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.35);transform:scale(0);animation:ripple .5s ease-out;pointer-events:none}
+  .sub-tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+  .sub-tbl th{text-align:left;color:var(--ink-3);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line)}
+  .sub-tbl td{padding:7px 8px;border-bottom:1px solid var(--line);color:var(--ink-2)}
+  .sub-tbl td b{color:var(--ink)}
+  .fab{position:fixed;right:18px;bottom:calc(18px + var(--safe-bottom));width:42px;height:42px;border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-3);cursor:pointer;z-index:50;border:none}
+  .fab:hover{color:var(--accent)}
+  .menu-fab{display:none}
+  @media(max-width:768px){
+    .menu-fab{display:flex;position:fixed;left:16px;bottom:calc(16px + var(--safe-bottom));width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;align-items:center;justify-content:center;font-size:26px;cursor:pointer;z-index:62;border:none;box-shadow:0 4px 18px rgba(46,134,222,.5);user-select:none;animation:fabGlow 3s ease-in-out infinite}
+    .menu-fab:active{transform:scale(.9)}
+  }
+  @keyframes fabGlow{0%,100%{box-shadow:0 4px 18px rgba(46,134,222,.45)}50%{box-shadow:0 4px 28px rgba(46,134,222,.65),0 0 0 6px rgba(46,134,222,.08)}}
+  .swipe-refresh-hint{position:fixed;top:50%;left:0;transform:translateY(-50%);z-index:48;display:flex;align-items:center;justify-content:center;width:0;overflow:hidden;transition:width .25s ease}
+  .swipe-refresh-hint .sr-icon{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(46,134,222,.35);transition:transform .2s ease}
+  .swipe-refresh-hint.active{width:60px}
+  .swipe-refresh-hint.active .sr-icon{animation:srSpin .6s linear infinite}
+  @keyframes srSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  .swipe-refresh-hint.triggered .sr-icon{animation:srPulse .3s ease}
+  @keyframes srPulse{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+  .section{display:none;animation:fade .25s ease}
+  .section.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .empty{text-align:center;padding:30px 16px;color:var(--ink-3);font-size:13px}
+  .empty .big{font-size:40px;margin-bottom:8px}
+  .empty-hint{text-align:center;padding:24px 16px;color:var(--ink-3);font-size:13px;animation:emptyFloat 3s ease-in-out infinite}
+  @keyframes emptyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .empty-hint .big{font-size:36px;margin-bottom:6px}
+  .crud-input{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;color:var(--ink);background:#f8fafd;outline:none;transition:border-color .15s;font-family:inherit;margin-bottom:8px}
+  .crud-input:focus{border-color:var(--accent);background:#fff}
+  .crud-textarea{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;color:var(--ink);background:#f8fafd;outline:none;transition:border-color .15s;font-family:inherit;resize:vertical;min-height:60px;margin-bottom:8px;line-height:1.5}
+  .crud-textarea:focus{border-color:var(--accent);background:#fff}
+  .crud-label{font-size:12px;color:var(--ink-3);font-weight:600;display:block;margin-bottom:4px}
+  .gitem{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);animation:itemSlideIn .3s ease both}
+  .gitem:nth-child(1){animation-delay:0s}.gitem:nth-child(2){animation-delay:.04s}.gitem:nth-child(3){animation-delay:.08s}.gitem:nth-child(4){animation-delay:.12s}.gitem:nth-child(5){animation-delay:.16s}.gitem:nth-child(6){animation-delay:.20s}.gitem:nth-child(7){animation-delay:.24s}.gitem:nth-child(8){animation-delay:.28s}
+  @keyframes itemSlideIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+  .gitem:last-child{border-bottom:none}
+  .gitem .gbody{flex:1;min-width:0}
+  .gitem .gt{font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.4}
+  .gitem .gmeta{font-size:11px;color:var(--ink-3);margin:2px 0 0}
+  .gitem .gdesc{font-size:12.5px;line-height:1.6;color:var(--ink-2);margin-top:3px}
+  .gitem .gfields{margin-top:4px;font-size:12px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:4px 12px}
+  .gitem .gfields span b{color:var(--ink-3);font-weight:600}
+  .gitem .gtags{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+  .item-more{width:28px;height:28px;border:none;border-radius:8px;background:transparent;color:var(--ink-3);font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .12s}
+  .item-more:active{background:var(--line)}
+  .item-menu{position:fixed;z-index:9999;background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.18);overflow:hidden;min-width:120px;opacity:0;transform:scale(.9);pointer-events:none;transition:all .12s;transform-origin:top right}
+  .item-menu.show{opacity:1;transform:scale(1);pointer-events:auto;animation:menuPop .18s cubic-bezier(.34,1.56,.64,1) both}
+  @keyframes menuPop{from{opacity:0;transform:scale(.85) translateY(-4px)}to{opacity:1;transform:scale(1) translateY(0)}}
+  .item-menu .im-btn{display:flex;align-items:center;gap:8px;width:100%;padding:12px 16px;border:none;background:transparent;font-size:14px;color:var(--ink);cursor:pointer;font-family:inherit;transition:background .1s}
+  .item-menu .im-btn:active{background:var(--line)}
+  .item-menu .im-btn.im-edit{color:#3b82f6}
+  .item-menu .im-btn.im-del{color:#ef4444}
+  .item-menu .im-divider{height:1px;background:var(--line)}
+  .modal-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:98;display:none;align-items:flex-end;justify-content:center;padding:0}
+  .modal-mask.show{display:flex}
+  .modal-box{background:#fff;border-radius:20px 20px 0 0;padding:20px 18px calc(20px + var(--safe-bottom));max-width:460px;width:100%;max-height:85vh;overflow-y:auto;animation:modalIn .3s cubic-bezier(.34,1.56,.64,1) both;-webkit-overflow-scrolling:touch}
+  @keyframes modalIn{from{opacity:0;transform:translateY(30px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .modal-box h3{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+  .modal-box .modal-close{margin-left:auto;width:28px;height:28px;border-radius:8px;background:#f1f5fa;border:none;font-size:16px;cursor:pointer;color:var(--ink-3);display:flex;align-items:center;justify-content:center}
+  .modal-box .modal-save{width:100%;margin-top:12px;padding:13px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+  .modal-box .modal-save:active{transform:scale(.97)}
+  .data-mgr{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .data-mgr .btn{font-size:12px}
+  .sync-badge{position:fixed;top:calc(var(--safe-top,0px) + 8px);right:14px;z-index:61;display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);color:#fff;transition:background .2s}
+  .sync-badge.off{background:rgba(255,255,255,.1);color:var(--side-text-dim)}
+  .sync-badge.syncing{background:rgba(46,134,222,.3);color:#fff}
+  .sync-badge.online{background:rgba(26,188,156,.25);color:#aef5e0}
+  .sync-badge.error{background:rgba(231,76,60,.3);color:#ffd0c8}
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+  .sync-badge.syncing .sync-dot{animation:blink 1s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .cloud-config-row{margin-bottom:10px}
+  .cloud-config-row label{display:block;font-size:12px;color:var(--ink-3);font-weight:600;margin-bottom:4px}
+  .cloud-status-box{padding:10px 14px;border-radius:12px;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .cloud-status-box.ok{background:var(--tag-mint);color:var(--tag-mint-t)}
+  .cloud-status-box.off{background:#f1f5fa;color:var(--ink-3)}
+  .share-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.65);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+  .share-mask.show{display:flex}
+  .share-box{background:#fff;border-radius:20px;padding:24px 20px;max-width:340px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:pop .3s ease;max-height:90vh;overflow-y:auto;text-align:center}
+  @keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+  .share-box h2{font-size:18px;font-weight:800;color:var(--ink);margin-bottom:4px}
+  .share-box .gsub{font-size:12px;color:var(--ink-3);margin-bottom:16px}
+  #qrcodeBox{display:flex;justify-content:center;margin:10px auto 16px}
+  #qrcodeBox img,#qrcodeBox canvas{border-radius:12px;border:1px solid var(--line)}
+  .share-link-box{background:var(--content-bg);border-radius:12px;padding:10px 12px;margin:10px 0;font-size:11px;color:var(--ink-3);word-break:break-all;line-height:1.5;text-align:left;max-height:60px;overflow-y:auto}
+  .share-btns{display:flex;gap:8px;margin-top:12px}
+  .share-btns button{flex:1}
+  .share-close{width:100%;margin-top:10px;padding:12px;border-radius:14px;border:none;background:var(--content-bg);color:var(--ink-2);font-size:15px;font-weight:600;cursor:pointer}
+  .share-close:active{transform:scale(.97)}
+  .connect-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:20px;padding:28px 24px;max-width:320px;width:calc(100% - 40px);box-shadow:0 20px 60px rgba(0,0,0,.3);z-index:101;text-align:center;display:none;animation:connectPop .4s cubic-bezier(.34,1.56,.64,1) both}
+  @keyframes connectPop{from{opacity:0;transform:translate(-50%,-50%) scale(.8)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+  .connect-toast.show{display:block}
+  .connect-toast .ct-icon{font-size:48px;margin-bottom:8px}
+  .connect-toast .ct-title{font-size:18px;font-weight:800;color:var(--ink);margin-bottom:6px}
+  .connect-toast .ct-desc{font-size:13px;color:var(--ink-2);line-height:1.6;margin-bottom:16px}
+  .connect-toast .ct-ws{background:var(--content-bg);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--accent);font-weight:600;margin-bottom:14px}
+  .connect-toast button{width:100%;padding:12px;border-radius:14px;border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+  .connect-toast button:active{transform:scale(.97)}
+  .sidebar-particles{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:hidden}
+  .sidebar-particles span{position:absolute;width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.12);animation:particleFloat linear infinite}
+  @keyframes particleFloat{from{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:1}90%{opacity:1}to{transform:translateY(-20px) translateX(15px);opacity:0}}
+  @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="device">
+  <div class="sync-badge off" id="syncBadge" onclick="switchSection('data')"><span class="sync-dot"></span><span id="syncText">本地模式</span></div>
+  <div class="statusbar">
+    <span class="left"><span class="menu-btn" onclick="toggleSidebar()">☰</span><span id="clockTxt">08:00</span></span>
+    <span class="center"></span>
+    <span class="right">
+      <svg viewBox="0 0 18 12" fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".4"/></svg>
+      <span>5G</span>
+      <span class="bat"><span class="bat-body"><i></i></span><span class="bat-tip"></span></span>
+      <span style="font-size:11px">67</span>
+    </span>
+  </div>
+  <div class="main">
+    <aside class="sidebar" id="sidebar">
+      <div class="side-head">
+        <div class="avatar">📦</div>
+        <div class="ws-name">包装班工作台</div>
+        <div class="ws-sub">⚙️ 生产管理系统</div>
+      </div>
+      <nav class="nav-scroll" id="nav"></nav>
+    </aside>
+    <div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
+    <main class="content"><div class="content-inner" id="content"></div></main>
+  </div>
+  <button class="fab" title="帮助" onclick="alert('包装班工作台\n\n· 点击左上角☰或左下角菜单按钮打开导航\n· 各板块支持新增/编辑/删除\n· 数据自动保存在本地\n· 从屏幕左边缘向右滑动可刷新当前页面')">?</button>
+  <button class="menu-fab" onclick="toggleSidebar()" title="打开菜单">☰</button>
+  <div class="swipe-refresh-hint" id="swipeHint"><div class="sr-icon">↻</div></div>
+  <div class="share-mask" id="shareMask" onclick="if(event.target===this)closeShareModal()">
+    <div class="share-box">
+      <h2>📱 分享工作台</h2>
+      <div class="gsub">同事扫描二维码或点击链接即可加入，无需配置</div>
+      <div id="qrcodeBox"></div>
+      <div style="font-size:12px;color:var(--ink-3);margin-bottom:8px">↑ 让同事用手机相机或微信扫一扫</div>
+      <div class="share-link-box" id="shareLinkText"></div>
+      <div class="share-btns">
+        <button class="btn btn-accent" onclick="copyShareLink()">📋 复制链接</button>
+        <button class="btn btn-mint" onclick="shareToFriend()">💬 系统分享</button>
+      </div>
+      <button class="share-close" onclick="closeShareModal()">关闭</button>
+    </div>
+  </div>
+  <div class="connect-toast" id="connectToast">
+    <div class="ct-icon">🎉</div>
+    <div class="ct-title">已连接到共享工作台</div>
+    <div class="ct-ws" id="ctWsName"></div>
+    <div class="ct-desc">数据将自动同步，你和同事看到的是同一份数据。<br>一人修改，全员实时更新。</div>
+    <button onclick="document.getElementById('connectToast').classList.remove('show')">开始使用</button>
+  </div>
+</div>
+<script>
+/* ========== 阻止浏览器安装提示 ========== */
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();return false;});
+
+/* ========== 视口高度修复 ========== */
+function setVH(){var h=window.innerHeight;document.documentElement.style.setProperty('--vh',h+'px');var d=document.querySelector('.device');if(d)d.style.height=h+'px';}
+setVH();window.addEventListener('resize',setVH);window.addEventListener('orientationchange',function(){setTimeout(setVH,200);});
+if(window.visualViewport)window.visualViewport.addEventListener('resize',setVH);
+
+/* ========== 时钟 ========== */
+function updateClock(){var d=new Date();var h=String(d.getHours()).padStart(2,'0');var m=String(d.getMinutes()).padStart(2,'0');var el=document.getElementById('clockTxt');if(el)el.textContent=h+':'+m;}
+updateClock();setInterval(updateClock,30000);
+
+/* ========== 导航 ========== */
+const NAV=[
+  {id:'overview',ico:'📋',name:'工作总况',group:'主菜单'},
+  {id:'data',    ico:'💾',name:'数据管理',group:'系统'},
+];
+
+/* ========== 通用列表配置 ========== */
+const LISTS={
+  productionTasks:{title:'生产任务',icon:'🏭',dbKey:'productionTasks',fields:[
+    {key:'product',label:'产品名称',type:'input',placeholder:'如：红牛250ml罐装',as:'title'},
+    {key:'quantity',label:'计划数量',type:'input',placeholder:'如：5000箱',as:'field'},
+    {key:'deadline',label:'交货期限',type:'input',placeholder:'如：2026-08-15',as:'meta'},
+    {key:'priority',label:'优先级',type:'select',options:['普通','紧急','加急'],as:'tag'}
+  ]},
+  outputRecords:{title:'产量记录',icon:'📊',dbKey:'outputRecords',fields:[
+    {key:'date',label:'日期',type:'input',placeholder:'如：2026-08-13',as:'meta'},
+    {key:'product',label:'产品',type:'input',placeholder:'如：红牛250ml',as:'title'},
+    {key:'quantity',label:'完成数量',type:'input',placeholder:'如：3200箱',as:'field'},
+    {key:'shift',label:'班次',type:'select',options:['白班','夜班','中班'],as:'tag'}
+  ]},
+  qualityChecks:{title:'质量检查',icon:'✅',dbKey:'qualityChecks',fields:[
+    {key:'product',label:'产品',type:'input',placeholder:'如：红牛250ml',as:'title'},
+    {key:'checkItem',label:'检查项目',type:'input',placeholder:'如：封口完整性',as:'field'},
+    {key:'result',label:'结果',type:'select',options:['合格','不合格','待复检'],as:'tag'},
+    {key:'inspector',label:'检查人',type:'input',placeholder:'如：张师傅',as:'desc'}
+  ]},
+  personnel:{title:'人员安排',icon:'👥',dbKey:'personnel',fields:[
+    {key:'name',label:'姓名',type:'input',placeholder:'如：张三',as:'title'},
+    {key:'position',label:'岗位',type:'input',placeholder:'如：包装机操作员',as:'field'},
+    {key:'shift',label:'班次',type:'select',options:['白班','夜班','中班'],as:'tag'},
+    {key:'phone',label:'联系电话',type:'input',placeholder:'如：138xxxx',as:'meta'}
+  ]},
+  equipment:{title:'设备状态',icon:'⚙️',dbKey:'equipment',fields:[
+    {key:'name',label:'设备名称',type:'input',placeholder:'如：1号包装机',as:'title'},
+    {key:'status',label:'运行状态',type:'select',options:['运行中','待机','维修中','故障停机'],as:'tag'},
+    {key:'lastMaint',label:'上次维护',type:'input',placeholder:'如：2026-08-10',as:'meta'},
+    {key:'note',label:'备注',type:'textarea',placeholder:'维护说明或故障描述',as:'desc'}
+  ]},
+  materials:{title:'物料管理',icon:'📦',dbKey:'materials',fields:[
+    {key:'name',label:'物料名称',type:'input',placeholder:'如：纸箱（大号）',as:'title'},
+    {key:'stock',label:'库存数量',type:'input',placeholder:'如：800',as:'field'},
+    {key:'unit',label:'单位',type:'input',placeholder:'如：个/箱/卷',as:'meta'},
+    {key:'minStock',label:'最低库存预警',type:'input',placeholder:'如：200',as:'desc'}
+  ]},
+  safetyItems:{title:'安全事项',icon:'🦺',dbKey:'safetyItems',fields:[
+    {key:'title',label:'事项',type:'input',placeholder:'如：每日开工前安全检查',as:'title'},
+    {key:'desc',label:'详细说明',type:'textarea',placeholder:'安全要求或注意事项',as:'desc'},
+    {key:'status',label:'状态',type:'select',options:['待执行','已完成','每日执行'],as:'tag'}
+  ]},
+  handoverLogs:{title:'交接班记录',icon:'📝',dbKey:'handoverLogs',fields:[
+    {key:'date',label:'日期',type:'input',placeholder:'如：2026-08-13',as:'meta'},
+    {key:'shift',label:'班次',type:'select',options:['白班→夜班','夜班→白班','白班→中班'],as:'tag'},
+    {key:'from',label:'交班人',type:'input',placeholder:'如：张三',as:'field'},
+    {key:'to',label:'接班人',type:'input',placeholder:'如：李四',as:'field'},
+    {key:'content',label:'交接内容',type:'textarea',placeholder:'设备运行情况、未完成任务、注意事项等',as:'desc'}
+  ]},
+};
+
+const SECTION_LISTS={overview:Object.keys(LISTS)};
+
+/* ========== 初始数据 ========== */
+const INITIAL={
+  productionTasks:[
+    {product:'红牛250ml罐装',quantity:'5000箱',deadline:'2026-08-15',priority:'紧急'},
+    {product:'怡宝555ml瓶装',quantity:'8000箱',deadline:'2026-08-18',priority:'普通'},
+    {product:'康师傅冰红茶500ml',quantity:'6000箱',deadline:'2026-08-20',priority:'普通'},
+    {product:'王老吉310ml罐装',quantity:'3000箱',deadline:'2026-08-14',priority:'加急'},
+    {product:'雪碧330ml罐装',quantity:'4500箱',deadline:'2026-08-22',priority:'普通'},
+  ],
+  outputRecords:[
+    {date:'2026-08-13',product:'红牛250ml罐装',quantity:'3200箱',shift:'白班'},
+    {date:'2026-08-12',product:'怡宝555ml瓶装',quantity:'4100箱',shift:'白班'},
+    {date:'2026-08-12',product:'红牛250ml罐装',quantity:'2800箱',shift:'夜班'},
+    {date:'2026-08-11',product:'康师傅冰红茶500ml',quantity:'3500箱',shift:'白班'},
+    {date:'2026-08-11',product:'怡宝555ml瓶装',quantity:'2200箱',shift:'夜班'},
+    {date:'2026-08-10',product:'王老吉310ml罐装',quantity:'3000箱',shift:'白班'},
+  ],
+  qualityChecks:[
+    {product:'红牛250ml罐装',checkItem:'封口完整性',result:'合格',inspector:'张师傅'},
+    {product:'红牛250ml罐装',checkItem:'生产日期喷码',result:'合格',inspector:'李师傅'},
+    {product:'怡宝555ml瓶装',checkItem:'瓶盖密封性',result:'合格',inspector:'张师傅'},
+    {product:'康师傅冰红茶500ml',checkItem:'标签贴附位置',result:'待复检',inspector:'王师傅'},
+    {product:'王老吉310ml罐装',checkItem:'装箱数量核对',result:'合格',inspector:'李师傅'},
+  ],
+  personnel:[
+    {name:'张三',position:'包装机操作员',shift:'白班',phone:'13800001111'},
+    {name:'李四',position:'质检员',shift:'白班',phone:'13800002222'},
+    {name:'王五',position:'叉车工',shift:'白班',phone:'13800003333'},
+    {name:'赵六',position:'包装机操作员',shift:'夜班',phone:'13800004444'},
+    {name:'钱七',position:'班长',shift:'白班',phone:'13800005555'},
+    {name:'孙八',position:'物料员',shift:'夜班',phone:'13800006666'},
+  ],
+  equipment:[
+    {name:'1号包装机',status:'运行中',lastMaint:'2026-08-10',note:'运行正常，产能 120箱/小时'},
+    {name:'2号包装机',status:'运行中',lastMaint:'2026-08-08',note:'运行正常，产能 115箱/小时'},
+    {name:'3号包装机',status:'维修中',lastMaint:'2026-08-13',note:'更换传送带，预计下午4点恢复'},
+    {name:'码垛机器人A',status:'运行中',lastMaint:'2026-08-05',note:'运行正常'},
+    {name:'贴标机B',status:'待机',lastMaint:'2026-08-01',note:'待切换产品型号后启用'},
+    {name:'缠绕机',status:'运行中',lastMaint:'2026-07-28',note:'运行正常，缠绕膜余量充足'},
+  ],
+  materials:[
+    {name:'纸箱（大号）',stock:'800',unit:'个',minStock:'200'},
+    {name:'纸箱（中号）',stock:'1200',unit:'个',minStock:'300'},
+    {name:'缠绕膜',stock:'15',unit:'卷',minStock:'5'},
+    {name:'封箱胶带',stock:'48',unit:'卷',minStock:'20'},
+    {name:'标签贴纸',stock:'5000',unit:'张',minStock:'1000'},
+    {name:'打包带',stock:'30',unit:'卷',minStock:'10'},
+  ],
+  safetyItems:[
+    {title:'每日开工前安全检查',desc:'检查设备防护罩、急停按钮、消防器材是否正常，确认无异常后方可开机。',status:'每日执行'},
+    {title:'佩戴劳保用品',desc:'进入车间必须穿戴工作服、安全帽、防护手套、防砸鞋，不得穿拖鞋短裤。',status:'每日执行'},
+    {title:'叉车作业安全',desc:'叉车工必须持证上岗，作业时注意周围人员，限速5km/h，载货不得超重。',status:'已完成'},
+    {title:'设备清洁保养',desc:'每班结束后清理设备周边杂物，擦拭机器表面，检查润滑油位。',status:'每日执行'},
+    {title:'消防通道畅通',desc:'确保车间消防通道、安全出口不被物料堵塞，灭火器前方无遮挡物。',status:'已完成'},
+  ],
+  handoverLogs:[
+    {date:'2026-08-13',shift:'白班→夜班',from:'钱七',to:'赵六',content:'1号、2号包装机运行正常，3号机维修中预计16:00恢复。红牛任务已完成3200箱，剩余1800箱夜班继续。物料纸箱大号库存800个够用。'},
+    {date:'2026-08-12',shift:'夜班→白班',from:'赵六',to:'钱七',content:'夜班完成红牛2800箱、怡宝4100箱。2号机中途卡纸一次已排除。康师傅标签待复检事项已报给质检。'},
+    {date:'2026-08-11',shift:'白班→夜班',from:'钱七',to:'赵六',content:'白班完成康师傅3500箱。3号机传送带有异响已报修。王老吉加急任务优先安排夜班生产。'},
+  ],
+};
+
+/* ========== 数据层 ========== */
+const STORE_KEY='baozhuangban_workbench_data';
+const CLOUD_KEY='baozhuangban_cloud_config';
+
+function loadCloudConfig(){try{return JSON.parse(localStorage.getItem(CLOUD_KEY))||{};}catch(e){return{};}}
+function saveCloudConfig(cfg){localStorage.setItem(CLOUD_KEY,JSON.stringify(cfg));}
+let CLOUD_CFG=loadCloudConfig();
+let sbClient=null,sbChannel=null,syncTimer=null,isRemoteUpdate=false;
+
+function initSupabase(){
+  if(!CLOUD_CFG.url||!CLOUD_CFG.anonKey||!CLOUD_CFG.workspaceId){sbClient=null;updateSyncBadge('off','本地模式');return false;}
+  try{sbClient=supabase.createClient(CLOUD_CFG.url,CLOUD_CFG.anonKey);updateSyncBadge('online','已连接');return true;}
+  catch(e){sbClient=null;updateSyncBadge('error','连接失败');return false;}
+}
+function updateSyncBadge(state,text){const badge=document.getElementById('syncBadge');const txt=document.getElementById('syncText');if(!badge)return;badge.className='sync-badge '+state;if(txt)txt.textContent=text;}
+
+let lastSyncError='';
+async function loadFromCloud(){
+  if(!sbClient)return null;
+  try{
+    updateSyncBadge('syncing','同步中…');
+    const{data,error}=await sbClient.from('workbench_data').select('data,updated_at').eq('workspace_id',CLOUD_CFG.workspaceId).maybeSingle();
+    if(error){lastSyncError=error.message||JSON.stringify(error);updateSyncBadge('error','加载失败');return null;}
+    if(!data){updateSyncBadge('online','已连接');return null;}
+    updateSyncBadge('online','已连接');lastSyncError='';
+    if(data.updated_at)lastCloudSaveTime=new Date(data.updated_at).getTime();
+    return data.data;
+  }catch(e){lastSyncError=e.message||String(e);updateSyncBadge('error','网络错误');return null;}
+}
+
+let saveRetryCount=0;
+function saveToCloud(){
+  if(!sbClient)return;
+  if(syncTimer)clearTimeout(syncTimer);
+  syncTimer=setTimeout(async()=>{
+    updateSyncBadge('syncing','同步中…');
+    try{
+      const{error}=await sbClient.from('workbench_data').upsert({workspace_id:CLOUD_CFG.workspaceId,data:DB,updated_at:new Date().toISOString()});
+      if(error){saveRetryCount++;if(saveRetryCount<=3){updateSyncBadge('error','重试中('+saveRetryCount+'/3)');setTimeout(()=>saveToCloud(),2000*saveRetryCount);}else{updateSyncBadge('error','保存失败');saveRetryCount=0;}}
+      else{saveRetryCount=0;lastCloudSaveTime=Date.now();updateSyncBadge('online','已连接');}
+    }catch(e){saveRetryCount++;if(saveRetryCount<=3){updateSyncBadge('error','重试中('+saveRetryCount+'/3)');setTimeout(()=>saveToCloud(),2000*saveRetryCount);}else{updateSyncBadge('error','网络错误');saveRetryCount=0;}}
+  },500);
+}
+
+let pollTimer=null;
+function startPolling(){
+  if(pollTimer)clearInterval(pollTimer);
+  pollTimer=setInterval(async()=>{
+    if(!sbClient||isRemoteUpdate)return;
+    try{
+      const{data,error}=await sbClient.from('workbench_data').select('data,updated_at').eq('workspace_id',CLOUD_CFG.workspaceId).maybeSingle();
+      if(!error&&data&&data.data){
+        const cloudTime=new Date(data.updated_at).getTime();
+        if(cloudTime>(lastCloudSaveTime||0)){
+          isRemoteUpdate=true;DB=data.data;ensureKeys();localStorage.setItem(STORE_KEY,JSON.stringify(DB));
+          const cur=document.querySelector('.nav-item.active');if(cur)switchSection(cur.dataset.id);
+          isRemoteUpdate=false;lastCloudSaveTime=cloudTime;
+        }
+      }
+    }catch(e){}
+  },30000);
+}
+let lastCloudSaveTime=0;
+
+function subscribeCloud(){
+  if(!sbClient||!CLOUD_CFG.workspaceId)return;
+  if(sbChannel)sbClient.removeChannel(sbChannel);
+  sbChannel=sbClient.channel('workbench-sync')
+    .on('postgres_changes',{event:'*',schema:'public',table:'workbench_data',filter:'workspace_id=eq.'+CLOUD_CFG.workspaceId},(payload)=>{
+      if(payload.eventType==='DELETE')return;
+      const newData=payload.new&&payload.new.data;
+      if(newData&&!isRemoteUpdate){
+        isRemoteUpdate=true;DB=newData;ensureKeys();localStorage.setItem(STORE_KEY,JSON.stringify(DB));
+        const cur=document.querySelector('.nav-item.active');if(cur)switchSection(cur.dataset.id);
+        isRemoteUpdate=false;
+      }
+    }).subscribe();
+}
+
+function loadData(){try{return JSON.parse(localStorage.getItem(STORE_KEY))||{};}catch(e){return{};}}
+function saveData(){localStorage.setItem(STORE_KEY,JSON.stringify(DB));if(sbClient&&!isRemoteUpdate)saveToCloud();}
+function ensureKeys(){Object.keys(LISTS).forEach(k=>{const dk=LISTS[k].dbKey;if(!Array.isArray(DB[dk]))DB[dk]=[];});}
+
+let DB=loadData();
+Object.keys(INITIAL).forEach(k=>{if(DB[k]===undefined)DB[k]=INITIAL[k];});
+ensureKeys();saveData();
+
+function escapeHtml(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+const TAG_COLORS=[['var(--tag-blue)','var(--tag-blue-t)'],['var(--tag-mint)','var(--tag-mint-t)'],['var(--tag-amber)','var(--tag-amber-t)'],['var(--tag-violet)','var(--tag-violet-t)'],['var(--tag-rose)','var(--tag-rose-t)']];
+function tagColor(text){let h=0;for(let i=0;i<text.length;i++)h=text.charCodeAt(i)+((h<<5)-h);const c=TAG_COLORS[Math.abs(h)%TAG_COLORS.length];return'background:'+c[0]+';color:'+c[1];}
+
+/* ========== 渲染导航 ========== */
+const navEl=document.getElementById('nav');
+NAV.forEach((n,idx)=>{
+  if(n.group&&(idx===0||NAV[idx-1].group!==n.group)){const g=document.createElement('div');g.className='nav-group';g.textContent=n.group;navEl.appendChild(g);}
+  const d=document.createElement('div');
+  d.className='nav-item'+(n.id==='overview'?' active':'');
+  d.dataset.id=n.id;
+  d.innerHTML='<span class="ico">'+n.ico+'</span><span class="lbl">'+n.name+'</span>';
+  d.onclick=()=>switchSection(n.id);
+  navEl.appendChild(d);
+});
+
+/* ========== 切换板块 ========== */
+function toggleSidebar(state){const sb=document.getElementById('sidebar');const ov=document.getElementById('overlay');const open=state===undefined?!sb.classList.contains('open'):state;sb.classList.toggle('open',open);ov.classList.toggle('show',open);}
+
+function switchSection(id){
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.id===id));
+  const content=document.getElementById('content');
+  let html;
+  if(id==='data'){html=renderDataMgr();}
+  else{html=SECTIONS[id]||'<div class="empty"><div class="big">🚧</div>板块建设中…</div>';}
+  content.innerHTML='<div class="section active">'+html+'</div>';
+  (SECTION_LISTS[id]||[]).forEach(k=>renderList(k));
+  if(window.innerWidth<=768)toggleSidebar(false);
+  var cards=content.querySelectorAll('.card');
+  cards.forEach(function(c){c.style.animation='none';c.offsetHeight;c.style.animation='';});
+  content.style.animation='none';content.offsetHeight;content.style.animation='';
+}
+
+/* ========== 通用列表 CRUD ========== */
+function renderList(listKey){
+  const config=LISTS[listKey];if(!config)return;
+  const container=document.getElementById('lc_'+listKey);if(!container)return;
+  const items=DB[config.dbKey]||[];
+  if(items.length===0){container.innerHTML='<div class="empty-hint"><div class="big">'+config.icon+'</div>暂无内容，点击"+ 新增"添加</div>';return;}
+  let html='';items.forEach((item,i)=>{html+=renderListItem(listKey,item,i);});
+  container.innerHTML=html;
+}
+function renderListItem(listKey,item,i){
+  const config=LISTS[listKey];
+  let titleParts=[],metaParts=[],descParts=[],tagParts=[],fieldParts=[];
+  config.fields.forEach(f=>{
+    const as=f.as||'field';const val=item[f.key];
+    if(val===undefined||val===null||val==='')return;
+    const text=String(val);
+    if(as==='title')titleParts.push(text);
+    else if(as==='meta')metaParts.push(text);
+    else if(as==='desc')descParts.push(text);
+    else if(as==='tag')tagParts.push('<span class="pill" style="'+tagColor(text)+'">'+escapeHtml(text)+'</span>');
+    else fieldParts.push('<span><b>'+escapeHtml(f.label)+'：</b>'+escapeHtml(text)+'</span>');
+  });
+  let html='<div class="gitem"><div class="gbody">';
+  if(titleParts.length)html+='<div class="gt">'+escapeHtml(titleParts.join(' · '))+'</div>';
+  if(metaParts.length)html+='<div class="gmeta">'+escapeHtml(metaParts.join(' · '))+'</div>';
+  if(descParts.length)html+='<div class="gdesc">'+escapeHtml(descParts.join(' '))+'</div>';
+  if(fieldParts.length)html+='<div class="gfields">'+fieldParts.join('')+'</div>';
+  if(tagParts.length)html+='<div class="gtags">'+tagParts.join('')+'</div>';
+  html+='</div><button class="item-more" onclick="showItemMenu(event,\''+listKey+'\','+i+')">⋯</button></div>';
+  return html;
+}
+
+let _itemMenu=null;
+function _ensureMenu(){
+  if(_itemMenu)return _itemMenu;
+  _itemMenu=document.createElement('div');_itemMenu.className='item-menu';document.body.appendChild(_itemMenu);
+  document.addEventListener('click',function(e){if(_itemMenu&&!_itemMenu.contains(e.target)&&!e.target.classList.contains('item-more'))_itemMenu.classList.remove('show');});
+  window.addEventListener('scroll',function(){if(_itemMenu)_itemMenu.classList.remove('show');},true);
+  window.addEventListener('resize',function(){if(_itemMenu)_itemMenu.classList.remove('show');});
+  return _itemMenu;
+}
+function _positionMenu(menu,btn){const r=btn.getBoundingClientRect();let x=r.right-120,y=r.bottom+4;if(x<8)x=8;if(y+100>window.innerHeight)y=r.top-104;if(y<8)y=8;menu.style.left=x+'px';menu.style.top=y+'px';}
+function showItemMenu(e,listKey,i){
+  e.stopPropagation();const menu=_ensureMenu();const config=LISTS[listKey];
+  menu.innerHTML='<button class="im-btn im-edit" onclick="_menuEdit(\''+listKey+'\','+i+')">✏️ 编辑</button><div class="im-divider"></div><button class="im-btn im-del" onclick="_menuDel(\''+listKey+'\','+i+')">🗑️ 删除</button>';
+  _positionMenu(menu,e.currentTarget);menu.classList.add('show');
+}
+function _menuEdit(listKey,i){_itemMenu.classList.remove('show');openListModal(listKey,i);}
+function _menuDel(listKey,i){_itemMenu.classList.remove('show');delListItem(listKey,i);}
+
+function openListModal(listKey,index){
+  const config=LISTS[listKey];const editing=index!==undefined&&index!==null;
+  const item=editing?Object.assign({},DB[config.dbKey][index]):{};
+  let formHtml='';
+  config.fields.forEach(f=>{
+    const raw=item[f.key];const val=raw!==undefined?raw:'';
+    formHtml+='<label class="crud-label">'+escapeHtml(f.label)+'</label>';
+    if(f.type==='textarea'){formHtml+='<textarea class="crud-textarea" id="fld_'+f.key+'" placeholder="'+escapeHtml(f.placeholder||'')+'">'+escapeHtml(val)+'</textarea>';}
+    else if(f.type==='select'){
+      formHtml+='<select class="crud-input" id="fld_'+f.key+'" style="margin-bottom:8px">';
+      f.options.forEach(opt=>{formHtml+='<option value="'+escapeHtml(opt)+'"'+(val===opt?' selected':'')+'>'+escapeHtml(opt)+'</option>';});
+      formHtml+='</select>';
+    }else{formHtml+='<input class="crud-input" id="fld_'+f.key+'" type="text" placeholder="'+escapeHtml(f.placeholder||'')+'" value="'+escapeHtml(val)+'">';}
+  });
+  showModal(config.icon+' '+(editing?'编辑':'新增')+config.title,formHtml,()=>{
+    const newItem={};
+    config.fields.forEach(f=>{const el=document.getElementById('fld_'+f.key);if(el)newItem[f.key]=el.value.trim();});
+    const hasContent=config.fields.some(f=>{const v=newItem[f.key];return v!==''&&v!==undefined&&v!==null;});
+    if(!hasContent){alert('请至少填写一项内容');return false;}
+    if(editing)DB[config.dbKey][index]=newItem;else DB[config.dbKey].push(newItem);
+    saveData();renderList(listKey);return true;
+  });
+}
+function delListItem(listKey,index){
+  const config=LISTS[listKey];
+  if(confirm('确定删除这条「'+config.title+'」记录吗？')){DB[config.dbKey].splice(index,1);saveData();renderList(listKey);}
+}
+
+/* ========== 板块内容 ========== */
+const SECTIONS={
+overview:`
+  <div class="page-head"><span class="bow">📋</span><h1>工作总况</h1><span class="sub">· 包装班生产管理一览</span></div>
+  ${Object.keys(LISTS).map(k=>{
+    const cfg=LISTS[k];
+    return '<div class="card">'+
+      '<div class="card-h">'+cfg.icon+' '+cfg.title+'<button class="btn btn-accent" onclick="openListModal(\''+k+'\')">+ 新增</button></div>'+
+      '<div id="lc_'+k+'"></div>'+
+    '</div>';
+  }).join('')}
+`,
+};
+
+/* ========== 数据管理 ========== */
+function renderDataMgr(){
+  let rows=[];
+  Object.keys(LISTS).forEach(k=>{const cfg=LISTS[k];rows.push([cfg.icon+' '+cfg.title,(DB[cfg.dbKey]||[]).length+' 条']);});
+  const totalSize=new Blob([JSON.stringify(DB)]).size;
+  rows.push(['💾 数据大小',(totalSize/1024).toFixed(1)+' KB']);
+  let tblHtml='<table class="sub-tbl"><tr><th>模块</th><th>记录数</th></tr>';
+  rows.forEach(r=>{tblHtml+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>';});
+  tblHtml+='</table>';
+  let cloudStatusHtml='';
+  if(CLOUD_CFG.url&&CLOUD_CFG.anonKey&&CLOUD_CFG.workspaceId){
+    cloudStatusHtml='<div class="cloud-status-box ok">☁️ 云同步已启用 · 工作区: '+escapeHtml(CLOUD_CFG.workspaceId)+'</div>';
+  }else{
+    cloudStatusHtml='<div class="cloud-status-box off">📴 云同步未启用 · 当前为本地模式，数据不共享</div>';
+  }
+  return '<div class="page-head"><span class="bow">💾</span><h1>数据管理</h1><span class="sub">· 备份 · 同步 · 重置</span></div>'+
+    '<div class="card tint-blue"><div class="card-h">📈 数据概览</div>'+tblHtml+'</div>'+
+    '<div class="card"><div class="card-h">☁️ 云同步设置</div>'+cloudStatusHtml+
+    '<div class="cloud-config-row"><label>Supabase 项目 URL</label><input class="crud-input" id="cfgUrl" placeholder="https://xxxx.supabase.co" value="'+escapeHtml(CLOUD_CFG.url||'')+'"></div>'+
+    '<div class="cloud-config-row"><label>Anon Key（匿名密钥）</label><input class="crud-input" id="cfgKey" placeholder="eyJhbGci..." value="'+escapeHtml(CLOUD_CFG.anonKey||'')+'"></div>'+
+    '<div class="cloud-config-row"><label>工作区 ID（多人共享同一个 ID 即可同步）</label><input class="crud-input" id="cfgWs" placeholder="如：bz-team 或 packaging-1" value="'+escapeHtml(CLOUD_CFG.workspaceId||'')+'"></div>'+
+    '<div class="data-mgr"><button class="btn btn-accent" onclick="saveCloudCfg()">☁️ 启用云同步</button><button class="btn btn-ghost" onclick="disconnectCloud()">📴 断开连接</button><button class="btn btn-mint" onclick="syncNow()">🔄 立即同步</button></div></div>'+
+    '<div class="card tint-mint"><div class="card-h">🔗 分享给同事</div><div class="txt">让同事<b>扫描二维码</b>或点击分享链接，打开即自动连接同一工作区，<b>无需任何配置</b>。</div><div class="data-mgr"><button class="btn btn-accent" onclick="showShareModal()">📱 生成分享二维码</button><button class="btn btn-mint" onclick="shareToFriend()">💬 系统分享</button><button class="btn btn-ghost" onclick="copyShareLink()">📋 复制链接</button></div></div>'+
+    '<div class="card tint-amber"><div class="card-h">ℹ️ 云同步说明</div><div class="txt">• 启用后，所有数据实时同步到云端，<b>多人共享同一工作区 ID 即可看到同一份数据</b>。</div><div class="txt">• 一人修改，其他人页面自动刷新，无需手动操作。</div><div class="txt">• 断开连接后回到本地模式，云端数据不受影响。</div></div>'+
+    '<div class="card"><div class="card-h">📦 本地备份与恢复</div><div class="txt">即使开启云同步，也建议定期导出本地备份。</div><div class="data-mgr"><button class="btn btn-accent" onclick="exportData()">⬇️ 导出全部数据</button><button class="btn btn-mint" onclick="importData()">⬆️ 导入数据</button><button class="btn btn-ghost" onclick="resetData()">🗑️ 清空所有数据</button></div></div>';
+}
+function saveCloudCfg(){
+  let url=document.getElementById('cfgUrl').value.trim().replace(/\/+$/,'');
+  const anonKey=document.getElementById('cfgKey').value.trim();
+  const workspaceId=document.getElementById('cfgWs').value.trim();
+  if(!url||!anonKey||!workspaceId){alert('请填写完整的 Supabase URL、Anon Key 和工作区 ID');return;}
+  if(!/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(url)){alert('URL格式不正确，应该是 https://xxxxxxxx.supabase.co 格式');return;}
+  CLOUD_CFG={url,anonKey,workspaceId};saveCloudConfig(CLOUD_CFG);
+  if(initSupabase()){
+    alert('云同步配置已保存！正在测试连接…');
+    (async()=>{
+      const d=await loadFromCloud();
+      if(d){DB=d;ensureKeys();saveData();switchSection('data');subscribeCloud();startPolling();alert('✅ 连接成功！数据已从云端加载。\n工作区: '+workspaceId);}
+      else if(lastSyncError){alert('❌ 连接失败：'+lastSyncError);}
+      else{subscribeCloud();startPolling();alert('✅ 已连接！工作区为空，数据将在保存时自动上传。\n工作区: '+workspaceId);}
+    })();
+  }else{alert('连接失败，请检查 URL 和 Key 是否正确');}
+}
+function disconnectCloud(){
+  if(pollTimer){clearInterval(pollTimer);pollTimer=null;}
+  if(sbChannel){sbClient.removeChannel(sbChannel);sbChannel=null;}
+  sbClient=null;CLOUD_CFG={};saveCloudConfig({});updateSyncBadge('off','本地模式');
+  alert('已断开云同步，回到本地模式。');switchSection('data');
+}
+async function syncNow(){
+  if(!sbClient){alert('请先启用云同步');return;}
+  updateSyncBadge('syncing','同步中…');
+  const{error}=await sbClient.from('workbench_data').upsert({workspace_id:CLOUD_CFG.workspaceId,data:DB,updated_at:new Date().toISOString()});
+  if(error){updateSyncBadge('error','同步失败');alert('同步失败: '+error.message);}
+  else{updateSyncBadge('online','已连接');alert('同步成功！');}
+}
+function showShareModal(){
+  const link=generateShareLink();if(!link)return;
+  const box=document.getElementById('qrcodeBox');box.innerHTML='';
+  try{new QRCode(box,{text:link,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});}catch(e){box.innerHTML='<div style="font-size:13px;color:var(--ink-3);padding:20px">二维码生成失败，请使用复制链接功能</div>';}
+  document.getElementById('shareLinkText').textContent=link;
+  document.getElementById('shareMask').classList.add('show');
+}
+function closeShareModal(){document.getElementById('shareMask').classList.remove('show');}
+function copyShareLink(){
+  const link=generateShareLink();if(!link)return;
+  if(navigator.clipboard){navigator.clipboard.writeText(link).then(()=>{alert('✅ 分享链接已复制！');}).catch(()=>{prompt('请长按复制此链接：',link);});}
+  else{prompt('请长按复制此链接：',link);}
+}
+function shareToFriend(){
+  const link=generateShareLink();if(!link)return;
+  const text='包装班工作台 - 一起协作！\n打开链接即可加入：\n'+link;
+  if(navigator.share){navigator.share({title:'包装班工作台',text:text,url:link}).catch(()=>{});}
+  else{copyShareLink();}
+}
+function generateShareLink(){
+  if(!CLOUD_CFG.url||!CLOUD_CFG.anonKey||!CLOUD_CFG.workspaceId){alert('请先启用云同步，再生成分享链接');return'';}
+  const base=window.location.origin+window.location.pathname;
+  const params=new URLSearchParams({url:CLOUD_CFG.url,key:CLOUD_CFG.anonKey,ws:CLOUD_CFG.workspaceId});
+  return base+'?'+params.toString();
+}
+function exportData(){
+  const data=JSON.stringify(DB,null,2);const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download='baozhuangban-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);
+}
+function importData(){
+  const input=document.createElement('input');input.type='file';input.accept='.json';
+  input.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;const reader=new FileReader();
+    reader.onload=ev=>{try{const data=JSON.parse(ev.target.result);if(confirm('导入会覆盖当前所有数据，确定继续？')){DB=data;ensureKeys();saveData();alert('导入成功！');switchSection('data');}}catch(err){alert('导入失败：文件格式错误');}};
+    reader.readAsText(file);
+  };input.click();
+}
+function resetData(){
+  if(confirm('确定清空所有数据？此操作不可撤销！建议先导出备份。')){
+    if(confirm('再次确认：真的要清空全部数据吗？')){DB={};ensureKeys();saveData();alert('已清空所有数据。');switchSection('data');}
+  }
+}
+
+/* ========== 通用弹窗 ========== */
+function showModal(title,formHtml,onSave){
+  const old=document.getElementById('crudModal');if(old)old.remove();
+  const mask=document.createElement('div');mask.className='modal-mask show';mask.id='crudModal';
+  mask.onclick=e=>{if(e.target===mask)mask.remove();};
+  mask.innerHTML='<div class="modal-box"><h3>'+title+'<button class="modal-close" onclick="this.closest(\'.modal-mask\').remove()">✕</button></h3>'+formHtml+'<button class="modal-save" id="modalSaveBtn">保存</button></div>';
+  document.body.appendChild(mask);
+  document.getElementById('modalSaveBtn').onclick=()=>{const ok=onSave();if(ok!==false)mask.remove();};
+}
+
+/* ========== URL 参数自动配置 ========== */
+function autoConfigFromURL(){
+  const params=new URLSearchParams(window.location.search);
+  const wsUrl=params.get('url'),wsKey=params.get('key'),wsId=params.get('ws');
+  if(wsUrl&&wsKey&&wsId){const cfg={url:wsUrl.replace(/\/+$/,''),anonKey:wsKey,workspaceId:wsId};CLOUD_CFG=cfg;saveCloudConfig(cfg);return true;}
+  return false;
+}
+function showConnectToast(){
+  const toast=document.getElementById('connectToast');const wsName=document.getElementById('ctWsName');
+  if(toast&&wsName&&CLOUD_CFG.workspaceId){wsName.textContent='☁️ 工作区：'+CLOUD_CFG.workspaceId;toast.classList.add('show');}
+}
+
+/* ========== 初始化 ========== */
+const fromURL=autoConfigFromURL();
+initSupabase();
+(async function(){
+  if(sbClient){
+    const cloudData=await loadFromCloud();
+    if(cloudData&&typeof cloudData==='object'){
+      isRemoteUpdate=true;DB=cloudData;ensureKeys();localStorage.setItem(STORE_KEY,JSON.stringify(DB));
+      const cur=document.querySelector('.nav-item.active');if(cur)switchSection(cur.dataset.id);
+      isRemoteUpdate=false;
+    }
+    subscribeCloud();startPolling();
+    if(fromURL)setTimeout(showConnectToast,500);
+  }
+})();
+switchSection('overview');
+
+/* ========== 动态效果 ========== */
+document.addEventListener('click',function(e){
+  var btn=e.target.closest('.btn');if(!btn)return;
+  var rect=btn.getBoundingClientRect();var size=Math.max(rect.width,rect.height);
+  var ripple=document.createElement('span');ripple.className='ripple';
+  ripple.style.width=ripple.style.height=size+'px';
+  ripple.style.left=(e.clientX-rect.left-size/2)+'px';ripple.style.top=(e.clientY-rect.top-size/2)+'px';
+  btn.appendChild(ripple);setTimeout(function(){ripple.remove();},500);
+},true);
+document.addEventListener('click',function(e){
+  var item=e.target.closest('.nav-item');if(!item)return;
+  var rect=item.getBoundingClientRect();var size=Math.max(rect.width,rect.height);
+  var ripple=document.createElement('span');ripple.className='ripple';
+  ripple.style.width=ripple.style.height=size+'px';
+  ripple.style.left=(e.clientX-rect.left-size/2)+'px';ripple.style.top=(e.clientY-rect.top-size/2)+'px';
+  item.appendChild(ripple);setTimeout(function(){ripple.remove();},500);
+},true);
+
+/* 侧栏浮粒子 */
+(function(){var sidebar=document.querySelector('.sidebar');if(!sidebar)return;var container=document.createElement('div');container.className='sidebar-particles';sidebar.appendChild(container);for(var i=0;i<12;i++){var p=document.createElement('span');p.style.left=Math.random()*100+'%';p.style.animationDuration=(8+Math.random()*12)+'s';p.style.animationDelay=(Math.random()*10)+'s';p.style.opacity=(0.3+Math.random()*0.5);p.style.width=p.style.height=(2+Math.random()*4)+'px';container.appendChild(p);}})();
+
+/* ========== 向右滑动刷新 ========== */
+function doRefresh(){
+  if(typeof saveData==='function')saveData();
+  if(typeof syncUp==='function')syncUp();
+  var active=document.querySelector('.nav-item.active');if(active)switchSection(active.dataset.id);
+}
+(function(){
+  var hint=document.getElementById('swipeHint');if(!hint)return;
+  var startX=0,startY=0,tracking=false,threshold=80,isHorizontal=false;
+  function onStart(e){var t=e.touches?e.touches[0]:e;startX=t.clientX;startY=t.clientY;tracking=true;isHorizontal=false;}
+  function onMove(e){
+    if(!tracking)return;var t=e.touches?e.touches[0]:e;var dx=t.clientX-startX;var dy=t.clientY-startY;
+    if(!isHorizontal&&Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.5){isHorizontal=true;if(e.cancelable)e.preventDefault();}
+    if(!isHorizontal)return;if(startX>30)return;
+    if(e.cancelable)e.preventDefault();
+    if(dx>10){hint.classList.add('active');var icon=hint.querySelector('.sr-icon');if(icon)icon.style.transform='rotate('+(dx*2)+'deg)';}
+    if(dx>=threshold)hint.classList.add('triggered');else hint.classList.remove('triggered');
+  }
+  function onEnd(e){
+    if(!tracking)return;tracking=false;
+    var t=(e.changedTouches&&e.changedTouches[0])||e;var dx=t.clientX-startX;
+    hint.classList.remove('active');var icon=hint.querySelector('.sr-icon');if(icon)icon.style.transform='';
+    if(isHorizontal&&startX<=30&&dx>=threshold){hint.classList.add('triggered');setTimeout(function(){hint.classList.remove('triggered');doRefresh();},200);}
+  }
+  document.addEventListener('touchstart',onStart,{passive:true});
+  document.addEventListener('touchmove',onMove,{passive:false});
+  document.addEventListener('touchend',onEnd);
+  document.addEventListener('mousedown',onStart);
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('mouseup',onEnd);
+})();
+</script>
+</body>
+</html>
