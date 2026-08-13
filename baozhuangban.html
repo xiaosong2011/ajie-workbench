@@ -265,6 +265,35 @@
   .wl-highlight-box b{color:#e65100}
   .wl-sec-title{font-size:14px;font-weight:800;color:var(--ink);margin:4px 0 8px;display:flex;align-items:center;gap:6px}
   .wl-sec-title::before{content:'';width:4px;height:16px;border-radius:2px;background:linear-gradient(180deg,var(--accent),var(--accent-2))}
+  /* ===== 工作总况首页样式 ===== */
+  .ov-banner-wrap{margin-bottom:16px}
+  .ov-banner-viewport{overflow:hidden;border-radius:18px;box-shadow:0 8px 24px rgba(99,102,241,.18)}
+  .ov-banner-track{display:flex;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+  .ov-banner-slide{min-width:100%;padding:24px 18px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;cursor:pointer}
+  .ov-banner-slide::before{content:'';position:absolute;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.08);top:-45px;right:-35px;pointer-events:none}
+  .ov-banner-slide::after{content:'';position:absolute;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.06);bottom:-35px;right:25%;pointer-events:none}
+  .ov-bs-icon{width:54px;height:54px;border-radius:15px;background:rgba(255,255,255,.2);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;position:relative;z-index:1}
+  .ov-bs-text{flex:1;position:relative;z-index:1}
+  .ov-bs-title{font-size:19px;font-weight:800;color:#fff;margin-bottom:3px;letter-spacing:.5px}
+  .ov-bs-sub{font-size:13px;color:rgba(255,255,255,.82)}
+  .ov-bs-arrow{font-size:26px;color:rgba(255,255,255,.5);flex-shrink:0;position:relative;z-index:1}
+  .ov-banner-dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
+  .ov-banner-dots span{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,.15);transition:all .3s;cursor:pointer}
+  .ov-banner-dots span.active{width:22px;border-radius:4px;background:var(--accent)}
+  .ov-grid-title{font-size:16px;font-weight:800;color:var(--ink);margin:4px 0 12px;display:flex;align-items:center;gap:6px}
+  .ov-grid-title::before{content:'';width:4px;height:18px;border-radius:2px;background:linear-gradient(180deg,var(--accent),var(--accent-2))}
+  .ov-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:8px}
+  .ov-grid-item{background:#fff;border-radius:16px;padding:16px 14px;box-shadow:var(--shadow);cursor:pointer;position:relative;transition:transform .15s,box-shadow .15s;overflow:hidden;animation:cardIn .4s ease both}
+  .ov-grid-item:active{transform:scale(.96)}
+  @media(hover:hover){.ov-grid-item:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(20,40,70,.12)}}
+  .ov-gi-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:10px}
+  .ov-gi-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:2px}
+  .ov-gi-sub{font-size:11px;color:var(--ink-3)}
+  .ov-gi-badge{position:absolute;top:10px;right:10px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;letter-spacing:.5px;animation:pillIn .4s ease both}
+  .ov-grid-item.featured{background:linear-gradient(135deg,#f5f0ff,#faf5ff)}
+  .ov-list-card{scroll-margin-top:20px}
+  .ov-list-card.highlight{box-shadow:0 0 0 3px var(--accent),0 8px 24px rgba(46,134,222,.2)}
+  .ov-footer{text-align:center;padding:24px 0 10px;font-size:11px;color:var(--ink-3)}
 </style>
 </head>
 <body>
@@ -334,6 +363,7 @@ updateClock();setInterval(updateClock,30000);
 const NAV=[
   {id:'overview',ico:'📋',name:'工作总况',group:'主菜单'},
   {id:'tailings',ico:'🚚',name:'尾料发货',group:'主菜单'},
+  {id:'filters', ico:'🔮',name:'滤芯批号',group:'主菜单'},
   {id:'data',    ico:'💾',name:'数据管理',group:'系统'},
 ];
 
@@ -387,74 +417,36 @@ const LISTS={
     {key:'to',label:'接班人',type:'input',placeholder:'如：李四',as:'field'},
     {key:'content',label:'交接内容',type:'textarea',placeholder:'设备运行情况、未完成任务、注意事项等',as:'desc'}
   ]},
+  filterBatches:{title:'滤芯批号',icon:'🔮',dbKey:'filterBatches',fields:[
+    {key:'batchNumber',label:'批号',type:'input',placeholder:'如：FL20260813001',as:'title'},
+    {key:'filterModel',label:'滤芯型号',type:'input',placeholder:'如：PP棉滤芯 5μm',as:'field'},
+    {key:'product',label:'适用产品/产线',type:'input',placeholder:'如：1号包装机',as:'field'},
+    {key:'installDate',label:'安装日期',type:'input',placeholder:'如：2026-08-13',as:'meta'},
+    {key:'replaceDate',label:'更换日期',type:'input',placeholder:'如：2026-09-13',as:'meta'},
+    {key:'status',label:'状态',type:'select',options:['使用中','已更换','待更换'],as:'tag'},
+    {key:'remark',label:'备注',type:'textarea',placeholder:'如：首次安装，建议30天更换',as:'desc'}
+  ]},
 };
 
-const SECTION_LISTS={overview:Object.keys(LISTS)};
+const SECTION_LISTS={overview:Object.keys(LISTS),filters:['filterBatches']};
 
-/* ========== 初始数据 ========== */
+/* ========== 初始数据（空，用户自行填写） ========== */
 const INITIAL={
-  productionTasks:[
-    {product:'红牛250ml罐装',quantity:'5000箱',deadline:'2026-08-15',priority:'紧急'},
-    {product:'怡宝555ml瓶装',quantity:'8000箱',deadline:'2026-08-18',priority:'普通'},
-    {product:'康师傅冰红茶500ml',quantity:'6000箱',deadline:'2026-08-20',priority:'普通'},
-    {product:'王老吉310ml罐装',quantity:'3000箱',deadline:'2026-08-14',priority:'加急'},
-    {product:'雪碧330ml罐装',quantity:'4500箱',deadline:'2026-08-22',priority:'普通'},
-  ],
-  outputRecords:[
-    {date:'2026-08-13',product:'红牛250ml罐装',quantity:'3200箱',shift:'白班'},
-    {date:'2026-08-12',product:'怡宝555ml瓶装',quantity:'4100箱',shift:'白班'},
-    {date:'2026-08-12',product:'红牛250ml罐装',quantity:'2800箱',shift:'夜班'},
-    {date:'2026-08-11',product:'康师傅冰红茶500ml',quantity:'3500箱',shift:'白班'},
-    {date:'2026-08-11',product:'怡宝555ml瓶装',quantity:'2200箱',shift:'夜班'},
-    {date:'2026-08-10',product:'王老吉310ml罐装',quantity:'3000箱',shift:'白班'},
-  ],
-  qualityChecks:[
-    {product:'红牛250ml罐装',checkItem:'封口完整性',result:'合格',inspector:'张师傅'},
-    {product:'红牛250ml罐装',checkItem:'生产日期喷码',result:'合格',inspector:'李师傅'},
-    {product:'怡宝555ml瓶装',checkItem:'瓶盖密封性',result:'合格',inspector:'张师傅'},
-    {product:'康师傅冰红茶500ml',checkItem:'标签贴附位置',result:'待复检',inspector:'王师傅'},
-    {product:'王老吉310ml罐装',checkItem:'装箱数量核对',result:'合格',inspector:'李师傅'},
-  ],
-  personnel:[
-    {name:'张三',position:'包装机操作员',shift:'白班',phone:'13800001111'},
-    {name:'李四',position:'质检员',shift:'白班',phone:'13800002222'},
-    {name:'王五',position:'叉车工',shift:'白班',phone:'13800003333'},
-    {name:'赵六',position:'包装机操作员',shift:'夜班',phone:'13800004444'},
-    {name:'钱七',position:'班长',shift:'白班',phone:'13800005555'},
-    {name:'孙八',position:'物料员',shift:'夜班',phone:'13800006666'},
-  ],
-  equipment:[
-    {name:'1号包装机',status:'运行中',lastMaint:'2026-08-10',note:'运行正常，产能 120箱/小时'},
-    {name:'2号包装机',status:'运行中',lastMaint:'2026-08-08',note:'运行正常，产能 115箱/小时'},
-    {name:'3号包装机',status:'维修中',lastMaint:'2026-08-13',note:'更换传送带，预计下午4点恢复'},
-    {name:'码垛机器人A',status:'运行中',lastMaint:'2026-08-05',note:'运行正常'},
-    {name:'贴标机B',status:'待机',lastMaint:'2026-08-01',note:'待切换产品型号后启用'},
-    {name:'缠绕机',status:'运行中',lastMaint:'2026-07-28',note:'运行正常，缠绕膜余量充足'},
-  ],
-  materials:[
-    {name:'纸箱（大号）',stock:'800',unit:'个',minStock:'200'},
-    {name:'纸箱（中号）',stock:'1200',unit:'个',minStock:'300'},
-    {name:'缠绕膜',stock:'15',unit:'卷',minStock:'5'},
-    {name:'封箱胶带',stock:'48',unit:'卷',minStock:'20'},
-    {name:'标签贴纸',stock:'5000',unit:'张',minStock:'1000'},
-    {name:'打包带',stock:'30',unit:'卷',minStock:'10'},
-  ],
-  safetyItems:[
-    {title:'每日开工前安全检查',desc:'检查设备防护罩、急停按钮、消防器材是否正常，确认无异常后方可开机。',status:'每日执行'},
-    {title:'佩戴劳保用品',desc:'进入车间必须穿戴工作服、安全帽、防护手套、防砸鞋，不得穿拖鞋短裤。',status:'每日执行'},
-    {title:'叉车作业安全',desc:'叉车工必须持证上岗，作业时注意周围人员，限速5km/h，载货不得超重。',status:'已完成'},
-    {title:'设备清洁保养',desc:'每班结束后清理设备周边杂物，擦拭机器表面，检查润滑油位。',status:'每日执行'},
-    {title:'消防通道畅通',desc:'确保车间消防通道、安全出口不被物料堵塞，灭火器前方无遮挡物。',status:'已完成'},
-  ],
-  handoverLogs:[
-    {date:'2026-08-13',shift:'白班→夜班',from:'钱七',to:'赵六',content:'1号、2号包装机运行正常，3号机维修中预计16:00恢复。红牛任务已完成3200箱，剩余1800箱夜班继续。物料纸箱大号库存800个够用。'},
-    {date:'2026-08-12',shift:'夜班→白班',from:'赵六',to:'钱七',content:'夜班完成红牛2800箱、怡宝4100箱。2号机中途卡纸一次已排除。康师傅标签待复检事项已报给质检。'},
-    {date:'2026-08-11',shift:'白班→夜班',from:'钱七',to:'赵六',content:'白班完成康师傅3500箱。3号机传送带有异响已报修。王老吉加急任务优先安排夜班生产。'},
-  ],
+  productionTasks:[],
+  outputRecords:[],
+  qualityChecks:[],
+  personnel:[],
+  equipment:[],
+  materials:[],
+  safetyItems:[],
+  handoverLogs:[],
+  filterBatches:[],
 };
 
 /* ========== 数据层 ========== */
 const STORE_KEY='baozhuangban_workbench_data';
+const DATA_VERSION='v2_clean';
+const VERSION_KEY='baozhuangban_data_version';
 const CLOUD_KEY='baozhuangban_cloud_config';
 
 function loadCloudConfig(){try{return JSON.parse(localStorage.getItem(CLOUD_KEY))||{};}catch(e){return{};}}
@@ -537,6 +529,10 @@ function saveData(){localStorage.setItem(STORE_KEY,JSON.stringify(DB));if(sbClie
 function ensureKeys(){Object.keys(LISTS).forEach(k=>{const dk=LISTS[k].dbKey;if(!Array.isArray(DB[dk]))DB[dk]=[];});}
 
 let DB=loadData();
+if(localStorage.getItem(VERSION_KEY)!==DATA_VERSION){
+  DB={};localStorage.removeItem(STORE_KEY);localStorage.setItem(VERSION_KEY,DATA_VERSION);
+  DB=loadData();
+}
 Object.keys(INITIAL).forEach(k=>{if(DB[k]===undefined)DB[k]=INITIAL[k];});
 ensureKeys();saveData();
 
@@ -572,6 +568,51 @@ function switchSection(id){
   var cards=content.querySelectorAll('.card');
   cards.forEach(function(c){c.style.animation='none';c.offsetHeight;c.style.animation='';});
   content.style.animation='none';content.offsetHeight;content.style.animation='';
+  if(id==='overview')initOvBanner();
+}
+
+/* ========== 工作总况 Banner 轮播 ========== */
+var ovBannerIdx=0,ovBannerTimer=null,ovBannerTouchX=0;
+function initOvBanner(){
+  var track=document.getElementById('ovBannerTrack');
+  if(!track)return;
+  ovBannerIdx=0;updateOvBanner();
+  if(ovBannerTimer)clearInterval(ovBannerTimer);
+  ovBannerTimer=setInterval(function(){
+    ovBannerIdx=(ovBannerIdx+1)%3;updateOvBanner();
+  },3500);
+  track.ontouchstart=function(e){ovBannerTouchX=e.touches[0].clientX;};
+  track.ontouchend=function(e){
+    var dx=e.changedTouches[0].clientX-ovBannerTouchX;
+    if(Math.abs(dx)>40){
+      if(dx<0)ovBannerIdx=(ovBannerIdx+1)%3;
+      else ovBannerIdx=(ovBannerIdx+2)%3;
+      updateOvBanner();resetOvBannerTimer();
+    }
+  };
+}
+function updateOvBanner(){
+  var track=document.getElementById('ovBannerTrack');
+  if(!track)return;
+  track.style.transform='translateX(-'+ovBannerIdx*100+'%)';
+  var dots=document.querySelectorAll('#ovBannerDots span');
+  dots.forEach(function(d,i){d.classList.toggle('active',i===ovBannerIdx);});
+}
+function ovBannerGoTo(idx){
+  ovBannerIdx=idx;updateOvBanner();resetOvBannerTimer();
+}
+function resetOvBannerTimer(){
+  if(ovBannerTimer)clearInterval(ovBannerTimer);
+  ovBannerTimer=setInterval(function(){
+    ovBannerIdx=(ovBannerIdx+1)%3;updateOvBanner();
+  },3500);
+}
+function scrollToOvList(key){
+  var el=document.getElementById('ov_card_'+key);
+  if(!el)return;
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  el.classList.add('highlight');
+  setTimeout(function(){el.classList.remove('highlight');},2000);
 }
 
 /* ========== 通用列表 CRUD ========== */
@@ -655,14 +696,87 @@ function delListItem(listKey,index){
 /* ========== 板块内容 ========== */
 const SECTIONS={
 overview:`
-  <div class="page-head"><span class="bow">📋</span><h1>工作总况</h1><span class="sub">· 包装班生产管理一览</span></div>
+  <div class="ov-banner-wrap">
+    <div class="ov-banner-viewport">
+      <div class="ov-banner-track" id="ovBannerTrack">
+        <div class="ov-banner-slide" style="background:linear-gradient(135deg,#6366f1,#a855f7)" onclick="scrollToOvList('productionTasks')">
+          <div class="ov-bs-icon">📋</div>
+          <div class="ov-bs-text"><div class="ov-bs-title">任务看板</div><div class="ov-bs-sub">查看并完成今日任务</div></div>
+          <div class="ov-bs-arrow">›</div>
+        </div>
+        <div class="ov-banner-slide" style="background:linear-gradient(135deg,#0ea5e9,#06b6d4)" onclick="scrollToOvList('outputRecords')">
+          <div class="ov-bs-icon">📊</div>
+          <div class="ov-bs-text"><div class="ov-bs-title">产量速览</div><div class="ov-bs-sub">今日生产进度一览</div></div>
+          <div class="ov-bs-arrow">›</div>
+        </div>
+        <div class="ov-banner-slide" style="background:linear-gradient(135deg,#10b981,#14b8a6)" onclick="scrollToOvList('safetyItems')">
+          <div class="ov-bs-icon">🦺</div>
+          <div class="ov-bs-text"><div class="ov-bs-title">安全提醒</div><div class="ov-bs-sub">每日安全检查不松懈</div></div>
+          <div class="ov-bs-arrow">›</div>
+        </div>
+      </div>
+    </div>
+    <div class="ov-banner-dots" id="ovBannerDots">
+      <span class="active" onclick="ovBannerGoTo(0)"></span>
+      <span onclick="ovBannerGoTo(1)"></span>
+      <span onclick="ovBannerGoTo(2)"></span>
+    </div>
+  </div>
+
+  <div class="ov-grid-title">功能菜单</div>
+  <div class="ov-grid">
+    <div class="ov-grid-item featured" onclick="scrollToOvList('productionTasks')">
+      <div class="ov-gi-badge">NEW</div>
+      <div class="ov-gi-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">📋</div>
+      <div class="ov-gi-title">任务看板</div>
+      <div class="ov-gi-sub">查看并完成任务</div>
+    </div>
+    <div class="ov-grid-item" onclick="scrollToOvList('outputRecords')">
+      <div class="ov-gi-icon" style="background:linear-gradient(135deg,#10b981,#34d399)">✅</div>
+      <div class="ov-gi-title">产量记录</div>
+      <div class="ov-gi-sub">今日生产数据</div>
+    </div>
+    <div class="ov-grid-item" onclick="scrollToOvList('qualityChecks')">
+      <div class="ov-gi-icon" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)">🔔</div>
+      <div class="ov-gi-title">质量检查</div>
+      <div class="ov-gi-sub">质检记录与结果</div>
+    </div>
+    <div class="ov-grid-item" onclick="scrollToOvList('equipment')">
+      <div class="ov-gi-icon" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa)">🔧</div>
+      <div class="ov-gi-title">设备管理</div>
+      <div class="ov-gi-sub">查看设备信息</div>
+    </div>
+    <div class="ov-grid-item" onclick="scrollToOvList('materials')">
+      <div class="ov-gi-icon" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)">📦</div>
+      <div class="ov-gi-title">物料管理</div>
+      <div class="ov-gi-sub">库存与预警</div>
+    </div>
+    <div class="ov-grid-item" onclick="scrollToOvList('safetyItems')">
+      <div class="ov-gi-icon" style="background:linear-gradient(135deg,#14b8a6,#2dd4bf)">🦺</div>
+      <div class="ov-gi-title">安全事项</div>
+      <div class="ov-gi-sub">每日安全检查</div>
+    </div>
+    <div class="ov-grid-item" onclick="switchSection('tailings')">
+      <div class="ov-gi-icon" style="background:linear-gradient(135deg,#f97316,#fb923c)">⚠️</div>
+      <div class="ov-gi-title">尾料发货</div>
+      <div class="ov-gi-sub">特殊包装要求</div>
+    </div>
+    <div class="ov-grid-item" onclick="switchSection('filters')">
+      <div class="ov-gi-icon" style="background:linear-gradient(135deg,#a855f7,#c084fc)">🔮</div>
+      <div class="ov-gi-title">滤芯批号</div>
+      <div class="ov-gi-sub">滤芯批次追踪</div>
+    </div>
+  </div>
+
   ${Object.keys(LISTS).map(k=>{
     const cfg=LISTS[k];
-    return '<div class="card">'+
+    return '<div class="card ov-list-card" id="ov_card_'+k+'">'+
       '<div class="card-h">'+cfg.icon+' '+cfg.title+'<button class="btn btn-accent" onclick="openListModal(\''+k+'\')">+ 新增</button></div>'+
       '<div id="lc_'+k+'"></div>'+
     '</div>';
   }).join('')}
+
+  <div class="ov-footer">工厂包装班管理系统 v1.0</div>
 `,
 tailings:`
   <div class="page-head"><span class="bow">🚚</span><h1>尾料发货</h1><span class="sub">· 初1品-初3品尾料发货规则</span></div>
@@ -758,6 +872,54 @@ tailings:`
 
   <div class="wl-highlight-box">
     💡 <b>快速记忆：</b>小桶5kg、大桶20kg起发 → 空白商标手填贴 → 非整桶标签必贴 → 禁发客户查清单 → 色浆乳液稀释剂固化剂方厅不发
+  </div>
+`,
+filters:`
+  <div class="page-head"><span class="bow">🔮</span><h1>滤芯批号</h1><span class="sub">· 滤芯批次追踪与更换管理</span></div>
+
+  <div class="card tint-blue">
+    <div class="wl-sec-title">📌 滤芯更换规则</div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">1</div>
+      <div class="wl-rule-body">PP棉滤芯（5μm/1μm）：建议<b>30天</b>更换一次，压差超标立即更换</div>
+    </div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">2</div>
+      <div class="wl-rule-body">活性炭滤芯：建议<b>30天</b>更换一次，异味变色提前更换</div>
+    </div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">3</div>
+      <div class="wl-rule-body">RO反渗透膜：建议<b>季度更换</b>（90天），产水量下降时提前更换</div>
+    </div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">4</div>
+      <div class="wl-rule-body">每次更换须记录<b>新批号、安装日期、更换日期</b>，旧批号标记"已更换"并注明替换批号</div>
+    </div>
+  </div>
+
+  <div class="card tint-amber">
+    <div class="wl-sec-title">⚠️ 注意事项</div>
+    <div class="wl-note-item">
+      <span class="wl-note-num">①</span>
+      <div>设备维修后须<b>同步检查滤芯</b>状态，必要时一并更换</div>
+    </div>
+    <div class="wl-note-item">
+      <span class="wl-note-num">②</span>
+      <div>同一产线多级过滤需<b>逐级登记</b>，不可遗漏</div>
+    </div>
+    <div class="wl-note-item">
+      <span class="wl-note-num">③</span>
+      <div>新滤芯安装前检查<b>包装完整性、型号一致性</b>，确认无误后使用</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">🔮 滤芯批号记录<button class="btn btn-accent" onclick="openListModal('filterBatches')">+ 新增</button></div>
+    <div id="lc_filterBatches"></div>
+  </div>
+
+  <div class="wl-highlight-box">
+    💡 <b>批号命名建议：</b>FL + 日期(YYYYMMDD) + 序号(3位) → 如 FL20260813001
   </div>
 `,
 };
