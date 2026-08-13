@@ -448,8 +448,22 @@ const STORE_KEY='baozhuangban_workbench_data';
 const DATA_VERSION='v2_clean';
 const VERSION_KEY='baozhuangban_data_version';
 const CLOUD_KEY='baozhuangban_cloud_config';
+const XIAOSONG_CLOUD_KEY='ajie_cloud_config';
+const PACKING_WS_ID='bz-packaging';
 
-function loadCloudConfig(){try{return JSON.parse(localStorage.getItem(CLOUD_KEY))||{};}catch(e){return{};}}
+function loadCloudConfig(){
+  try{
+    let cfg=JSON.parse(localStorage.getItem(CLOUD_KEY))||{};
+    if(!cfg.url||!cfg.anonKey){
+      let xs=JSON.parse(localStorage.getItem(XIAOSONG_CLOUD_KEY))||{};
+      if(xs.url&&xs.anonKey){
+        cfg={url:xs.url,anonKey:xs.anonKey,workspaceId:PACKING_WS_ID};
+        localStorage.setItem(CLOUD_KEY,JSON.stringify(cfg));
+      }
+    }
+    return cfg;
+  }catch(e){return{};}
+}
 function saveCloudConfig(cfg){localStorage.setItem(CLOUD_KEY,JSON.stringify(cfg));}
 let CLOUD_CFG=loadCloudConfig();
 let sbClient=null,sbChannel=null,syncTimer=null,isRemoteUpdate=false;
