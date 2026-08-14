@@ -903,6 +903,15 @@ tailings:`
 filters:`
   <div class="page-head"><span class="bow">🔮</span><h1>滤芯批号</h1><span class="sub">· 滤芯批次追踪与更换管理</span></div>
 
+  <div class="card">
+    <div class="card-h">🔮 滤芯批号记录<button class="btn btn-accent" onclick="openListModal('filterBatches')">+ 新增</button></div>
+    <div id="lc_filterBatches"></div>
+  </div>
+
+  <div class="wl-highlight-box">
+    💡 <b>批号命名建议：</b>FL + 日期(YYYYMMDD) + 序号(3位) → 如 FL20260813001
+  </div>
+
   <div class="card tint-blue">
     <div class="wl-sec-title">📌 滤芯更换规则</div>
     <div class="wl-rule-item">
@@ -937,15 +946,6 @@ filters:`
       <span class="wl-note-num">③</span>
       <div>新滤芯安装前检查<b>包装完整性、型号一致性</b>，确认无误后使用</div>
     </div>
-  </div>
-
-  <div class="card">
-    <div class="card-h">🔮 滤芯批号记录<button class="btn btn-accent" onclick="openListModal('filterBatches')">+ 新增</button></div>
-    <div id="lc_filterBatches"></div>
-  </div>
-
-  <div class="wl-highlight-box">
-    💡 <b>批号命名建议：</b>FL + 日期(YYYYMMDD) + 序号(3位) → 如 FL20260813001
   </div>
 `,
 };
