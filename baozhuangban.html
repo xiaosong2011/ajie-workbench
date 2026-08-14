@@ -390,6 +390,7 @@ const NAV=[
   {id:'overview',ico:'📋',name:'工作总况',group:'主菜单'},
   {id:'tailings',ico:'🚚',name:'尾料发货',group:'主菜单'},
   {id:'filters', ico:'🔮',name:'滤芯批号',group:'主菜单'},
+  {id:'safety',  ico:'🦺',name:'安全事项',group:'主菜单'},
   {id:'data',    ico:'💾',name:'数据管理',group:'系统'},
 ];
 
@@ -485,7 +486,7 @@ const INITIAL={
 
 /* ========== 数据层 ========== */
 const STORE_KEY='baozhuangban_workbench_data';
-const DATA_VERSION='v6_filters';
+const DATA_VERSION='v7_safety';
 const VERSION_KEY='baozhuangban_data_version';
 const CLOUD_KEY='baozhuangban_cloud_config';
 const XIAOSONG_CLOUD_KEY='ajie_cloud_config';
@@ -941,10 +942,10 @@ overview:`
       <div class="ov-gi-title">物料管理</div>
       <div class="ov-gi-sub">库存与预警</div>
     </div>
-    <div class="ov-grid-item" onclick="scrollToOvList('safetyItems')">
+    <div class="ov-grid-item" onclick="switchSection('safety')">
       <div class="ov-gi-icon" style="background:linear-gradient(135deg,#14b8a6,#2dd4bf)">🦺</div>
       <div class="ov-gi-title">安全事项</div>
-      <div class="ov-gi-sub">每日安全检查</div>
+      <div class="ov-gi-sub">劳保穿戴规范</div>
     </div>
     <div class="ov-grid-item" onclick="switchSection('tailings')">
       <div class="ov-gi-icon" style="background:linear-gradient(135deg,#f97316,#fb923c)">⚠️</div>
@@ -1130,6 +1131,89 @@ filters:`
       <span class="wl-note-num">③</span>
       <div>新滤芯安装前检查<b>包装完整性、型号一致性</b>，确认无误后使用</div>
     </div>
+  </div>
+`,
+safety:`
+  <div class="page-head"><span class="bow">🦺</span><h1>安全事项</h1><span class="sub">· 化工企业劳保用品穿戴规范</span></div>
+
+  <div class="card tint-rose">
+    <div class="wl-sec-title" style="color:#c0392b">⚠️ 重要提醒</div>
+    <div class="txt" style="font-size:15px;line-height:1.8">
+      化工企业生产过程中存在<b>化学品接触、粉尘吸入、机械伤害</b>等风险。<br>
+      所有员工进入生产区域<b>必须按规定穿戴劳保用品</b>，未穿戴齐全者<b>严禁上岗</b>。
+    </div>
+  </div>
+
+  <div class="card tint-blue">
+    <div class="wl-sec-title">🦺 必备劳保用品清单</div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">1</div>
+      <div class="wl-rule-body"><b>安全帽</b> — 进入生产区域必须佩戴，系紧下颚带</div>
+    </div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">2</div>
+      <div class="wl-rule-body"><b>防护眼镜/面罩</b> — 接触化学品、液体转移时必须佩戴，防止飞溅入眼</div>
+    </div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">3</div>
+      <div class="wl-rule-body"><b>防毒口罩/防毒面具</b> — 接触挥发性化学品时必须佩戴，定期更换滤盒</div>
+    </div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">4</div>
+      <div class="wl-rule-body"><b>防化手套</b> — 接触化学品时佩戴耐酸碱手套，破损立即更换</div>
+    </div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">5</div>
+      <div class="wl-rule-body"><b>防护服/工作服</b> — 穿戴符合规范的防静电工作服，袖口扎紧</div>
+    </div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">6</div>
+      <div class="wl-rule-body"><b>安全鞋/防滑鞋</b> — 穿戴防砸防穿刺劳保鞋，禁止穿拖鞋凉鞋</div>
+    </div>
+  </div>
+
+  <div class="card tint-amber">
+    <div class="wl-sec-title">📋 穿戴要求与检查</div>
+    <div class="wl-note-item">
+      <span class="wl-note-num">①</span>
+      <div>每日<b>上岗前</b>由班组长检查劳保用品穿戴情况，不合格者纠正后方可上岗</div>
+    </div>
+    <div class="wl-note-item">
+      <span class="wl-note-num">②</span>
+      <div>接触不同化学品时，须确认手套材质<b>耐相应化学品</b>腐蚀</div>
+    </div>
+    <div class="wl-note-item">
+      <span class="wl-note-num">③</span>
+      <div>防毒面具滤盒按周期更换，<b>闻到异味立即更换</b>并上报</div>
+    </div>
+    <div class="wl-note-item">
+      <span class="wl-note-num">④</span>
+      <div>工作服、手套破损、污染时<b>及时更换</b>，不得带伤使用</div>
+    </div>
+    <div class="wl-note-item">
+      <span class="wl-note-num">⑤</span>
+      <div>下班后工作服<b>留在更衣室</b>，不得穿回家，防止化学品污染扩散</div>
+    </div>
+  </div>
+
+  <div class="card tint-mint">
+    <div class="wl-sec-title">🚨 应急处理</div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">1</div>
+      <div class="wl-rule-body">化学品接触皮肤/眼睛，立即用<b>大量清水冲洗</b>15分钟以上并就医</div>
+    </div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">2</div>
+      <div class="wl-rule-body">吸入有害气体，立即<b>转移至通风处</b>，严重时拨打120</div>
+    </div>
+    <div class="wl-rule-item">
+      <div class="wl-rule-num">3</div>
+      <div class="wl-rule-body">发生泄漏/ spills，立即<b>上报并启动应急预案</b>，按 SDS 指引处理</div>
+    </div>
+  </div>
+
+  <div class="wl-highlight-box">
+    🦺 <b>安全口诀：</b>安全帽要戴好、护目镜不可少、防毒面罩滤盒换、防化手套耐腐蚀、工作服袖口紧、劳保鞋防砸滑 — 未穿齐不上岗！
   </div>
 `,
 };
