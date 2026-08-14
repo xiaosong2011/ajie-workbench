@@ -423,16 +423,16 @@ const LISTS={
   ]},
   filterBatches:{title:'滤芯批号',icon:'🔮',dbKey:'filterBatches',fields:[
     {key:'batchNumber',label:'批号',type:'input',placeholder:'如：5NC1846',as:'highlight'},
-    {key:'filterModel',label:'滤芯型号',type:'input',placeholder:'如：EP3-0300NR10NC',as:'highlight'},
-    {key:'precision',label:'精度',type:'input',placeholder:'如：3.0μm',as:'field'},
-    {key:'brand',label:'品牌',type:'input',placeholder:'如：cobetter',as:'field'},
-    {key:'product',label:'适用产品/产线',type:'input',placeholder:'如：1号包装机',as:'field'},
-    {key:'installDate',label:'安装日期',type:'input',placeholder:'如：2026-08-14',as:'meta'},
-    {key:'replaceDate',label:'更换日期',type:'input',placeholder:'如：2026-09-13',as:'meta'},
-    {key:'mfgDate',label:'生产日期',type:'input',placeholder:'如：2025-08-14',as:'meta'},
-    {key:'expDate',label:'有效期至',type:'input',placeholder:'如：2028-08-13',as:'meta'},
-    {key:'status',label:'状态',type:'select',options:['使用中','已更换','待更换'],as:'tag'},
-    {key:'remark',label:'备注',type:'textarea',placeholder:'如：PP/PE筒式滤芯，首次安装',as:'desc'}
+    {key:'filterModel',label:'滤芯型号',type:'input',placeholder:'如：EP3-0300NR10NC',as:'hidden'},
+    {key:'precision',label:'精度',type:'input',placeholder:'如：3.0μm',as:'highlight'},
+    {key:'brand',label:'品牌',type:'input',placeholder:'如：cobetter',as:'hidden'},
+    {key:'product',label:'适用产品/产线',type:'input',placeholder:'如：1号包装机',as:'hidden'},
+    {key:'installDate',label:'安装日期',type:'input',placeholder:'如：2026-08-14',as:'hidden'},
+    {key:'replaceDate',label:'更换日期',type:'input',placeholder:'如：2026-09-13',as:'hidden'},
+    {key:'mfgDate',label:'生产日期',type:'input',placeholder:'如：2025-08-14',as:'hidden'},
+    {key:'expDate',label:'有效期至',type:'input',placeholder:'如：2028-08-13',as:'hidden'},
+    {key:'status',label:'状态',type:'select',options:['使用中','已更换','待更换'],as:'hidden'},
+    {key:'remark',label:'备注',type:'textarea',placeholder:'如：PP/PE筒式滤芯，首次安装',as:'hidden'}
   ]},
 };
 
