@@ -315,7 +315,7 @@
   .filter-search-box .fsb-input{flex:1;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fff;color:var(--ink);outline:none}
   .filter-search-box .fsb-input:focus,.filter-search-box .fsb-select:focus{border-color:var(--accent)}
   .filter-search-box .fsb-clear{flex:0 0 auto;padding:8px 12px;border:none;border-radius:8px;background:#f0f0f0;font-size:12px;color:var(--ink-2);cursor:pointer}
-  .filter-search-box .fsb-clear:active{background:#e0e0e0}
+  .filter-search-box .fsb-select-wide{width:100%}
   .filter-search-box .fsb-count{margin-top:8px;font-size:12px;color:var(--accent);font-weight:600;display:none}
   .empty-sub{font-size:12px;color:var(--ink-3);margin-top:4px}
 </style>
@@ -1058,9 +1058,9 @@ filters:`
   <div class="page-head"><span class="bow">🔮</span><h1>滤芯批号</h1><span class="sub">· 滤芯批次追踪与更换管理</span></div>
 
   <div class="card filter-search-box">
-    <div class="fsb-title">🔍 检索滤芯</div>
+    <div class="fsb-title">🔍 选择滤芯精度</div>
     <div class="fsb-row">
-      <select class="fsb-select" id="filterSearchPrecision" onchange="applyFilterSearch()">
+      <select class="fsb-select fsb-select-wide" id="filterSearchPrecision" onchange="applyFilterSearch()">
         <option value="">全部精度</option>
         <option value="1μm">1μm</option>
         <option value="2μm">2μm</option>
@@ -1071,8 +1071,6 @@ filters:`
         <option value="100μm">100μm</option>
         <option value="125μm">125μm</option>
       </select>
-      <input class="fsb-input" id="filterSearchText" type="text" placeholder="搜索批号 / 型号..." oninput="applyFilterSearch()">
-      <button class="fsb-clear" onclick="clearFilterSearch()">清除</button>
     </div>
     <div class="fsb-count" id="filterSearchCount"></div>
   </div>
