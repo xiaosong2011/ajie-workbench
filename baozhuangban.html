@@ -184,6 +184,10 @@
   .gitem .gfields{margin-top:4px;font-size:12px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:4px 12px}
   .gitem .gfields span b{color:var(--ink-3);font-weight:600}
   .gitem .gtags{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+  .gitem .ghl{display:flex;gap:6px 16px;flex-wrap:wrap;margin-bottom:4px}
+  .gitem .ghl-item{display:inline-flex;align-items:baseline;gap:4px}
+  .gitem .ghl-label{font-size:11px;color:var(--ink-3);font-weight:600}
+  .gitem .ghl-value{font-size:16px;font-weight:800;color:#1a1a2e;letter-spacing:.3px}
   .item-more{width:28px;height:28px;border:none;border-radius:8px;background:transparent;color:var(--ink-3);font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .12s}
   .item-more:active{background:var(--line)}
   .item-menu{position:fixed;z-index:9999;background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.18);overflow:hidden;min-width:120px;opacity:0;transform:scale(.9);pointer-events:none;transition:all .12s;transform-origin:top right}
@@ -418,8 +422,8 @@ const LISTS={
     {key:'content',label:'交接内容',type:'textarea',placeholder:'设备运行情况、未完成任务、注意事项等',as:'desc'}
   ]},
   filterBatches:{title:'滤芯批号',icon:'🔮',dbKey:'filterBatches',fields:[
-    {key:'batchNumber',label:'批号',type:'input',placeholder:'如：5NC1846',as:'title'},
-    {key:'filterModel',label:'滤芯型号',type:'input',placeholder:'如：EP3-0300NR10NC',as:'field'},
+    {key:'batchNumber',label:'批号',type:'input',placeholder:'如：5NC1846',as:'highlight'},
+    {key:'filterModel',label:'滤芯型号',type:'input',placeholder:'如：EP3-0300NR10NC',as:'highlight'},
     {key:'precision',label:'精度',type:'input',placeholder:'如：3.0μm',as:'field'},
     {key:'brand',label:'品牌',type:'input',placeholder:'如：cobetter',as:'field'},
     {key:'product',label:'适用产品/产线',type:'input',placeholder:'如：1号包装机',as:'field'},
@@ -646,18 +650,20 @@ function renderList(listKey){
 }
 function renderListItem(listKey,item,i){
   const config=LISTS[listKey];
-  let titleParts=[],metaParts=[],descParts=[],tagParts=[],fieldParts=[];
+  let titleParts=[],metaParts=[],descParts=[],tagParts=[],fieldParts=[],highlightParts=[];
   config.fields.forEach(f=>{
     const as=f.as||'field';const val=item[f.key];
     if(val===undefined||val===null||val==='')return;
     const text=String(val);
     if(as==='title')titleParts.push(text);
+    else if(as==='highlight')highlightParts.push('<span class="ghl-item"><span class="ghl-label">'+escapeHtml(f.label)+'</span><span class="ghl-value">'+escapeHtml(text)+'</span></span>');
     else if(as==='meta')metaParts.push(text);
     else if(as==='desc')descParts.push(text);
     else if(as==='tag')tagParts.push('<span class="pill" style="'+tagColor(text)+'">'+escapeHtml(text)+'</span>');
     else fieldParts.push('<span><b>'+escapeHtml(f.label)+'：</b>'+escapeHtml(text)+'</span>');
   });
   let html='<div class="gitem"><div class="gbody">';
+  if(highlightParts.length)html+='<div class="ghl">'+highlightParts.join('')+'</div>';
   if(titleParts.length)html+='<div class="gt">'+escapeHtml(titleParts.join(' · '))+'</div>';
   if(metaParts.length)html+='<div class="gmeta">'+escapeHtml(metaParts.join(' · '))+'</div>';
   if(descParts.length)html+='<div class="gdesc">'+escapeHtml(descParts.join(' '))+'</div>';
