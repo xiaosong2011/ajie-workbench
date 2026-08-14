@@ -424,7 +424,7 @@ const LISTS={
   filterBatches:{title:'滤芯批号',icon:'🔮',dbKey:'filterBatches',fields:[
     {key:'batchNumber',label:'批号',type:'input',placeholder:'如：5NC1846',as:'highlight'},
     {key:'filterModel',label:'滤芯型号',type:'input',placeholder:'如：EP3-0300NR10NC',as:'hidden'},
-    {key:'precision',label:'精度',type:'input',placeholder:'如：3.0μm',as:'highlight'},
+    {key:'precision',label:'精度',type:'select',options:['1μm','2μm','3μm','10μm','25μm','75μm','100μm','125μm'],placeholder:'如：3.0μm',as:'highlight'},
     {key:'brand',label:'品牌',type:'input',placeholder:'如：cobetter',as:'hidden'},
     {key:'product',label:'适用产品/产线',type:'input',placeholder:'如：1号包装机',as:'hidden'},
     {key:'installDate',label:'安装日期',type:'input',placeholder:'如：2026-08-14',as:'hidden'},
@@ -449,7 +449,7 @@ const INITIAL={
   safetyItems:[],
   handoverLogs:[],
   filterBatches:[
-    {batchNumber:'5NC1846',filterModel:'EP3-0300NR10NC',precision:'3.0μm',brand:'cobetter',product:'',installDate:'2026-08-14',replaceDate:'',mfgDate:'2025-08-14',expDate:'2028-08-13',status:'使用中',remark:'PP/PE筒式滤芯，杭州科百特过滤器材有限公司生产'}
+    {batchNumber:'5NC1846',filterModel:'EP3-0300NR10NC',precision:'3μm',brand:'cobetter',product:'',installDate:'2026-08-14',replaceDate:'',mfgDate:'2025-08-14',expDate:'2028-08-13',status:'使用中',remark:'PP/PE筒式滤芯，杭州科百特过滤器材有限公司生产'}
   ],
 };
 
