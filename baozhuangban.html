@@ -308,6 +308,16 @@
   .ocr-status .ocr-spin{display:inline-block;animation:ocrSpin 1s linear infinite}
   @keyframes ocrSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
   .ocr-tip{font-size:11px;color:var(--ink-3)}
+  .filter-search-box{padding:14px}
+  .filter-search-box .fsb-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .filter-search-box .fsb-row{display:flex;gap:8px;align-items:center}
+  .filter-search-box .fsb-select{flex:0 0 auto;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fff;color:var(--ink);outline:none}
+  .filter-search-box .fsb-input{flex:1;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fff;color:var(--ink);outline:none}
+  .filter-search-box .fsb-input:focus,.filter-search-box .fsb-select:focus{border-color:var(--accent)}
+  .filter-search-box .fsb-clear{flex:0 0 auto;padding:8px 12px;border:none;border-radius:8px;background:#f0f0f0;font-size:12px;color:var(--ink-2);cursor:pointer}
+  .filter-search-box .fsb-clear:active{background:#e0e0e0}
+  .filter-search-box .fsb-count{margin-top:8px;font-size:12px;color:var(--accent);font-weight:600;display:none}
+  .empty-sub{font-size:12px;color:var(--ink-3);margin-top:4px}
 </style>
 </head>
 <body>
@@ -650,12 +660,57 @@ function scrollToOvList(key){
 }
 
 /* ========== 通用列表 CRUD ========== */
+let _filterSearch={precision:'',text:''};
+function applyFilterSearch(){
+  var pEl=document.getElementById('filterSearchPrecision');
+  var tEl=document.getElementById('filterSearchText');
+  _filterSearch.precision=pEl?pEl.value:'';
+  _filterSearch.text=tEl?tEl.value.trim().toLowerCase():'';
+  renderList('filterBatches');
+}
+function clearFilterSearch(){
+  _filterSearch={precision:'',text:''};
+  var pEl=document.getElementById('filterSearchPrecision');if(pEl)pEl.value='';
+  var tEl=document.getElementById('filterSearchText');if(tEl)tEl.value='';
+  renderList('filterBatches');
+}
+function getFilteredItems(listKey){
+  const config=LISTS[listKey];if(!config)return[];
+  let items=DB[config.dbKey]||[];
+  if(listKey!=='filterBatches')return items;
+  if(_filterSearch.precision){
+    items=items.filter(function(it){return it.precision===_filterSearch.precision;});
+  }
+  if(_filterSearch.text){
+    items=items.filter(function(it){
+      var bn=(it.batchNumber||'').toLowerCase();
+      var fm=(it.filterModel||'').toLowerCase();
+      var br=(it.brand||'').toLowerCase();
+      return bn.indexOf(_filterSearch.text)>=0||fm.indexOf(_filterSearch.text)>=0||br.indexOf(_filterSearch.text)>=0;
+    });
+  }
+  return items;
+}
 function renderList(listKey){
   const config=LISTS[listKey];if(!config)return;
   const container=document.getElementById('lc_'+listKey);if(!container)return;
-  const items=DB[config.dbKey]||[];
-  if(items.length===0){container.innerHTML='<div class="empty-hint"><div class="big">'+config.icon+'</div>暂无内容，点击"+ 新增"添加</div>';return;}
-  let html='';items.forEach((item,i)=>{html+=renderListItem(listKey,item,i);});
+  const allItems=DB[config.dbKey]||[];
+  const items=getFilteredItems(listKey);
+  if(listKey==='filterBatches'){
+    var cEl=document.getElementById('filterSearchCount');
+    if(cEl){
+      if(_filterSearch.precision||_filterSearch.text){
+        cEl.textContent='找到 '+items.length+' / '+allItems.length+' 条记录';
+        cEl.style.display='block';
+      }else{cEl.style.display='none';}
+    }
+  }
+  if(allItems.length===0){container.innerHTML='<div class="empty-hint"><div class="big">'+config.icon+'</div>暂无内容，点击"+ 新增"添加</div>';return;}
+  if(items.length===0){container.innerHTML='<div class="empty-hint"><div class="big">🔍</div>没有匹配的记录<div class="empty-sub">试试其他筛选条件</div></div>';return;}
+  let html='';items.forEach((item)=>{
+    var realIndex=allItems.indexOf(item);
+    html+=renderListItem(listKey,item,realIndex);
+  });
   container.innerHTML=html;
 }
 function renderListItem(listKey,item,i){
@@ -1001,6 +1056,26 @@ tailings:`
 `,
 filters:`
   <div class="page-head"><span class="bow">🔮</span><h1>滤芯批号</h1><span class="sub">· 滤芯批次追踪与更换管理</span></div>
+
+  <div class="card filter-search-box">
+    <div class="fsb-title">🔍 检索滤芯</div>
+    <div class="fsb-row">
+      <select class="fsb-select" id="filterSearchPrecision" onchange="applyFilterSearch()">
+        <option value="">全部精度</option>
+        <option value="1μm">1μm</option>
+        <option value="2μm">2μm</option>
+        <option value="3μm">3μm</option>
+        <option value="10μm">10μm</option>
+        <option value="25μm">25μm</option>
+        <option value="75μm">75μm</option>
+        <option value="100μm">100μm</option>
+        <option value="125μm">125μm</option>
+      </select>
+      <input class="fsb-input" id="filterSearchText" type="text" placeholder="搜索批号 / 型号..." oninput="applyFilterSearch()">
+      <button class="fsb-clear" onclick="clearFilterSearch()">清除</button>
+    </div>
+    <div class="fsb-count" id="filterSearchCount"></div>
+  </div>
 
   <div class="card">
     <div class="card-h">🔮 滤芯批号记录<button class="btn btn-accent" onclick="openListModal('filterBatches')">+ 新增</button></div>
