@@ -418,13 +418,17 @@ const LISTS={
     {key:'content',label:'交接内容',type:'textarea',placeholder:'设备运行情况、未完成任务、注意事项等',as:'desc'}
   ]},
   filterBatches:{title:'滤芯批号',icon:'🔮',dbKey:'filterBatches',fields:[
-    {key:'batchNumber',label:'批号',type:'input',placeholder:'如：FL20260813001',as:'title'},
-    {key:'filterModel',label:'滤芯型号',type:'input',placeholder:'如：PP棉滤芯 5μm',as:'field'},
+    {key:'batchNumber',label:'批号',type:'input',placeholder:'如：5NC1846',as:'title'},
+    {key:'filterModel',label:'滤芯型号',type:'input',placeholder:'如：EP3-0300NR10NC',as:'field'},
+    {key:'precision',label:'精度',type:'input',placeholder:'如：3.0μm',as:'field'},
+    {key:'brand',label:'品牌',type:'input',placeholder:'如：cobetter',as:'field'},
     {key:'product',label:'适用产品/产线',type:'input',placeholder:'如：1号包装机',as:'field'},
-    {key:'installDate',label:'安装日期',type:'input',placeholder:'如：2026-08-13',as:'meta'},
+    {key:'installDate',label:'安装日期',type:'input',placeholder:'如：2026-08-14',as:'meta'},
     {key:'replaceDate',label:'更换日期',type:'input',placeholder:'如：2026-09-13',as:'meta'},
+    {key:'mfgDate',label:'生产日期',type:'input',placeholder:'如：2025-08-14',as:'meta'},
+    {key:'expDate',label:'有效期至',type:'input',placeholder:'如：2028-08-13',as:'meta'},
     {key:'status',label:'状态',type:'select',options:['使用中','已更换','待更换'],as:'tag'},
-    {key:'remark',label:'备注',type:'textarea',placeholder:'如：首次安装，建议30天更换',as:'desc'}
+    {key:'remark',label:'备注',type:'textarea',placeholder:'如：PP/PE筒式滤芯，首次安装',as:'desc'}
   ]},
 };
 
@@ -440,12 +444,14 @@ const INITIAL={
   materials:[],
   safetyItems:[],
   handoverLogs:[],
-  filterBatches:[],
+  filterBatches:[
+    {batchNumber:'5NC1846',filterModel:'EP3-0300NR10NC',precision:'3.0μm',brand:'cobetter',product:'',installDate:'2026-08-14',replaceDate:'',mfgDate:'2025-08-14',expDate:'2028-08-13',status:'使用中',remark:'PP/PE筒式滤芯，杭州科百特过滤器材有限公司生产'}
+  ],
 };
 
 /* ========== 数据层 ========== */
 const STORE_KEY='baozhuangban_workbench_data';
-const DATA_VERSION='v2_clean';
+const DATA_VERSION='v3_filter';
 const VERSION_KEY='baozhuangban_data_version';
 const CLOUD_KEY='baozhuangban_cloud_config';
 const XIAOSONG_CLOUD_KEY='ajie_cloud_config';
