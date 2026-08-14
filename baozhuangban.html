@@ -300,10 +300,12 @@
   .ov-list-card.highlight{box-shadow:0 0 0 3px var(--accent),0 8px 24px rgba(46,134,222,.2)}
   .ov-footer{text-align:center;padding:24px 0 10px;font-size:11px;color:var(--ink-3)}
   .ocr-box{margin-bottom:14px;padding-bottom:10px;border-bottom:1px dashed var(--line)}
-  .btn-ocr{width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#6a11cb,#2575fc);color:#fff;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .2s}
+  .ocr-btns{display:flex;gap:8px}
+  .btn-ocr{flex:1;padding:12px 8px;border:none;border-radius:12px;background:linear-gradient(135deg,#6a11cb,#2575fc);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;transition:opacity .2s}
   .btn-ocr:active{opacity:.8}
   .btn-ocr:disabled{opacity:.5;cursor:wait}
   .btn-ocr .ocr-icon{font-size:18px}
+  .btn-ocr-alt{background:linear-gradient(135deg,#11998e,#38ef7d)}
   .ocr-status{margin-top:8px;font-size:13px;color:var(--ink-2);line-height:1.5;display:none}
   .ocr-status .ocr-spin{display:inline-block;animation:ocrSpin 1s linear infinite}
   @keyframes ocrSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
@@ -761,7 +763,7 @@ function openListModal(listKey,index){
   const item=editing?Object.assign({},DB[config.dbKey][index]):{};
   let formHtml='';
   if(listKey==='filterBatches'&&!editing){
-    formHtml+='<div class="ocr-box"><button type="button" class="btn-ocr" onclick="triggerOcr()"><span class="ocr-icon">📷</span> 拍照识别滤芯信息</button><div id="ocrStatus" class="ocr-status"></div></div>';
+    formHtml+='<div class="ocr-box"><div class="ocr-btns"><button type="button" class="btn-ocr" onclick="triggerOcr(\'camera\')"><span class="ocr-icon">📷</span> 拍照识别</button><button type="button" class="btn-ocr btn-ocr-alt" onclick="triggerOcr(\'gallery\')"><span class="ocr-icon">🖼️</span> 选择图片</button></div><div id="ocrStatus" class="ocr-status"></div></div>';
   }
   config.fields.forEach(f=>{
     const raw=item[f.key];const val=raw!==undefined?raw:'';
@@ -789,12 +791,12 @@ function delListItem(listKey,index){
 
 /* ========== OCR 拍照识别 ========== */
 let _ocrFileInput=null;
-function triggerOcr(){
+function triggerOcr(mode){
   if(_ocrFileInput)_ocrFileInput.remove();
   _ocrFileInput=document.createElement('input');
   _ocrFileInput.type='file';
   _ocrFileInput.accept='image/*';
-  _ocrFileInput.capture='environment';
+  if(mode==='camera')_ocrFileInput.capture='environment';
   _ocrFileInput.style.display='none';
   document.body.appendChild(_ocrFileInput);
   _ocrFileInput.onchange=function(e){
