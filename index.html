@@ -2268,9 +2268,38 @@ function openVoiceInspoModal(){
     _speechActive=false;
     var btn=document.getElementById('voiceRecBtn');
     if(btn) btn.textContent='🎤';
-    var status=document.getElementById('voiceStatus');
-    if(status) status.textContent='录音已结束，正在整理...';
-    if(fullText.trim()) processVoiceText(fullText.trim());
+    if(fullText.trim()){
+      var status=document.getElementById('voiceStatus');
+      if(getZhipuKey()){
+        /* 有智谱API Key，使用AI总结 */
+        if(status) status.textContent='🧠 正在调用智谱GLM大模型总结...';
+        summarizeWithZhipu(fullText.trim(),function(result,err){
+          if(result&&result.title){
+            /* AI总结成功 */
+            var wrap=document.getElementById('voiceResultWrap');
+            if(wrap) wrap.style.display='block';
+            var rawEl=document.getElementById('voiceRawText');
+            if(rawEl) rawEl.value=fullText.trim();
+            var titleEl=document.getElementById('ipTitle');
+            var descEl=document.getElementById('ipDesc');
+            var tagEl=document.getElementById('ipTag');
+            if(titleEl) titleEl.value=result.title;
+            if(descEl) descEl.value=result.desc||'';
+            if(tagEl) tagEl.value=result.tag||'';
+            if(status) status.textContent='✅ AI总结完成！请检查并修改后保存';
+            if(btn){btn.style.background='';btn.style.color='';}
+          }else{
+            /* AI总结失败，回退本地算法 */
+            if(status) status.textContent='⚠️ AI总结失败('+err+')，已使用本地算法整理';
+            processVoiceText(fullText.trim());
+          }
+        });
+      }else{
+        /* 未配置智谱Key，使用本地算法 */
+        if(status) status.textContent='正在整理...（未配置智谱API Key，使用本地算法）';
+        processVoiceText(fullText.trim());
+      }
+    }
   };
   _speechRec.onerror=function(event){
     _speechActive=false;
@@ -2555,6 +2584,20 @@ function renderDataMgr(){
     '<div class="txt" style="margin-top:8px;font-size:11px;color:var(--ink-3)">获取方式：火山引擎控制台 → 方舟 → API Key管理 → 创建API Key</div>'+
     '</div>'+
 
+    '<div class="card tint-violet">'+
+    '<div class="card-h">🧠 智谱GLM · 灵感语音总结</div>'+
+    '<div class="txt" style="margin-bottom:8px">配置智谱API Key后，灵感收藏的<b>语音录入</b>将通过 GLM-4-Flash 大模型智能总结整理。<b>永久免费</b>，每天无限次调用。</div>'+
+    '<div class="cloud-config-row">'+
+    '<label>智谱 API Key</label>'+
+    '<input class="crud-input" id="cfgZhipuKey" placeholder="在智谱开放平台获取 API Key" value="'+escapeHtml(localStorage.getItem('ajie_zhipu_key')||'')+'">'+
+    '</div>'+
+    '<div class="data-mgr">'+
+    '<button class="btn btn-accent" onclick="saveZhipuKey()">💾 保存智谱API Key</button>'+
+    '<button class="btn btn-ghost" onclick="clearZhipuKey()">🗑️ 清除</button>'+
+    '</div>'+
+    '<div class="txt" style="margin-top:8px;font-size:11px;color:var(--ink-3)">获取方式：open.bigmodel.cn → 控制台 → API Keys → 添加API Key（GLM-4-Flash模型永久免费）</div>'+
+    '</div>'+
+
     '<div class="card tint-mint">'+
     '<div class="card-h">🔗 分享给他人</div>'+
     '<div class="txt">让朋友<b>扫描二维码</b>或点击分享链接，打开即自动连接同一工作区，<b>无需任何配置</b>。</div>'+
@@ -2598,6 +2641,115 @@ function saveDoubaoKey(){
 function clearDoubaoKey(){
   localStorage.removeItem('ajie_doubao_key');
   customAlert('已清除豆包API Key，油价将使用网页爬取方式获取。');
+}
+
+/* 智谱API Key 管理 */
+function getZhipuKey(){
+  return localStorage.getItem('ajie_zhipu_key')||'';
+}
+function saveZhipuKey(){
+  var key=document.getElementById('cfgZhipuKey').value.trim();
+  if(key){
+    localStorage.setItem('ajie_zhipu_key',key);
+    customAlert('✅ 智谱API Key已保存！灵感语音录入将使用 GLM-4-Flash 大模型智能总结。');
+  }else{
+    customAlert('请输入有效的API Key');
+  }
+}
+function clearZhipuKey(){
+  localStorage.removeItem('ajie_zhipu_key');
+  customAlert('已清除智谱API Key，灵感语音录入将使用本地算法整理。');
+}
+
+/* 调用智谱GLM-4-Flash进行智能总结 */
+function summarizeWithZhipu(rawText, callback){
+  var apiKey=getZhipuKey();
+  if(!apiKey){
+    callback(null,'未配置智谱API Key');
+    return;
+  }
+  var prompt='请将以下语音转文字内容进行智能整理总结。要求：\n'+
+    '1. 去除口语废话词（嗯、啊、那个、就是等）\n'+
+    '2. 提取核心意思，生成一个简洁的标题（15字以内）\n'+
+    '3. 将内容整理成条理清晰的描述（如果有多个要点，用编号列表）\n'+
+    '4. 根据内容推荐一个标签（从以下选择：产品想法、金句、工具、工作、学习、待解决、计划、灵感、其他）\n'+
+    '5. 严格返回JSON格式，不要其他任何文字\n\n'+
+    '语音文字内容：'+rawText+'\n\n'+
+    '返回格式：{"title":"标题","desc":"描述","tag":"标签"}';
+
+  var apiUrl='https://open.bigmodel.cn/api/paas/v4/chat/completions';
+  var payload={
+    model:'glm-4-flash',
+    messages:[{role:'user',content:prompt}],
+    temperature:0.3,
+    max_tokens:500
+  };
+
+  /* 尝试直接调用，如果CORS失败则通过代理 */
+  function tryDirect(){
+    return fetch(apiUrl,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+apiKey
+      },
+      body:JSON.stringify(payload)
+    }).then(function(r){return r.json();});
+  }
+  function tryProxy(){
+    var proxyUrl='https://corsproxy.io/?url='+encodeURIComponent(apiUrl);
+    return fetch(proxyUrl,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+apiKey
+      },
+      body:JSON.stringify(payload)
+    }).then(function(r){return r.json();});
+  }
+
+  tryDirect()
+    .then(function(data){
+      if(data&&data.choices&&data.choices.length>0){
+        var content=data.choices[0].message.content;
+        /* 尝试从返回内容中提取JSON */
+        var m=content.match(/\{[\s\S]*\}/);
+        if(m){
+          try{
+            var result=JSON.parse(m[0]);
+            callback(result,null);
+            return;
+          }catch(e){}
+        }
+        /* JSON解析失败，尝试手动提取 */
+        callback(null,'AI返回格式异常');
+      }else{
+        callback(null,data.error?data.error.message:'AI返回为空');
+      }
+    })
+    .catch(function(err){
+      /* 直接调用失败（可能是CORS），尝试代理 */
+      tryProxy()
+        .then(function(data){
+          if(data&&data.choices&&data.choices.length>0){
+            var content=data.choices[0].message.content;
+            var m=content.match(/\{[\s\S]*\}/);
+            if(m){
+              try{
+                var result=JSON.parse(m[0]);
+                callback(result,null);
+                return;
+              }catch(e){}
+            }
+            callback(null,'AI返回格式异常');
+          }else{
+            callback(null,data.error?data.error.message:'AI返回为空');
+          }
+        })
+        .catch(function(err2){
+          callback(null,'网络请求失败: '+err2.message);
+        });
+    });
 }
 
 function saveCloudCfg(){
