@@ -639,6 +639,120 @@
   @media(prefers-reduced-motion:reduce){
     *,*::before,*::after{animation:none!important;transition:none!important}
   }
+
+  /* 21. 灵感聊天界面 */
+  .inspo-chat-wrap{
+    display:flex;flex-direction:column;
+    height:calc(100vh - 180px);min-height:400px;
+    background:var(--bg-1);
+    border-radius:16px;overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .inspo-chat-body{
+    flex:1;overflow-y:auto;padding:16px;
+    scroll-behavior:smooth;
+  }
+  .inspo-chat-body .gitem{
+    max-width:85%;margin-bottom:12px;
+    padding:10px 14px;border-radius:14px;
+    background:var(--bg-2);
+    position:relative;
+  }
+  .inspo-chat-body .gitem::before{
+    content:'';position:absolute;left:-1px;top:14px;
+    width:0;height:0;
+    border:6px solid transparent;
+    border-right-color:var(--bg-2);
+    border-left:0;
+  }
+  .inspo-chat-body .gitem.ai-msg{
+    margin-left:auto;background:#e8f0fe;
+    border-color:#d0e0fd;
+  }
+  .inspo-chat-body .gitem.ai-msg::before{
+    left:auto;right:-1px;
+    border-right:0;
+    border-left:6px solid transparent;
+    border-left-color:#e8f0fe;
+  }
+  .inspo-chat-body .gitem .gt{font-size:14px;font-weight:700;color:var(--ink)}
+  .inspo-chat-body .gitem .gdesc{font-size:13px;color:var(--ink-2);margin-top:4px;white-space:pre-wrap}
+  .inspo-chat-bar{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 12px;
+    background:var(--bg-2);
+    border-top:1px solid var(--border);
+  }
+  .inspo-mode-btn{
+    width:40px;height:40px;border-radius:50%;
+    border:none;background:var(--accent);color:#fff;
+    font-size:18px;cursor:pointer;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .2s;
+  }
+  .inspo-mode-btn:active{transform:scale(.9)}
+  .inspo-input-area{flex:1;position:relative}
+  .inspo-text-input{
+    width:100%;border:1px solid var(--border);border-radius:20px;
+    padding:10px 16px;font-size:14px;resize:none;outline:none;
+    background:var(--bg-1);font-family:inherit;
+    line-height:1.5;max-height:100px;
+  }
+  .inspo-voice-btn{
+    width:100%;border:2px solid var(--accent);border-radius:20px;
+    padding:10px 16px;font-size:14px;background:var(--bg-1);
+    color:var(--accent);cursor:pointer;
+    text-align:center;user-select:none;
+    transition:all .15s;
+  }
+  .inspo-voice-btn.recording{
+    background:#ff4444;color:#fff;border-color:#ff4444;
+    font-weight:700;
+  }
+  .inspo-send-btn{
+    height:40px;padding:0 16px;border-radius:20px;
+    border:none;background:var(--accent);color:#fff;
+    font-size:14px;font-weight:600;cursor:pointer;flex-shrink:0;
+    transition:all .2s;
+  }
+  .inspo-send-btn:active{transform:scale(.95)}
+  .inspo-send-btn:disabled{opacity:.5;cursor:not-allowed}
+  .inspo-voice-tip{
+    position:fixed;bottom:140px;left:50%;transform:translateX(-50%);
+    background:rgba(0,0,0,.75);color:#fff;
+    padding:16px 24px;border-radius:16px;
+    text-align:center;z-index:9999;
+    animation:voiceTipPop .3s ease both;
+  }
+  .inspo-voice-tip-icon{font-size:32px}
+  .inspo-voice-tip-text{font-size:13px;margin-top:6px;opacity:.9}
+  .inspo-voice-tip-wave{
+    display:flex;gap:3px;justify-content:center;margin-top:8px;height:20px;align-items:center;
+  }
+  .inspo-voice-tip-wave span{
+    display:block;width:3px;background:#4caf50;border-radius:2px;
+    animation:voiceWave .6s ease-in-out infinite alternate;
+  }
+  @keyframes voiceTipPop{
+    from{opacity:0;transform:translateX(-50%) translateY(10px)}
+    to{opacity:1;transform:translateX(-50%) translateY(0)}
+  }
+  @keyframes voiceWave{
+    0%{height:4px}100%{height:18px}
+  }
+  .inspo-loading-dots{
+    display:inline-flex;gap:4px;align-items:center;
+  }
+  .inspo-loading-dots span{
+    width:6px;height:6px;border-radius:50%;background:var(--ink-3);
+    animation:loadingBounce .8s ease-in-out infinite;
+  }
+  .inspo-loading-dots span:nth-child(2){animation-delay:.15s}
+  .inspo-loading-dots span:nth-child(3){animation-delay:.3s}
+  @keyframes loadingBounce{
+    0%,80%,100%{transform:scale(.6);opacity:.4}
+    40%{transform:scale(1);opacity:1}
+  }
 </style>
 </head>
 <body>
@@ -1109,13 +1223,24 @@ aimanga:`
 `,
 
 inspo:`
-  <div class="page-head"><span class="bow">⭐</span><h1>灵感收藏</h1><span class="sub">· 看到好东西先存下来</span></div>
-  <div class="card">
-    <div class="card-h">💡 灵感库
-      <button class="btn btn-sm" style="margin-left:auto" onclick="openVoiceInspoModal()" id="voiceInspoBtn">🎤 语音录入</button>
-      <button class="btn btn-accent" style="margin-left:6px" onclick="openInspoModal()">+ 收一条</button>
+  <div class="page-head"><span class="bow">⭐</span><h1>灵感收藏</h1><span class="sub">· 语音说出来 · AI帮你整理</span></div>
+  <div class="inspo-chat-wrap">
+    <div class="inspo-chat-body" id="inspoChatBody">
+      <div id="inspoList"></div>
     </div>
-    <div id="inspoList"></div>
+    <div class="inspo-chat-bar">
+      <button class="inspo-mode-btn" id="inspoModeBtn" onclick="toggleInspoInputMode()">🎤</button>
+      <div class="inspo-input-area">
+        <textarea class="inspo-text-input" id="inspoTextInput" placeholder="输入灵感..." rows="1" style="display:none" onkeydown="if(event.keyCode===13&&!event.shiftKey){event.preventDefault();inspoSendText();}"></textarea>
+        <button class="inspo-voice-btn" id="inspoVoiceBtn" ontouchstart="inspoVoiceStart(event)" ontouchend="inspoVoiceEnd(event)" onmousedown="inspoVoiceStart(event)" onmouseup="inspoVoiceEnd(event)" onmouseleave="inspoVoiceEnd(event)">按住说话</button>
+      </div>
+      <button class="inspo-send-btn" id="inspoSendBtn" onclick="inspoSendText()" style="display:none">发送</button>
+    </div>
+    <div class="inspo-voice-tip" id="inspoVoiceTip" style="display:none">
+      <div class="inspo-voice-tip-icon">🎙️</div>
+      <div class="inspo-voice-tip-text">松开结束 · AI自动整理</div>
+      <div class="inspo-voice-tip-wave" id="inspoVoiceWave"></div>
+    </div>
   </div>
   <div class="card tint-violet">
     <div class="card-h">🔗 常用链接</div>
@@ -2256,20 +2381,20 @@ function renderInspos(){
   const list=document.getElementById('inspoList');
   if(!list)return;
   if(DB.inspos.length===0){
-    list.innerHTML='<div class="empty-hint"><div class="big">💡</div>还没有灵感，点击"收一条"添加</div>';
+    list.innerHTML='<div class="empty-hint"><div class="big">💡</div>按住下方按钮说话，AI帮你整理灵感</div>';
     return;
   }
   let html='';
-  DB.inspos.slice().reverse().forEach((item,idx)=>{
-    const i=DB.inspos.length-1-idx;
+  DB.inspos.forEach((item)=>{
     const tagHtml=item.tag?'<div class="gtags"><span class="pill" style="'+tagColor(item.tag)+'">'+escapeHtml(item.tag)+'</span></div>':'';
-    html+='<div class="gitem"><div class="gbody">'+
-      '<div class="gt">'+escapeHtml(item.title)+'</div>'+
+    html+='<div class="gitem ai-msg">'+
+      '<div class="gt">✨ '+escapeHtml(item.title)+'</div>'+
       (item.desc?'<div class="gdesc">'+escapeHtml(item.desc)+'</div>':'')+
       tagHtml+
-      '</div><button class="item-more" onclick="showInspoMenu(event,'+i+')">⋯</button></div>';
+      '</div>';
   });
   list.innerHTML=html;
+  inspoScrollToBottom();
 }
 function openInspoModal(i){
   const editing=i!==undefined;
@@ -2498,231 +2623,270 @@ function copyMangaResult(){
   });
 }
 
-/* ========== 语音录入灵感 ========== */
-var _speechRec=null;
-var _speechActive=false;
+/* ========== 灵感聊天 · 语音录入 ========== */
+var _inspoSpeechRec=null;
+var _inspoRecording=false;
+var _inspoVoiceText='';
+var _inspoInputMode='voice'; /* 'voice' 或 'text' */
 
-/* 打开语音录入弹窗 */
-function openVoiceInspoModal(){
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){
-    /* 浏览器不支持语音识别，回退到普通录入 */
-    customAlert('⚠️ 当前浏览器不支持语音识别，请使用 Chrome、Edge 或 Safari。已为您打开手动录入。');
-    openInspoModal();
-    return;
+/* 切换语音/文字输入模式 */
+function toggleInspoInputMode(){
+  var modeBtn=document.getElementById('inspoModeBtn');
+  var voiceBtn=document.getElementById('inspoVoiceBtn');
+  var textInput=document.getElementById('inspoTextInput');
+  var sendBtn=document.getElementById('inspoSendBtn');
+  if(_inspoInputMode==='voice'){
+    _inspoInputMode='text';
+    if(modeBtn) modeBtn.textContent='⌨️';
+    if(voiceBtn) voiceBtn.style.display='none';
+    if(textInput){textInput.style.display='block';textInput.focus();}
+    if(sendBtn) sendBtn.style.display='flex';
+  }else{
+    _inspoInputMode='voice';
+    if(modeBtn) modeBtn.textContent='🎤';
+    if(textInput) textInput.style.display='none';
+    if(voiceBtn){voiceBtn.style.display='block';voiceBtn.textContent='按住说话';}
+    if(sendBtn) sendBtn.style.display='none';
   }
-  showModal('🎤 语音录入灵感',
-    '<div style="text-align:center;padding:10px 0">'+
-      '<div id="voiceStatus" style="font-size:14px;color:var(--ink-3);margin-bottom:12px">点击下方按钮开始说话</div>'+
-      '<button class="btn btn-accent" id="voiceRecBtn" onclick="toggleVoiceRec()" style="width:80px;height:80px;border-radius:50%;font-size:32px;display:inline-flex;align-items:center;justify-content:center;border:none;cursor:pointer">🎤</button>'+
-      '<div id="voiceLiveText" style="margin-top:12px;padding:12px;border-radius:10px;background:var(--bg-2);min-height:60px;font-size:14px;line-height:1.6;text-align:left;color:var(--ink-3);max-height:120px;overflow-y:auto"></div>'+
-    '</div>'+
-    '<div id="voiceResultWrap" style="display:none">'+
-      '<label class="crud-label">原始语音文字</label>'+
-      '<textarea class="crud-textarea" id="voiceRawText" style="font-size:13px;color:var(--ink-3)" readonly></textarea>'+
-      '<label class="crud-label" style="margin-top:10px">✨ 智能整理结果</label>'+
-      '<label class="crud-label" style="font-size:12px;color:var(--ink-3)">标题</label>'+
-      '<input class="crud-input" id="ipTitle" placeholder="一句话总结">'+
-      '<label class="crud-label" style="font-size:12px;color:var(--ink-3)">描述</label>'+
-      '<textarea class="crud-textarea" id="ipDesc" placeholder="详细说明..."></textarea>'+
-      '<label class="crud-label" style="font-size:12px;color:var(--ink-3)">标签</label>'+
-      '<input class="crud-input" id="ipTag" placeholder="如：产品想法、金句、工具">'+
-    '</div>',
-    function(){
-      var title=document.getElementById('ipTitle');
-      var desc=document.getElementById('ipDesc');
-      var tag=document.getElementById('ipTag');
-      if(!title||!title.value.trim()){ customAlert('请先录音或输入内容'); return false; }
-      var obj={title:title.value.trim(),desc:desc?desc.value.trim():'',tag:tag?tag.value.trim():''};
-      DB.inspos.push(obj);
-      saveData(); renderInspos();
-      return true;
-    }
-  );
-  /* 初始化语音识别 */
-  _speechRec=new SR();
-  _speechRec.lang='zh-CN';
-  _speechRec.continuous=true;
-  _speechRec.interimResults=true;
-  var fullText='';
-  _speechRec.onresult=function(event){
+}
+
+/* 初始化语音识别 */
+function initInspoSpeech(){
+  if(_inspoSpeechRec) return true;
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR) return false;
+  _inspoSpeechRec=new SR();
+  _inspoSpeechRec.lang='zh-CN';
+  _inspoSpeechRec.continuous=true;
+  _inspoSpeechRec.interimResults=true;
+  _inspoSpeechRec.onresult=function(event){
     var interim='';
     for(var i=event.resultIndex;i<event.results.length;i++){
       if(event.results[i].isFinal){
-        fullText+=event.results[i][0].transcript;
+        _inspoVoiceText+=event.results[i][0].transcript;
       }else{
         interim+=event.results[i][0].transcript;
       }
     }
-    var live=document.getElementById('voiceLiveText');
-    if(live) live.textContent=fullText+interim;
   };
-  _speechRec.onend=function(){
-    _speechActive=false;
-    var btn=document.getElementById('voiceRecBtn');
-    if(btn) btn.textContent='🎤';
-    if(fullText.trim()){
-      var status=document.getElementById('voiceStatus');
-      if(getZhipuKey()){
-        /* 有智谱API Key，使用AI总结 */
-        if(status) status.textContent='🧠 正在调用智谱GLM大模型总结...';
-        summarizeWithZhipu(fullText.trim(),function(result,err){
-          if(result&&result.title){
-            /* AI总结成功 */
-            var wrap=document.getElementById('voiceResultWrap');
-            if(wrap) wrap.style.display='block';
-            var rawEl=document.getElementById('voiceRawText');
-            if(rawEl) rawEl.value=fullText.trim();
-            var titleEl=document.getElementById('ipTitle');
-            var descEl=document.getElementById('ipDesc');
-            var tagEl=document.getElementById('ipTag');
-            if(titleEl) titleEl.value=result.title;
-            if(descEl) descEl.value=result.desc||'';
-            if(tagEl) tagEl.value=result.tag||'';
-            if(status) status.textContent='✅ AI总结完成！请检查并修改后保存';
-            if(btn){btn.style.background='';btn.style.color='';}
-          }else{
-            /* AI总结失败，回退本地算法 */
-            if(status) status.textContent='⚠️ AI总结失败('+err+')，已使用本地算法整理';
-            processVoiceText(fullText.trim());
-          }
-        });
-      }else{
-        /* 未配置智谱Key，使用本地算法 */
-        if(status) status.textContent='正在整理...（未配置智谱API Key，使用本地算法）';
-        processVoiceText(fullText.trim());
-      }
+  _inspoSpeechRec.onend=function(){
+    if(_inspoRecording){
+      /* 录音意外结束，重新开始 */
+      try{_inspoSpeechRec.start();}catch(e){}
     }
   };
-  _speechRec.onerror=function(event){
-    _speechActive=false;
-    var btn=document.getElementById('voiceRecBtn');
-    if(btn) btn.textContent='🎤';
-    var status=document.getElementById('voiceStatus');
-    if(status) status.textContent='⚠️ 语音识别出错：'+(event.error||'未知错误');
+  _inspoSpeechRec.onerror=function(event){
+    _inspoRecording=false;
+    var tip=document.getElementById('inspoVoiceTip');
+    if(tip) tip.style.display='none';
+    var btn=document.getElementById('inspoVoiceBtn');
+    if(btn){btn.classList.remove('recording');btn.textContent='按住说话';}
+    if(event.error==='not-allowed'){
+      inspoAddMessage('system','⚠️ 请允许浏览器使用麦克风权限');
+    }
   };
+  return true;
 }
 
-/* 开始/停止录音 */
-function toggleVoiceRec(){
-  if(!_speechRec) return;
-  if(_speechActive){
-    _speechRec.stop();
+/* 按住开始说话 */
+function inspoVoiceStart(e){
+  if(e) e.preventDefault();
+  if(_inspoRecording) return;
+  if(!initInspoSpeech()){
+    inspoAddMessage('system','⚠️ 当前浏览器不支持语音识别，请切换到文字输入模式（点击⌨️按钮）');
     return;
   }
-  _speechActive=true;
-  var btn=document.getElementById('voiceRecBtn');
-  if(btn){
-    btn.textContent='⏹';
-    btn.style.background='#ff4444';
-    btn.style.color='#fff';
+  _inspoRecording=true;
+  _inspoVoiceText='';
+  var btn=document.getElementById('inspoVoiceBtn');
+  if(btn){btn.classList.add('recording');btn.textContent='松开结束';}
+  /* 显示录音提示 */
+  var tip=document.getElementById('inspoVoiceTip');
+  if(tip){
+    tip.style.display='block';
+    var wave=document.getElementById('inspoVoiceWave');
+    if(wave){
+      wave.innerHTML='';
+      for(var i=0;i<7;i++){
+        var s=document.createElement('span');
+        s.style.animationDelay=(i*0.08)+'s';
+        wave.appendChild(s);
+      }
+    }
   }
-  var status=document.getElementById('voiceStatus');
-  if(status) status.textContent='🔴 正在录音...请说话';
-  var live=document.getElementById('voiceLiveText');
-  if(live) live.textContent='';
   try{
-    _speechRec.start();
-  }catch(e){
-    _speechActive=false;
-    if(btn){btn.textContent='🎤';btn.style.background='';btn.style.color='';}
-    if(status) status.textContent='⚠️ 启动录音失败，请重试';
+    _inspoSpeechRec.start();
+  }catch(err){
+    /* 可能还在运行中，先停止再开始 */
+    try{_inspoSpeechRec.stop();}catch(e2){}
+    setTimeout(function(){
+      try{_inspoSpeechRec.start();}catch(e3){}
+    },200);
   }
 }
 
-/* 本地文本整理算法 - 去废话、提取重点、分段落 */
-function processVoiceText(rawText){
-  var wrap=document.getElementById('voiceResultWrap');
-  if(wrap) wrap.style.display='block';
-  var rawEl=document.getElementById('voiceRawText');
-  if(rawEl) rawEl.value=rawText;
+/* 松开结束说话，开始AI整理 */
+function inspoVoiceEnd(e){
+  if(e) e.preventDefault();
+  if(!_inspoRecording) return;
+  _inspoRecording=false;
+  var btn=document.getElementById('inspoVoiceBtn');
+  if(btn){btn.classList.remove('recording');btn.textContent='按住说话';}
+  var tip=document.getElementById('inspoVoiceTip');
+  if(tip) tip.style.display='none';
+  /* 停止录音 */
+  try{_inspoSpeechRec.stop();}catch(e){}
+  /* 等待onresult完成（延迟处理） */
+  setTimeout(function(){
+    var text=_inspoVoiceText.trim();
+    if(!text){
+      inspoAddMessage('system','⚠️ 没有听到声音，请按住按钮再试一次');
+      return;
+    }
+    /* 在聊天中显示原始语音文字 */
+    inspoAddMessage('user','🗣️ '+text);
+    /* 显示AI正在思考 */
+    var loadingId=inspoAddMessage('ai-loading','');
+    /* 调用AI总结 */
+    inspoProcessWithAI(text,function(result){
+      /* 移除loading */
+      var loadingEl=document.getElementById(loadingId);
+      if(loadingEl) loadingEl.remove();
+      if(result){
+        /* 显示AI整理结果 */
+        inspoAddMessage('ai',result.title,result.desc,result.tag);
+        /* 保存到数据库 */
+        DB.inspos.push(result);
+        saveData();
+        inspoScrollToBottom();
+      }else{
+        inspoAddMessage('system','⚠️ AI总结失败，原始语音已保存');
+        /* 回退：保存原始文本 */
+        var fallback=inspoLocalProcess(text);
+        DB.inspos.push(fallback);
+        saveData();
+        inspoScrollToBottom();
+      }
+    });
+  },300);
+}
 
-  /* 1. 去除口语废话词 */
-  var fillerWords=[
-    '嗯','啊','呃','哦','呢','吧','嘛','哈','嘿','诶',
+/* 发送文字消息 */
+function inspoSendText(){
+  var input=document.getElementById('inspoTextInput');
+  if(!input) return;
+  var text=input.value.trim();
+  if(!text) return;
+  input.value='';
+  /* 在聊天中显示用户消息 */
+  inspoAddMessage('user',text);
+  /* 显示AI正在思考 */
+  var loadingId=inspoAddMessage('ai-loading','');
+  /* 调用AI总结 */
+  inspoProcessWithAI(text,function(result){
+    var loadingEl=document.getElementById(loadingId);
+    if(loadingEl) loadingEl.remove();
+    if(result){
+      inspoAddMessage('ai',result.title,result.desc,result.tag);
+      DB.inspos.push(result);
+      saveData();
+      inspoScrollToBottom();
+    }else{
+      var fallback=inspoLocalProcess(text);
+      inspoAddMessage('ai',fallback.title,fallback.desc,fallback.tag);
+      DB.inspos.push(fallback);
+      saveData();
+      inspoScrollToBottom();
+    }
+  });
+}
+
+/* 添加聊天消息到界面，返回消息元素ID */
+function inspoAddMessage(type,title,desc,tag){
+  var list=document.getElementById('inspoList');
+  if(!list) return;
+  var div=document.createElement('div');
+  var id='inspoMsg_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
+  div.id=id;
+  if(type==='user'){
+    div.className='gitem';
+    div.innerHTML='<div class="gt">'+escapeHtml(title)+'</div>';
+  }else if(type==='ai'){
+    div.className='gitem ai-msg';
+    var tagHtml=tag?'<div class="gtags"><span class="pill" style="'+tagColor(tag)+'">'+escapeHtml(tag)+'</span></div>':'';
+    div.innerHTML='<div class="gt">✨ '+escapeHtml(title)+'</div>'+
+      (desc?'<div class="gdesc">'+escapeHtml(desc)+'</div>':'')+
+      tagHtml;
+  }else if(type==='ai-loading'){
+    div.className='gitem ai-msg';
+    div.innerHTML='<div class="gt"><span class="inspo-loading-dots"><span></span><span></span><span></span></span> AI正在整理...</div>';
+  }else if(type==='system'){
+    div.className='gitem';
+    div.style.cssText='max-width:90%;text-align:center;background:transparent;color:var(--ink-3);font-size:12px;border:none;padding:4px';
+    div.innerHTML=title;
+  }
+  list.appendChild(div);
+  inspoScrollToBottom();
+  return id;
+}
+
+/* 滚动到底部 */
+function inspoScrollToBottom(){
+  var body=document.getElementById('inspoChatBody');
+  if(body) body.scrollTop=body.scrollHeight;
+}
+
+/* 调用AI处理语音/文字 */
+function inspoProcessWithAI(text,callback){
+  var zhipuKey=getZhipuKey();
+  if(!zhipuKey){
+    /* 无API Key，直接用本地算法 */
+    callback(null);
+    return;
+  }
+  summarizeWithZhipu(text,function(result,err){
+    if(result&&result.title){
+      callback(result);
+    }else{
+      callback(null);
+    }
+  });
+}
+
+/* 本地文本整理算法（回退方案） */
+function inspoLocalProcess(rawText){
+  var fillerWords=['嗯','啊','呃','哦','呢','吧','嘛','哈','嘿','诶',
     '就是','那个','然后','所以说','其实','怎么说呢',
     '我觉得','我认为','对吧','是不是','你知道吗',
     '比如说','比如','的话','一下','一下子','就这么',
-    '对','是啊','是的','嗯嗯','好好好','这样说吧'
-  ];
+    '对','是啊','是的','嗯嗯','好好好','这样说吧'];
   var cleaned=rawText;
-  fillerWords.forEach(function(w){
-    cleaned=cleaned.replace(new RegExp(w,'g'),'');
-  });
-
-  /* 2. 合并多余标点和空格 */
-  cleaned=cleaned.replace(/[，,]{2,}/g,'，');
-  cleaned=cleaned.replace(/[。.]{2,}/g,'。');
-  cleaned=cleaned.replace(/[！!]{2,}/g,'！');
-  cleaned=cleaned.replace(/[？?]{2,}/g,'？');
-  cleaned=cleaned.replace(/\s{2,}/g,' ');
-  cleaned=cleaned.replace(/^[，,。.！!？?\s]+/,'');
-  cleaned=cleaned.replace(/[，,。.！!？?\s]+$/,'');
-
-  /* 3. 按句号/问号/感叹号分段 */
-  var sentences=cleaned.split(/[。！？\n]+/).map(function(s){
-    return s.trim();
-  }).filter(function(s){
-    return s.length>2;
-  });
-
-  /* 4. 提取标题：取第一个完整短句，截断到30字以内 */
-  var title='';
-  if(sentences.length>0){
-    title=sentences[0];
-    if(title.length>30) title=title.substring(0,30)+'...';
-  }else{
-    title=cleaned.substring(0,30);
-  }
-
-  /* 5. 生成描述：所有句子整理成编号列表 */
-  var desc='';
-  if(sentences.length>1){
-    desc=sentences.map(function(s,i){
-      return (i+1)+'. '+s;
-    }).join('\n');
-  }else if(sentences.length===1){
-    desc=sentences[0];
-  }else{
-    desc=cleaned;
-  }
-
-  /* 6. 智能推荐标签 */
+  fillerWords.forEach(function(w){cleaned=cleaned.replace(new RegExp(w,'g'),'');});
+  cleaned=cleaned.replace(/[，,]{2,}/g,'，').replace(/[。.]{2,}/g,'。')
+    .replace(/[！!]{2,}/g,'！').replace(/[？?]{2,}/g,'？')
+    .replace(/\s{2,}/g,' ').replace(/^[，,。.！!？?\s]+/,'').replace(/[，,。.！!？?\s]+$/,'');
+  var sentences=cleaned.split(/[。！？\n]+/).map(function(s){return s.trim();}).filter(function(s){return s.length>2;});
+  var title=sentences.length>0?(sentences[0].length>30?sentences[0].substring(0,30)+'...':sentences[0]):cleaned.substring(0,30);
+  var desc=sentences.length>1?sentences.map(function(s,i){return (i+1)+'. '+s;}).join('\n'):(sentences.length===1?sentences[0]:cleaned);
   var tag='';
   var tagRules=[
     {kw:['想法','idea','点子','创意','设计'],tag:'产品想法'},
-    {kw:['金句','名言','说得好','很喜欢这句话'],tag:'金句'},
+    {kw:['金句','名言','说得好'],tag:'金句'},
     {kw:['工具','软件','app','网站','插件'],tag:'工具'},
     {kw:['会议','讨论','沟通','汇报'],tag:'工作'},
-    {kw:['学习','课程','教程','看书','读书'],tag:'学习'},
-    {kw:['问题','bug','错误','故障','修复'],tag:'待解决'},
+    {kw:['学习','课程','教程','看书'],tag:'学习'},
+    {kw:['问题','bug','错误','故障'],tag:'待解决'},
     {kw:['计划','安排','目标','todo','任务'],tag:'计划'},
-    {kw:['灵感','创意','突然想到','想到一个'],tag:'灵感'}
+    {kw:['灵感','创意','突然想到'],tag:'灵感'}
   ];
   var lowerText=rawText.toLowerCase();
   for(var i=0;i<tagRules.length;i++){
     for(var j=0;j<tagRules[i].kw.length;j++){
-      if(lowerText.indexOf(tagRules[i].kw[j])>=0){
-        tag=tagRules[i].tag;
-        break;
-      }
+      if(lowerText.indexOf(tagRules[i].kw[j])>=0){tag=tagRules[i].tag;break;}
     }
     if(tag) break;
   }
-
-  /* 7. 填入表单 */
-  var titleEl=document.getElementById('ipTitle');
-  var descEl=document.getElementById('ipDesc');
-  var tagEl=document.getElementById('ipTag');
-  if(titleEl) titleEl.value=title;
-  if(descEl) descEl.value=desc;
-  if(tagEl) tagEl.value=tag;
-
-  /* 8. 更新状态提示 */
-  var status=document.getElementById('voiceStatus');
-  if(status) status.textContent='✅ 整理完成！请检查并修改后保存';
-  var btn=document.getElementById('voiceRecBtn');
-  if(btn){btn.style.background='';btn.style.color='';}
+  return {title:title,desc:desc,tag:tag};
 }
 
 /* ========== 小账本 CRUD ========== */
