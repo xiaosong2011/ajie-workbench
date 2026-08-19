@@ -2268,12 +2268,12 @@ function openBatchImportModal(){
   _parsedPlaylist=[];
   const formHtml=
     '<div style="margin-bottom:12px;padding:10px;background:#f0f7ff;border-radius:10px;font-size:12px;color:var(--ink-2);line-height:1.6">'+
-      '💡 粘贴网易云歌单链接，自动解析全部歌曲并批量导入到KTV歌单。<br>'+
-      '支持格式：分享短链（163cn.tv/xxx）、music.163.com/#/playlist?id=xxx'+
+      '💡 直接粘贴网易云分享文本或歌单链接，自动解析全部歌曲并批量导入。<br>'+
+      '支持：分享短链（163cn.tv）、music.163.com/playlist?id=xxx'+
     '</div>'+
-    '<label class="crud-label">网易云歌单链接</label>'+
+    '<label class="crud-label">网易云歌单链接或分享文本</label>'+
     '<div style="display:flex;gap:8px">'+
-      '<input class="crud-input" id="batchImportUrl" type="text" placeholder="粘贴网易云歌单链接或分享短链…" style="flex:1;margin-bottom:0">'+
+      '<input class="crud-input" id="batchImportUrl" type="text" placeholder="粘贴分享文本或歌单链接…" style="flex:1;margin-bottom:0">'+
       '<button class="btn btn-accent" style="white-space:nowrap;flex-shrink:0" onclick="parseNetEasePlaylist()">🔗 解析</button>'+
     '</div>'+
     '<div id="batchImportResult" style="display:none;margin-top:12px">'+
@@ -2316,43 +2316,34 @@ async function parseNetEasePlaylist(){
   var urlInput=document.getElementById('batchImportUrl');
   var url=(urlInput.value||'').trim();
   if(!url){ customAlert('请输入歌单链接'); return; }
+  /* 从分享文本中提取URL */
+  var urlMatch=url.match(/https?:\/\/[^\s）)]+/);
+  if(urlMatch) url=urlMatch[0];
   var resultDiv=document.getElementById('batchImportResult');
   var songsDiv=document.getElementById('batchImportSongs');
   var countSpan=document.getElementById('batchImportCount');
   songsDiv.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink-3);font-size:13px">⏳ 正在解析歌单，大歌单可能需要几秒钟…</div>';
   resultDiv.style.display='block';
   try{
-    /* 优先使用本地代理服务器（支持短链和完整解析） */
-    var resp=await fetch('/api/playlist?id='+encodeURIComponent(url),{method:'GET'});
-    if(resp.ok){
-      var data=await resp.json();
-      if(data.songs&&data.songs.length>0){
-        _parsedPlaylist=data.songs;
-        renderParsedSongs(songsDiv,countSpan);
-        return;
-      }
-    }
-    /* 本地代理失败时，尝试CORS代理（兜底，只能获取前10首） */
+    /* 步骤1：提取歌单ID */
     var pid=extractNetEaseId(url);
-    if(pid){
-      data=await fetchViaCorsProxies(pid);
-      if(data){
-        var pl=data.playlist||data.result;
-        var tracks=pl.tracks||[];
-        if(tracks.length>0){
-          _parsedPlaylist=tracks.map(function(t){
-            return{
-              name:t.name||'未知歌曲',
-              artist:(t.ar||t.artists||[]).map(function(a){return a.name;}).join(' / ')
-            };
-          });
-          renderParsedSongs(songsDiv,countSpan);
-          return;
-        }
-      }
+    if(!pid){
+      /* 短链需要解析，通过CORS代理获取页面并提取ID */
+      pid=await resolveShortUrlAndGetId(url);
     }
-    songsDiv.innerHTML='<div style="text-align:center;padding:20px;color:#ef4444;font-size:13px">❌ 解析失败，可能是网络问题或歌单不存在<br>请确认链接正确后重试</div>';
-    countSpan.textContent='';
+    if(!pid){
+      songsDiv.innerHTML='<div style="text-align:center;padding:20px;color:#ef4444;font-size:13px">❌ 无法识别歌单ID<br>请检查链接是否正确</div>';
+      countSpan.textContent='';
+      return;
+    }
+    /* 步骤2：获取歌单全部歌曲 */
+    _parsedPlaylist=await fetchAllPlaylistSongs(pid);
+    if(!_parsedPlaylist||_parsedPlaylist.length===0){
+      songsDiv.innerHTML='<div style="text-align:center;padding:20px;color:#ef4444;font-size:13px">❌ 歌单中没有歌曲，或解析失败<br>请稍后重试</div>';
+      countSpan.textContent='';
+      return;
+    }
+    renderParsedSongs(songsDiv,countSpan);
   }catch(e){
     songsDiv.innerHTML='<div style="text-align:center;padding:20px;color:#ef4444;font-size:13px">❌ 解析出错：'+escapeHtml(e.message||'未知错误')+'<br>请稍后重试</div>';
     countSpan.textContent='';
@@ -2367,24 +2358,108 @@ function extractNetEaseId(url){
   return null;
 }
 
-async function fetchViaCorsProxies(pid){
-  var apiUrl='https://music.163.com/api/playlist/detail?id='+pid;
+/* 通过CORS代理解析短链，从页面HTML中提取歌单ID */
+async function resolveShortUrlAndGetId(shortUrl){
   var proxies=[
-    'https://api.allorigins.win/raw?url='+encodeURIComponent(apiUrl),
-    'https://corsproxy.io/?url='+encodeURIComponent(apiUrl),
-    'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(apiUrl),
-    'https://thingproxy.freeboard.io/fetch/'+apiUrl
+    'https://proxy.cors.sh/'+shortUrl,
+    'https://api.allorigins.win/raw?url='+encodeURIComponent(shortUrl),
   ];
   for(var pi=0;pi<proxies.length;pi++){
     try{
       var resp=await fetch(proxies[pi],{method:'GET'});
       if(resp.ok){
-        var data=await resp.json();
-        if(data&&(data.playlist||data.result)) return data;
+        var html=await resp.text();
+        /* 从HTML中查找歌单ID */
+        var m=html.match(/playlist\?id=(\d+)/);
+        if(m) return m[1];
+        m=html.match(/playlist\/(\d+)/);
+        if(m) return m[1];
+        /* 从canonical链接提取 */
+        m=html.match(/canonical"\s+href="[^"]*id=(\d+)/);
+        if(m) return m[1];
       }
     }catch(e){ /* 尝试下一个代理 */ }
   }
   return null;
+}
+
+/* 获取歌单全部歌曲：先获取trackIds，再分批获取歌曲详情 */
+async function fetchAllPlaylistSongs(pid){
+  /* 优先尝试本地代理（如果运行了server.py） */
+  try{
+    var resp=await fetch('/api/playlist?id='+encodeURIComponent(pid),{method:'GET'});
+    if(resp.ok){
+      var data=await resp.json();
+      if(data.songs&&data.songs.length>0) return data.songs;
+    }
+  }catch(e){ /* 本地代理不可用，使用CORS代理 */ }
+
+  /* 使用proxy.cors.sh获取v6歌单详情（包含所有trackIds） */
+  var v6Url='https://music.163.com/api/v6/playlist/detail?id='+pid;
+  var proxies=[
+    'https://proxy.cors.sh/'+v6Url,
+    'https://api.allorigins.win/raw?url='+encodeURIComponent(v6Url),
+  ];
+  var plData=null;
+  for(var pi=0;pi<proxies.length;pi++){
+    try{
+      var resp=await fetch(proxies[pi],{method:'GET'});
+      if(resp.ok){
+        var data=await resp.json();
+        if(data&&(data.playlist||data.result)){
+          plData=data.playlist||data.result;
+          break;
+        }
+      }
+    }catch(e){ /* 尝试下一个代理 */ }
+  }
+  if(!plData) return [];
+
+  var trackIds=plData.trackIds||[];
+  var tracks=plData.tracks||[];
+  /* 如果有trackIds，分批获取歌曲详情 */
+  if(trackIds.length>0){
+    var allIds=trackIds.map(function(t){return t.id;});
+    var allSongs=[];
+    var batchSize=100;
+    for(var i=0;i<allIds.length;i+=batchSize){
+      var batch=allIds.slice(i,i+batchSize);
+      var idsParam=encodeURIComponent(JSON.stringify(batch));
+      var detailUrl='https://music.163.com/api/song/detail?ids='+idsParam;
+      var detailProxies=[
+        'https://proxy.cors.sh/'+detailUrl,
+        'https://api.allorigins.win/raw?url='+encodeURIComponent(detailUrl),
+      ];
+      for(var dp=0;dp<detailProxies.length;dp++){
+        try{
+          var dResp=await fetch(detailProxies[dp],{method:'GET'});
+          if(dResp.ok){
+            var dData=await dResp.json();
+            var songs=dData.songs||[];
+            songs.forEach(function(s){
+              var artists=(s.artists||s.ar||[]).map(function(a){return a.name;});
+              allSongs.push({name:s.name||'未知歌曲',artist:artists.join(' / ')});
+            });
+            break;
+          }
+        }catch(e){ /* 尝试下一个代理 */ }
+      }
+      /* 更新进度 */
+      var songsDiv=document.getElementById('batchImportSongs');
+      if(songsDiv){
+        songsDiv.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink-3);font-size:13px">⏳ 正在获取歌曲详情…('+Math.min(i+batchSize,allIds.length)+'/'+allIds.length+')</div>';
+      }
+    }
+    if(allSongs.length>0) return allSongs;
+  }
+  /* 兜底：使用playlist API返回的前10首 */
+  if(tracks.length>0){
+    return tracks.map(function(t){
+      var artists=(t.ar||t.artists||[]).map(function(a){return a.name;});
+      return {name:t.name||'未知歌曲',artist:artists.join(' / ')};
+    });
+  }
+  return [];
 }
 
 function renderParsedSongs(songsDiv,countSpan){
