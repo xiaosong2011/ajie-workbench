@@ -1137,6 +1137,28 @@ anime:`
 
 salary:`
   <div class="page-head"><span class="bow">💰</span><h1>工资储蓄规划</h1><span class="sub">· 收入有数 · 储蓄有目标</span></div>
+  <div class="card tint-amber">
+    <div class="card-h">🥇 实时金价 <span id="goldUpdateTime" style="font-size:11px;font-weight:400;margin-left:auto;color:var(--ink-3)">加载中...</span> <button class="btn btn-sm" style="margin-left:8px" onclick="fetchGoldPrice()">🔄</button></div>
+    <div id="goldPriceBox" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+      <div style="text-align:center;padding:10px;border-radius:10px;background:var(--bg-2)">
+        <div style="font-size:11px;color:var(--ink-3)">国际金价(美元/盎司)</div>
+        <div id="goldIntlPrice" style="font-size:24px;font-weight:800;color:#d4a017;margin-top:4px">--</div>
+        <div id="goldIntlChange" style="font-size:12px;margin-top:2px">--</div>
+      </div>
+      <div style="text-align:center;padding:10px;border-radius:10px;background:var(--bg-2)">
+        <div style="font-size:11px;color:var(--ink-3)">国内金价(元/克)</div>
+        <div id="goldCnyPrice" style="font-size:24px;font-weight:800;color:#d4a017;margin-top:4px">--</div>
+        <div id="goldCnyChange" style="font-size:12px;margin-top:2px">--</div>
+      </div>
+    </div>
+    <div id="goldDetail" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;font-size:12px">
+      <div style="text-align:center"><span style="color:var(--ink-3)">开盘</span><br><span id="goldOpen">--</span></div>
+      <div style="text-align:center"><span style="color:var(--ink-3)">昨收</span><br><span id="goldPrev">--</span></div>
+      <div style="text-align:center"><span style="color:var(--ink-3)">最高</span><br><span id="goldHigh">--</span></div>
+      <div style="text-align:center"><span style="color:var(--ink-3)">最低</span><br><span id="goldLow">--</span></div>
+    </div>
+    <div style="font-size:11px;color:var(--ink-3);margin-top:8px;text-align:center">每分钟自动更新 · 数据来源：新浪财经 COMEX黄金</div>
+  </div>
   <div class="card tint-mint">
     <div class="card-h">💡 储蓄理念</div>
     <div class="txt">先存后花，每月工资到账第一时间转储蓄账户。目标：6个月应急基金 + 年度大额支出预留。</div>
@@ -1800,13 +1822,15 @@ function switchSection(id){
   /* 在每个板块顶部插入每日激励滚动条 */
   html=renderDailyQuoteBar()+html;
   content.innerHTML='<div class="section active">'+html+'</div>';
+  /* 停止黄金定时刷新（离开工资储蓄页面时） */
+  if(id!=='salary') stopGoldTimer();
   /* 后置渲染 */
   if(id==='daily') initDaily();
   if(id==='inspo') renderInspos();
   if(id==='ledger') renderLedger();
   (SECTION_LISTS[id]||[]).forEach(k=>renderList(k));
   if(id==='car'){ renderOilPrice(); autoRefreshOilPrice(); }
-  if(id==='salary') renderSalaryCharts();
+  if(id==='salary'){ renderSalaryCharts(); fetchGoldPrice(); }
   if(window.innerWidth<=768) toggleSidebar(false);
   /* 重新触发卡片入场动画 */
   var cards=content.querySelectorAll('.card');
@@ -2946,6 +2970,135 @@ function svgRing(pct,opts){
 }
 
 /* ========== 工资储蓄 · 可视化 ========== */
+var _goldTimer=null;
+var _goldPrevClose=null;
+
+/* 获取实时黄金价格 */
+function fetchGoldPrice(){
+  /* 先尝试新浪财经API（需要CORS代理） */
+  var sinaUrl='https://hq.sinajs.cn/list=hf_GC';
+  var proxyUrl='https://corsproxy.io/?url='+encodeURIComponent(sinaUrl);
+
+  fetch(proxyUrl,{headers:{'Referer':'https://finance.sina.com.cn'}})
+    .then(function(r){return r.text();})
+    .then(function(text){
+      /* 解析 var hq_str_hf_GC="..." */
+      var m=text.match(/"([^"]+)"/);
+      if(!m) throw new Error('数据格式异常');
+      var parts=m[1].split(',');
+      var price=parseFloat(parts[0]);
+      var prevClose=parseFloat(parts[3]);
+      var openPrice=parseFloat(parts[2]);
+      var high=parseFloat(parts[4]);
+      var low=parseFloat(parts[5]);
+      var timeStr=parts[6];
+      var dateStr=parts[12];
+
+      if(!price||price<=0) throw new Error('价格数据无效');
+
+      /* 计算涨跌 */
+      var change=price-prevClose;
+      var changePct=prevClose>0?(change/prevClose*100):0;
+      var isUp=change>=0;
+      var arrow=isUp?'▲':'▼';
+      var color=isUp?'#e74c3c':'#27ae60';
+
+      /* 美元/盎司 → 人民币/克 换算
+         1盎司=31.1035克，汇率约7.2（动态获取困难，用固定值估算） */
+      var usdToCnyRate=7.2;
+      var cnyPerGram=price*usdToCnyRate/31.1035;
+      var cnyChange=change*usdToCnyRate/31.1035;
+
+      /* 更新UI */
+      var elIntl=document.getElementById('goldIntlPrice');
+      if(elIntl) elIntl.textContent=price.toFixed(2);
+      var elIntlChg=document.getElementById('goldIntlChange');
+      if(elIntlChg){
+        elIntlChg.textContent=arrow+' '+Math.abs(change).toFixed(2)+' ('+Math.abs(changePct).toFixed(2)+'%)';
+        elIntlChg.style.color=color;
+      }
+      var elCny=document.getElementById('goldCnyPrice');
+      if(elCny) elCny.textContent='¥'+cnyPerGram.toFixed(2);
+      var elCnyChg=document.getElementById('goldCnyChange');
+      if(elCnyChg){
+        elCnyChg.textContent=arrow+' ¥'+Math.abs(cnyChange).toFixed(2);
+        elCnyChg.style.color=color;
+      }
+      var elOpen=document.getElementById('goldOpen');
+      if(elOpen) elOpen.textContent=openPrice.toFixed(2);
+      var elPrev=document.getElementById('goldPrev');
+      if(elPrev) elPrev.textContent=prevClose.toFixed(2);
+      var elHigh=document.getElementById('goldHigh');
+      if(elHigh) elHigh.textContent=high.toFixed(2);
+      var elLow=document.getElementById('goldLow');
+      if(elLow) elLow.textContent=low.toFixed(2);
+      var elTime=document.getElementById('goldUpdateTime');
+      if(elTime) elTime.textContent='更新: '+dateStr+' '+timeStr;
+
+      /* 启动定时刷新（每60秒） */
+      startGoldTimer();
+    })
+    .catch(function(err){
+      /* 新浪API失败，尝试备用API */
+      fetchGoldPriceFallback();
+    });
+}
+
+/* 备用：通过gold-api.com获取 */
+function fetchGoldPriceFallback(){
+  fetch('https://api.gold-api.com/price/XAU')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!data||!data.price) throw new Error('备用API返回异常');
+      var price=data.price;
+      var usdToCnyRate=7.2;
+      var cnyPerGram=price*usdToCnyRate/31.1035;
+
+      var elIntl=document.getElementById('goldIntlPrice');
+      if(elIntl) elIntl.textContent=price.toFixed(2);
+      var elCny=document.getElementById('goldCnyPrice');
+      if(elCny) elCny.textContent='¥'+cnyPerGram.toFixed(2);
+      var elTime=document.getElementById('goldUpdateTime');
+      if(elTime) elTime.textContent='更新: '+(data.updatedAtReadable||'');
+      var elIntlChg=document.getElementById('goldIntlChange');
+      if(elIntlChg) elIntlChg.textContent='(实时)';
+      var elCnyChg=document.getElementById('goldCnyChange');
+      if(elCnyChg) elCnyChg.textContent='(实时)';
+      var elOpen=document.getElementById('goldOpen');
+      if(elOpen) elOpen.textContent='--';
+      var elPrev=document.getElementById('goldPrev');
+      if(elPrev) elPrev.textContent='--';
+      var elHigh=document.getElementById('goldHigh');
+      if(elHigh) elHigh.textContent='--';
+      var elLow=document.getElementById('goldLow');
+      if(elLow) elLow.textContent='--';
+
+      startGoldTimer();
+    })
+    .catch(function(err){
+      var elTime=document.getElementById('goldUpdateTime');
+      if(elTime) elTime.textContent='获取失败，稍后重试';
+      startGoldTimer();
+    });
+}
+
+/* 启动每分钟自动刷新 */
+function startGoldTimer(){
+  if(_goldTimer) clearInterval(_goldTimer);
+  _goldTimer=setInterval(function(){
+    /* 只在工资储蓄页面可见时刷新 */
+    fetchGoldPrice();
+  },60000); /* 60秒 */
+}
+
+/* 停止定时刷新（页面切换时） */
+function stopGoldTimer(){
+  if(_goldTimer){
+    clearInterval(_goldTimer);
+    _goldTimer=null;
+  }
+}
+
 function renderSalaryCharts(){
   var el=document.getElementById('salaryCharts');
   if(!el)return;
