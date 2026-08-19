@@ -100,7 +100,7 @@
   .overlay{display:none}
   @media(max-width:768px){
     .menu-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;font-size:20px;cursor:pointer}
-    .sidebar{position:fixed;top:var(--statusbar-h);left:0;bottom:0;width:240px;z-index:60;transform:translateX(-100%);transition:transform .28s ease;box-shadow:4px 0 20px rgba(0,0,0,.18)}
+    .sidebar{position:fixed;top:var(--statusbar-h);right:0;bottom:0;width:240px;z-index:60;transform:translateX(100%);transition:transform .28s ease;box-shadow:-4px 0 20px rgba(0,0,0,.18)}
     .sidebar.open{transform:translateX(0)}
     .overlay{position:fixed;top:var(--statusbar-h);left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:55}
     .overlay.show{display:block}
@@ -150,7 +150,7 @@
   .fab:hover{color:var(--accent)}
   .menu-fab{display:none}
   @media(max-width:768px){
-    .menu-fab{display:flex;position:fixed;left:16px;bottom:calc(16px + var(--safe-bottom));width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;align-items:center;justify-content:center;font-size:26px;cursor:pointer;z-index:62;border:none;box-shadow:0 4px 18px rgba(46,134,222,.5);user-select:none;animation:fabGlow 3s ease-in-out infinite}
+    .menu-fab{display:flex;position:fixed;right:16px;bottom:calc(16px + var(--safe-bottom));width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;align-items:center;justify-content:center;font-size:26px;cursor:pointer;z-index:62;border:none;box-shadow:0 4px 18px rgba(46,134,222,.5);user-select:none;animation:fabGlow 3s ease-in-out infinite}
     .menu-fab:active{transform:scale(.9)}
   }
   @keyframes fabGlow{0%,100%{box-shadow:0 4px 18px rgba(46,134,222,.45)}50%{box-shadow:0 4px 28px rgba(46,134,222,.65),0 0 0 6px rgba(46,134,222,.08)}}
@@ -326,9 +326,10 @@
 <div class="device">
   <div class="sync-badge off" id="syncBadge" onclick="switchSection('data')"><span class="sync-dot"></span><span id="syncText">本地模式</span></div>
   <div class="statusbar">
-    <span class="left"><span class="menu-btn" onclick="toggleSidebar()">☰</span><span id="clockTxt">08:00</span></span>
+    <span class="left"><span id="clockTxt">08:00</span></span>
     <span class="center"></span>
     <span class="right">
+      <span class="menu-btn" onclick="toggleSidebar()" style="margin-right:4px">☰</span>
       <svg viewBox="0 0 18 12" fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".4"/></svg>
       <span>5G</span>
       <span class="bat"><span class="bat-body"><i></i></span><span class="bat-tip"></span></span>
@@ -447,7 +448,7 @@ const LISTS={
   filterBatches:{title:'滤芯批号',icon:'🔮',dbKey:'filterBatches',fields:[
     {key:'batchNumber',label:'批号',type:'input',placeholder:'如：5NC1846',as:'highlight'},
     {key:'filterModel',label:'滤芯型号',type:'input',placeholder:'如：EP3-0300NR10NC',as:'hidden'},
-    {key:'precision',label:'精度',type:'select',options:['1μm','2μm','3μm','5μm','10μm','15μm','25μm','50μm','75μm','100μm','125μm'],placeholder:'如：3.0μm',as:'highlight'},
+    {key:'precision',label:'精度',type:'select',options:['0.3μm','1μm','2μm','3μm','4μm','5μm','10μm','15μm','25μm','50μm','75μm','100μm','125μm'],placeholder:'如：3.0μm',as:'highlight'},
     {key:'brand',label:'品牌',type:'input',placeholder:'如：cobetter',as:'hidden'},
     {key:'product',label:'适用产品/产线',type:'input',placeholder:'如：1号包装机',as:'hidden'},
     {key:'installDate',label:'安装日期',type:'input',placeholder:'如：2026-08-14',as:'hidden'},
@@ -481,30 +482,40 @@ const INITIAL={
     {batchNumber:'SL2512110671',filterModel:'FCP107U75Y',precision:'75μm',brand:'飞潮新材',product:'',installDate:'',replaceDate:'',mfgDate:'2025-12-11',expDate:'2028-12-11',status:'使用中',remark:'飞潮(上海)新材料股份有限公司'},
     {batchNumber:'SL2507010371',filterModel:'FCP107U125Y',precision:'125μm',brand:'飞潮新材',product:'',installDate:'',replaceDate:'',mfgDate:'2025-07-01',expDate:'2028-07-01',status:'使用中',remark:'飞潮(上海)新材料股份有限公司'},
     {batchNumber:'6D30883',filterModel:'EP3-1000NR10NC',precision:'10μm',brand:'cobetter',product:'',installDate:'',replaceDate:'',mfgDate:'2026-02-09',expDate:'2029-02-08',status:'使用中',remark:'PP/PE筒式滤芯'},
-    {batchNumber:'ID05L08KD0',filterModel:'NT09T050S0NG-FT',precision:'75μm',brand:'3M',product:'',installDate:'',replaceDate:'',mfgDate:'',expDate:'',status:'使用中',remark:'3M Betapure™系列深度过滤滤芯'}
+    {batchNumber:'ID05L08KD0',filterModel:'NT09T050S0NG-FT',precision:'75μm',brand:'3M',product:'',installDate:'',replaceDate:'',mfgDate:'',expDate:'',status:'使用中',remark:'3M Betapure™系列深度过滤滤芯'},
+    {batchNumber:'M161-50-034',filterModel:'BMK-07G0 / 29-67-250',precision:'',brand:'',product:'',installDate:'',replaceDate:'',mfgDate:'',expDate:'',status:'使用中',remark:'外包装标签，数量50pcs，精度及品牌待补充'},
+    {batchNumber:'1J4B2701',filterModel:'CSD0400PCDOE12DTC',precision:'4μm',brand:'',product:'',installDate:'',replaceDate:'',mfgDate:'',expDate:'',status:'使用中',remark:'CSD-4，外包装标签，品牌待补充'},
+    {batchNumber:'WJ05-56-009',filterModel:'CP-03',precision:'0.3μm',brand:'',product:'',installDate:'',replaceDate:'',mfgDate:'',expDate:'',status:'使用中',remark:'CP系列滤芯'},
+    {batchNumber:'W515-59-002',filterModel:'CP-10',precision:'10μm',brand:'GIANT',product:'',installDate:'',replaceDate:'',mfgDate:'',expDate:'',status:'使用中',remark:'GIANT CP FILTER系列滤芯'},
+    {batchNumber:'W075-56-133',filterModel:'CP-25',precision:'25μm',brand:'hKP',product:'',installDate:'',replaceDate:'',mfgDate:'',expDate:'',status:'使用中',remark:'CP系列滤芯，浙江'},
+    {batchNumber:'W225-59-017',filterModel:'CP-50',precision:'50μm',brand:'',product:'',installDate:'',replaceDate:'',mfgDate:'',expDate:'',status:'使用中',remark:'CP系列滤芯'},
+    {batchNumber:'W305-57-040',filterModel:'CP-75',precision:'75μm',brand:'',product:'',installDate:'',replaceDate:'',mfgDate:'',expDate:'',status:'使用中',remark:'CP系列滤芯，浙江'},
+    {batchNumber:'W195-47-011',filterModel:'CP-100',precision:'100μm',brand:'',product:'',installDate:'',replaceDate:'',mfgDate:'',expDate:'',status:'使用中',remark:'CP系列滤芯'}
   ],
 };
 
 /* ========== 数据层 ========== */
 const STORE_KEY='baozhuangban_workbench_data';
-const DATA_VERSION='v9_filters';
+const DATA_VERSION='v13_filters';
 const VERSION_KEY='baozhuangban_data_version';
 const CLOUD_KEY='baozhuangban_cloud_config';
 const XIAOSONG_CLOUD_KEY='ajie_cloud_config';
 const PACKING_WS_ID='bz-packaging';
 
+/* 默认 Supabase 配置（硬编码，分享链接自动连接） */
+const DEFAULT_SB_URL='https://aofcpsdmdzvzsfdvisxu.supabase.co';
+const DEFAULT_SB_KEY='sb_publishable_fPeWq7ZPmMAGhNtEIgKqAg_l4oiZK7Y';
+const DEFAULT_WS_ID='bz-team';
+
 function loadCloudConfig(){
   try{
     let cfg=JSON.parse(localStorage.getItem(CLOUD_KEY))||{};
     if(!cfg.url||!cfg.anonKey){
-      let xs=JSON.parse(localStorage.getItem(XIAOSONG_CLOUD_KEY))||{};
-      if(xs.url&&xs.anonKey){
-        cfg={url:xs.url,anonKey:xs.anonKey,workspaceId:PACKING_WS_ID};
-        localStorage.setItem(CLOUD_KEY,JSON.stringify(cfg));
-      }
+      cfg={url:DEFAULT_SB_URL,anonKey:DEFAULT_SB_KEY,workspaceId:DEFAULT_WS_ID};
+      localStorage.setItem(CLOUD_KEY,JSON.stringify(cfg));
     }
     return cfg;
-  }catch(e){return{};}
+  }catch(e){return{url:DEFAULT_SB_URL,anonKey:DEFAULT_SB_KEY,workspaceId:DEFAULT_WS_ID};}
 }
 function saveCloudConfig(cfg){localStorage.setItem(CLOUD_KEY,JSON.stringify(cfg));}
 let CLOUD_CFG=loadCloudConfig();

@@ -354,6 +354,24 @@
   .modal-box .modal-save{width:100%;margin-top:12px;padding:13px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
   .modal-box .modal-save:active{transform:scale(.97)}
 
+  /* 点击复制 */
+  .copyable{cursor:pointer;transition:background .15s;border-radius:6px;padding:2px 4px;margin:-2px -4px}
+  .copyable:active{background:rgba(0,0,0,.06)}
+  @keyframes cp-fade{0%{opacity:0;transform:translateY(8px)}20%{opacity:1;transform:translateY(0)}80%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
+
+  /* 语音输入 */
+  .voice-row{display:flex;gap:8px;align-items:center;margin:6px 0 0}
+  .btn-voice{
+    flex-shrink:0;width:44px;height:44px;border-radius:50%;border:none;
+    background:var(--accent);color:#fff;font-size:20px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .2s;
+  }
+  .btn-voice.recording{background:#e74c3c;animation:pulse-rec 1s infinite}
+  @keyframes pulse-rec{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+  .voice-hint{font-size:12px;color:var(--ink-3);line-height:1.4}
+  .voice-hint.recording{color:#e74c3c;font-weight:700}
+
   /* 数据管理 */
   .data-mgr{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
   .data-mgr .btn{font-size:12px}
@@ -1363,9 +1381,21 @@ const INITIAL={
 const STORE_KEY='ajie_workbench_data';
 const CLOUD_KEY='ajie_cloud_config';
 
+/* 默认 Supabase 配置（硬编码，分享链接自动连接） */
+const DEFAULT_SB_URL='https://aofcpsdmdzvzsfdvisxu.supabase.co';
+const DEFAULT_SB_KEY='sb_publishable_fPeWq7ZPmMAGhNtEIgKqAg_l4oiZK7Y';
+const DEFAULT_WS_ID='ajie-team';
+
 /* --- 云端配置 --- */
 function loadCloudConfig(){
-  try{ return JSON.parse(localStorage.getItem(CLOUD_KEY))||{}; }catch(e){ return {}; }
+  try{
+    let cfg=JSON.parse(localStorage.getItem(CLOUD_KEY))||{};
+    if(!cfg.url||!cfg.anonKey){
+      cfg={url:DEFAULT_SB_URL,anonKey:DEFAULT_SB_KEY,workspaceId:DEFAULT_WS_ID};
+      localStorage.setItem(CLOUD_KEY,JSON.stringify(cfg));
+    }
+    return cfg;
+  }catch(e){return{url:DEFAULT_SB_URL,anonKey:DEFAULT_SB_KEY,workspaceId:DEFAULT_WS_ID};}
 }
 function saveCloudConfig(cfg){
   localStorage.setItem(CLOUD_KEY,JSON.stringify(cfg));
@@ -1552,6 +1582,32 @@ saveData();
 /* ========== HTML 转义 ========== */
 function escapeHtml(s){
   return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* ========== 点击复制 ========== */
+function copyText(el,customText){
+  const text=customText!==undefined?customText:el.innerText;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>_showCopyTip(el));
+  }else{
+    const ta=document.createElement('textarea');
+    ta.value=text;
+    ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);
+    ta.select();
+    try{document.execCommand('copy');_showCopyTip(el);}catch(e){}
+    document.body.removeChild(ta);
+  }
+}
+function _showCopyTip(el){
+  const tip=document.createElement('div');
+  tip.textContent='已复制 ✓';
+  tip.style.cssText='position:fixed;z-index:9999;background:#333;color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;pointer-events:none;animation:cp-fade 1.2s ease forwards';
+  const rect=el.getBoundingClientRect();
+  tip.style.left=(rect.left+rect.width/2-30)+'px';
+  tip.style.top=(rect.top-8)+'px';
+  document.body.appendChild(tip);
+  setTimeout(()=>tip.remove(),1200);
 }
 
 /* ========== 标签颜色 ========== */
@@ -1902,10 +1958,10 @@ function renderInspos(){
   let html='';
   DB.inspos.slice().reverse().forEach((item,idx)=>{
     const i=DB.inspos.length-1-idx;
-    const tagHtml=item.tag?'<div class="gtags"><span class="pill" style="'+tagColor(item.tag)+'">'+escapeHtml(item.tag)+'</span></div>':'';
+    const tagHtml=item.tag?'<div class="gtags"><span class="pill copyable" style="'+tagColor(item.tag)+';cursor:pointer" onclick="copyText(this,\''+escapeHtml(item.tag).replace(/'/g,"\\'")+'\')" title="点击复制">'+escapeHtml(item.tag)+'</span></div>':'';
     html+='<div class="gitem"><div class="gbody">'+
-      '<div class="gt">'+escapeHtml(item.title)+'</div>'+
-      (item.desc?'<div class="gdesc">'+escapeHtml(item.desc)+'</div>':'')+
+      '<div class="gt copyable" onclick="copyText(this)" title="点击复制">'+escapeHtml(item.title)+'</div>'+
+      (item.desc?'<div class="gdesc copyable" onclick="copyText(this)" title="点击复制">'+escapeHtml(item.desc)+'</div>':'')+
       tagHtml+
       '</div><button class="item-more" onclick="showInspoMenu(event,'+i+')">⋯</button></div>';
   });
@@ -1917,9 +1973,17 @@ function openInspoModal(i){
   showModal('💡 收灵感',
     '<label class="crud-label">标题</label>'+
     '<input class="crud-input" id="ipTitle" value="'+escapeHtml(item.title)+'" placeholder="一句话总结这个灵感">'+
-    '<label class="crud-label">描述（选填）</label>'+
+    '<div class="voice-row">'+
+    '<button type="button" class="btn-voice" id="voiceBtnTitle" onclick="toggleVoice(\'ipTitle\',this)">🎤</button>'+
+    '<span class="voice-hint" id="voiceHintTitle">点麦克风语音输入标题</span>'+
+    '</div>'+
+    '<label class="crud-label" style="margin-top:10px">描述（选填）</label>'+
     '<textarea class="crud-textarea" id="ipDesc" placeholder="详细说明...">'+escapeHtml(item.desc)+'</textarea>'+
-    '<label class="crud-label">标签（选填）</label>'+
+    '<div class="voice-row">'+
+    '<button type="button" class="btn-voice" id="voiceBtnDesc" onclick="toggleVoice(\'ipDesc\',this)">🎤</button>'+
+    '<span class="voice-hint" id="voiceHintDesc">点麦克风语音输入描述</span>'+
+    '</div>'+
+    '<label class="crud-label" style="margin-top:10px">标签（选填）</label>'+
     '<input class="crud-input" id="ipTag" value="'+escapeHtml(item.tag)+'" placeholder="如：产品想法、金句、工具">',
     ()=>{
       const title=document.getElementById('ipTitle').value.trim();
@@ -1935,6 +1999,108 @@ function openInspoModal(i){
 }
 function editInspo(i){ openInspoModal(i); }
 function delInspo(i){ if(confirm('确定删除这条灵感？')){ DB.inspos.splice(i,1); saveData(); renderInspos(); } }
+
+/* ========== 语音输入（Web Speech API） ========== */
+let _voiceRec=null;
+let _voiceTargetId=null;
+let _voiceBtnEl=null;
+let _voiceAccumText=''; // 累积已识别的文本
+
+function toggleVoice(targetId,btnEl){
+  // 如果正在录音，停止
+  if(_voiceRec&&_voiceTargetId===targetId){
+    _voiceRec.stop();
+    return;
+  }
+  // 如果在录别的字段，先停掉
+  if(_voiceRec){
+    _voiceRec.stop();
+  }
+
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){
+    alert('当前浏览器不支持语音识别，请使用 Chrome、Edge 或 Safari 浏览器');
+    return;
+  }
+
+  _voiceRec=new SR();
+  _voiceRec.lang='zh-CN';
+  _voiceRec.continuous=true;
+  _voiceRec.interimResults=true;
+
+  const target=document.getElementById(targetId);
+  if(!target)return;
+
+  _voiceTargetId=targetId;
+  _voiceBtnEl=btnEl;
+  _voiceAccumText=target.value||'';
+
+  btnEl.classList.add('recording');
+  btnEl.textContent='🔴';
+
+  const hintId=targetId==='ipTitle'?'voiceHintTitle':'voiceHintDesc';
+  const hint=document.getElementById(hintId);
+  if(hint){hint.classList.add('recording');hint.textContent='正在录音…说完后点击按钮停止';}
+
+  let finalText='';
+
+  _voiceRec.onresult=function(event){
+    let interim='';
+    for(let i=event.resultIndex;i<event.results.length;i++){
+      const t=event.results[i][0].transcript;
+      if(event.results[i].isFinal){
+        finalText+=t;
+      }else{
+        interim+=t;
+      }
+    }
+    target.value=_voiceAccumText+finalText+interim;
+  };
+
+  _voiceRec.onerror=function(event){
+    console.error('语音识别错误:',event.error);
+    let msg='语音识别出错';
+    if(event.error==='not-allowed'||event.error==='service-not-allowed'){
+      msg='麦克风权限被拒绝，请允许浏览器使用麦克风';
+    }else if(event.error==='no-speech'){
+      msg='没有检测到语音，请再试一次';
+    }else if(event.error==='network'){
+      msg='网络错误，语音识别需要网络连接';
+    }
+    alert(msg);
+    _stopVoiceUI();
+  };
+
+  _voiceRec.onend=function(){
+    // 录音结束，把最终文本写入
+    if(finalText){
+      target.value=_voiceAccumText+finalText;
+    }
+    _stopVoiceUI();
+  };
+
+  try{
+    _voiceRec.start();
+  }catch(e){
+    alert('无法启动语音识别：'+e.message);
+    _stopVoiceUI();
+  }
+}
+
+function _stopVoiceUI(){
+  if(_voiceBtnEl){
+    _voiceBtnEl.classList.remove('recording');
+    _voiceBtnEl.textContent='🎤';
+  }
+  const h1=document.getElementById('voiceHintTitle');
+  const h2=document.getElementById('voiceHintDesc');
+  if(h1){h1.classList.remove('recording');h1.textContent='点麦克风语音输入标题';}
+  if(h2){h2.classList.remove('recording');h2.textContent='点麦克风语音输入描述';}
+  _voiceRec=null;
+  _voiceTargetId=null;
+  _voiceBtnEl=null;
+  _voiceAccumText='';
+}
 
 /* ========== 小账本 CRUD ========== */
 const LEDGER_CATS=[

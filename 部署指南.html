@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小松工作台 · 部署指南</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#eef2f7;color:#1f2d3d;line-height:1.7;padding:20px}
+  .wrap{max-width:680px;margin:0 auto}
+  .head{text-align:center;padding:30px 20px;background:linear-gradient(135deg,#15273b,#1e3349);border-radius:20px;margin-bottom:24px;color:#fff}
+  .head h1{font-size:24px;margin-bottom:8px}
+  .head p{font-size:14px;color:#8aa9c4}
+  .step{background:#fff;border-radius:16px;padding:24px 20px;margin-bottom:16px;box-shadow:0 4px 14px rgba(0,0,0,.06);border-left:4px solid #2e86de}
+  .step h2{font-size:18px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .step h2 .num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#2e86de,#1abc9c);color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .step p{font-size:14px;color:#51637a;margin-bottom:8px}
+  .step .tip{background:#eaf4ff;border-radius:10px;padding:10px 14px;font-size:13px;color:#1d6fb8;margin:10px 0}
+  .step .warn{background:#fff5e8;border-radius:10px;padding:10px 14px;font-size:13px;color:#c4771a;margin:10px 0}
+  .step code{background:#f1f5fa;padding:2px 8px;border-radius:6px;font-size:13px;color:#2e86de;font-family:monospace}
+  .step .cmd{background:#1f2d3d;color:#aef5e0;padding:12px 16px;border-radius:10px;font-size:13px;font-family:monospace;margin:8px 0;overflow-x:auto;white-space:nowrap}
+  .step img{max-width:100%;border-radius:10px;margin:8px 0}
+  .btn{display:inline-block;padding:10px 24px;border-radius:12px;background:linear-gradient(135deg,#2e86de,#1abc9c);color:#fff;font-size:14px;font-weight:700;text-decoration:none;margin-top:8px}
+  .footer{text-align:center;padding:20px;font-size:12px;color:#8a9bb0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <h1>🚀 小松工作台 · 部署指南</h1>
+    <p>按以下步骤操作，10 分钟即可拥有自己的工作台</p>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">1</span>注册 GitHub 账号</h2>
+    <p>打开 <code>github.com</code>，点击右上角 Sign up，用邮箱注册一个免费账号。</p>
+    <p>已有账号的直接跳到下一步。</p>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">2</span>创建新仓库</h2>
+    <p>登录后点右上角 <code>+</code> → <code>New repository</code></p>
+    <p>填写以下信息：</p>
+    <p>• Repository name 输入：<code>my-workbench</code>（名字可自定义，建议用英文）</p>
+    <p>• 选择 <code>Public</code>（公开）</p>
+    <p>• 勾选 <code>Add a README file</code></p>
+    <p>• 点击底部绿色按钮 <code>Create repository</code></p>
+    <div class="tip">💡 仓库名建议用纯英文，不要有空格和中文</div>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">3</span>上传 index.html 文件</h2>
+    <p>进入刚创建的仓库，点击 <code>Add file</code> → <code>Upload files</code></p>
+    <p>把收到的 <code>index.html</code> 文件拖进去（或点击 choose your files 选择文件）</p>
+    <p>等待上传完成，滚动到页面底部，点击绿色按钮 <code>Commit changes</code></p>
+    <div class="warn">⚠️ 文件名必须是 <code>index.html</code>，不要改名</div>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">4</span>开启 GitHub Pages</h2>
+    <p>在仓库页面点击顶部 <code>Settings</code> 标签</p>
+    <p>在左侧菜单找到 <code>Pages</code>（往下滚动可以看到）</p>
+    <p>在 <code>Source</code> 下拉菜单中选择：</p>
+    <p>• Branch 选择 <code>main</code></p>
+    <p>• 右边选择 <code>/(root)</code></p>
+    <p>• 点击 <code>Save</code></p>
+    <div class="tip">💡 保存后等待 1-2 分钟，页面顶部会出现你的网址链接</div>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">5</span>打开你的工作台</h2>
+    <p>你的工作台网址格式为：</p>
+    <div class="cmd">https://你的用户名.github.io/my-workbench/</div>
+    <p>把"你的用户名"替换成你的 GitHub 用户名，在手机浏览器打开即可使用。</p>
+    <div class="tip">💡 建议在手机浏览器中打开后，点击"添加到主屏幕"，就能像 App 一样使用</div>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">6</span>添加到手机桌面（可选）</h2>
+    <p><b>iPhone（Safari）：</b>打开网址 → 点底部分享按钮 → 添加到主屏幕</p>
+    <p><b>安卓（Chrome）：</b>打开网址 → 点右上角 ⋮ 菜单 → 添加到主屏幕</p>
+    <p>添加后桌面会多一个图标，点击即可全屏打开，和原生 App 一样。</p>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">7</span>开启云同步（可选）</h2>
+    <p>如果需要多设备数据同步，可以配置 Supabase：</p>
+    <p>1. 打开工作台 → 点击左侧菜单 <code>数据管理</code></p>
+    <p>2. 点击 <code>配置云同步</code></p>
+    <p>3. 按 <code>Supabase配置指南.md</code> 中的步骤操作即可</p>
+    <div class="warn">⚠️ 云同步为可选功能，不配置也能正常使用，只是数据只存在手机本地</div>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">★</span>常见问题</h2>
+    <p><b>Q：打开后是白屏？</b></p>
+    <p>A：检查文件名是否为 <code>index.html</code>，等待 2 分钟让 GitHub 部署完成。</p>
+    <br>
+    <p><b>Q：数据会丢失吗？</b></p>
+    <p>A：不会。数据自动保存在手机本地，清除浏览器缓存才会丢失。建议开启云同步备份。</p>
+    <br>
+    <p><b>Q：可以修改菜单内容吗？</b></p>
+    <p>A：可以。用文本编辑器打开 index.html，找到 <code>const NAV=[</code> 部分，按格式增删菜单项。</p>
+    <br>
+    <p><b>Q：如何修改工作台名称？</b></p>
+    <p>A：搜索代码中的"小松"，替换成你想要的名字即可。</p>
+  </div>
+
+  <div class="footer">
+    小松的工作台 · 男生版<br>
+    如有问题随时问小松 😊
+  </div>
+
+</div>
+</body>
+</html>
