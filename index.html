@@ -3437,6 +3437,17 @@ function closeModal(){ const m=document.getElementById('crudModal'); if(m) m.rem
 /* ========== URL 参数自动配置 ========== */
 function autoConfigFromURL(){
   const params=new URLSearchParams(window.location.search);
+  /* 自动配置智谱API Key */
+  const zhipuKey=params.get('zhipu_key');
+  if(zhipuKey){
+    localStorage.setItem('ajie_zhipu_key',zhipuKey);
+  }
+  /* 自动配置豆包API Key */
+  const doubaoKey=params.get('doubao_key');
+  if(doubaoKey){
+    localStorage.setItem('ajie_doubao_key',doubaoKey);
+  }
+  /* 自动配置Supabase */
   const wsUrl=params.get('url');
   const wsKey=params.get('key');
   const wsId=params.get('ws');
