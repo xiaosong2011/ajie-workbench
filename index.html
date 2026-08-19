@@ -364,6 +364,16 @@
   .item-menu .im-btn.im-del{color:#ef4444}
   .item-menu .im-divider{height:1px;background:var(--line)}
 
+  /* 批量操作底部工具栏 */
+  .batch-toolbar{
+    position:fixed;bottom:0;left:0;right:0;
+    background:#fff;box-shadow:0 -4px 20px rgba(0,0,0,.1);
+    padding:12px 16px calc(12px + var(--safe-bottom,0px));
+    display:flex;gap:10px;align-items:center;z-index:9998;
+    border-top:1px solid var(--line);
+    animation:slideUp .25s ease;
+  }
+
   /* 通用弹窗 */
   .modal-mask{
     position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:10001;
@@ -1389,7 +1399,7 @@ music:`
     <div class="txt">KTV必点歌单提前准备好，不用现场翻歌单。日常好歌随时收藏，通勤循环听。</div>
   </div>
   <div class="card">
-    <div class="card-h">🎤 KTV必点歌曲 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('ktvSongs')">+ 新增</button></div>
+    <div class="card-h">🎤 KTV必点歌曲 <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-accent" style="margin-left:0" onclick="openListModal('ktvSongs')">+ 新增</button><button class="btn" style="margin-left:0;background:var(--accent-2);color:#fff" onclick="openBatchImportModal()">📥 导入歌单</button><button class="btn" style="margin-left:0;background:var(--line);color:var(--ink-2)" onclick="toggleBatchMode('ktvSongs')" id="batchToggleBtn_ktvSongs">☑️ 批量管理</button></div></div>
     <div id="lc_ktvSongs"></div>
   </div>
   <div class="card tint-blue">
@@ -1999,6 +2009,7 @@ function renderDailyQuoteBar(){
     '</div>';
 }
 function switchSection(id){
+  exitBatchMode();
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.id===id));
   const content=document.getElementById('content');
   let html;
@@ -2046,11 +2057,13 @@ function renderList(listKey){
   const items=DB[config.dbKey]||[];
   if(items.length===0){
     container.innerHTML='<div class="empty-hint"><div class="big">'+config.icon+'</div>暂无内容，点击"+ 新增"添加</div>';
+    if(_batchMode&&_batchMode.listKey===listKey) updateBatchToolbar();
     return;
   }
   let html='';
   items.forEach((item,i)=>{ html+=renderListItem(listKey,item,i); });
   container.innerHTML=html;
+  if(_batchMode&&_batchMode.listKey===listKey) updateBatchToolbar();
 }
 
 function renderListItem(listKey,item,i){
@@ -2083,6 +2096,10 @@ function renderListItem(listKey,item,i){
     else fieldParts.push('<span><b>'+escapeHtml(f.label)+'：</b>'+escapeHtml(text)+'</span>');
   });
   let html='<div class="gitem">';
+  if(_batchMode&&_batchMode.listKey===listKey){
+    const bsel=_batchMode.selected.has(i);
+    html+='<div class="ck'+(bsel?' checked':'')+'" onclick="toggleBatchSelect('+i+')"></div>';
+  }
   if(hasCheckbox){
     html+='<div class="ck'+(checkboxChecked?' checked':'')+'" onclick="toggleListCheck(\''+listKey+'\','+i+')"></div>';
   }
@@ -2106,7 +2123,9 @@ function renderListItem(listKey,item,i){
   if(fieldParts.length) html+='<div class="gfields">'+fieldParts.join('')+'</div>';
   if(tagParts.length) html+='<div class="gtags">'+tagParts.join('')+'</div>';
   html+='</div>';
-  html+='<button class="item-more" onclick="showItemMenu(event,\''+listKey+'\','+i+')">⋯</button>';
+  if(!(_batchMode&&_batchMode.listKey===listKey)){
+    html+='<button class="item-more" onclick="showItemMenu(event,\''+listKey+'\','+i+')">⋯</button>';
+  }
   html+='</div>';
   return html;
 }
@@ -2238,6 +2257,274 @@ function delListItem(listKey,index){
     saveData();
     renderList(listKey);
   },'确认删除');
+}
+
+/* ========== 批量导入 & 批量删除 ========== */
+let _batchMode=null; /* {listKey, selected:Set} */
+let _parsedPlaylist=[];
+
+/* --- 批量导入：网易云歌单 --- */
+function openBatchImportModal(){
+  _parsedPlaylist=[];
+  const formHtml=
+    '<div style="margin-bottom:12px;padding:10px;background:#f0f7ff;border-radius:10px;font-size:12px;color:var(--ink-2);line-height:1.6">'+
+      '💡 粘贴网易云歌单链接，自动解析全部歌曲并批量导入到KTV歌单。<br>'+
+      '支持格式：分享短链（163cn.tv/xxx）、music.163.com/#/playlist?id=xxx'+
+    '</div>'+
+    '<label class="crud-label">网易云歌单链接</label>'+
+    '<div style="display:flex;gap:8px">'+
+      '<input class="crud-input" id="batchImportUrl" type="text" placeholder="粘贴网易云歌单链接或分享短链…" style="flex:1;margin-bottom:0">'+
+      '<button class="btn btn-accent" style="white-space:nowrap;flex-shrink:0" onclick="parseNetEasePlaylist()">🔗 解析</button>'+
+    '</div>'+
+    '<div id="batchImportResult" style="display:none;margin-top:12px">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+        '<input type="checkbox" id="batchImportSelAll" checked style="width:18px;height:18px;cursor:pointer" onchange="toggleBatchImportSelAll(this.checked)">'+
+        '<label for="batchImportSelAll" style="font-size:13px;font-weight:600;cursor:pointer">全选</label>'+
+        '<span id="batchImportCount" style="margin-left:auto;font-size:12px;color:var(--ink-3)"></span>'+
+      '</div>'+
+      '<div id="batchImportSongs" style="max-height:280px;overflow-y:auto;border:1px solid var(--line);border-radius:10px"></div>'+
+    '</div>';
+  showModal('📥 批量导入歌单',formHtml,function(){
+    if(!_parsedPlaylist||_parsedPlaylist.length===0){
+      customAlert('请先解析歌单链接');
+      return false;
+    }
+    const selected=_parsedPlaylist.filter(function(_,i){
+      var cb=document.getElementById('batchSong_'+i);
+      return cb&&cb.checked;
+    });
+    if(selected.length===0){
+      customAlert('请至少选择一首歌曲');
+      return false;
+    }
+    selected.forEach(function(song){
+      DB.ktvSongs.push({
+        title:song.name,
+        singer:song.artist,
+        note:'网易云导入'
+      });
+    });
+    saveData();
+    renderList('ktvSongs');
+    _parsedPlaylist=[];
+    customAlert('✅ 成功导入 '+selected.length+' 首歌曲');
+    return true;
+  });
+}
+
+async function parseNetEasePlaylist(){
+  var urlInput=document.getElementById('batchImportUrl');
+  var url=(urlInput.value||'').trim();
+  if(!url){ customAlert('请输入歌单链接'); return; }
+  var resultDiv=document.getElementById('batchImportResult');
+  var songsDiv=document.getElementById('batchImportSongs');
+  var countSpan=document.getElementById('batchImportCount');
+  songsDiv.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink-3);font-size:13px">⏳ 正在解析歌单，大歌单可能需要几秒钟…</div>';
+  resultDiv.style.display='block';
+  try{
+    /* 优先使用本地代理服务器（支持短链和完整解析） */
+    var resp=await fetch('/api/playlist?id='+encodeURIComponent(url),{method:'GET'});
+    if(resp.ok){
+      var data=await resp.json();
+      if(data.songs&&data.songs.length>0){
+        _parsedPlaylist=data.songs;
+        renderParsedSongs(songsDiv,countSpan);
+        return;
+      }
+    }
+    /* 本地代理失败时，尝试CORS代理（兜底，只能获取前10首） */
+    var pid=extractNetEaseId(url);
+    if(pid){
+      data=await fetchViaCorsProxies(pid);
+      if(data){
+        var pl=data.playlist||data.result;
+        var tracks=pl.tracks||[];
+        if(tracks.length>0){
+          _parsedPlaylist=tracks.map(function(t){
+            return{
+              name:t.name||'未知歌曲',
+              artist:(t.ar||t.artists||[]).map(function(a){return a.name;}).join(' / ')
+            };
+          });
+          renderParsedSongs(songsDiv,countSpan);
+          return;
+        }
+      }
+    }
+    songsDiv.innerHTML='<div style="text-align:center;padding:20px;color:#ef4444;font-size:13px">❌ 解析失败，可能是网络问题或歌单不存在<br>请确认链接正确后重试</div>';
+    countSpan.textContent='';
+  }catch(e){
+    songsDiv.innerHTML='<div style="text-align:center;padding:20px;color:#ef4444;font-size:13px">❌ 解析出错：'+escapeHtml(e.message||'未知错误')+'<br>请稍后重试</div>';
+    countSpan.textContent='';
+  }
+}
+
+function extractNetEaseId(url){
+  var m=url.match(/[?&]id=(\d+)/);
+  if(m) return m[1];
+  m=url.match(/playlist\/(\d+)/);
+  if(m) return m[1];
+  return null;
+}
+
+async function fetchViaCorsProxies(pid){
+  var apiUrl='https://music.163.com/api/playlist/detail?id='+pid;
+  var proxies=[
+    'https://api.allorigins.win/raw?url='+encodeURIComponent(apiUrl),
+    'https://corsproxy.io/?url='+encodeURIComponent(apiUrl),
+    'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(apiUrl),
+    'https://thingproxy.freeboard.io/fetch/'+apiUrl
+  ];
+  for(var pi=0;pi<proxies.length;pi++){
+    try{
+      var resp=await fetch(proxies[pi],{method:'GET'});
+      if(resp.ok){
+        var data=await resp.json();
+        if(data&&(data.playlist||data.result)) return data;
+      }
+    }catch(e){ /* 尝试下一个代理 */ }
+  }
+  return null;
+}
+
+function renderParsedSongs(songsDiv,countSpan){
+  if(!_parsedPlaylist||_parsedPlaylist.length===0) return;
+  var html='';
+  _parsedPlaylist.forEach(function(song,i){
+    html+='<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);cursor:pointer" onclick="toggleSongCheck('+i+')">'+
+      '<input type="checkbox" id="batchSong_'+i+'" checked style="width:18px;height:18px;cursor:pointer;flex-shrink:0" onchange="updateBatchImportCount(event)">'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(song.name)+'</div>'+
+        '<div style="font-size:11px;color:var(--ink-3);margin-top:1px">'+escapeHtml(song.artist)+'</div>'+
+      '</div>'+
+    '</div>';
+  });
+  songsDiv.innerHTML=html;
+  countSpan.textContent='共 '+_parsedPlaylist.length+' 首';
+  updateBatchImportCount();
+}
+
+function toggleSongCheck(i){
+  var cb=document.getElementById('batchSong_'+i);
+  if(cb){ cb.checked=!cb.checked; updateBatchImportCount(); }
+}
+
+function toggleBatchImportSelAll(checked){
+  _parsedPlaylist.forEach(function(_,i){
+    var cb=document.getElementById('batchSong_'+i);
+    if(cb) cb.checked=checked;
+  });
+  updateBatchImportCount();
+}
+
+function updateBatchImportCount(e){
+  if(e) e.stopPropagation();
+  var countSpan=document.getElementById('batchImportCount');
+  if(!countSpan) return;
+  var count=0;
+  _parsedPlaylist.forEach(function(_,i){
+    var cb=document.getElementById('batchSong_'+i);
+    if(cb&&cb.checked) count++;
+  });
+  countSpan.textContent='已选 '+count+' / '+_parsedPlaylist.length+' 首';
+  var selAll=document.getElementById('batchImportSelAll');
+  if(selAll) selAll.checked=(count===_parsedPlaylist.length);
+}
+
+/* --- 批量删除模式 --- */
+function toggleBatchMode(listKey){
+  if(_batchMode&&_batchMode.listKey===listKey){
+    exitBatchMode();
+    return;
+  }
+  exitBatchMode();
+  _batchMode={listKey:listKey,selected:new Set()};
+  var btn=document.getElementById('batchToggleBtn_'+listKey);
+  if(btn) btn.textContent='✕ 退出批量';
+  showBatchToolbar();
+  renderList(listKey);
+}
+
+function exitBatchMode(){
+  if(!_batchMode) return;
+  var listKey=_batchMode.listKey;
+  _batchMode=null;
+  var btn=document.getElementById('batchToggleBtn_'+listKey);
+  if(btn) btn.textContent='☑️ 批量管理';
+  hideBatchToolbar();
+  /* 如果当前页面还显示该列表，重新渲染 */
+  var container=document.getElementById('lc_'+listKey);
+  if(container) renderList(listKey);
+}
+
+function toggleBatchSelect(index){
+  if(!_batchMode) return;
+  if(_batchMode.selected.has(index)){
+    _batchMode.selected.delete(index);
+  }else{
+    _batchMode.selected.add(index);
+  }
+  renderList(_batchMode.listKey);
+}
+
+function batchSelectAll(){
+  if(!_batchMode) return;
+  var config=LISTS[_batchMode.listKey];
+  var items=DB[config.dbKey]||[];
+  if(_batchMode.selected.size===items.length&&items.length>0){
+    _batchMode.selected.clear();
+  }else{
+    _batchMode.selected=new Set(items.map(function(_,i){return i;}));
+  }
+  renderList(_batchMode.listKey);
+}
+
+function batchDeleteSelected(){
+  if(!_batchMode||_batchMode.selected.size===0){
+    customAlert('请先选择要删除的歌曲');
+    return;
+  }
+  var config=LISTS[_batchMode.listKey];
+  var count=_batchMode.selected.size;
+  customConfirm('🗑️ 批量删除','确定删除选中的 '+count+' 条「'+config.title+'」吗？此操作不可撤销。',function(){
+    var indices=Array.from(_batchMode.selected).sort(function(a,b){return b-a;});
+    indices.forEach(function(i){
+      DB[config.dbKey].splice(i,1);
+    });
+    saveData();
+    _batchMode.selected.clear();
+    exitBatchMode();
+  },'确认删除 '+count+' 条');
+}
+
+function showBatchToolbar(){
+  var old=document.getElementById('batchToolbar');
+  if(old) old.remove();
+  var toolbar=document.createElement('div');
+  toolbar.id='batchToolbar';
+  toolbar.className='batch-toolbar';
+  document.body.appendChild(toolbar);
+  updateBatchToolbar();
+}
+
+function hideBatchToolbar(){
+  var toolbar=document.getElementById('batchToolbar');
+  if(toolbar) toolbar.remove();
+}
+
+function updateBatchToolbar(){
+  var toolbar=document.getElementById('batchToolbar');
+  if(!toolbar||!_batchMode) return;
+  var config=LISTS[_batchMode.listKey];
+  if(!config){ hideBatchToolbar(); return; }
+  var items=DB[config.dbKey]||[];
+  var selectedCount=_batchMode.selected.size;
+  var allSelected=selectedCount===items.length&&items.length>0;
+  toolbar.innerHTML=
+    '<button class="btn" style="background:var(--line);color:var(--ink);margin:0" onclick="batchSelectAll()">'+(allSelected?'☐ 取消全选':'☑ 全选')+'</button>'+
+    '<span style="font-size:13px;color:var(--ink-2);font-weight:600">已选 '+selectedCount+' / '+items.length+'</span>'+
+    '<button class="btn" style="background:#ef4444;color:#fff;margin-left:auto;margin:0" onclick="batchDeleteSelected()">🗑️ 删除选中 ('+selectedCount+')</button>'+
+    '<button class="btn" style="background:var(--line);color:var(--ink);margin:0" onclick="exitBatchMode()">✕ 完成</button>';
 }
 
 /* ========== 待办事项 CRUD ========== */
