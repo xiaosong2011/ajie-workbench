@@ -2328,12 +2328,12 @@ async function parseNetEasePlaylist(){
     /* 步骤1：提取歌单ID */
     var pid=extractNetEaseId(url);
     if(!pid){
-      /* 短链需要解析，通过CORS代理获取页面并提取ID */
+      /* 短链需要解析 */
       pid=await resolveShortUrlAndGetId(url);
     }
     if(!pid){
-      songsDiv.innerHTML='<div style="text-align:center;padding:20px;color:#ef4444;font-size:13px">❌ 无法识别歌单ID<br>请检查链接是否正确</div>';
-      countSpan.textContent='';
+      /* 无法自动解析，显示手动输入界面 */
+      showManualIdInput(url,songsDiv,countSpan);
       return;
     }
     /* 步骤2：获取歌单全部歌曲 */
@@ -2358,27 +2358,95 @@ function extractNetEaseId(url){
   return null;
 }
 
-/* 通过CORS代理解析短链，从页面HTML中提取歌单ID */
+/* 显示手动输入歌单ID的界面 */
+function showManualIdInput(shortUrl,songsDiv,countSpan){
+  songsDiv.innerHTML=
+    '<div style="padding:20px;text-align:center">'+
+      '<div style="color:#f59e0b;font-size:14px;margin-bottom:12px">⚠️ 短链无法自动解析（浏览器跨域限制）</div>'+
+      '<div style="color:var(--ink-2);font-size:13px;margin-bottom:16px">请按以下步骤操作：</div>'+
+      '<div style="text-align:left;max-width:380px;margin:0 auto;font-size:13px;color:var(--ink-2);line-height:1.8">'+
+        '<div>1. 点击下方按钮打开歌单链接</div>'+
+        '<div>2. 从浏览器地址栏复制打开后的完整链接</div>'+
+        '<div>3. 粘贴到下方输入框并点击「解析」</div>'+
+      '</div>'+
+      '<div style="margin:16px 0">'+
+        '<a href="'+escapeHtml(shortUrl)+'" target="_blank" style="display:inline-block;padding:8px 20px;background:#1db954;color:#fff;border-radius:8px;text-decoration:none;font-size:13px">🔗 打开歌单链接</a>'+
+      '</div>'+
+      '<div style="border-top:1px solid var(--line);padding-top:16px;margin-top:8px">'+
+        '<div style="color:var(--ink-3);font-size:12px;margin-bottom:8px">或直接输入歌单ID / 粘贴完整链接</div>'+
+        '<div style="display:flex;gap:8px;justify-content:center">'+
+          '<input class="crud-input" id="manualPlaylistId" type="text" placeholder="如：2608367080 或 music.163.com/playlist?id=2608367080" style="width:320px;margin-bottom:0;text-align:center;font-size:12px">'+
+          '<button class="btn btn-accent" onclick="manualParseId()" style="white-space:nowrap">解析</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  countSpan.textContent='';
+}
+
+/* 手动输入歌单ID后解析 */
+async function manualParseId(){
+  var idInput=document.getElementById('manualPlaylistId');
+  var val=(idInput.value||'').trim();
+  if(!val){ customAlert('请输入歌单ID或完整链接'); return; }
+  /* 尝试从输入中提取数字ID */
+  var pid=val;
+  var m=val.match(/[?&]id=(\d+)/);
+  if(m) pid=m[1];
+  else{ m=val.match(/playlist\/(\d+)/); if(m) pid=m[1]; }
+  if(!/^\d+$/.test(pid)){ customAlert('请输入正确的数字歌单ID'); return; }
+  var songsDiv=document.getElementById('batchImportSongs');
+  var countSpan=document.getElementById('batchImportCount');
+  songsDiv.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink-3);font-size:13px">⏳ 正在获取歌单…</div>';
+  try{
+    _parsedPlaylist=await fetchAllPlaylistSongs(pid);
+    if(_parsedPlaylist&&_parsedPlaylist.length>0){
+      renderParsedSongs(songsDiv,countSpan);
+    }else{
+      songsDiv.innerHTML='<div style="text-align:center;padding:20px;color:#ef4444;font-size:13px">❌ 歌单不存在或没有歌曲<br>请检查ID是否正确</div>';
+      countSpan.textContent='';
+    }
+  }catch(e){
+    songsDiv.innerHTML='<div style="text-align:center;padding:20px;color:#ef4444;font-size:13px">❌ 解析出错：'+escapeHtml(e.message||'未知错误')+'</div>';
+    countSpan.textContent='';
+  }
+}
+
+/* 解析短链获取歌单ID */
 async function resolveShortUrlAndGetId(shortUrl){
+  /* 方法1：通过proxy.cors.sh用redirect:manual读取Location头 */
+  try{
+    var resp=await fetch('https://proxy.cors.sh/'+shortUrl,{
+      method:'GET',
+      redirect:'manual'
+    });
+    /* 尝试从Location头提取歌单ID */
+    var loc=resp.headers.get('location')||resp.headers.get('Location');
+    if(loc){
+      var m=loc.match(/[?&]id=(\d+)/);
+      if(m) return m[1];
+      m=loc.match(/playlist\/(\d+)/);
+      if(m) return m[1];
+    }
+  }catch(e){ /* redirect:manual可能会被某些浏览器阻止 */ }
+
+  /* 方法2：尝试跟随重定向获取HTML（通过proxy.cors.sh） */
   var proxies=[
     'https://proxy.cors.sh/'+shortUrl,
     'https://api.allorigins.win/raw?url='+encodeURIComponent(shortUrl),
   ];
   for(var pi=0;pi<proxies.length;pi++){
     try{
-      var resp=await fetch(proxies[pi],{method:'GET'});
-      if(resp.ok){
+      var resp=await fetch(proxies[pi],{method:'GET',redirect:'follow'});
+      if(resp.ok||resp.status===302){
         var html=await resp.text();
-        /* 从HTML中查找歌单ID */
         var m=html.match(/playlist\?id=(\d+)/);
         if(m) return m[1];
         m=html.match(/playlist\/(\d+)/);
         if(m) return m[1];
-        /* 从canonical链接提取 */
         m=html.match(/canonical"\s+href="[^"]*id=(\d+)/);
         if(m) return m[1];
       }
-    }catch(e){ /* 尝试下一个代理 */ }
+    }catch(e){ /* CORS错误，尝试下一个代理 */ }
   }
   return null;
 }
