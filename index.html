@@ -723,6 +723,7 @@ const NAV=[
   {id:'selfmedia',ico:'🎥', name:'自媒体学习',          group:'学习成长'},
   {id:'aitech',   ico:'🤖', name:'AI技术学习',          group:'学习成长'},
   {id:'ai',       ico:'🧠', name:'AI学习',              group:'学习成长'},
+  {id:'aimanga',  ico:'🎨', name:'AI漫对',              group:'学习成长'},
   {id:'fit',      ico:'💪', name:'力量训练',            group:'生活管理'},
   {id:'groom',    ico:'🧔', name:'理容穿搭',            group:'生活管理'},
   {id:'anime',    ico:'🎬', name:'动漫追剧',            group:'生活管理'},
@@ -1045,6 +1046,65 @@ ai:`
   <div class="card tint-slate">
     <div class="card-h">🛠️ 常用工具 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('aiTools')">+ 新增</button></div>
     <div id="lc_aiTools"></div>
+  </div>
+`,
+
+aimanga:`
+  <div class="page-head"><span class="bow">🎨</span><h1>AI漫对工作室</h1><span class="sub">· AI漫画创作团队 · 智能协作</span></div>
+  <div class="card tint-violet">
+    <div class="card-h">🎭 团队成员</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;font-size:13px">
+      <div style="padding:10px;border-radius:10px;background:var(--bg-2);text-align:center">
+        <div style="font-size:28px">✍️</div>
+        <div style="font-weight:700;margin-top:4px">编剧</div>
+        <div style="font-size:11px;color:var(--ink-3);margin-top:2px">故事构思·台词撰写</div>
+      </div>
+      <div style="padding:10px;border-radius:10px;background:var(--bg-2);text-align:center">
+        <div style="font-size:28px">📐</div>
+        <div style="font-weight:700;margin-top:4px">分镜师</div>
+        <div style="font-size:11px;color:var(--ink-3);margin-top:2px">画面构图·分镜设计</div>
+      </div>
+      <div style="padding:10px;border-radius:10px;background:var(--bg-2);text-align:center">
+        <div style="font-size:28px">🖌️</div>
+        <div style="font-weight:700;margin-top:4px">画师</div>
+        <div style="font-size:11px;color:var(--ink-3);margin-top:2px">角色设计·画面描述</div>
+      </div>
+      <div style="padding:10px;border-radius:10px;background:var(--bg-2);text-align:center">
+        <div style="font-size:28px">📝</div>
+        <div style="font-weight:700;margin-top:4px">编辑</div>
+        <div style="font-size:11px;color:var(--ink-3);margin-top:2px">审校润色·质量把控</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--ink-3);margin-top:10px;text-align:center">
+      <span id="mangaApiStatus">💡 由智谱GLM-4-Flash免费驱动</span>
+    </div>
+  </div>
+  <div class="card tint-amber">
+    <div class="card-h">💬 创作对话</div>
+    <div style="margin-top:10px">
+      <textarea class="crud-textarea" id="mangaInput" placeholder="输入你的漫画创意或主题...&#10;例如：一个关于职场小白的搞笑日常漫画，主角第一天上班闹了很多笑话" style="min-height:80px"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <button class="btn btn-accent" onclick="mangaCreate()" id="mangaCreateBtn">🚀 开始创作</button>
+        <button class="btn btn-sm" onclick="mangaQuickIdea('日常搞笑')">😂 日常搞笑</button>
+        <button class="btn btn-sm" onclick="mangaQuickIdea('奇幻冒险')">⚔️ 奇幻冒险</button>
+        <button class="btn btn-sm" onclick="mangaQuickIdea('温情治愈')">💖 温情治愈</button>
+        <button class="btn btn-sm" onclick="mangaQuickIdea('悬疑推理')">🔍 悬疑推理</button>
+      </div>
+    </div>
+    <div id="mangaThread" style="margin-top:16px;display:none">
+      <div style="border-top:1px solid var(--border);padding-top:12px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--ink-2)">📋 创作流程</div>
+        <div id="mangaMessages"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card tint-mint" style="display:none" id="mangaResultCard">
+    <div class="card-h">📖 最终作品</div>
+    <div id="mangaResult" style="margin-top:10px"></div>
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button class="btn btn-sm" onclick="saveMangaToInspo()">⭐ 存入灵感收藏</button>
+      <button class="btn btn-sm" onclick="copyMangaResult()">📋 复制全文</button>
+    </div>
   </div>
 `,
 
@@ -1824,6 +1884,13 @@ function switchSection(id){
   content.innerHTML='<div class="section active">'+html+'</div>';
   /* 停止黄金定时刷新（离开工资储蓄页面时） */
   if(id!=='salary') stopGoldTimer();
+  /* AI漫对页面：更新API状态 */
+  if(id==='aimanga'){
+    var mangaStatus=document.getElementById('mangaApiStatus');
+    if(mangaStatus){
+      mangaStatus.textContent=getZhipuKey()?'✅ 智谱GLM-4-Flash已就绪':'⚠️ 请在数据管理中配置智谱API Key';
+    }
+  }
   /* 后置渲染 */
   if(id==='daily') initDaily();
   if(id==='inspo') renderInspos();
@@ -2228,6 +2295,208 @@ function openInspoModal(i){
 }
 function editInspo(i){ openInspoModal(i); }
 function delInspo(i){ customConfirm('🗑️ 确认删除','确定删除这条灵感？',function(){ DB.inspos.splice(i,1); saveData(); renderInspos(); },'确认删除'); }
+
+/* ========== AI漫对工作室 · 多智能体协作 ========== */
+var MANGA_AGENTS=[
+  {role:'编剧',icon:'✍️',color:'#8b5cf6',prompt:'你是一位专业漫画编剧。请根据用户的创意，构思一个简短的漫画故事大纲（3-5个分镜）。要求：1.设定主角性格和背景 2.设计冲突和转折 3.写出关键台词 4.控制篇幅，适合4-6格短漫画。请直接输出故事大纲，不要寒暄。'},
+  {role:'分镜师',icon:'📐',color:'#3b82f6',prompt:'你是一位专业漫画分镜师。根据编剧的故事大纲，设计每个分镜的画面构图。要求：1.说明每格的画面视角（特写/全景/中景）2.描述角色表情和动作 3.标注对话气泡位置 4.建议画面焦点。请直接输出分镜设计。'},
+  {role:'画师',icon:'🖌️',color:'#ec4899',prompt:'你是一位漫画画师。根据分镜师的设计，为每个分镜提供详细的画面绘制说明。要求：1.角色外观描述 2.场景细节 3.光影氛围 4.色彩建议 5.可以用文字描述如果用AI绘图工具生成时的提示词（英文prompt）。请直接输出。'},
+  {role:'编辑',icon:'📝',color:'#10b981',prompt:'你是漫画编辑。请审阅编剧、分镜师和画师的工作，给出：1.整体评价 2.修改建议 3.最终整合版（将故事、分镜、画面描述整合成完整的漫画制作指南）。请直接输出。'}
+];
+var _mangaContext='';
+var _mangaFinalResult='';
+
+function mangaQuickIdea(type){
+  var ideas={
+    '日常搞笑':'一个关于程序员日常的搞笑漫画：主角为了修复一个bug，从晚上8点改到凌晨3点，最后发现是少了一个分号',
+    '奇幻冒险':'一个少年在旧书店发现一本会说话的魔法书，魔法书带他进入了一个书中的世界，需要完成故事才能回到现实',
+    '温情治愈':'一只流浪猫在雨天被一位独居老奶奶收留，漫画讲述它们互相陪伴的温暖日常',
+    '悬疑推理':'一座封闭的别墅里发生了密室杀人案，侦探发现所有人都有不在场证明，但关键线索藏在一张照片的倒影里'
+  };
+  var input=document.getElementById('mangaInput');
+  if(input) input.value=ideas[type]||'';
+}
+
+function mangaCreate(){
+  var input=document.getElementById('mangaInput');
+  if(!input||!input.value.trim()){
+    customAlert('请输入漫画创意或主题');
+    return;
+  }
+  var apiKey=getZhipuKey();
+  if(!apiKey){
+    customAlert('请先在数据管理中配置智谱API Key，AI漫对功能需要大模型支持');
+    return;
+  }
+
+  var btn=document.getElementById('mangaCreateBtn');
+  if(btn){btn.disabled=true;btn.textContent='⏳ 创作中...';}
+
+  var thread=document.getElementById('mangaThread');
+  if(thread) thread.style.display='block';
+  var msgEl=document.getElementById('mangaMessages');
+  if(msgEl) msgEl.innerHTML='';
+  var resultCard=document.getElementById('mangaResultCard');
+  if(resultCard) resultCard.style.display='none';
+
+  _mangaContext='用户创意：'+input.value.trim();
+  _mangaFinalResult='';
+
+  /* 按顺序调用四个智能体 */
+  mangaRunAgent(0);
+}
+
+function mangaRunAgent(agentIdx){
+  if(agentIdx>=MANGA_AGENTS.length){
+    /* 全部完成 */
+    var btn=document.getElementById('mangaCreateBtn');
+    if(btn){btn.disabled=false;btn.textContent='🚀 开始创作';}
+    var status=document.getElementById('mangaApiStatus');
+    if(status) status.textContent='✅ 创作完成！';
+    /* 显示最终结果 */
+    if(_mangaFinalResult){
+      var resultCard=document.getElementById('mangaResultCard');
+      if(resultCard) resultCard.style.display='block';
+      var resultEl=document.getElementById('mangaResult');
+      if(resultEl) resultEl.innerHTML=_mangaFinalResult.replace(/\n/g,'<br>');
+    }
+    return;
+  }
+
+  var agent=MANGA_AGENTS[agentIdx];
+  var msgEl=document.getElementById('mangaMessages');
+
+  /* 添加该智能体的消息占位 */
+  var msgId='mangaMsg_'+agentIdx;
+  if(msgEl){
+    msgEl.innerHTML+='<div id="'+msgId+'" style="margin-bottom:16px;padding:12px;border-radius:10px;background:var(--bg-2);border-left:3px solid '+agent.color+'">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+      '<span style="font-size:20px">'+agent.icon+'</span>'+
+      '<span style="font-weight:700;color:'+agent.color+'">'+agent.role+'</span>'+
+      '<span style="font-size:12px;color:var(--ink-3)" id="'+msgId+'_status">思考中...</span>'+
+      '</div>'+
+      '<div id="'+msgId+'_content" style="font-size:13px;line-height:1.7;color:var(--ink-2)"></div>'+
+      '</div>';
+  }
+
+  /* 构建对话消息 */
+  var messages=[
+    {role:'system',content:agent.prompt},
+    {role:'user',content:_mangaContext}
+  ];
+
+  /* 调用智谱API */
+  mangaCallAPI(messages,function(content,err){
+    var contentEl=document.getElementById(msgId+'_content');
+    var statusEl=document.getElementById(msgId+'_status');
+    if(err){
+      if(statusEl) statusEl.textContent='❌ 失败:'+err;
+      if(contentEl) contentEl.innerHTML='<span style="color:#e74c3c">出错: '+err+'</span>';
+      /* 跳过该智能体，继续下一个 */
+      setTimeout(function(){mangaRunAgent(agentIdx+1);},500);
+      return;
+    }
+    if(statusEl) statusEl.textContent='✅ 完成';
+    if(contentEl) contentEl.innerHTML=mangaFormatContent(content);
+    /* 将结果加入上下文 */
+    _mangaContext+='\n\n---\n【'+agent.role+'的输出】：\n'+content;
+    /* 如果是编辑，保存最终结果 */
+    if(agent.role==='编辑') _mangaFinalResult=content;
+    /* 继续下一个智能体 */
+    setTimeout(function(){mangaRunAgent(agentIdx+1);},800);
+  });
+}
+
+function mangaCallAPI(messages,callback){
+  var apiKey=getZhipuKey();
+  if(!apiKey){callback(null,'未配置智谱API Key');return;}
+
+  var apiUrl='https://open.bigmodel.cn/api/paas/v4/chat/completions';
+  var payload={
+    model:'glm-4-flash',
+    messages:messages,
+    temperature:0.8,
+    max_tokens:1000
+  };
+
+  function tryDirect(){
+    return fetch(apiUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+      body:JSON.stringify(payload)
+    }).then(function(r){return r.json();});
+  }
+  function tryProxy(){
+    var proxyUrl='https://corsproxy.io/?url='+encodeURIComponent(apiUrl);
+    return fetch(proxyUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+      body:JSON.stringify(payload)
+    }).then(function(r){return r.json();});
+  }
+
+  tryDirect()
+    .then(function(data){
+      if(data&&data.choices&&data.choices.length>0){
+        callback(data.choices[0].message.content,null);
+      }else{
+        callback(null,data.error?data.error.message:'API返回空');
+      }
+    })
+    .catch(function(){
+      tryProxy()
+        .then(function(data){
+          if(data&&data.choices&&data.choices.length>0){
+            callback(data.choices[0].message.content,null);
+          }else{
+            callback(null,data.error?data.error.message:'API返回空');
+          }
+        })
+        .catch(function(err2){
+          callback(null,'网络请求失败: '+err2.message);
+        });
+    });
+}
+
+function mangaFormatContent(text){
+  /* 简单格式化：保留换行，加粗数字编号 */
+  var html=escapeHtml(text);
+  html=html.replace(/(\d+)[.、]/g,'<b>$1.</b>');
+  html=html.replace(/\n/g,'<br>');
+  return html;
+}
+
+function saveMangaToInspo(){
+  if(!_mangaFinalResult){
+    customAlert('还没有创作内容');
+    return;
+  }
+  var input=document.getElementById('mangaInput');
+  var title=input?input.value.trim().substring(0,30):'AI漫画创作';
+  var obj={
+    title:'🎨 '+title,
+    desc:_mangaFinalResult.substring(0,500),
+    tag:'AI漫对'
+  };
+  DB.inspos.push(obj);
+  saveData(); renderInspos();
+  customAlert('✅ 已存入灵感收藏！');
+}
+
+function copyMangaResult(){
+  if(!_mangaFinalResult){
+    customAlert('还没有创作内容');
+    return;
+  }
+  var input=document.getElementById('mangaInput');
+  var title=input?input.value.trim():'AI漫画创作';
+  var fullText='🎨 '+title+'\n\n'+_mangaFinalResult;
+  navigator.clipboard.writeText(fullText).then(function(){
+    customAlert('✅ 已复制到剪贴板');
+  }).catch(function(){
+    customAlert('复制失败，请手动选择文本复制');
+  });
+}
 
 /* ========== 语音录入灵感 ========== */
 var _speechRec=null;
