@@ -2712,6 +2712,8 @@ function summarizeWithZhipu(rawText, callback){
     .then(function(data){
       if(data&&data.choices&&data.choices.length>0){
         var content=data.choices[0].message.content;
+        /* 去除markdown代码块标记 */
+        content=content.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
         /* 尝试从返回内容中提取JSON */
         var m=content.match(/\{[\s\S]*\}/);
         if(m){
@@ -2733,6 +2735,8 @@ function summarizeWithZhipu(rawText, callback){
         .then(function(data){
           if(data&&data.choices&&data.choices.length>0){
             var content=data.choices[0].message.content;
+            /* 去除markdown代码块标记 */
+            content=content.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
             var m=content.match(/\{[\s\S]*\}/);
             if(m){
               try{
