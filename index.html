@@ -1165,7 +1165,7 @@ aitech:`
     <div class="txt">围绕<b>AI漫剧制作</b>，掌握提示词工程、ComfyUI工作流、模型选择与调优。从能跑到跑好，建立自己的技术体系。</div>
   </div>
   <div class="card">
-    <div class="card-h">💬 提示词库 <span style="font-size:11px;color:var(--ink-3);font-weight:400;margin-left:4px">源自网络社区精选</span> <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('aitechPrompts')">+ 新增</button></div>
+    <div class="card-h">💬 提示词库 <span style="font-size:11px;color:var(--ink-3);font-weight:400;margin-left:4px">源自网络社区精选</span> <button class="btn btn-ghost" style="margin-left:auto;font-size:11px" onclick="restorePrompts()" title="恢复精选提示词">🔄 恢复精选</button> <button class="btn btn-accent" onclick="openListModal('aitechPrompts')">+ 新增</button></div>
     <div class="tag-filter" id="filter_aitechPrompts">
       <button class="tf-btn active" onclick="filterListByTag('aitechPrompts','全部')">全部</button>
       <button class="tf-btn" onclick="filterListByTag('aitechPrompts','图片')">🖼️ 图片</button>
@@ -1611,6 +1611,10 @@ function ensureKeys(){
 let DB=loadData();
 /* 首次使用时用初始数据填充缺失的键 */
 Object.keys(INITIAL).forEach(k=>{ if(DB[k]===undefined)DB[k]=INITIAL[k]; });
+/* 提示词库：如果本地条数少于初始条数，用初始数据覆盖 */
+if(!Array.isArray(DB.aitechPrompts)||DB.aitechPrompts.length<INITIAL.aitechPrompts.length){
+  DB.aitechPrompts=INITIAL.aitechPrompts;
+}
 ensureKeys();
 saveData();
 
@@ -1775,6 +1779,22 @@ function switchSection(id){
       });
     }
   });
+}
+
+/* 恢复精选提示词 */
+function restorePrompts(){
+  if(confirm('将用网络精选提示词覆盖当前提示词库（你自定义的也会保留，只会补充缺失的）。确认恢复？')){
+    var existing={};
+    (DB.aitechPrompts||[]).forEach(function(p){ existing[p.title]=p; });
+    var merged=[];
+    INITIAL.aitechPrompts.forEach(function(p){
+      if(!existing[p.title]) merged.push(p);
+    });
+    DB.aitechPrompts=merged.concat(DB.aitechPrompts||[]);
+    saveData();
+    renderList('aitechPrompts');
+    alert('✅ 已恢复精选提示词！当前共 '+DB.aitechPrompts.length+' 条');
+  }
 }
 
 /* ========== 通用列表 CRUD ========== */
