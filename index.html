@@ -320,6 +320,12 @@
   @media(max-width:768px){.gitem .actions{opacity:1}}
   .gitem .actions .btn-sm{padding:4px 8px}
 
+  /* 激励语动态效果 */
+  .quote-ico{display:inline-block;animation:qFloat 3s ease-in-out infinite}
+  @keyframes qFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(8deg)}}
+  .quote-text{background:linear-gradient(90deg,var(--ink),var(--accent),var(--accent-2),var(--ink));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:qShine 5s linear infinite}
+  @keyframes qShine{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+
   /* ⋯ 更多操作按钮 */
   .item-more{
     width:28px;height:28px;border:none;border-radius:8px;background:transparent;
@@ -1689,6 +1695,20 @@ function switchSection(id){
   content.style.animation='none';
   content.offsetHeight;
   content.style.animation='';
+  /* 激励语动态效果：给💡开头的标题加动画类 */
+  content.querySelectorAll('.card-h').forEach(function(h){
+    if(h.textContent.trim().indexOf('💡')===0){
+      var txt=h.innerHTML;
+      h.innerHTML=txt.replace('💡','<span class="quote-ico">💡</span>');
+      h.querySelectorAll('.txt').forEach(function(t){
+        if(!t.classList.contains('quote-text')) t.classList.add('quote-text');
+      });
+      var card=h.closest('.card');
+      if(card) card.querySelectorAll('.txt').forEach(function(t){
+        if(!t.classList.contains('quote-text')&&!t.closest('.card-h')) t.classList.add('quote-text');
+      });
+    }
+  });
 }
 
 /* ========== 通用列表 CRUD ========== */
