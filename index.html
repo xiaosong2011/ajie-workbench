@@ -284,6 +284,11 @@
   .gitem .gcopy{margin-top:8px}
   .gitem .copy-btn{padding:5px 12px;font-size:11.5px;border-radius:16px;background:linear-gradient(135deg,#eef5ff,#e8faf2);color:var(--accent);border:1px solid #d6e6f7}
   .gitem .copy-btn:active{transform:scale(.94)}
+  /* 标签筛选栏 */
+  .tag-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .tf-btn{padding:5px 12px;font-size:12px;font-weight:600;border-radius:16px;border:1px solid var(--line);background:#fff;color:var(--ink-2);cursor:pointer;transition:all .15s}
+  .tf-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .tf-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
   .gitem .actions{display:flex;gap:6px;flex-shrink:0;align-self:flex-start;opacity:0;transition:opacity .15s}
   .gitem:hover .actions{opacity:1}
   @media(max-width:768px){.gitem .actions{opacity:1}}
@@ -830,7 +835,7 @@ const LISTS={
   aitechPrompts:{title:'提示词库',icon:'💬',dbKey:'aitechPrompts',copyField:'desc',clickCopy:true,fields:[
     {key:'title',label:'提示词名称',type:'input',placeholder:'如：人物一致性提示词',as:'title'},
     {key:'desc',label:'提示词内容',type:'textarea',placeholder:'完整的prompt',as:'desc'},
-    {key:'tag',label:'类型',type:'select',options:['人物','场景','风格','特效','其他'],as:'tag'}
+    {key:'tag',label:'类型',type:'select',options:['图片','视频','人物','场景'],as:'tag'}
   ]},
   aitechComfy:{title:'ComfyUI资料',icon:'🔧',dbKey:'aitechComfy',fields:[
     {key:'title',label:'资料名称',type:'input',placeholder:'如：人物换脸工作流',as:'title'},
@@ -1161,6 +1166,13 @@ aitech:`
   </div>
   <div class="card">
     <div class="card-h">💬 提示词库 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('aitechPrompts')">+ 新增</button></div>
+    <div class="tag-filter" id="filter_aitechPrompts">
+      <button class="tf-btn active" onclick="filterListByTag('aitechPrompts','全部')">全部</button>
+      <button class="tf-btn" onclick="filterListByTag('aitechPrompts','图片')">🖼️ 图片</button>
+      <button class="tf-btn" onclick="filterListByTag('aitechPrompts','视频')">🎬 视频</button>
+      <button class="tf-btn" onclick="filterListByTag('aitechPrompts','人物')">🧑 人物</button>
+      <button class="tf-btn" onclick="filterListByTag('aitechPrompts','场景')">🌅 场景</button>
+    </div>
     <div id="lc_aitechPrompts"></div>
   </div>
   <div class="card tint-blue">
@@ -1322,8 +1334,28 @@ const INITIAL={
   ],
   /* --- AI技术学习 --- */
   aitechPrompts:[
-    {title:'人物一致性提示词',desc:'masterpiece, best quality, 1girl, [角色描述], consistent face, same character',tag:'人物'},
-    {title:'电影感场景提示词',desc:'cinematic lighting, dramatic shadows, depth of field, 8k, ultra detailed',tag:'场景'},
+    /* --- 图片 --- */
+    {title:'电影级肖像',desc:'cinematic portrait of a woman in her 30s, soft natural light, shallow depth of field, bokeh background, warm tones, shot on 85mm f/1.4 lens, photorealistic, 8k, --ar 2:3 --v 6.1',tag:'图片'},
+    {title:'赛博朋克夜景',desc:'sci-fi city at dusk, massive domes, flying cars, neon signs, reflections on wet pavement, dramatic volumetric lighting, ray tracing, hyperdetailed, intricate, 8k, cinematic',tag:'图片'},
+    {title:'微距花卉摄影',desc:'macro photography of a pink rose, dew drops on petals, extreme close-up, soft morning light, blurred background, highly detailed, texture visible, shot on 100mm macro lens, f/2.8, --ar 4:5 --v 6.1 --style raw',tag:'图片'},
+    {title:'奢华时装大片',desc:'A tall woman in a tailored ivory structured blazer standing in a minimalist white marble lobby. Harsh directional overhead lighting creates dramatic shadows. Shot with a medium format camera feel, 65mm equivalent lens, slight underexposure for a luxury editorial look. High fashion Vogue editorial style. 8K, cinematic color grade.',tag:'图片'},
+    /* --- 视频 --- */
+    {title:'雨夜霓虹跟拍',desc:'A woman in a red coat walks slowly through a neon-lit Tokyo street at night, rain falling heavily, neon signs reflecting on wet pavement. Camera tracks her from the side at eye level, slow steady tracking shot, cinematic lighting, shallow depth of field, 16:9',tag:'视频'},
+    {title:'推轨镜头人物特写',desc:'Cinematic shot. A detective in a trench coat walks through a crowded train station. Camera dollies backward maintaining medium shot. People blur past in the foreground. Harsh overhead lighting creates deep shadows. 1940s noir aesthetic. 4 seconds.',tag:'视频'},
+    {title:'高空摇镜城市全景',desc:'Wide shot of a sprawling futuristic city at dusk. Camera cranes up from low angle to high angle, revealing the full skyline. Volumetric fog swirls through the lower levels. Neon lights begin to glow as the sun sets. Cinematic lighting, deep depth of field, 16:9',tag:'视频'},
+    {title:'环绕镜头产品展示',desc:'Luxury watch on a dark marble surface, soft studio lighting. Camera orbits 180 degrees around the watch, smooth motion, shallow depth of field, product reveal, cinematic commercial style, 4 seconds.',tag:'视频'},
+    {title:'缓推镜头情绪张力',desc:'A close-up of a person\'s face, standing in a dimly lit room. Slow push-in toward the face, emotional tension. Subtle changes in expression. Soft rim lighting from behind, moody atmosphere, cinematic film look, 16:9',tag:'视频'},
+    /* --- 人物 --- */
+    {title:'人物特征锁定模板',desc:'Auburn shoulder-length wavy hair, side-parted left, green almond-shaped eyes, warm olive skin, small scar above right eyebrow, wearing a charcoal canvas jacket with brass buttons, knee-high boots, leather satchel slung right shoulder, medium height, athletic build.',tag:'人物'},
+    {title:'Midjourney人物一致性',desc:'a woman reading a paperback in a sunlit cafe, soft morning light, 35mm film aesthetic --oref [人物参考图URL] --ow 400',tag:'人物'},
+    {title:'SD人物一致性+权重',desc:'[人物特征文本块], [动作描述], in [场景], [姿势], [光照] --prompt weights: (character face reference:1.2), negative prompt: ugly, deformed, blurry, extra limbs, distorted hands',tag:'人物'},
+    {title:'电影级人物肖像',desc:'Close-up portrait of a young woman with deep brown eyes and natural skin texture, soft freckles, and windswept hair. Shot outdoors at golden hour, warm rim lighting from behind separates her from a softly blurred bokeh background of autumn trees. 85mm f/1.2 lens, shallow depth of field. 8K, cinematic color grade.',tag:'人物'},
+    /* --- 场景 --- */
+    {title:'晨曦雾气森林',desc:'Misty ancient redwood forest, volumetric god rays streaming through massive tree canopy, fern-covered forest floor, dappled golden light, a narrow dirt path disappearing into the fog, mystical and peaceful, 24mm wide-angle, landscape photography, 8K',tag:'场景'},
+    {title:'极简奢华室内空间',desc:'Photorealistic cinematic wide-angle interior shot of a minimalist luxury lounge, floor-to-ceiling glass walls overlooking a misty mountain landscape at golden hour, interplay of warm sunlight and deep soft shadows, polished concrete floors, brushed dark oak wall paneling, terracotta sculptural velvet armchair, architectural photography, 24mm, f/8, 8K',tag:'场景'},
+    {title:'超未来都市全景',desc:'Wide-angle cinematic establishing shot of a sprawling, hyper-futuristic megalopolis at dusk, layered vertical architecture with brutalist and neo-gothic fusion, glowing neon plasma conduits, hovering transport vessels leaving light trails, volumetric fog, deep violet and amber sunset, cinematic lighting, ray-traced reflections, 8K',tag:'场景'},
+    {title:'日落蓝调海岸线',desc:'Dramatic coastal cliffs at blue hour, crashing white waves against dark basalt columns, long exposure silk-smooth water, moody overcast sky with a break of warm light on the horizon, Iceland landscape, wide angle, landscape photography, atmospheric, cinematic',tag:'场景'},
+    {title:'赛博朋克街景',desc:'A low-angle, immersive perspective of a crowded, rain-drenched cyberpunk street market filled with holographic advertisements, neon signs reflecting on wet pavement, dense crowd activity, vibrant neon color saturation, volumetric fog, cinematic lighting, 35mm anamorphic lens, f/2.8, 8K',tag:'场景'},
   ],
   aitechComfy:[
     {title:'人物换脸工作流',meta:'B站教程',desc:'用IPAdapter + FaceID实现角色面部一致性'},
@@ -1720,18 +1752,32 @@ function switchSection(id){
 }
 
 /* ========== 通用列表 CRUD ========== */
+var LIST_TAG_FILTER={};
+function filterListByTag(listKey,tag){
+  LIST_TAG_FILTER[listKey]=tag;
+  var btns=document.querySelectorAll('#filter_'+listKey+' .tf-btn');
+  btns.forEach(function(b){b.classList.toggle('active',b.textContent.replace(/^[^\u4e00-\u9fa5a-zA-Z]+/,'').trim()===tag||b.textContent.trim()===tag);});
+  renderList(listKey);
+}
 function renderList(listKey){
   const config=LISTS[listKey];
   if(!config) return;
   const container=document.getElementById('lc_'+listKey);
   if(!container) return;
-  const items=DB[config.dbKey]||[];
+  let items=DB[config.dbKey]||[];
+  const filter=LIST_TAG_FILTER[listKey];
+  if(filter&&filter!=='全部'){
+    items=items.map((item,i)=>({item,i})).filter(x=>x.item.tag===filter).map(x=>x);
+  }
   if(items.length===0){
-    container.innerHTML='<div class="empty-hint"><div class="big">'+config.icon+'</div>暂无内容，点击"+ 新增"添加</div>';
+    container.innerHTML='<div class="empty-hint"><div class="big">'+config.icon+'</div>'+(filter&&filter!=='全部'?'该分类暂无内容':'暂无内容，点击"+ 新增"添加')+'</div>';
     return;
   }
   let html='';
-  items.forEach((item,i)=>{ html+=renderListItem(listKey,item,i); });
+  items.forEach((x)=>{
+    const item=x.item, i=x.i;
+    html+=renderListItem(listKey,item,i);
+  });
   container.innerHTML=html;
 }
 
