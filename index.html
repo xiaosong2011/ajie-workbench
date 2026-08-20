@@ -264,7 +264,14 @@
   .btn-del{background:var(--tag-rose);color:var(--tag-rose-t)}
 
   /* ===== 通用列表项 ===== */
-  .gitem{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .gitem{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .swipe-content{display:flex;align-items:flex-start;gap:10px;padding:12px 0;transition:transform .25s ease;background:var(--content-bg);position:relative;z-index:1;touch-action:pan-y}
+  .gitem.swiped .swipe-content{transform:translateX(-130px)}
+  .swipe-actions{position:absolute;right:0;top:0;bottom:0;display:flex;align-items:center;gap:2px;padding:0 6px 0 14px;z-index:0}
+  .swipe-btn{width:56px;height:36px;border:none;border-radius:8px;font-size:13px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:3px;transition:transform .12s}
+  .swipe-edit{background:var(--accent)}
+  .swipe-del{background:#e74c3c}
+  .swipe-btn:active{transform:scale(.92)}
   .gitem:last-child{border-bottom:none}
   .gitem .ck{width:20px;height:20px;border-radius:6px;border:2px solid #c2cdda;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;margin-top:1px}
   .gitem .ck.checked{background:var(--accent-2);border-color:var(--accent-2)}
@@ -1825,6 +1832,7 @@ function renderList(listKey){
     html+=renderListItem(listKey,item,i);
   });
   container.innerHTML=html;
+  initSwipe();
 }
 
 function renderListItem(listKey,item,i){
@@ -1848,6 +1856,8 @@ function renderListItem(listKey,item,i){
     else fieldParts.push('<span><b>'+escapeHtml(f.label)+'：</b>'+escapeHtml(text)+'</span>');
   });
   let html='<div class="gitem">';
+  html+='<div class="swipe-actions"><button class="swipe-btn swipe-edit" onclick="_closeSwipe(this);_menuEdit(\''+listKey+'\','+i+')">✏️</button><button class="swipe-btn swipe-del" onclick="_closeSwipe(this);_menuDel(\''+listKey+'\','+i+')">🗑️</button></div>';
+  html+='<div class="swipe-content">';
   if(hasCheckbox){
     html+='<div class="ck'+(checkboxChecked?' checked':'')+'" onclick="toggleListCheck(\''+listKey+'\','+i+')"></div>';
   }
@@ -1866,8 +1876,64 @@ function renderListItem(listKey,item,i){
   }
   html+='</div>';
   html+='<button class="item-more" onclick="showItemMenu(event,\''+listKey+'\','+i+')">⋯</button>';
-  html+='</div>';
+  html+='</div></div>';
   return html;
+}
+
+/* ========== 左滑操作 ========== */
+function _closeSwipe(el){
+  var item=el.closest('.gitem');
+  if(item) item.classList.remove('swiped');
+}
+function _closeAllSwiped(except){
+  document.querySelectorAll('.gitem.swiped').forEach(function(g){ if(g!==except) g.classList.remove('swiped'); });
+}
+function initSwipe(){
+  document.querySelectorAll('.gitem').forEach(function(item){
+    if(item._swipeInit) return;
+    item._swipeInit=true;
+    var content=item.querySelector('.swipe-content');
+    if(!content) return;
+    var sx=0,sy=0,cx=0,drag=false,moved=false;
+    content.addEventListener('touchstart',function(e){
+      sx=e.touches[0].clientX; sy=e.touches[0].clientY; cx=0; drag=true; moved=false;
+      content.style.transition='none';
+    },{passive:true});
+    content.addEventListener('touchmove',function(e){
+      if(!drag) return;
+      var dx=e.touches[0].clientX-sx, dy=e.touches[0].clientY-sy;
+      if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)){
+        moved=true; e.preventDefault();
+        var base=item.classList.contains('swiped')?-130:0;
+        cx=Math.max(-130,Math.min(0,base+dx));
+        content.style.transform='translateX('+cx+'px)';
+      }
+    },{passive:false});
+    content.addEventListener('touchend',function(){
+      if(!drag) return;
+      drag=false; content.style.transition=''; content.style.transform='';
+      if(moved){
+        if(cx<-60){ _closeAllSwiped(item); item.classList.add('swiped'); }
+        else item.classList.remove('swiped');
+        var sc=function(ev){ ev.preventDefault(); ev.stopPropagation(); content.removeEventListener('click',sc,true); };
+        content.addEventListener('click',sc,true);
+        setTimeout(function(){ content.removeEventListener('click',sc,true); },300);
+      }else if(item.classList.contains('swiped')){
+        item.classList.remove('swiped');
+        var sc2=function(ev){ ev.preventDefault(); ev.stopPropagation(); content.removeEventListener('click',sc2,true); };
+        content.addEventListener('click',sc2,true);
+        setTimeout(function(){ content.removeEventListener('click',sc2,true); },300);
+      }
+    },{passive:false});
+  });
+  if(!window._swipeDocInit){
+    window._swipeDocInit=true;
+    document.addEventListener('click',function(e){
+      if(!e.target.closest('.gitem.swiped')&&!e.target.closest('.swipe-actions')){
+        _closeAllSwiped();
+      }
+    });
+  }
 }
 
 /* ========== ⋯ 操作菜单 ========== */
@@ -2106,13 +2172,14 @@ function renderInspos(){
   DB.inspos.slice().reverse().forEach((item,idx)=>{
     const i=DB.inspos.length-1-idx;
     const tagHtml=item.tag?'<div class="gtags"><span class="pill copyable" style="'+tagColor(item.tag)+';cursor:pointer" onclick="copyText(this,\''+escapeHtml(item.tag).replace(/'/g,"\\'")+'\')" title="点击复制">'+escapeHtml(item.tag)+'</span></div>':'';
-    html+='<div class="gitem" id="inspoItem_'+i+'"><div class="gbody">'+
+    html+='<div class="gitem" id="inspoItem_'+i+'"><div class="swipe-actions"><button class="swipe-btn swipe-edit" onclick="_closeSwipe(this);_menuInspoEdit('+i+')">✏️</button><button class="swipe-btn swipe-del" onclick="_closeSwipe(this);_menuInspoDel('+i+')">🗑️</button></div><div class="swipe-content"><div class="gbody">'+
       '<div class="gt copyable" onclick="copyText(this)" title="点击复制">'+escapeHtml(item.title)+'</div>'+
       (item.desc?'<div class="gdesc clamp" onclick="toggleInspoExpand('+i+')" title="点击展开/收起">'+escapeHtml(item.desc)+'</div>':'')+
       tagHtml+
-      '</div><button class="item-more" onclick="showInspoMenu(event,'+i+')">⋯</button></div>';
+      '</div><button class="item-more" onclick="showInspoMenu(event,'+i+')">⋯</button></div></div>';
   });
   list.innerHTML=html;
+  initSwipe();
 }
 function openInspoModal(i){
   const editing=i!==undefined;
