@@ -857,7 +857,7 @@ const LISTS={
     {key:'desc',label:'内容',type:'textarea',placeholder:'学习笔记',as:'desc'}
   ]},
   /* --- AI技术学习 --- */
-  aitechPrompts:{title:'提示词库',icon:'💬',dbKey:'aitechPrompts',copyField:'desc',fields:[
+  aitechPrompts:{title:'提示词库',icon:'💬',dbKey:'aitechPrompts',copyField:'desc',clickCopy:true,fields:[
     {key:'title',label:'提示词名称',type:'input',placeholder:'如：人物一致性提示词',as:'title'},
     {key:'desc',label:'提示词内容',type:'textarea',placeholder:'完整的prompt',as:'desc'},
     {key:'tag',label:'类型',type:'select',options:['人物','场景','风格','特效','其他'],as:'tag'}
@@ -1731,10 +1731,11 @@ function renderListItem(listKey,item,i){
   if(hasCheckbox){
     html+='<div class="ck'+(checkboxChecked?' checked':'')+'" onclick="toggleListCheck(\''+listKey+'\','+i+')"></div>';
   }
+  const cc=config.clickCopy?' copyable" onclick="copyText(this)" title="点击复制':'';
   html+='<div class="gbody">';
-  if(titleParts.length) html+='<div class="gt'+(checkboxChecked?' done-t':'')+'">'+escapeHtml(titleParts.join(' · '))+'</div>';
+  if(titleParts.length) html+='<div class="gt'+(checkboxChecked?' done-t':'')+cc+'">'+escapeHtml(titleParts.join(' · '))+'</div>';
   if(metaParts.length) html+='<div class="gmeta">'+escapeHtml(metaParts.join(' · '))+'</div>';
-  if(descParts.length) html+='<div class="gdesc">'+escapeHtml(descParts.join(' '))+'</div>';
+  if(descParts.length) html+='<div class="gdesc'+cc+'">'+escapeHtml(descParts.join(' '))+'</div>';
   if(fieldParts.length) html+='<div class="gfields">'+fieldParts.join('')+'</div>';
   if(tagParts.length) html+='<div class="gtags">'+tagParts.join('')+'</div>';
   if(config.copyField){
