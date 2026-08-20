@@ -308,6 +308,9 @@
   .gitem .gfields{margin-top:4px;font-size:12px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:4px 12px}
   .gitem .gfields span b{color:var(--ink-3);font-weight:600}
   .gitem .gtags{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+  .gitem .gcopy{margin-top:8px}
+  .gitem .copy-btn{padding:5px 12px;font-size:11.5px;border-radius:16px;background:linear-gradient(135deg,#eef5ff,#e8faf2);color:var(--accent);border:1px solid #d6e6f7}
+  .gitem .copy-btn:active{transform:scale(.94)}
   .gitem .actions{display:flex;gap:6px;flex-shrink:0;align-self:flex-start;opacity:0;transition:opacity .15s}
   .gitem:hover .actions{opacity:1}
   @media(max-width:768px){.gitem .actions{opacity:1}}
@@ -850,7 +853,7 @@ const LISTS={
     {key:'desc',label:'内容',type:'textarea',placeholder:'学习笔记',as:'desc'}
   ]},
   /* --- AI技术学习 --- */
-  aitechPrompts:{title:'提示词库',icon:'💬',dbKey:'aitechPrompts',fields:[
+  aitechPrompts:{title:'提示词库',icon:'💬',dbKey:'aitechPrompts',copyField:'desc',fields:[
     {key:'title',label:'提示词名称',type:'input',placeholder:'如：人物一致性提示词',as:'title'},
     {key:'desc',label:'提示词内容',type:'textarea',placeholder:'完整的prompt',as:'desc'},
     {key:'tag',label:'类型',type:'select',options:['人物','场景','风格','特效','其他'],as:'tag'}
@@ -1599,6 +1602,15 @@ function copyText(el,customText){
     document.body.removeChild(ta);
   }
 }
+/* 复制列表项的某个字段 */
+function copyListItemField(btn,listKey,i,fieldKey){
+  const config=LISTS[listKey];
+  if(!config) return;
+  const items=DB[config.dbKey]||[];
+  const item=items[i];
+  if(!item||item[fieldKey]===undefined||item[fieldKey]===null) return;
+  copyText(btn,String(item[fieldKey]));
+}
 function _showCopyTip(el){
   const tip=document.createElement('div');
   tip.textContent='已复制 ✓';
@@ -1721,6 +1733,12 @@ function renderListItem(listKey,item,i){
   if(descParts.length) html+='<div class="gdesc">'+escapeHtml(descParts.join(' '))+'</div>';
   if(fieldParts.length) html+='<div class="gfields">'+fieldParts.join('')+'</div>';
   if(tagParts.length) html+='<div class="gtags">'+tagParts.join('')+'</div>';
+  if(config.copyField){
+    const cv=item[config.copyField];
+    if(cv!==undefined&&cv!==null&&String(cv).trim()!==''){
+      html+='<div class="gcopy"><button class="btn copy-btn" onclick="copyListItemField(this,\''+listKey+'\','+i+',\''+config.copyField+'\')">📋 复制提示词</button></div>';
+    }
+  }
   html+='</div>';
   html+='<button class="item-more" onclick="showItemMenu(event,\''+listKey+'\','+i+')">⋯</button>';
   html+='</div>';
