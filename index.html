@@ -1165,7 +1165,7 @@ aitech:`
     <div class="txt">围绕<b>AI漫剧制作</b>，掌握提示词工程、ComfyUI工作流、模型选择与调优。从能跑到跑好，建立自己的技术体系。</div>
   </div>
   <div class="card">
-    <div class="card-h">💬 提示词库 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('aitechPrompts')">+ 新增</button></div>
+    <div class="card-h">💬 提示词库 <span style="font-size:11px;color:var(--ink-3);font-weight:400;margin-left:4px">源自网络社区精选</span> <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('aitechPrompts')">+ 新增</button></div>
     <div class="tag-filter" id="filter_aitechPrompts">
       <button class="tf-btn active" onclick="filterListByTag('aitechPrompts','全部')">全部</button>
       <button class="tf-btn" onclick="filterListByTag('aitechPrompts','图片')">🖼️ 图片</button>
@@ -1368,6 +1368,20 @@ const INITIAL={
     /* --- 进阶场景 --- */
     {title:'粒子光效微距',desc:'A void of deep obsidian darkness. Thousands of microscopic, glowing seed-like particles, translucent with pearlescent inner cores. Macro lens, 100mm, slow push-in. Particles drift lazily, swirling in a gentle updraft. Bioluminescent cyan and warm amber embers emitting soft volumetric light. Zero-gravity atmosphere, 8K',tag:'场景'},
     {title:'全息城市',desc:'Holographic city, buildings made of light projections, translucent structures, data streams flowing through air, blue and white palette, future metropolis concept art, 8K',tag:'场景'},
+    /* --- 大佬精选·图片 --- */
+    {title:'垂直花园现代建筑',desc:'Futuristic sustainable skyscraper covered in vertical gardens, solar panels integrated into glass facade, blue sky, architectural visualization, clean design',tag:'图片'},
+    {title:'意大利美食平铺',desc:'Overhead flat lay of a rustic Italian dinner spread, fresh pasta, tomatoes, basil, olive oil, wooden table, warm natural light, food photography, editorial',tag:'图片'},
+    {title:'暗黑奇幻龙',desc:'Ancient dragon perched on a crumbling castle tower, scales catching moonlight, storm clouds gathering, dark fantasy, concept art, detailed',tag:'图片'},
+    /* --- 大佬精选·视频 --- */
+    {title:'孔雀开屏纪录片',desc:'Close-up of a male Indian peacock slowly spreading its iridescent feathers in full display. Each feather catches late afternoon golden light individually. Camera starts tight on the eye and slowly pulls back to reveal the full fan. ARRI Alexa cinematic colour grade. Camera movement throughout, avoid static shots.',tag:'视频'},
+    {title:'运动慢动作扣篮',desc:'Athlete mid-leap for a slam dunk, dramatic low-angle shot. 35mm with ultra-slow motion effect, 120fps equivalent. Arena lights, high contrast, strong rim. Punchy cinematic grade, vivid highlights. Frozen peak frame with motion blur on edges. Duration: 6 seconds. 16:9, 4K, hyper-detailed.',tag:'视频'},
+    {title:'抽象颜料碰撞',desc:'Two streams of luminescent paint colliding in zero gravity — one electric blue, one deep saffron orange. Complex fractal patterns form as they merge and separate. Suspended droplets catch light like stars. Extreme slow motion. Dark background. Camera rotates slowly around the collision point. Abstract experimental art film aesthetic.',tag:'视频'},
+    /* --- 大佬精选·人物 --- */
+    {title:'新海诚风格动漫少女',desc:'Anime girl with silver hair and turquoise eyes, school uniform, cherry blossom background, makoto shinkai style, soft pastel palette --ar 4:5 --s 750 --niji 6',tag:'人物'},
+    {title:'奇幻战士角色设定',desc:'full-body young male warrior with short messy dark brown hair in relaxed ready pose wearing dark bodysuit, cream mantle, deep blue cape, arm wrappings, utility belt, tan pouches, silver leg armor and brown boots holding sheathed sword and dark staff. Painterly high-detail fantasy concept art, realistic fabric folds, muted earthy colors, centered full figure.',tag:'人物'},
+    /* --- 大佬精选·场景 --- */
+    {title:'水下发光城市',desc:'Ancient underwater civilization, bioluminescent coral buildings with organic architecture, manta rays gliding between towers, shafts of surface light penetrating the deep, schools of fish as traffic, Atlantis reimagined, concept art --ar 16:9 --v 8.1 --s 400',tag:'场景'},
+    {title:'太空站观测星云',desc:'Space station interior, observation deck looking out at a nebula, astronaut floating in zero gravity, warm interior lighting contrasting with cold space, hard sci-fi, cinematic',tag:'场景'},
   ],
   aitechComfy:[
     {title:'人物换脸工作流',meta:'B站教程',desc:'用IPAdapter + FaceID实现角色面部一致性'},
