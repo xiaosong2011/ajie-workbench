@@ -691,24 +691,10 @@
     </main>
   </div>
 
-  <button class="fab" title="帮助" onclick="alert('小松的工作台 · 男生版\n\n· 点击左上角☰或左下角菜单按钮打开导航\n· 各板块支持新增/编辑/删除\n· 数据自动保存在本地\n· 点击「保存到桌面」可添加为App')">?</button>
+  <button class="fab" title="帮助" onclick="alert('小松的工作台 · 男生版\n\n· 点击左上角☰或左下角菜单按钮打开导航\n· 各板块支持新增/编辑/删除\n· 数据自动保存在本地')">?</button>
 
   <!-- 浮动菜单按钮（手机端/PWA 始终可见）-->
   <button class="menu-fab" onclick="toggleSidebar()" title="打开菜单">☰</button>
-
-  <!-- 添加到桌面按钮 -->
-  <button class="install-btn" onclick="showGuide()">📱 保存到桌面</button>
-
-  <!-- 引导弹窗 -->
-  <div class="guide-mask" id="guideMask" onclick="if(event.target===this)closeGuide()">
-    <div class="guide-box">
-      <h2>📲 添加到主屏幕</h2>
-      <div class="gsub">像 App 一样用，桌面图标直达，全屏无地址栏</div>
-      <div class="not-safari" id="notSafari"></div>
-      <div id="guideSteps"></div>
-      <button class="guide-close" onclick="closeGuide()">我知道了</button>
-    </div>
-  </div>
 
   <!-- 分享弹窗 -->
   <div class="share-mask" id="shareMask" onclick="if(event.target===this)closeShareModal()">
@@ -2493,58 +2479,6 @@ function showModal(title,formHtml,onSave){
 }
 function closeModal(){ const m=document.getElementById('crudModal'); if(m) m.remove(); }
 
-/* ========== PWA 添加到桌面引导 ========== */
-function isSafari(){
-  var ua=navigator.userAgent.toLowerCase();
-  var isIos=/iphone|ipad|ipod/.test(ua);
-  var isSafari=/safari/.test(ua)&&!/crios|fxios|edgios|opr|chrome|ucbrowser|qqbrowser|micromessenger|weibo|baidu|360/.test(ua);
-  return isIos&&isSafari;
-}
-function isAndroid(){
-  var ua=navigator.userAgent.toLowerCase();
-  return /android/.test(ua);
-}
-function isWeChat(){
-  var ua=navigator.userAgent.toLowerCase();
-  return /micromessenger/.test(ua);
-}
-function showGuide(){
-  var mask=document.getElementById('guideMask');
-  var warn=document.getElementById('notSafari');
-  var steps=document.getElementById('guideSteps');
-  if(isSafari()){
-    warn.classList.remove('show');
-    warn.innerHTML='';
-    steps.innerHTML=
-      '<div class="guide-step"><div class="sn">1</div><div class="st">点击 Safari 底部的<b>「分享」按钮</b>（方框 + 向上箭头图标 ↗）</div></div>'+
-      '<div class="guide-step"><div class="sn">2</div><div class="st">向下滑找到并点击<b>「添加到主屏幕」</b></div></div>'+
-      '<div class="guide-step"><div class="sn">3</div><div class="st">点击右上角<b>「添加」</b>，桌面就会多一个图标</div></div>'+
-      '<div class="guide-step"><div class="sn">4</div><div class="st">以后点桌面图标即可<b>全屏打开</b>，和原生 App 一样</div></div>';
-  }else if(isAndroid()){
-    warn.classList.add('show');
-    if(isWeChat()){
-      warn.innerHTML='⚠️ 当前在微信内打开，请先点右上角「···」→ 选择「在浏览器打开」，再按下面步骤操作。';
-    }else{
-      warn.classList.remove('show');
-      warn.innerHTML='';
-    }
-    steps.innerHTML=
-      '<div class="guide-step"><div class="sn">1</div><div class="st">点击浏览器右上角或右下角的<b>「⋮」菜单按钮</b>（三个竖点）</div></div>'+
-      '<div class="guide-step"><div class="sn">2</div><div class="st">在菜单中找到并点击<b>「添加到主屏幕」</b>或<b>「添加到桌面」</b></div></div>'+
-      '<div class="guide-step"><div class="sn">3</div><div class="st">确认添加，桌面就会多一个<b>「小松工作台」</b>图标</div></div>'+
-      '<div class="guide-step"><div class="sn">4</div><div class="st">以后点桌面图标即可<b>全屏打开</b>，和原生 App 一样</div></div>';
-  }else{
-    warn.classList.add('show');
-    warn.innerHTML='⚠️ 建议在手机浏览器中打开此页面，再按对应步骤添加到主屏幕。';
-    steps.innerHTML=
-      '<div class="guide-step"><div class="sn">1</div><div class="st">点击浏览器菜单（通常在右上角或底部）</div></div>'+
-      '<div class="guide-step"><div class="sn">2</div><div class="st">找到<b>「添加到主屏幕」</b>或<b>「添加到桌面」</b>选项</div></div>'+
-      '<div class="guide-step"><div class="sn">3</div><div class="st">确认后桌面会出现快捷图标</div></div>';
-  }
-  mask.classList.add('show');
-}
-function closeGuide(){ document.getElementById('guideMask').classList.remove('show'); }
-
 /* ========== URL 参数自动配置 ========== */
 function autoConfigFromURL(){
   const params=new URLSearchParams(window.location.search);
@@ -2658,11 +2592,6 @@ document.addEventListener('click',function(e){
     container.appendChild(p);
   }
 })();
-
-/* 首次访问自动提示添加到桌面 */
-setTimeout(function(){
-  if(!sessionStorage.getItem('g')){ showGuide(); sessionStorage.setItem('g','1'); }
-},2000);
 </script>
 </body>
 </html>
