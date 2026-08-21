@@ -873,7 +873,7 @@ const LISTS={
   ]},
   /* --- 工资储蓄规划 --- */
   salaryIncome:{title:'每月收入记录',icon:'💸',dbKey:'salaryIncome',fields:[
-    {key:'month',label:'月份',type:'input',placeholder:'如：2026年8月',as:'title'},
+    {key:'month',label:'月份',type:'month',placeholder:'选择月份',as:'title'},
     {key:'amount',label:'到手收入',type:'input',placeholder:'如：15000',as:'field'},
     {key:'note',label:'备注',type:'input',placeholder:'如：含绩效奖金',as:'desc'}
   ]},
@@ -891,13 +891,13 @@ const LISTS={
   /* --- 还款提醒 --- */
   repayList:{title:'还款登记',icon:'📋',dbKey:'repayList',fields:[
     {key:'title',label:'还款项目',type:'input',placeholder:'如：房贷',as:'title'},
-    {key:'date',label:'还款日',type:'input',placeholder:'如：每月20日',as:'meta'},
+    {key:'date',label:'还款日',type:'date',placeholder:'选择日期',as:'meta'},
     {key:'amount',label:'还款金额',type:'input',placeholder:'如：5500',as:'field'},
     {key:'status',label:'状态',type:'select',options:['待还款','已还款','已逾期'],as:'tag'}
   ]},
   repayLog:{title:'还款记录',icon:'📜',dbKey:'repayLog',fields:[
     {key:'title',label:'项目',type:'input',placeholder:'如：房贷',as:'title'},
-    {key:'date',label:'还款日期',type:'input',placeholder:'如：2026-08-20',as:'meta'},
+    {key:'date',label:'还款日期',type:'date',placeholder:'选择日期',as:'meta'},
     {key:'amount',label:'金额',type:'input',placeholder:'如：5500',as:'field'},
     {key:'note',label:'备注',type:'input',placeholder:'如：8月房贷已扣',as:'desc'}
   ]},
@@ -964,7 +964,7 @@ const LISTS={
   billsUtility:{title:'水电费用',icon:'💧',dbKey:'billsUtility',fields:[
     {key:'title',label:'类型',type:'input',placeholder:'如：水费/电费/燃气',as:'title'},
     {key:'amount',label:'金额',type:'input',placeholder:'如：120',as:'field'},
-    {key:'month',label:'月份',type:'input',placeholder:'如：2026年8月',as:'meta'}
+    {key:'month',label:'月份',type:'month',placeholder:'选择月份',as:'meta'}
   ]},
   billsFixed:{title:'固定生活支出',icon:'📌',dbKey:'billsFixed',fields:[
     {key:'title',label:'支出项目',type:'input',placeholder:'如：网费',as:'title'},
@@ -2169,6 +2169,22 @@ function openListModal(listKey,index){
       formHtml+='<label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:14px;cursor:pointer">'+
         '<input type="checkbox" id="fld_'+f.key+'" '+(val?'checked':'')+' style="width:20px;height:20px;cursor:pointer"> '+
         escapeHtml(f.placeholder||'已完成')+'</label>';
+    }else if(f.type==='month'){
+      /* 月份选择器：兼容 "2026年8月" 和 "2026-08" 格式 */
+      var monthVal=val||'';
+      if(monthVal){
+        var mm=monthVal.match(/(\d{4})[^\d]*(\d{1,2})/);
+        if(mm) monthVal=mm[1]+'-'+String(mm[2]).padStart(2,'0');
+      }
+      formHtml+='<input class="crud-input" id="fld_'+f.key+'" type="month" value="'+escapeHtml(monthVal)+'" style="margin-bottom:8px">';
+    }else if(f.type==='date'){
+      /* 日期选择器：兼容 "2026-08-20" 和 "2026年8月20日" 格式 */
+      var dateVal=val||'';
+      if(dateVal){
+        var dm=dateVal.match(/(\d{4})[^\d]*(\d{1,2})[^\d]*(\d{1,2})/);
+        if(dm) dateVal=dm[1]+'-'+String(dm[2]).padStart(2,'0')+'-'+String(dm[3]).padStart(2,'0');
+      }
+      formHtml+='<input class="crud-input" id="fld_'+f.key+'" type="date" value="'+escapeHtml(dateVal)+'" style="margin-bottom:8px">';
     }else{
       formHtml+='<input class="crud-input" id="fld_'+f.key+'" type="'+(f.inputType||'text')+'" placeholder="'+escapeHtml(f.placeholder||'')+'" value="'+escapeHtml(val)+'">';
     }
@@ -2179,7 +2195,23 @@ function openListModal(listKey,index){
       const el=document.getElementById('fld_'+f.key);
       if(!el) return;
       if(f.type==='checkbox'){ newItem[f.key]=el.checked; }
-      else { newItem[f.key]=el.value.trim(); }
+    else if(f.type==='month'){
+      /* 将 "2026-08" 转成 "2026年8月" */
+      var mv=el.value;
+      if(mv){
+        var parts=mv.split('-');
+        newItem[f.key]=parts[0]+'年'+parseInt(parts[1],10)+'月';
+      } else newItem[f.key]='';
+    }
+    else if(f.type==='date'){
+      /* 将 "2026-08-20" 转成 "2026年8月20日" */
+      var dv=el.value;
+      if(dv){
+        var parts=dv.split('-');
+        newItem[f.key]=parts[0]+'年'+parseInt(parts[1],10)+'月'+parseInt(parts[2],10)+'日';
+      } else newItem[f.key]='';
+    }
+    else { newItem[f.key]=el.value.trim(); }
     });
     /* 校验：至少有一个非空非布尔字段 */
     const hasContent=config.fields.some(f=>{
