@@ -3220,6 +3220,44 @@ function initialRender(sectionId){
   }
 })();
 
+/* ====== 边缘滑动手势：从屏幕左侧向右滑打开导航，从右向左滑关闭 ====== */
+(function(){
+  var startX=0,startY=0,swiping=false,edgeWidth=30;
+  document.addEventListener('touchstart',function(e){
+    if(window.innerWidth>768) return; /* 仅移动端 */
+    var t=e.touches[0];
+    var sb=document.getElementById('sidebar');
+    var isOpen=sb&&sb.classList.contains('open');
+    if(isOpen){
+      /* 导航已打开，任何位置向左滑可关闭 */
+      startX=t.clientX; startY=t.clientY; swiping='close';
+    }else if(t.clientX<=edgeWidth){
+      /* 导航关闭，从左边缘向右滑打开 */
+      startX=t.clientX; startY=t.clientY; swiping='open';
+    }else{
+      swiping=false;
+    }
+  },{passive:true});
+
+  document.addEventListener('touchmove',function(e){
+    if(!swiping) return;
+    var t=e.touches[0];
+    var dx=t.clientX-startX;
+    var dy=t.clientY-startY;
+    if(swiping==='open'&&dx>20&&Math.abs(dx)>Math.abs(dy)*1.5){
+      toggleSidebar(true);
+      swiping=false;
+    }else if(swiping==='close'&&dx<-20&&Math.abs(dx)>Math.abs(dy)*1.5){
+      toggleSidebar(false);
+      swiping=false;
+    }
+  },{passive:true});
+
+  document.addEventListener('touchend',function(){
+    swiping=false;
+  },{passive:true});
+})();
+
 /* ========== 动态效果 JS ========== */
 /* 按钮涟漪效果 */
 document.addEventListener('click',function(e){
