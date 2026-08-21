@@ -319,6 +319,39 @@
   @media(max-width:768px){.gitem .actions{opacity:1}}
   .gitem .actions .btn-sm{padding:4px 8px}
 
+  /* ===== 总览仪表盘 ===== */
+  .ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+  .ov-stat{background:#fff;border-radius:12px;padding:14px;border:1px solid var(--line);cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+  .ov-stat:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+  .ov-stat:active{transform:scale(.98)}
+  .ov-stat .ov-icon{font-size:22px;margin-bottom:6px}
+  .ov-stat .ov-num{font-size:28px;font-weight:800;color:var(--ink);line-height:1}
+  .ov-stat .ov-label{font-size:11px;color:var(--ink-3);margin-top:4px}
+  .ov-stat .ov-bar{position:absolute;bottom:0;left:0;height:3px;border-radius:0 3px 3px 0}
+  .ov-donut-wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .ov-donut-wrap svg{flex-shrink:0}
+  .ov-legend{display:flex;flex-direction:column;gap:6px;flex:1;min-width:120px}
+  .ov-legend-item{display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer}
+  .ov-legend-item:hover{opacity:.7}
+  .ov-legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+  .ov-legend-val{margin-left:auto;font-weight:700;color:var(--ink-2)}
+  .ov-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer}
+  .ov-bar-row:hover{opacity:.8}
+  .ov-bar-label{font-size:12px;color:var(--ink-2);width:70px;flex-shrink:0;text-align:right}
+  .ov-bar-track{flex:1;height:22px;background:#f0f4f8;border-radius:6px;overflow:hidden;position:relative}
+  .ov-bar-fill{height:100%;border-radius:6px;transition:width .8s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap}
+  .ov-progress-ring{display:inline-block;position:relative}
+  .ov-progress-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+  .ov-progress-text .ov-pct{font-size:20px;font-weight:800;color:var(--ink)}
+  .ov-progress-text .ov-pct-label{font-size:10px;color:var(--ink-3)}
+  .ov-nav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+  .ov-nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border-radius:10px;background:#fff;border:1px solid var(--line);cursor:pointer;transition:all .15s;text-align:center}
+  .ov-nav-btn:hover{border-color:var(--accent);background:#f8faff}
+  .ov-nav-btn:active{transform:scale(.95)}
+  .ov-nav-btn .ov-nav-ico{font-size:20px}
+  .ov-nav-btn .ov-nav-name{font-size:11px;color:var(--ink-2);font-weight:600}
+  .ov-nav-btn .ov-nav-count{font-size:10px;color:var(--ink-3)}
+
   /* ===== 灵感收藏卡片 ===== */
   .inspo-card{
     position:relative;border-radius:14px;margin-bottom:12px;overflow:hidden;
@@ -815,6 +848,7 @@
 <script>
 /* ========== 导航数据 ========== */
 const NAV=[
+  {id:'overview', ico:'🏠', name:'总览', group:'总览'},
   {id:'daily',    ico:'📅', name:'每日计划', badge:6, group:'核心日常'},
   {id:'inspo',    ico:'⭐', name:'灵感收藏',            group:'核心日常'},
   {id:'weather',  ico:'☀️', name:'天气',                group:'核心日常'},
@@ -1917,7 +1951,7 @@ NAV.forEach((n,idx)=>{
     navEl.appendChild(g);
   }
   const d=document.createElement('div');
-  d.className='nav-item'+(n.id==='daily'?' active':'');
+  d.className='nav-item'+(n.id==='overview'?' active':'');
   d.dataset.id=n.id;
   d.innerHTML='<span class="ico">'+n.ico+'</span><span class="lbl">'+n.name+'</span>'+(n.badge?'<span class="badge">'+n.badge+'</span>':'');
   d.onclick=()=>switchSection(n.id);
@@ -1978,6 +2012,7 @@ function switchSection(id){
   const content=document.getElementById('content');
   let html;
   if(id==='data'){ html=renderDataMgr(); }
+  else if(id==='overview'){ html=renderOverviewHTML(); }
   else { html=SECTIONS[id]||'<div class="empty"><div class="big">🚧</div>板块建设中…</div>'; }
   /* 顶部随机激励语滚动条 */
   const quoteBar='<div class="quote-bar loading" id="quoteBar"><span class="qb-ico">✨</span><div class="qb-scroll"><div class="qb-text" id="quoteText">正在获取今日激励语…</div></div></div>';
@@ -1985,6 +2020,7 @@ function switchSection(id){
   loadRandomQuote();
   /* 后置渲染 */
   if(id==='daily') initDaily();
+  if(id==='overview') renderOverview();
   if(id==='car') renderOilPrice();
   if(id==='inspo') renderInspos();
   if(id==='ledger') renderLedger();
@@ -2991,6 +3027,214 @@ function _setCarImg(wrap,src,brand){
   img.src=src;
 }
 
+/* ========== 总览仪表盘 ========== */
+function renderOverviewHTML(){
+  return ''
+  +'<div class="page-head"><span class="bow">🏠</span><h1>总览</h1><span class="sub">· 一目了然 · 全局掌握</span></div>'
+  /* 今日概要 */
+  +'<div class="card tint-blue" id="ovSummary"></div>'
+  /* 数据分布饼图 */
+  +'<div class="card">'
+    +'<div class="card-h">📊 数据分布</div>'
+    +'<div id="ovDonut"></div>'
+  +'</div>'
+  /* 数据量柱状图 */
+  +'<div class="card">'
+    +'<div class="card-h">📈 各模块数据量</div>'
+    +'<div id="ovBars"></div>'
+  +'</div>'
+  /* 快捷导航 */
+  +'<div class="card">'
+    +'<div class="card-h">🧭 快捷导航</div>'
+    +'<div class="ov-nav-grid" id="ovNavGrid"></div>'
+  +'</div>';
+}
+
+/* 总览渲染 */
+var OV_COLORS=['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#ef4444','#84cc16','#f97316','#6366f1'];
+function renderOverview(){
+  var now=new Date();
+  var weekDay=['日','一','二','三','四','五','六'][now.getDay()];
+  var dateStr=now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日 星期'+weekDay;
+
+  /* 统计所有模块数据 */
+  var groups=[
+    {name:'核心日常',color:'#3b82f6',sections:[
+      {id:'daily',ico:'📅',name:'每日计划',count:countTodos()},
+      {id:'inspo',ico:'⭐',name:'灵感收藏',count:(DB.inspos||[]).length},
+      {id:'weather',ico:'☀️',name:'天气',count:(DB.weatherNotes||[]).length},
+    ]},
+    {name:'财务理财',color:'#f59e0b',sections:[
+      {id:'salary',ico:'💰',name:'工资储蓄',count:countSection('salary')},
+      {id:'ledger',ico:'📊',name:'小账本',count:(DB.ledger||[]).length},
+      {id:'repay',ico:'🏦',name:'还款提醒',count:countSection('repay')},
+      {id:'bills',ico:'🧾',name:'房租水电',count:countSection('bills')},
+      {id:'hustle',ico:'💼',name:'副业搞钱',count:countSection('hustle')},
+    ]},
+    {name:'学习成长',color:'#8b5cf6',sections:[
+      {id:'selfmedia',ico:'🎥',name:'自媒体学习',count:countSection('selfmedia')},
+      {id:'aitech',ico:'🤖',name:'AI技术学习',count:countSection('aitech')},
+      {id:'ai',ico:'🧠',name:'AI学习',count:countSection('ai')},
+    ]},
+    {name:'生活管理',color:'#10b981',sections:[
+      {id:'fit',ico:'💪',name:'力量训练',count:countSection('fit')},
+      {id:'car',ico:'🚗',name:'爱车管理',count:countSection('car')},
+      {id:'groom',ico:'🧔',name:'理容穿搭',count:countSection('groom')},
+      {id:'anime',ico:'🎬',name:'动漫追剧',count:countSection('anime')},
+      {id:'music',ico:'🎤',name:'KTV歌单',count:countSection('music')},
+    ]},
+  ];
+
+  var totalCount=0;
+  groups.forEach(function(g){ g.sections.forEach(function(s){ totalCount+=s.count; }); });
+
+  /* 1. 今日概要 */
+  var todosDone=countTodosDone();
+  var todosTotal=countTodos();
+  var pct=todosTotal>0?Math.round(todosDone/todosTotal*100):0;
+  var summaryEl=document.getElementById('ovSummary');
+  if(summaryEl){
+    summaryEl.innerHTML=''
+    +'<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">'
+      +'<div class="ov-progress-ring">'+makeProgressRing(pct,60)+'</div>'
+      +'<div style="flex:1;min-width:120px">'
+        +'<div style="font-size:13px;color:var(--ink-3);margin-bottom:2px">'+dateStr+'</div>'
+        +'<div style="font-size:18px;font-weight:800;color:var(--ink)">今日待办 '+todosDone+'/'+todosTotal+'</div>'
+        +'<div style="font-size:12px;color:var(--ink-3);margin-top:2px">累计数据 '+totalCount+' 条 · '+groups.length+' 个模块组</div>'
+      +'</div>'
+    +'</div>';
+  }
+
+  /* 2. 饼图 */
+  var donutEl=document.getElementById('ovDonut');
+  if(donutEl){
+    donutEl.innerHTML=makeDonut(groups,totalCount);
+  }
+
+  /* 3. 柱状图 */
+  var barsEl=document.getElementById('ovBars');
+  if(barsEl){
+    barsEl.innerHTML=makeBars(groups,totalCount);
+  }
+
+  /* 4. 快捷导航 */
+  var navEl2=document.getElementById('ovNavGrid');
+  if(navEl2){
+    var navHtml='';
+    groups.forEach(function(g){
+      g.sections.forEach(function(s){
+        navHtml+='<div class="ov-nav-btn" onclick="switchSection(\''+s.id+'\')">'
+          +'<div class="ov-nav-ico">'+s.ico+'</div>'
+          +'<div class="ov-nav-name">'+s.name+'</div>'
+          +'<div class="ov-nav-count">'+s.count+' 条</div>'
+        +'</div>';
+      });
+    });
+    navEl2.innerHTML=navHtml;
+  }
+}
+
+function countTodos(){
+  return (DB.todos||[]).length;
+}
+function countTodosDone(){
+  return (DB.todos||[]).filter(function(t){return t.done;}).length;
+}
+function countSection(sectionId){
+  var lists=SECTION_LISTS[sectionId]||[];
+  var total=0;
+  lists.forEach(function(k){
+    var cfg=LISTS[k];
+    if(cfg) total+=(DB[cfg.dbKey]||[]).length;
+  });
+  return total;
+}
+
+/* 生成进度环 SVG */
+function makeProgressRing(pct,size){
+  var r=(size/2)-6;
+  var circ=2*Math.PI*r;
+  var offset=circ-(pct/100)*circ;
+  return '<svg width="'+size+'" height="'+size+'">'
+    +'<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="#e8eef5" stroke-width="5"/>'
+    +'<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="#3b82f6" stroke-width="5" stroke-linecap="round" '
+      +'stroke-dasharray="'+circ+'" stroke-dashoffset="'+offset+'" transform="rotate(-90 '+(size/2)+' '+(size/2)+')"/>'
+    +'<foreignObject x="0" y="0" width="'+size+'" height="'+size+'">'
+      +'<div xmlns="http://www.w3.org/1999/xhtml" class="ov-progress-text">'
+        +'<div class="ov-pct">'+pct+'%</div>'
+        +'<div class="ov-pct-label">完成</div>'
+      +'</div>'
+    +'</foreignObject>'
+  +'</svg>';
+}
+
+/* 生成环形饼图 */
+function makeDonut(groups,totalCount){
+  if(totalCount===0){
+    return '<div style="text-align:center;padding:20px;color:var(--ink-3);font-size:13px">暂无数据，去各模块添加内容吧</div>';
+  }
+  var cx=80,cy=80,r=60,rInner=38;
+  var svg='<div class="ov-donut-wrap"><svg width="160" height="160">';
+  var legend='';
+  var startAngle=-90;
+  groups.forEach(function(g,idx){
+    var gCount=0;
+    g.sections.forEach(function(s){gCount+=s.count;});
+    if(gCount===0) return;
+    var pct=gCount/totalCount;
+    var angle=pct*360;
+    var endAngle=startAngle+angle;
+    if(idx===groups.length-1) endAngle=270; /* 最后一块闭合 */
+    var color=OV_COLORS[idx%OV_COLORS.length];
+    var path=arcPath(cx,cy,r,rInner,startAngle,endAngle);
+    svg+='<path d="'+path+'" fill="'+color+'" opacity="0.9" style="cursor:pointer" onclick="switchSection(\''+g.sections[0].id+'\')"><title>'+g.name+': '+gCount+'条 ('+Math.round(pct*100)+'%)</title></path>';
+    legend+='<div class="ov-legend-item" onclick="switchSection(\''+g.sections[0].id+'\')">'
+      +'<span class="ov-legend-dot" style="background:'+color+'"></span>'
+      +'<span>'+g.name+'</span>'
+      +'<span class="ov-legend-val">'+gCount+'条</span>'
+    +'</div>';
+    startAngle=endAngle;
+  });
+  svg+='<text x="'+cx+'" y="'+(cy-4)+'" text-anchor="middle" font-size="22" font-weight="800" fill="#1a202c">'+totalCount+'</text>';
+  svg+='<text x="'+cx+'" y="'+(cy+14)+'" text-anchor="middle" font-size="10" fill="#94a3b8">总数据</text>';
+  svg+='</svg><div class="ov-legend">'+legend+'</div></div>';
+  return svg;
+}
+
+/* 环形扇形路径 */
+function arcPath(cx,cy,rOuter,rInner,startDeg,endDeg){
+  var sRad=startDeg*Math.PI/180;
+  var eRad=endDeg*Math.PI/180;
+  var x1=cx+rOuter*Math.cos(sRad), y1=cy+rOuter*Math.sin(sRad);
+  var x2=cx+rOuter*Math.cos(eRad), y2=cy+rOuter*Math.sin(eRad);
+  var x3=cx+rInner*Math.cos(eRad), y3=cy+rInner*Math.sin(eRad);
+  var x4=cx+rInner*Math.cos(sRad), y4=cy+rInner*Math.sin(sRad);
+  var large=(endDeg-startDeg)>180?1:0;
+  return 'M'+x1+' '+y1+' A'+rOuter+' '+rOuter+' 0 '+large+' 1 '+x2+' '+y2
+    +' L'+x3+' '+y3+' A'+rInner+' '+rInner+' 0 '+large+' 0 '+x4+' '+y4+' Z';
+}
+
+/* 生成横向柱状图 */
+function makeBars(groups,totalCount){
+  if(totalCount===0) return '<div style="text-align:center;padding:16px;color:var(--ink-3);font-size:13px">暂无数据</div>';
+  var maxCount=1;
+  groups.forEach(function(g){
+    g.sections.forEach(function(s){ if(s.count>maxCount)maxCount=s.count; });
+  });
+  var html='';
+  groups.forEach(function(g,idx){
+    var color=OV_COLORS[idx%OV_COLORS.length];
+    g.sections.forEach(function(s){
+      var w=maxCount>0?Math.round(s.count/maxCount*100):0;
+      html+='<div class="ov-bar-row" onclick="switchSection(\''+s.id+'\')">';
+      html+='<div class="ov-bar-label">'+s.name+'</div>';
+      html+='<div class="ov-bar-track"><div class="ov-bar-fill" style="width:'+w+'%;background:'+color+'">'+(s.count>0?s.count:'')+'</div></div>';
+      html+='</div>';
+    });
+  });
+  return html;
+}
+
 function toggleInspoExpand(i){
   const el=document.getElementById('inspoCard_'+i);
   if(el) el.classList.toggle('expanded');
@@ -3595,7 +3839,7 @@ function initialRender(sectionId){
       }
     }
     /* 只渲染一次：云端数据已就绪（或超时），用最终数据渲染 */
-    initialRender('daily');
+    initialRender('overview');
     subscribeCloud();
     startPolling();
     /* 3秒后解除初始化保护期，让实时订阅正常工作 */
@@ -3606,7 +3850,7 @@ function initialRender(sectionId){
     }
   }else{
     /* 无云同步，直接渲染 */
-    initialRender('daily');
+    initialRender('overview');
   }
 })();
 
