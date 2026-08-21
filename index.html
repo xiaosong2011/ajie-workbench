@@ -1087,7 +1087,13 @@ fit:`
 car:`
   <div class="page-head"><span class="bow">🚗</span><h1>爱车管理</h1><span class="sub">· 爱车如爱己 · 养护不遗忘</span></div>
   <div class="card tint-amber" id="oilPriceCard" style="overflow:hidden">
-    <div class="card-h">⛽ 今日油价</div>
+    <div class="card-h" style="display:flex;align-items:center">
+      ⛽ 今日油价
+      <span style="margin-left:auto;display:flex;align-items:center;gap:6px">
+        <select id="oilCitySelect" onchange="changeOilCity(this.value)" style="font-size:12px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink-2);cursor:pointer"></select>
+        <button onclick="renderOilPrice()" style="border:none;background:none;cursor:pointer;font-size:16px;padding:4px" title="刷新">🔄</button>
+      </span>
+    </div>
     <div id="oilPriceContent" style="padding:4px 0">
       <div style="text-align:center;padding:12px 0;color:var(--ink-3);font-size:13px">正在获取油价信息…</div>
     </div>
@@ -2668,36 +2674,157 @@ function renderGoalCar(){
   box.innerHTML=html;
 }
 
+/* 油价城市配置 */
+var OIL_CITIES=[
+  {name:'长沙(湖南)',slug:'hunan'},
+  {name:'北京',slug:'beijing'},
+  {name:'上海',slug:'shanghai'},
+  {name:'广州(广东)',slug:'guangdong'},
+  {name:'深圳',slug:'shenzhen'},
+  {name:'武汉(湖北)',slug:'hubei'},
+  {name:'成都(四川)',slug:'sichuan'},
+  {name:'杭州(浙江)',slug:'zhejiang'},
+  {name:'南京(江苏)',slug:'jiangsu'},
+  {name:'郑州(河南)',slug:'henan'},
+  {name:'济南(山东)',slug:'shandong'},
+  {name:'石家庄(河北)',slug:'hebei'},
+  {name:'福州(福建)',slug:'fujian'},
+  {name:'南昌(江西)',slug:'jiangxi'},
+  {name:'南宁(广西)',slug:'guangxi'},
+  {name:'昆明(云南)',slug:'yunnan'},
+  {name:'贵阳(贵州)',slug:'guizhou'},
+  {name:'合肥(安徽)',slug:'anhui'},
+  {name:'太原(山西)',slug:'shanxi'},
+  {name:'西安(陕西)',slug:'shanxi3'},
+  {name:'哈尔滨(黑龙江)',slug:'heilongjiang'},
+  {name:'长春(吉林)',slug:'jilin'},
+  {name:'沈阳(辽宁)',slug:'liaoning'},
+  {name:'海口(海南)',slug:'hainan'},
+  {name:'兰州(甘肃)',slug:'gansu'},
+  {name:'西宁(青海)',slug:'qinghai'},
+  {name:'乌鲁木齐(新疆)',slug:'xinjiang'},
+  {name:'拉萨(西藏)',slug:'xizang'},
+  {name:'银川(宁夏)',slug:'ningxia'},
+  {name:'呼和浩特(内蒙古)',slug:'neimenggu'},
+  {name:'重庆',slug:'chongqing'},
+  {name:'天津',slug:'tianjin'},
+];
+var _oilCitySlug='hunan'; /* 默认长沙(湖南) */
+var _oilRefreshTimer=null;
+
+/* 切换油价城市 */
+function changeOilCity(slug){
+  _oilCitySlug=slug;
+  localStorage.setItem('oilCity',slug);
+  renderOilPrice();
+}
+
 /* 渲染今日油价 */
 function renderOilPrice(){
   var box=document.getElementById('oilPriceContent');
   if(!box) return;
-  /* 尝试从本地代理获取油价 */
-  fetch('http://localhost:8080/api/oilprice').then(function(r){return r.json();}).then(function(data){
-    if(data&&data.success){
-      var prices=data.prices||[];
-      var updated=data.updated||'';
-      var html='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">';
-      prices.forEach(function(p){
-        var trend=p.trend==='up'?'📈':p.trend==='down'?'📉':'➖';
-        var trendColor=p.trend==='up'?'#e74c3c':p.trend==='down'?'#52c41a':'var(--ink-3)';
-        html+='<div style="flex:1;min-width:100px;background:#fff;border-radius:10px;padding:10px 12px;text-align:center;border:1px solid var(--line)">'+
-          '<div style="font-size:12px;color:var(--ink-3)">'+escapeHtml(p.name)+'</div>'+
-          '<div style="font-size:20px;font-weight:800;color:var(--ink);margin:2px 0">'+escapeHtml(p.price)+'</div>'+
-          '<div style="font-size:11px;color:'+trendColor+'">'+trend+' '+escapeHtml(p.change||'')+'</div>'+
-          '</div>';
-      });
-      html+='</div>';
-      if(updated){
-        html+='<div style="text-align:right;font-size:11px;color:var(--ink-3);margin-top:6px">更新时间：'+escapeHtml(updated)+'</div>';
-      }
-      box.innerHTML=html;
-    }else{
-      renderOilPriceFallback(box,data&&data.error);
+
+  /* 初始化城市选择器 */
+  var sel=document.getElementById('oilCitySelect');
+  if(sel&&!sel.options.length){
+    OIL_CITIES.forEach(function(c){
+      var opt=document.createElement('option');
+      opt.value=c.slug; opt.textContent=c.name;
+      sel.appendChild(opt);
+    });
+  }
+  /* 从localStorage恢复城市选择 */
+  var savedCity=localStorage.getItem('oilCity');
+  if(savedCity){ _oilCitySlug=savedCity; }
+  if(sel) sel.value=_oilCitySlug;
+
+  /* 找到城市名称 */
+  var cityInfo=OIL_CITIES.find(function(c){return c.slug===_oilCitySlug;});
+  var cityName=cityInfo?cityInfo.name:'湖南';
+
+  box.innerHTML='<div style="text-align:center;padding:12px 0;color:var(--ink-3);font-size:13px">正在获取'+escapeHtml(cityName)+'油价…</div>';
+
+  /* 通过公共CORS代理获取油价页面 */
+  var targetUrl='https://www.qiyoujiage.com/'+_oilCitySlug+'.shtml';
+  var corsProxies=[
+    'https://api.allorigins.win/raw?url='+encodeURIComponent(targetUrl),
+    'https://corsproxy.io/?'+encodeURIComponent(targetUrl),
+  ];
+
+  function tryProxy(idx){
+    if(idx>=corsProxies.length){
+      renderOilPriceFallback(box,'网络代理不可用，请稍后重试');
+      return;
     }
-  }).catch(function(){
-    renderOilPriceFallback(box);
+    fetch(corsProxies[idx])
+      .then(function(r){return r.text();})
+      .then(function(html){
+        var parsed=parseOilPriceHTML(html);
+        if(parsed&&parsed.length>0){
+          renderOilPriceData(box,parsed,cityName,html);
+        }else{
+          tryProxy(idx+1);
+        }
+      })
+      .catch(function(){ tryProxy(idx+1); });
+  }
+  tryProxy(0);
+
+  /* 设置定时自动刷新（每5分钟） */
+  if(_oilRefreshTimer) clearTimeout(_oilRefreshTimer);
+  _oilRefreshTimer=setTimeout(function(){ renderOilPrice(); },5*60*1000);
+}
+
+/* 解析油价HTML */
+function parseOilPriceHTML(html){
+  var prices=[];
+  var dtPattern=/<dt>[^<]*?(\d{2})#?(汽油|柴油)[^<]*<\/dt>/gi;
+  var ddPattern=/<dd[^>]*>([\d.]+)/gi;
+  var dtMatches=[];
+  var m;
+  while((m=dtPattern.exec(html))!==null){
+    var num=m[1];
+    var type=m[2];
+    var name=(type==='柴油')?'0号柴油':num+'号汽油';
+    dtMatches.push(name);
+  }
+  var ddMatches=[];
+  while((m=ddPattern.exec(html))!==null){
+    ddMatches.push(m[1]);
+  }
+  for(var i=0;i<dtMatches.length&&i<ddMatches.length;i++){
+    prices.push({name:dtMatches[i],price:ddMatches[i]});
+  }
+  return prices;
+}
+
+/* 渲染油价数据 */
+function renderOilPriceData(box,prices,cityName,html){
+  var html2='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">';
+  prices.forEach(function(p){
+    var priceNum=parseFloat(p.price)||0;
+    html2+='<div style="flex:1;min-width:100px;background:#fff;border-radius:10px;padding:10px 12px;text-align:center;border:1px solid var(--line)">'+
+      '<div style="font-size:12px;color:var(--ink-3)">'+escapeHtml(p.name)+'</div>'+
+      '<div style="font-size:22px;font-weight:800;color:var(--accent-warm);margin:2px 0">'+escapeHtml(p.price)+'</div>'+
+      '<div style="font-size:11px;color:var(--ink-3)">元/升</div>'+
+      '</div>';
   });
+  html2+='</div>';
+  /* 提取更新日期 */
+  var dateMatch=html.match(/(\d{4}[-年]\d{1,2}[-月]\d{1,2})/);
+  var dateStr=dateMatch?dateMatch[1]:'';
+  /* 提取下次调价信息 */
+  var nextMatch=html.match(/下次油价[^，。]*调整/);
+  var nextStr=nextMatch?nextMatch[0]:'';
+  html2+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3);margin-top:6px">'+
+    '<span>📍 '+escapeHtml(cityName)+'</span>'+
+    (dateStr?'<span>'+escapeHtml(dateStr)+'</span>':'')+
+    '</div>';
+  if(nextStr){
+    html2+='<div style="font-size:11px;color:var(--accent);margin-top:2px">'+escapeHtml(nextStr)+'</div>';
+  }
+  html2+='<div style="text-align:right;font-size:11px;color:var(--ink-3);margin-top:2px">⏱ 每5分钟自动刷新</div>';
+  box.innerHTML=html2;
 }
 
 /* 油价获取失败时的静态展示 */
