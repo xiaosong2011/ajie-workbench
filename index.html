@@ -569,6 +569,13 @@
     from{opacity:0;transform:translateY(16px) scale(.97)}
     to{opacity:1;transform:translateY(0) scale(1)}
   }
+  /* 跑车弹跳动画 */
+  @keyframes carBounce{
+    0%,100%{transform:translateY(0) rotate(0)}
+    25%{transform:translateY(-4px) rotate(-2deg)}
+    50%{transform:translateY(0) rotate(0)}
+    75%{transform:translateY(-2px) rotate(1deg)}
+  }
   /* 卡片悬浮微交互 */
   @media(hover:hover){
     .card:hover{
@@ -994,6 +1001,9 @@ const SECTIONS={
 
 daily:`
   <div class="page-head"><span class="bow">⚡</span><h1>每日计划</h1><span class="sub">· 自律即自由 · 每天进步一点点</span></div>
+  <div class="card tint-amber" id="goalCarCard" style="text-align:center;padding:20px 16px;overflow:hidden;position:relative">
+    <div id="goalCarContent"></div>
+  </div>
   <div class="card tint-amber">
     <div class="card-h">💡 今日箴言</div>
     <div class="txt" style="font-size:15px;font-weight:700;color:var(--ink)">「你的自律，终将自由。」</div>
@@ -2223,6 +2233,8 @@ function openListModal(listKey,index){
     else { DB[config.dbKey].push(newItem); }
     saveData();
     renderList(listKey);
+    /* 刷新每日计划的目标跑车卡片 */
+    if(config.dbKey==='salaryGoal') renderGoalCar();
     return true;
   });
 }
@@ -2550,7 +2562,43 @@ function calNav(dir){
   if(calMonth>11){calMonth=0;calYear++;}
   renderCal();
 }
-function initDaily(){ renderTodo(); renderCal(); }
+function initDaily(){ renderTodo(); renderCal(); renderGoalCar(); }
+
+/* 渲染目标跑车卡片 */
+function renderGoalCar(){
+  var box=document.getElementById('goalCarContent');
+  if(!box) return;
+  /* 取第一个进行中的储蓄目标 */
+  var goals=DB.salaryGoal||[];
+  var goal=goals.find(function(g){return g.status==='进行中';})||goals[0];
+  if(!goal){
+    box.innerHTML='<div style="font-size:36px">🏁</div>'+
+      '<div style="font-size:13px;color:var(--ink-3);margin-top:8px">还没有储蓄目标，去「工资储蓄」添加一个吧</div>';
+    return;
+  }
+  var target=parseFloat(goal.target)||0;
+  var current=parseFloat(goal.current)||0;
+  var diff=target-current;
+  var percent=target>0?Math.min(100,Math.round(current/target*100)):0;
+  var carEmoji=percent>=100?'🏆':percent>=75?'🏎️':'🚗';
+
+  var html='';
+  html+='<div style="font-size:42px;line-height:1;animation:carBounce 2s ease-in-out infinite">'+carEmoji+'</div>';
+  html+='<div style="margin-top:6px;font-size:14px;font-weight:700;color:var(--ink)">'+escapeHtml(goal.title||'目标')+'</div>';
+  if(diff>0){
+    html+='<div style="margin-top:4px;font-size:18px;font-weight:800;color:var(--accent-warm)">离目标还差 ¥'+diff.toLocaleString()+'</div>';
+    html+='<div style="margin-top:2px;font-size:12px;color:var(--ink-3)">已存 ¥'+current.toLocaleString()+' / 目标 ¥'+target.toLocaleString()+'</div>';
+  }else{
+    html+='<div style="margin-top:4px;font-size:18px;font-weight:800;color:var(--accent-2)">🎉 目标已达成！</div>';
+    html+='<div style="margin-top:2px;font-size:12px;color:var(--ink-3)">累计 ¥'+current.toLocaleString()+'</div>';
+  }
+  /* 进度条跑道 */
+  html+='<div style="margin-top:10px;position:relative;height:8px;background:#f0e6d0;border-radius:4px;overflow:hidden">';
+  html+='<div style="position:absolute;left:0;top:0;height:100%;width:'+percent+'%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:4px;transition:width .6s ease"></div>';
+  html+='</div>';
+  html+='<div style="margin-top:4px;font-size:11px;color:var(--ink-3)">完成度 '+percent+'%</div>';
+  box.innerHTML=html;
+}
 
 /* ========== 灵感收藏 CRUD ========== */
 function toggleInspoExpand(i){
