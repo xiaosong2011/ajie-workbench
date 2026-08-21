@@ -303,6 +303,12 @@
   .gitem .gcopy{margin-top:8px}
   .gitem .copy-btn{padding:5px 12px;font-size:11.5px;border-radius:16px;background:linear-gradient(135deg,#eef5ff,#e8faf2);color:var(--accent);border:1px solid #d6e6f7}
   .gitem .copy-btn:active{transform:scale(.94)}
+  /* 车辆图片 */
+  .car-img-wrap{width:100%;height:140px;border-radius:10px;overflow:hidden;margin-bottom:8px;background:linear-gradient(135deg,#f0f4f8,#e8eef5);position:relative;display:flex;align-items:center;justify-content:center}
+  .car-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+  .car-img-wrap .car-img-loading{font-size:28px;animation:pulse 1.5s ease-in-out infinite}
+  .car-img-wrap .car-img-fallback{font-size:48px;opacity:.5}
+  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
   /* 标签筛选栏 */
   .tag-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
   .tf-btn{padding:5px 12px;font-size:12px;font-weight:600;border-radius:16px;border:1px solid var(--line);background:#fff;color:var(--ink-2);cursor:pointer;transition:all .15s}
@@ -2086,6 +2092,12 @@ function renderListItem(listKey,item,i){
   }
   const cc=config.clickCopy?' copyable" onclick="copyText(this)" title="点击复制':'';
   html+='<div class="gbody">';
+  /* 车辆信息添加品牌图片 */
+  if(listKey==='carInfo'&&titleParts.length){
+    var carTitle=titleParts.join(' ');
+    html+='<div class="car-img-wrap" id="carImgWrap_'+i+'"><div class="car-img-loading">🚗</div></div>';
+    setTimeout(function(){loadCarImage(carTitle,'carImgWrap_'+i);},50);
+  }
   if(titleParts.length) html+='<div class="gt'+(checkboxChecked?' done-t':'')+cc+'">'+escapeHtml(titleParts.join(' · '))+'</div>';
   if(metaParts.length) html+='<div class="gmeta">'+escapeHtml(metaParts.join(' · '))+'</div>';
   if(descParts.length) html+='<div class="gdesc'+cc+'">'+escapeHtml(descParts.join(' '))+'</div>';
@@ -2819,6 +2831,160 @@ function renderOilPriceFallback(box,errMsg){
   }
   box.innerHTML=html;
 }
+
+/* ========== 车辆品牌识别与图片加载 ========== */
+var CAR_BRANDS=[
+  {keys:['宝马','bmw'],wiki:'BMW',cn:'zh'},
+  {keys:['奔驰','梅赛德斯','mercedes'],wiki:'Mercedes-Benz',cn:'zh'},
+  {keys:['奥迪','audi'],wiki:'Audi',cn:'zh'},
+  {keys:['大众','volkswagen'],wiki:'Volkswagen',cn:'zh'},
+  {keys:['特斯拉','tesla'],wiki:'Tesla,_Inc.',cn:'en'},
+  {keys:['小米','xiaomi'],wiki:'Xiaomi_SU7',cn:'zh'},
+  {keys:['比亚迪','byd'],wiki:'BYD_Auto',cn:'zh'},
+  {keys:['蔚来','nio'],wiki:'NIO_(car)',cn:'zh'},
+  {keys:['理想','li auto','liauto'],wiki:'Li_Auto',cn:'zh'},
+  {keys:['小鹏','xpeng'],wiki:'XPeng',cn:'zh'},
+  {keys:['丰田','toyota'],wiki:'Toyota',cn:'zh'},
+  {keys:['本田','honda'],wiki:'Honda',cn:'zh'},
+  {keys:['日产','nissan'],wiki:'Nissan',cn:'zh'},
+  {keys:['保时捷','porsche'],wiki:'Porsche',cn:'zh'},
+  {keys:['沃尔沃','volvo'],wiki:'Volvo_Cars',cn:'zh'},
+  {keys:['凯迪拉克','cadillac'],wiki:'Cadillac',cn:'zh'},
+  {keys:['雷克萨斯','lexus'],wiki:'Lexus',cn:'zh'},
+  {keys:['吉利','geely'],wiki:'Geely',cn:'zh'},
+  {keys:['长安','changan'],wiki:'Changan_Auto',cn:'zh'},
+  {keys:['哈弗','haval','长城','great wall'],wiki:'Haval',cn:'zh'},
+  {keys:['五菱','wuling'],wiki:'Wuling_Motors',cn:'zh'},
+  {keys:['红旗','hongqi'],wiki:'Hongqi',cn:'zh'},
+  {keys:['马自达','mazda'],wiki:'Mazda',cn:'zh'},
+  {keys:['斯巴鲁','subaru'],wiki:'Subaru',cn:'zh'},
+  {keys:['路虎','land rover','landrover'],wiki:'Land_Rover',cn:'zh'},
+  {keys:['捷豹','jaguar'],wiki:'Jaguar_Cars',cn:'zh'},
+  {keys:['林肯','lincoln'],wiki:'Lincoln_Motor_Company',cn:'zh'},
+  {keys:['别克','buick'],wiki:'Buick',cn:'zh'},
+  {keys:['雪佛兰','chevrolet'],wiki:'Chevrolet',cn:'zh'},
+  {keys:['福特','ford'],wiki:'Ford',cn:'zh'},
+  {keys:['起亚','kia'],wiki:'Kia',cn:'zh'},
+  {keys:['现代','hyundai'],wiki:'Hyundai_Motor_Company',cn:'zh'},
+  {keys:['问界','aito'],wiki:'AITO',cn:'zh'},
+  {keys:['极氪','zeekr'],wiki:'Zeekr',cn:'zh'},
+  {keys:['埃安','aion'],wiki:'GAC_Aion',cn:'zh'},
+  {keys:['领克','lynk'],wiki:'Lynk_%26_Co',cn:'zh'},
+  {keys:['宝骏','baojun'],wiki:'Baojun',cn:'zh'},
+  {keys:['智界','luxeed'],wiki:'Luxeed',cn:'zh'},
+  {keys:['坦克','tank'],wiki:'Tank_(brand)',cn:'zh'},
+  {keys:['魏牌','wey'],wiki:'WEY',cn:'zh'},
+  {keys:['阿维塔','avatr'],wiki:'Avatr',cn:'zh'},
+  {keys:['腾势','denza'],wiki:'Denza',cn:'zh'},
+  {keys:['智己','im motor','immotor'],wiki:'IM_Motors',cn:'zh'},
+  {keys:['飞凡','rising'],wiki:'Rising_Auto',cn:'zh'},
+  {keys:['仰望','yangwang'],wiki:'Yangwang',cn:'zh'},
+];
+
+/* 从车型名称识别品牌 */
+function getCarBrand(title){
+  if(!title) return null;
+  var text=String(title).toLowerCase();
+  for(var i=0;i<CAR_BRANDS.length;i++){
+    var b=CAR_BRANDS[i];
+    for(var j=0;j<b.keys.length;j++){
+      if(text.indexOf(b.keys[j].toLowerCase())>=0){
+        return b;
+      }
+    }
+  }
+  return null;
+}
+
+/* 加载车辆图片 */
+var _carImgCache={};
+function loadCarImage(title,wrapId){
+  var wrap=document.getElementById(wrapId);
+  if(!wrap) return;
+  var brand=getCarBrand(title);
+  if(!brand){
+    wrap.innerHTML='<div class="car-img-fallback">🚗</div>';
+    return;
+  }
+  /* 检查内存缓存 */
+  if(_carImgCache[brand.wiki]){
+    _setCarImg(wrap,_carImgCache[brand.wiki],brand);
+    return;
+  }
+  /* 检查 localStorage 缓存 */
+  var cacheKey='carImg_'+brand.wiki;
+  try{
+    var cached=localStorage.getItem(cacheKey);
+    if(cached){
+      _carImgCache[brand.wiki]=cached;
+      _setCarImg(wrap,cached,brand);
+      return;
+    }
+  }catch(e){}
+  /* 显示加载中 */
+  wrap.innerHTML='<div class="car-img-loading">🚗</div>';
+  /* 从维基百科 REST API 获取图片 */
+  var apiUrl='https://en.wikipedia.org/api/rest_v1/page/summary/'+brand.wiki;
+  fetch(apiUrl,{headers:{'Accept':'application/json'}})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var imgSrc='';
+      if(data.originalimage&&data.originalimage.source){
+        imgSrc=data.originalimage.source;
+      }else if(data.thumbnail&&data.thumbnail.source){
+        imgSrc=data.thumbnail.source;
+      }
+      if(imgSrc){
+        _carImgCache[brand.wiki]=imgSrc;
+        try{localStorage.setItem(cacheKey,imgSrc);}catch(e){}
+        _setCarImg(wrap,imgSrc,brand);
+      }else{
+        wrap.innerHTML='<div class="car-img-fallback">🚗</div>';
+      }
+    })
+    .catch(function(){
+      /* 尝试中文维基百科 */
+      var cnApiUrl='https://zh.wikipedia.org/api/rest_v1/page/summary/'+brand.wiki;
+      fetch(cnApiUrl,{headers:{'Accept':'application/json'}})
+        .then(function(r){return r.json();})
+        .then(function(data){
+          var imgSrc='';
+          if(data.originalimage&&data.originalimage.source){
+            imgSrc=data.originalimage.source;
+          }else if(data.thumbnail&&data.thumbnail.source){
+            imgSrc=data.thumbnail.source;
+          }
+          if(imgSrc){
+            _carImgCache[brand.wiki]=imgSrc;
+            try{localStorage.setItem(cacheKey,imgSrc);}catch(e){}
+            _setCarImg(wrap,imgSrc,brand);
+          }else{
+            wrap.innerHTML='<div class="car-img-fallback">🚗</div>';
+          }
+        })
+        .catch(function(){
+          wrap.innerHTML='<div class="car-img-fallback">🚗</div>';
+        });
+    });
+}
+
+function _setCarImg(wrap,src,brand){
+  var img=new Image();
+  img.loading='lazy';
+  img.alt=brand.wiki;
+  img.style.width='100%';
+  img.style.height='100%';
+  img.style.objectFit='cover';
+  img.onerror=function(){
+    wrap.innerHTML='<div class="car-img-fallback">🚗</div>';
+  };
+  img.onload=function(){
+    wrap.innerHTML='';
+    wrap.appendChild(img);
+  };
+  img.src=src;
+}
+
 function toggleInspoExpand(i){
   const el=document.getElementById('inspoCard_'+i);
   if(el) el.classList.toggle('expanded');
