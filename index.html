@@ -2695,7 +2695,7 @@ var OIL_CITIES=[
   {name:'贵阳(贵州)',slug:'guizhou'},
   {name:'合肥(安徽)',slug:'anhui'},
   {name:'太原(山西)',slug:'shanxi'},
-  {name:'西安(陕西)',slug:'shanxi3'},
+  {name:'西安(陕西)',slug:'shanxi-3'},
   {name:'哈尔滨(黑龙江)',slug:'heilongjiang'},
   {name:'长春(吉林)',slug:'jilin'},
   {name:'沈阳(辽宁)',slug:'liaoning'},
@@ -2744,65 +2744,32 @@ function renderOilPrice(){
 
   box.innerHTML='<div style="text-align:center;padding:12px 0;color:var(--ink-3);font-size:13px">正在获取'+escapeHtml(cityName)+'油价…</div>';
 
-  /* 通过公共CORS代理获取油价页面 */
-  var targetUrl='https://www.qiyoujiage.com/'+_oilCitySlug+'.shtml';
-  var corsProxies=[
-    'https://api.allorigins.win/raw?url='+encodeURIComponent(targetUrl),
-    'https://corsproxy.io/?'+encodeURIComponent(targetUrl),
-  ];
-
-  function tryProxy(idx){
-    if(idx>=corsProxies.length){
-      renderOilPriceFallback(box,'网络代理不可用，请稍后重试');
-      return;
-    }
-    fetch(corsProxies[idx])
-      .then(function(r){return r.text();})
-      .then(function(html){
-        var parsed=parseOilPriceHTML(html);
-        if(parsed&&parsed.length>0){
-          renderOilPriceData(box,parsed,cityName,html);
-        }else{
-          tryProxy(idx+1);
-        }
-      })
-      .catch(function(){ tryProxy(idx+1); });
-  }
-  tryProxy(0);
+  /* 读取本地 oil-data.json（由 GitHub Actions 每小时更新） */
+  var jsonUrl='oil-data.json?t='+Date.now();
+  fetch(jsonUrl)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var cityData=data.cities&&data.cities[_oilCitySlug];
+      if(cityData&&cityData.prices&&cityData.prices.length>0){
+        renderOilPriceData(box,cityData,cityName,data.updatedAt);
+      }else{
+        renderOilPriceFallback(box,'暂无'+cityName+'油价数据');
+      }
+    })
+    .catch(function(err){
+      renderOilPriceFallback(box,'油价数据加载失败，请稍后重试');
+    });
 
   /* 设置定时自动刷新（每5分钟） */
   if(_oilRefreshTimer) clearTimeout(_oilRefreshTimer);
   _oilRefreshTimer=setTimeout(function(){ renderOilPrice(); },5*60*1000);
 }
 
-/* 解析油价HTML */
-function parseOilPriceHTML(html){
-  var prices=[];
-  var dtPattern=/<dt>[^<]*?(\d{2})#?(汽油|柴油)[^<]*<\/dt>/gi;
-  var ddPattern=/<dd[^>]*>([\d.]+)/gi;
-  var dtMatches=[];
-  var m;
-  while((m=dtPattern.exec(html))!==null){
-    var num=m[1];
-    var type=m[2];
-    var name=(type==='柴油')?'0号柴油':num+'号汽油';
-    dtMatches.push(name);
-  }
-  var ddMatches=[];
-  while((m=ddPattern.exec(html))!==null){
-    ddMatches.push(m[1]);
-  }
-  for(var i=0;i<dtMatches.length&&i<ddMatches.length;i++){
-    prices.push({name:dtMatches[i],price:ddMatches[i]});
-  }
-  return prices;
-}
-
 /* 渲染油价数据 */
-function renderOilPriceData(box,prices,cityName,html){
+function renderOilPriceData(box,cityData,cityName,updatedAt){
+  var prices=cityData.prices;
   var html2='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">';
   prices.forEach(function(p){
-    var priceNum=parseFloat(p.price)||0;
     html2+='<div style="flex:1;min-width:100px;background:#fff;border-radius:10px;padding:10px 12px;text-align:center;border:1px solid var(--line)">'+
       '<div style="font-size:12px;color:var(--ink-3)">'+escapeHtml(p.name)+'</div>'+
       '<div style="font-size:22px;font-weight:800;color:var(--accent-warm);margin:2px 0">'+escapeHtml(p.price)+'</div>'+
@@ -2810,12 +2777,10 @@ function renderOilPriceData(box,prices,cityName,html){
       '</div>';
   });
   html2+='</div>';
-  /* 提取更新日期 */
-  var dateMatch=html.match(/(\d{4}[-年]\d{1,2}[-月]\d{1,2})/);
-  var dateStr=dateMatch?dateMatch[1]:'';
-  /* 提取下次调价信息 */
-  var nextMatch=html.match(/下次油价[^，。]*调整/);
-  var nextStr=nextMatch?nextMatch[0]:'';
+  /* 更新日期 */
+  var dateStr=cityData.date||'';
+  /* 下次调价信息 */
+  var nextStr=cityData.nextAdjust||'';
   html2+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3);margin-top:6px">'+
     '<span>📍 '+escapeHtml(cityName)+'</span>'+
     (dateStr?'<span>'+escapeHtml(dateStr)+'</span>':'')+
@@ -2823,7 +2788,11 @@ function renderOilPriceData(box,prices,cityName,html){
   if(nextStr){
     html2+='<div style="font-size:11px;color:var(--accent);margin-top:2px">'+escapeHtml(nextStr)+'</div>';
   }
-  html2+='<div style="text-align:right;font-size:11px;color:var(--ink-3);margin-top:2px">⏱ 每5分钟自动刷新</div>';
+  if(updatedAt){
+    html2+='<div style="text-align:right;font-size:11px;color:var(--ink-3);margin-top:2px">🔄 数据更新: '+escapeHtml(updatedAt)+' · 每5分钟自动刷新</div>';
+  }else{
+    html2+='<div style="text-align:right;font-size:11px;color:var(--ink-3);margin-top:2px">⏱ 每5分钟自动刷新</div>';
+  }
   box.innerHTML=html2;
 }
 
@@ -2831,10 +2800,10 @@ function renderOilPriceData(box,prices,cityName,html){
 function renderOilPriceFallback(box,errMsg){
   var html='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">';
   var defaults=[
-    {name:'92号汽油',price:'7.85'},
-    {name:'95号汽油',price:'8.42'},
-    {name:'98号汽油',price:'9.36'},
-    {name:'0号柴油',price:'7.51'}
+    {name:'92号汽油',price:'7.73'},
+    {name:'95号汽油',price:'8.22'},
+    {name:'98号汽油',price:'9.42'},
+    {name:'0号柴油',price:'7.52'}
   ];
   defaults.forEach(function(p){
     html+='<div style="flex:1;min-width:100px;background:#fff;border-radius:10px;padding:10px 12px;text-align:center;border:1px solid var(--line)">'+
@@ -2844,7 +2813,7 @@ function renderOilPriceFallback(box,errMsg){
       '</div>';
   });
   html+='</div>';
-  html+='<div style="text-align:right;font-size:11px;color:var(--ink-3);margin-top:6px">参考价格，请以实际加油站为准</div>';
+  html+='<div style="text-align:right;font-size:11px;color:var(--ink-3);margin-top:6px">长沙参考价格，请以实际加油站为准</div>';
   if(errMsg){
     html+='<div style="font-size:11px;color:#e74c3c;margin-top:2px">⚠️ '+escapeHtml(errMsg)+'</div>';
   }
