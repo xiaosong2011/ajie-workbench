@@ -1383,6 +1383,8 @@ aitech:`
       <button class="tf-btn" onclick="filterListByTag('aitechPrompts','视频')">🎬 视频</button>
       <button class="tf-btn" onclick="filterListByTag('aitechPrompts','人物')">🧑 人物</button>
       <button class="tf-btn" onclick="filterListByTag('aitechPrompts','场景')">🌅 场景</button>
+      <button class="tf-btn" onclick="filterListByTag('aitechPrompts','艺术')">🎨 艺术</button>
+      <button class="tf-btn" onclick="filterListByTag('aitechPrompts','公式')">📐 公式</button>
     </div>
     <div id="lc_aitechPrompts"></div>
   </div>
@@ -1608,6 +1610,52 @@ const INITIAL={
     /* --- 大佬精选·场景 --- */
     {title:'水下发光城市',desc:'Ancient underwater civilization, bioluminescent coral buildings with organic architecture, manta rays gliding between towers, shafts of surface light penetrating the deep, schools of fish as traffic, Atlantis reimagined, concept art --ar 16:9 --v 8.1 --s 400',tag:'场景'},
     {title:'太空站观测星云',desc:'Space station interior, observation deck looking out at a nebula, astronaut floating in zero gravity, warm interior lighting contrasting with cold space, hard sci-fi, cinematic',tag:'场景'},
+    /* --- 网络精选·图片摄影 --- */
+    {title:'金色时刻人像',desc:'Portrait of a young woman with flowing auburn hair, golden hour lighting, shallow depth of field, Canon 85mm f/1.4 lens, professional photography, 8K resolution --ar 2:3 --style raw',tag:'图片'},
+    {title:'商务证件照',desc:'Professional headshot of a man in his 40s, clean white studio background, soft box lighting, confident expression, business casual attire, no harsh shadows, sharp focus on eyes, commercial photography style --ar 1:1 --v 6.1 --q 2',tag:'图片'},
+    {title:'高端护肤品产品图',desc:'Luxury skincare product bottle on white Carrara marble surface, minimal styling, soft diffused studio lighting with subtle shadow, water droplets on glass, e-commerce product photography, ultra-sharp, no background distractions --ar 1:1 --v 6.1 --q 2',tag:'图片'},
+    {title:'苏格兰高地风光',desc:'Scottish Highlands at golden hour, mist rising from the valleys between rolling hills, single ancient oak tree silhouetted on a ridge, long exposure photography effect, cinematic warm color grade, dramatic cloud formation --ar 16:9 --v 6.1 --q 2 --s 700',tag:'图片'},
+    {title:'航拍蓝湖珊瑚',desc:'Aerial view of a turquoise lagoon with white sand islands, clear water revealing coral patterns below, small sailboat in frame, golden hour light, drone photography style, National Geographic quality --ar 16:9 --v 6.1 --q 2',tag:'图片'},
+    {title:'FLUX写实商务女性',desc:'Portrait of a 35-year-old South Asian woman in a modern corporate office, wearing a navy blazer over a cream silk blouse, natural window light from camera left creating soft Rembrandt lighting, shallow depth of field f/1.8, Canon EOS R5 with 85mm lens, subtle smile, sharp eyes in focus, slightly desaturated color grade, editorial business magazine style',tag:'图片'},
+    {title:'FLUX雨林微距风光',desc:'Dense Pacific Northwest old-growth forest floor, massive moss-covered Douglas fir trunks, soft diffused fog filtering through canopy, ferns and sorrel covering the ground, single shaft of golden light penetrating the mist in background, shot at 24mm wide angle, deep depth of field f/11, Nikon Z9 with extreme detail, primordial atmosphere, National Geographic quality',tag:'图片'},
+    {title:'FLUX奢华产品摄影',desc:'Premium skincare bottle on a polished white marble surface, soft gradient studio lighting with large overhead softbox, subtle reflection on marble, single green monstera leaf partially visible behind product, clean minimalist composition, product is center frame, crystal-clear focus on label, f/8 deep focus, Phase One IQ4 medium format quality, luxury beauty brand aesthetic',tag:'图片'},
+    {title:'SD写实人像通用模板',desc:'(masterpiece, best quality, 8k, ultra realistic, photorealistic:1.3), professional commercial photography, shot on Sony A7R IV, 50mm f/1.4 lens, soft studio lighting, depth of field, [替换为你的主体描述], neutral background',tag:'图片'},
+    {title:'SD电商产品渲染',desc:'(masterpiece, best quality, 8k, ultra realistic, 3D render, product photography, studio lighting, high detail), [替换为产品描述], white background, soft shadows, clean composition, product hero shot',tag:'图片'},
+    /* --- 网络精选·视频生成 --- */
+    {title:'Sora玻璃破碎物理',desc:'Glass tipped by elbow. Liquid breaches rim, impacts table, shatters from impact force, milk spreads with surface tension holding droplets on wood grain.',tag:'视频'},
+    {title:'Sora火星宇航员叙事',desc:'Shot 1 (0-5s): Wide establishing shot, eye level. A lone astronaut standing on Mars, red dust swirling around, dramatic lighting. Shot 2 (5-10s): Close-up, slight angle from behind. The astronaut turns slowly, looking at the horizon. Shot 3 (10-15s): Medium shot, straight on. The astronaut reaches out a hand toward a glowing rock formation. Physics Notes: Low gravity, dusty atmosphere.',tag:'视频'},
+    {title:'Runway耳机产品展示',desc:'A sleek white wireless earbuds case sits on a dark marble surface. The case slowly opens, revealing the earbuds inside. Soft studio lighting with subtle reflections on the marble. Camera orbits smoothly around the product at 45-degree angle. Product photography style, clean and minimalist. Premium, high-end feel.',tag:'视频'},
+    {title:'Runway雨窗老人阅读',desc:'A silver-haired elderly man sits by a rain-streaked window reading a book. Warm afternoon light filters through sheer curtains, casting soft shadows on the pages. Camera slowly pushes in, focusing on his weathered hands turning a page. Cinematic quality, shallow depth of field, warm color grading. Quiet, contemplative mood.',tag:'视频'},
+    {title:'Kling东京雨夜音乐视频',desc:'Cinematic 16:9, dreamy aesthetic. Beat 0-4s: Wide establishing shot, eye level. A young woman in a red leather jacket walks under an umbrella on a rain-soaked Tokyo street at night. Beat 4-8s: Medium close-up, slight angle from behind. She turns to look back, a neon sign flickering behind her. Beat 8-10s: Close-up. Raindrops on the umbrella, colorful reflections on wet asphalt. Audio: Ambient rain, distant traffic.',tag:'视频'},
+    {title:'Seedance电商包包展示',desc:'15秒竖屏视频，比例9:16，有字幕，高清质感。30岁都市女性模特，优雅展示一款红色名牌包包。多角度切换细节：侧面看车缝线、正面看Logo、打开看内衬。动作优雅自信，背景简约高级，字幕配合"简约百搭，通勤必备"。',tag:'视频'},
+    {title:'美食拉丝慢动作',desc:'Close-up of golden melted cheese being pulled apart on a freshly baked pizza. Steam rises gently. A hand slowly lifts a slice, cheese stretching in long strands. Macro lens, warm overhead lighting, food photography style. Slow motion. Appetizing, indulgent mood.',tag:'视频'},
+    {title:'Seedance 3D产品旋转',desc:'Product showcase video, 3D render style, rotating camera around a premium wireless speaker on a dark surface, studio lighting with reflections, clean and minimalist, high detail, 8K resolution.',tag:'视频'},
+    /* --- 网络精选·人物一致性 --- */
+    {title:'MJ --cref面部锁定',desc:'[你的场景描述] --cref [人物参考图URL] --cw 0\n\n说明：--cw 0 只锁定面部特征，不锁定服装和发型，适合换装换场景',tag:'人物'},
+    {title:'MJ --cref全身锁定',desc:'[你的场景描述] --cref [人物参考图URL] --cw 100\n\n说明：--cw 100 锁定面部+服装+发型，完全一致',tag:'人物'},
+    {title:'角色身份锚点模板',desc:'IDENTITY ANCHOR: A young woman with shoulder-length black hair, light olive skin, heart-shaped face, wearing a red leather jacket and blue jeans.\n\n用法：在每条提示词前固定此锚点，仅改变场景和动作',tag:'人物'},
+    {title:'角色特征防漂移模板',desc:'Hair: long wavy dark brown hair, light olive skin, athletic lean build, toned arms, black leather jacket, white tee.\nProhibited drift: no beard, no glasses, no hat, hair color stays dark brown, eye color stays hazel.',tag:'人物'},
+    {title:'SD img2img一致性',desc:'Generate in the same scene and outfit as the reference image. Use img2img reference at 0.3-0.5 denoising strength, keep the same face and clothing.',tag:'人物'},
+    {title:'角色一致性三步法',desc:'Step 1: Generate a clean, well-lit front-facing portrait of the character.\nStep 2: Use this as reference image.\nStep 3: Generate new poses/outfits using --cref [anchor_image_url] --cw 0 or Stable Diffusion img2img reference at low denoising strength.',tag:'人物'},
+    {title:'SD动漫角色通用',desc:'(masterpiece, best quality, 8k, ultra realistic, anime style:1.3), beautiful anime girl, school uniform, cherry blossoms falling, wind blowing long dark hair, soft pastel colors, Makoto Shinkai lighting, detailed eyes, blurred background',tag:'人物'},
+    {title:'SD 3D潮玩角色',desc:'(masterpiece, best quality, 8k, ultra realistic, 3D render, cartoon style:1.3), cute chibi character, round face, big eyes, wearing colorful clothes, standing on a pastel cloud, soft studio lighting, 3D render, Pixar style',tag:'人物'},
+    /* --- 网络精选·艺术风格 --- */
+    {title:'SD水彩画风',desc:'(masterpiece, best quality, 8k, ultra realistic, watercolor painting, artistic style:1.3), a sunlit countryside landscape with wheat field, soft brush strokes, vibrant colors, white paper background, artistic composition',tag:'艺术'},
+    {title:'梵高厚涂油画',desc:'a sunlit countryside landscape with wheat field, oil painting by Vincent van Gogh, impasto brushstrokes, rich textures, warm ochre and golden palette\nNegative: photo, realistic, digital art',tag:'艺术'},
+    {title:'植物学水彩插图',desc:'Botanical illustration of tropical flowers and leaves, detailed watercolor technique, scientific illustration style, crisp white paper background, precise botanical accuracy, hand-painted quality --ar 2:3 --v 6.1 --s 350',tag:'艺术'},
+    {title:'SD赛博朋克城市',desc:'(masterpiece, best quality, 8k, ultra realistic, cyberpunk cityscape, neon signs, rain-soaked streets, flying cars, towering skyscrapers, holographic advertisements, night, foggy atmosphere, cinematic lighting, reflections on wet pavement, cyan and magenta color scheme, blade runner aesthetic, dystopian future)',tag:'艺术'},
+    {title:'精灵树冠城市',desc:'Elven city built into the canopy of giant redwood trees, rope walkways, bioluminescent lanterns, twilight sky, fantasy concept art, epic scale --ar 16:9 --v 6.1 --q 2 --s 700',tag:'艺术'},
+    {title:'国风水墨禅意',desc:'水墨晕染，留白处理，孤舟泛于江面，远山云雾缭绕，宁静禅意，动态模糊，国风账号配图，禅意内容，传统文化海报，书法背景',tag:'艺术'},
+    {title:'岩彩福字海报',desc:'金箔岩彩，传统纹样，龙凤环绕"福"字，背景为敦煌壁画元素，奢华喜庆，高细节，4K分辨率',tag:'艺术'},
+    {title:'C4D粘土质感潮玩',desc:'C4D渲染，超萌的3D粘土质感，柔和的演播室灯光，纯色背景，高细节，4K分辨率，糖果配色，可爱，治愈',tag:'艺术'},
+    {title:'深海发光珊瑚城市',desc:'Ancient underwater civilization, bioluminescent coral buildings with organic architecture, manta rays gliding between towers, shafts of surface light penetrating the deep, schools of fish as traffic, Atlantis reimagined, concept art --ar 16:9 --v 8.1 --s 400',tag:'场景'},
+    {title:'岩石地下图书馆',desc:'Underground library carved into living rock, bioluminescent plants providing amber light, massive stone bookshelves reaching 30 feet, small figure in foreground for scale, detailed fantasy concept art, digital painting style --ar 16:9 --v 6.1 --q 2 --s 700',tag:'场景'},
+    {title:'悬崖动漫战士',desc:'Young warrior standing at the edge of a cliff overlooking a fantasy city at dusk, flowing cloak caught in the wind, determined expression, soft rim lighting, detailed anime illustration style, Makoto Shinkai color palette --ar 9:16 --niji 6 --s 650',tag:'人物'},
+    /* --- 提示词公式模板 --- */
+    {title:'Midjourney通用公式',desc:'主体 + 动作/姿态 + 环境 + 媒介/风格 + 光线 + 情绪 + 构图 + 参数\n\n示例：A young woman + reading a book + in a sunlit cafe + oil painting style + soft morning light + peaceful mood + medium shot --ar 4:5 --v 6.1',tag:'公式'},
+    {title:'Stable Diffusion通用公式',desc:'[风格/画质前缀] + [主体描述] + [场景元素] + [艺术风格] + [光影] + [技术参数]\n\n示例：(masterpiece, best quality, 8k:1.3) + a 25-year-old woman smiling + standing in a flower field + watercolor style + soft golden hour light + 50mm f/1.4',tag:'公式'},
+    {title:'即梦/小红书中文公式',desc:'主体 + 细节 + 动作 + 环境 + 风格 + 光影 + 画质 + 约束\n\n示例：一位年轻女性 + 长发飘飘白色连衣裙 + 奔跑 + 向日葵花田中 + 吉卜力水彩风 + 逆光金色光晕 + 4K超清 + 不得变形不得模糊',tag:'公式'},
+    {title:'AI视频通用公式',desc:'[主体] + [动作] + [镜头运动] + [风格/光线] + [情绪/氛围]\n\n示例：A woman in red coat + walks slowly + tracking shot from side + cinematic neon lighting + melancholic mood, 16:9',tag:'公式'},
   ],
   aitechComfy:[
     {title:'人物换脸工作流',meta:'B站教程',desc:'用IPAdapter + FaceID实现角色面部一致性'},
@@ -2136,7 +2184,7 @@ function renderListItem(listKey,item,i){
   }
   if(titleParts.length) html+='<div class="gt'+(checkboxChecked?' done-t':'')+cc+'">'+escapeHtml(titleParts.join(' · '))+'</div>';
   if(metaParts.length) html+='<div class="gmeta">'+escapeHtml(metaParts.join(' · '))+'</div>';
-  if(descParts.length) html+='<div class="gdesc'+cc+'">'+escapeHtml(descParts.join(' '))+'</div>';
+  if(descParts.length) html+='<div class="gdesc'+cc+'" style="white-space:pre-wrap">'+escapeHtml(descParts.join(' ')).replace(/\\n/g,'<br>')+'</div>';
   if(fieldParts.length) html+='<div class="gfields">'+fieldParts.join('')+'</div>';
   if(tagParts.length) html+='<div class="gtags">'+tagParts.join('')+'</div>';
   if(config.copyField){
