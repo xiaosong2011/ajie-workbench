@@ -821,6 +821,7 @@ const NAV=[
   {id:'aitech',   ico:'🤖', name:'AI技术学习',          group:'学习成长'},
   {id:'ai',       ico:'🧠', name:'AI学习',              group:'学习成长'},
   {id:'fit',      ico:'💪', name:'力量训练',            group:'生活管理'},
+  {id:'car',      ico:'🚗', name:'爱车管理',            group:'生活管理'},
   {id:'groom',    ico:'🧔', name:'理容穿搭',            group:'生活管理'},
   {id:'anime',    ico:'🎬', name:'动漫追剧',            group:'生活管理'},
   {id:'music',    ico:'🎤', name:'KTV歌单',             group:'生活管理'},
@@ -862,6 +863,29 @@ const LISTS={
   ]},
   weatherNotes:{title:'自定义备注',icon:'📝',dbKey:'weatherNotes',fields:[
     {key:'title',label:'备注',type:'input',placeholder:'如：下午有雷阵雨，带伞',as:'title'}
+  ]},
+  /* --- 爱车管理 --- */
+  carInfo:{title:'车辆信息',icon:'🚗',dbKey:'carInfo',fields:[
+    {key:'title',label:'车型',type:'input',placeholder:'如：宝马3系 2024款',as:'title'},
+    {key:'meta',label:'车牌号',type:'input',placeholder:'如：粤B·12345',as:'meta'},
+    {key:'desc',label:'备注',type:'input',placeholder:'如：白色 / 购于2024年6月',as:'desc'}
+  ]},
+  carMaintenance:{title:'保养维修',icon:'🔧',dbKey:'carMaintenance',fields:[
+    {key:'title',label:'项目',type:'input',placeholder:'如：小保养-换机油机滤',as:'title'},
+    {key:'date',label:'日期',type:'date',placeholder:'选择日期',as:'meta'},
+    {key:'amount',label:'费用',type:'input',placeholder:'如：800',as:'field'},
+    {key:'note',label:'里程/备注',type:'input',placeholder:'如：12000km',as:'desc'}
+  ]},
+  carFuel:{title:'加油记录',icon:'⛽',dbKey:'carFuel',fields:[
+    {key:'date',label:'日期',type:'date',placeholder:'选择日期',as:'title'},
+    {key:'amount',label:'金额',type:'input',placeholder:'如：350',as:'field'},
+    {key:'note',label:'里程/油量',type:'input',placeholder:'如：12800km / 42L',as:'desc'}
+  ]},
+  carDocs:{title:'保险年检',icon:'📄',dbKey:'carDocs',fields:[
+    {key:'title',label:'类型',type:'input',placeholder:'如：交强险/商业险/年检',as:'title'},
+    {key:'date',label:'到期日',type:'date',placeholder:'选择日期',as:'meta'},
+    {key:'amount',label:'金额',type:'input',placeholder:'如：3500',as:'field'},
+    {key:'status',label:'状态',type:'select',options:['有效','即将到期','已过期'],as:'tag'}
   ]},
   /* --- 动漫追剧 --- */
   animeTracking:{title:'追番清单',icon:'📺',dbKey:'animeTracking',fields:[
@@ -983,6 +1007,7 @@ const LISTS={
 /* 板块 -> 需要渲染的列表 */
 const SECTION_LISTS={
   fit:['fitVideos','fitRecords'],
+  car:['carInfo','carMaintenance','carFuel','carDocs'],
   groom:['groomRoutine','groomOutfit'],
   hustle:['hustleProjects'],
   ai:['aiPath','aiTools'],
@@ -1056,6 +1081,27 @@ fit:`
   <div class="card tint-blue">
     <div class="card-h">🏊 老大游泳培训记录</div>
     <div class="txt">每天 1.5 小时游泳培训，目前学自由泳。记录进度，见证成长 🌊</div>
+  </div>
+`,
+
+car:`
+  <div class="page-head"><span class="bow">🚗</span><h1>爱车管理</h1><span class="sub">· 爱车如爱己 · 养护不遗忘</span></div>
+  <div class="card tint-blue">
+    <div class="card-h">🚗 我的车辆</div>
+    <div id="lc_carInfo"></div>
+    <button class="btn btn-accent" style="width:100%;margin-top:8px" onclick="openListModal('carInfo')">+ 添加车辆</button>
+  </div>
+  <div class="card">
+    <div class="card-h">🔧 保养维修记录 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('carMaintenance')">+ 记录</button></div>
+    <div id="lc_carMaintenance"></div>
+  </div>
+  <div class="card tint-amber">
+    <div class="card-h">⛽ 加油记录 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('carFuel')">+ 记录</button></div>
+    <div id="lc_carFuel"></div>
+  </div>
+  <div class="card tint-mint">
+    <div class="card-h">📄 保险年检 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('carDocs')">+ 记录</button></div>
+    <div id="lc_carDocs"></div>
   </div>
 `,
 
@@ -1379,6 +1425,21 @@ const INITIAL={
   weatherNotes:[
     {title:'下午有雷阵雨，出门带伞'},
     {title:'紫外线强，户外运动记得防晒'},
+  ],
+  /* --- 爱车管理 --- */
+  carInfo:[
+    {title:'宝马3系 2024款',meta:'粤B·88888',desc:'白色 / 购于2024年6月'},
+  ],
+  carMaintenance:[
+    {title:'首保-换机油机滤',date:'2026年6月15日',amount:'0',note:'5000km 首保免费'},
+  ],
+  carFuel:[
+    {date:'2026年8月10日',amount:'350',note:'12800km / 42L 92号'},
+  ],
+  carDocs:[
+    {title:'交强险',date:'2027年6月14日',amount:'950',status:'有效'},
+    {title:'商业险',date:'2027年6月14日',amount:'3200',status:'有效'},
+    {title:'年检',date:'2028年6月14日',amount:'320',status:'有效'},
   ],
   /* --- 动漫追剧 --- */
   animeTracking:[
