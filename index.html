@@ -185,7 +185,7 @@
   .menu-fab{display:none}
   @media(max-width:768px){
     .menu-fab{
-      display:flex;position:fixed;right:16px;bottom:calc(16px + var(--safe-bottom));
+      display:flex;position:fixed;left:16px;bottom:calc(16px + var(--safe-bottom));
       width:54px;height:54px;border-radius:50%;
       background:linear-gradient(135deg,var(--accent),var(--accent-2));
       color:#fff;align-items:center;justify-content:center;
@@ -497,9 +497,9 @@
   @media(max-width:768px){
     .menu-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;font-size:20px;cursor:pointer}
     .sidebar{
-      position:fixed;top:var(--statusbar-h);right:0;bottom:0;width:240px;z-index:60;
-      transform:translateX(100%);transition:transform .28s ease;
-      box-shadow:-4px 0 20px rgba(0,0,0,.18);
+      position:fixed;top:var(--statusbar-h);left:0;bottom:0;width:240px;z-index:60;
+      transform:translateX(-100%);transition:transform .28s ease;
+      box-shadow:4px 0 20px rgba(0,0,0,.18);
     }
     .sidebar.open{transform:translateX(0)}
     .overlay{position:fixed;top:var(--statusbar-h);left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:55}
@@ -529,7 +529,7 @@
     }
     /* 右侧分割线 */
     .sidebar::after{
-      content:'';position:absolute;top:0;left:0;bottom:0;width:1px;
+      content:'';position:absolute;top:0;right:0;bottom:0;width:1px;
       background:linear-gradient(180deg,transparent,rgba(0,0,0,.08) 20%,rgba(0,0,0,.08) 80%,transparent);
       pointer-events:none;
     }
@@ -752,13 +752,7 @@
   </div>
 
   <div class="main">
-    <!-- 右侧内容 -->
-    <main class="content">
-      <div class="content-inner" id="content"></div>
-    </main>
-    <div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
-
-    <!-- 右侧导航 -->
+    <!-- 左侧导航 -->
     <aside class="sidebar" id="sidebar">
       <div class="side-head">
         <div class="avatar">🧑</div>
@@ -767,9 +761,14 @@
       </div>
       <nav class="nav-scroll" id="nav"></nav>
     </aside>
+    <!-- 右侧内容 -->
+    <main class="content">
+      <div class="content-inner" id="content"></div>
+    </main>
+    <div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
   </div>
 
-  <button class="fab" title="帮助" onclick="alert('小松的工作台 · 男生版\n\n· 点击右上角☰打开导航菜单\n· 各板块支持新增/编辑/删除\n· 数据自动保存在本地')">?</button>
+  <button class="fab" title="帮助" onclick="alert('小松的工作台 · 男生版\n\n· 点击左上角☰打开导航菜单\n· 各板块支持新增/编辑/删除\n· 数据自动保存在本地')">?</button>
 
   <!-- 浮动菜单按钮（手机端/PWA 始终可见）-->
   <button class="menu-fab" onclick="toggleSidebar()" title="打开菜单">☰</button>
