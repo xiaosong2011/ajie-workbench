@@ -2295,7 +2295,13 @@ function renderListItem(listKey,item,i){
   }
   if(titleParts.length) html+='<div class="gt'+(checkboxChecked?' done-t':'')+cc+'">'+escapeHtml(titleParts.join(' · '))+'</div>';
   if(metaParts.length) html+='<div class="gmeta">'+escapeHtml(metaParts.join(' · '))+'</div>';
-  if(descParts.length) html+='<div class="gdesc'+cc+'" style="white-space:pre-wrap">'+escapeHtml(descParts.join(' ')).replace(/\\n/g,'<br>')+'</div>';
+  if(descParts.length){
+    if(config.copyField){
+      html+='<div class="gdesc clamp" style="white-space:pre-wrap" onclick="togglePromptExpand(this)" title="点击展开/收起">'+escapeHtml(descParts.join(' ')).replace(/\\n/g,'<br>')+'</div>';
+    } else {
+      html+='<div class="gdesc'+cc+'" style="white-space:pre-wrap">'+escapeHtml(descParts.join(' ')).replace(/\\n/g,'<br>')+'</div>';
+    }
+  }
   if(fieldParts.length) html+='<div class="gfields">'+fieldParts.join('')+'</div>';
   if(tagParts.length) html+='<div class="gtags">'+tagParts.join('')+'</div>';
   if(config.copyField){
@@ -3398,6 +3404,10 @@ function makeBars(groups,totalCount){
 function toggleInspoExpand(i){
   const el=document.getElementById('inspoCard_'+i);
   if(el) el.classList.toggle('expanded');
+}
+function togglePromptExpand(el){
+  var item=el.closest('.gitem');
+  if(item) item.classList.toggle('expanded');
 }
 function renderInspos(){
   const list=document.getElementById('inspoList');
