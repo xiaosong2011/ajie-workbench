@@ -2012,6 +2012,15 @@ if(!Array.isArray(DB.aiPrompts)||DB.aiPrompts.length<INITIAL.aiPrompts.length){
 if(!Array.isArray(DB.myPrompts)||DB.myPrompts.length<INITIAL.myPrompts.length){
   DB.myPrompts=INITIAL.myPrompts;
 }
+/* 迁移：旧分类名"其他"→"分镜故事版"，"人物角色"→"人物角色板"，"故事"→"分镜故事版" */
+if(Array.isArray(DB.myPrompts)){
+  var _migrated=false;
+  DB.myPrompts.forEach(function(p){
+    if(p.tag==='其他'||p.tag==='故事'){p.tag='分镜故事版';_migrated=true;}
+    if(p.tag==='人物角色'){p.tag='人物角色板';_migrated=true;}
+  });
+  if(_migrated)saveData();
+}
 ensureKeys();
 saveData();
 
