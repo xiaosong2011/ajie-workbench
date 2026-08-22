@@ -1947,6 +1947,10 @@ agent:`
         <label>API Key</label>
         <input class="crud-input" id="agentApiKey" type="password" placeholder="sk-...">
       </div>
+      <div class="agent-form-row">
+        <label>模型名称 <span style="color:var(--ink-3);font-weight:400">（如 gpt-4o / glm-4-flash / deepseek-chat）</span></label>
+        <input class="crud-input" id="agentApiModel" placeholder="例如：glm-4-flash">
+      </div>
       <div class="agent-form-row" style="display:flex;gap:8px">
         <button class="btn btn-accent" style="flex:1" onclick="saveAgentApiSettings()">💾 保存设置</button>
         <button class="btn btn-ghost" onclick="testAgentApi()">🔌 测试连接</button>
@@ -2948,7 +2952,7 @@ function ensureKeys(){
   if(!Array.isArray(DB.ledger))DB.ledger=[];
   if(!Array.isArray(DB.checkedDays))DB.checkedDays=[];
   if(typeof DB.budget!=='number')DB.budget=6000;
-  if(!DB.apiSettings||typeof DB.apiSettings!=='object')DB.apiSettings={apiBaseUrl:'',apiKey:''};
+  if(!DB.apiSettings||typeof DB.apiSettings!=='object')DB.apiSettings={apiBaseUrl:'',apiKey:'',model:''};
   Object.keys(LISTS).forEach(k=>{ const dk=LISTS[k].dbKey; if(!Array.isArray(DB[dk]))DB[dk]=[]; });
 }
 
@@ -5451,8 +5455,10 @@ function initAgentSection(){
   const s=DB.apiSettings||{};
   const urlEl=document.getElementById('agentApiBaseUrl');
   const keyEl=document.getElementById('agentApiKey');
+  const modelEl=document.getElementById('agentApiModel');
   if(urlEl) urlEl.value=s.apiBaseUrl||'';
   if(keyEl) keyEl.value=s.apiKey||'';
+  if(modelEl) modelEl.value=s.model||'';
   /* 如果已有当前剧本，渲染结果 */
   if(_currentManhuaScript){
     renderAgentResult(_currentManhuaScript);
@@ -5477,7 +5483,8 @@ function toggleAgentApiSettings(){
 function saveAgentApiSettings(){
   const url=document.getElementById('agentApiBaseUrl').value.trim();
   const key=document.getElementById('agentApiKey').value.trim();
-  DB.apiSettings={apiBaseUrl:url,apiKey:key};
+  const model=document.getElementById('agentApiModel').value.trim();
+  DB.apiSettings={apiBaseUrl:url,apiKey:key,model:model};
   saveData();
   showToast('API 设置已保存','success');
 }
@@ -5541,12 +5548,18 @@ function callAgentLLM(systemPrompt, userMessage, isTest){
   const s=DB.apiSettings||{};
   let baseUrl=s.apiBaseUrl||'';
   const apiKey=s.apiKey||'';
+  const model=s.model||(isTest?'gpt-4o-mini':'gpt-4o');
   if(!baseUrl||!apiKey){
     return Promise.reject(new Error('API 地址或 Key 未设置，请先在上方「API 设置」中填写并保存'));
   }
-  /* 规范化 baseUrl，确保以 /v1 结尾或兼容 */
+  /* 规范化 baseUrl，智能识别版本号 */
   baseUrl=baseUrl.replace(/\/+$/,'');
-  if(!baseUrl.endsWith('/v1')&&!baseUrl.endsWith('/chat/completions')){
+  if(baseUrl.endsWith('/chat/completions')){
+    /* 已经是完整地址，直接用 */
+  }else if(/\/v\d+$/.test(baseUrl)){
+    /* 已经包含版本号（如/v1,/v4），直接补/chat/completions */
+  }else{
+    /* 默认加 /v1 */
     baseUrl=baseUrl+'/v1';
   }
   const url=baseUrl+'/chat/completions';
@@ -5558,7 +5571,7 @@ function callAgentLLM(systemPrompt, userMessage, isTest){
       'Authorization':'Bearer '+apiKey
     },
     body:JSON.stringify({
-      model: isTest ? 'gpt-4o-mini' : 'gpt-4o',
+      model: model,
       messages:[
         {role:'system',content:systemPrompt},
         {role:'user',content:userMessage}
