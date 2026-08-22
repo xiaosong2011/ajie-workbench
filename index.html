@@ -416,37 +416,114 @@
   body[data-theme="wine"] .empty-hint{background:linear-gradient(135deg,rgba(60,30,40,.5),rgba(40,20,30,.3));border-color:#5a3d48}
 
   /* ===== 主题选择器 ===== */
-  .theme-selector{
-    display:flex;align-items:center;justify-content:center;gap:10px;
-    padding:12px 14px;border-top:1px solid rgba(255,255,255,.08);
-    margin-top:auto;
-  }
-  .theme-swatch{
-    width:26px;height:26px;border-radius:50%;cursor:pointer;
-    border:2px solid rgba(255,255,255,.2);
-    transition:all .2s cubic-bezier(.34,1.56,.64,1);
-    position:relative;flex-shrink:0;
-  }
-  .theme-swatch:hover{transform:scale(1.18);border-color:rgba(255,255,255,.5)}
-  .theme-swatch.active{
-    transform:scale(1.1);
-    box-shadow:0 0 0 2px rgba(255,255,255,.35),0 2px 10px rgba(0,0,0,.3);
-    border-color:#fff;
-  }
-  .theme-swatch.active::after{
-    content:'✓';position:absolute;top:50%;left:50%;
-    transform:translate(-50%,-50%);
-    color:#fff;font-size:11px;font-weight:800;
-    text-shadow:0 1px 2px rgba(0,0,0,.3);
-  }
-  .theme-label{
-    color:var(--side-text-dim);font-size:10px;text-align:center;
-    margin-bottom:6px;letter-spacing:.5px;
-  }
+  /* ===== 新版主题选择器 ===== */
   .theme-selector-wrap{
-    padding:10px 12px;border-top:1px solid rgba(255,255,255,.06);
+    padding:12px 14px 14px;border-top:1px solid rgba(255,255,255,.06);
     margin-top:auto;
   }
+  .ts-header{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:10px;gap:8px;
+  }
+  .ts-title{
+    font-size:11px;font-weight:700;color:var(--side-text);
+    letter-spacing:.5px;white-space:nowrap;
+  }
+  .ts-search{
+    position:relative;flex:1;min-width:0;
+    display:flex;align-items:center;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:8px;padding:0 8px;
+    transition:all .2s ease;
+  }
+  .ts-search:focus-within{
+    background:rgba(255,255,255,.12);
+    border-color:rgba(255,255,255,.25);
+  }
+  .ts-search-icon{
+    font-size:11px;opacity:.6;flex-shrink:0;
+    margin-right:4px;
+  }
+  .ts-search-input{
+    flex:1;min-width:0;border:none;outline:none;
+    background:transparent;color:var(--side-text);
+    font-size:11px;padding:6px 0;
+  }
+  .ts-search-input::placeholder{color:var(--side-text-dim);opacity:.7}
+  .ts-search-clear{
+    font-size:10px;color:var(--side-text-dim);cursor:pointer;
+    padding:2px 4px;border-radius:4px;flex-shrink:0;
+    transition:all .15s ease;
+  }
+  .ts-search-clear:hover{color:var(--side-text);background:rgba(255,255,255,.1)}
+  .ts-slider{
+    position:relative;display:flex;align-items:center;gap:4px;
+  }
+  .ts-arrow{
+    width:20px;height:28px;flex-shrink:0;
+    border:none;border-radius:6px;
+    background:rgba(255,255,255,.08);
+    color:var(--side-text-dim);
+    font-size:16px;font-weight:700;line-height:1;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .2s ease;
+    padding:0;
+  }
+  .ts-arrow:hover{background:rgba(255,255,255,.15);color:var(--side-text)}
+  .ts-arrow:disabled{opacity:.3;cursor:not-allowed}
+  .ts-track{
+    flex:1;display:flex;gap:10px;
+    overflow-x:auto;overflow-y:hidden;
+    scroll-behavior:smooth;
+    padding:2px 0;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(255,255,255,.15) transparent;
+  }
+  .ts-track::-webkit-scrollbar{height:3px}
+  .ts-track::-webkit-scrollbar-track{background:transparent}
+  .ts-track::-webkit-scrollbar-thumb{
+    background:rgba(255,255,255,.15);
+    border-radius:3px;transition:background .2s ease;
+  }
+  .ts-track::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.3)}
+  .ts-swatch{
+    width:34px;height:34px;border-radius:50%;cursor:pointer;
+    border:2px solid rgba(255,255,255,.18);
+    flex-shrink:0;position:relative;
+    transition:all .22s cubic-bezier(.34,1.56,.64,1);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .ts-swatch:hover{
+    transform:scale(1.15);
+    border-color:rgba(255,255,255,.45);
+    box-shadow:0 4px 12px rgba(0,0,0,.25);
+  }
+  .ts-swatch.active{
+    transform:scale(1.08);
+    border-color:#fff;
+    box-shadow:0 0 0 2px rgba(255,255,255,.3),0 2px 10px rgba(0,0,0,.3);
+  }
+  .ts-swatch-check{
+    color:#fff;font-size:13px;font-weight:800;opacity:0;
+    text-shadow:0 1px 2px rgba(0,0,0,.35);
+    transform:scale(.6);transition:all .2s cubic-bezier(.34,1.56,.64,1);
+  }
+  .ts-swatch.active .ts-swatch-check{opacity:1;transform:scale(1)}
+  .ts-swatch.filtered-out{
+    opacity:.25;transform:scale(.85);pointer-events:none;
+  }
+  .ts-names{
+    display:flex;gap:10px;justify-content:center;
+    margin-top:8px;overflow:hidden;
+  }
+  .ts-names span{
+    font-size:9.5px;color:var(--side-text-dim);
+    width:34px;text-align:center;flex-shrink:0;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    transition:opacity .2s ease,color .2s ease;
+  }
+  .ts-names span.active-name{color:var(--side-text);font-weight:600}
 
   @keyframes pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
 
@@ -1081,14 +1158,38 @@
         <div class="ws-sub">⚙️ 男生版 · 自我精进系统</div>
       </div>
       <nav class="nav-scroll" id="nav"></nav>
-      <div class="theme-selector-wrap">
-        <div class="theme-label">主题皮肤</div>
-        <div class="theme-selector" id="themeSelector">
-          <div class="theme-swatch" data-theme="default" style="background:linear-gradient(135deg,#c2692e,#d4a053)" title="晨光白" onclick="switchTheme('default')"></div>
-          <div class="theme-swatch" data-theme="ocean" style="background:linear-gradient(135deg,#2e86de,#1abc9c)" title="雾屿蓝" onclick="switchTheme('ocean')"></div>
-          <div class="theme-swatch" data-theme="moss" style="background:linear-gradient(135deg,#6b8e5a,#8bb776)" title="抹茶绿" onclick="switchTheme('moss')"></div>
-          <div class="theme-swatch" data-theme="dark" style="background:linear-gradient(135deg,#60a5fa,#67e8f9)" title="极夜灰" onclick="switchTheme('dark')"></div>
-          <div class="theme-swatch" data-theme="wine" style="background:linear-gradient(135deg,#f472b6,#fb923c)" title="勃艮第红" onclick="switchTheme('wine')"></div>
+      <div class="theme-selector-wrap" id="themeSelectorWrap">
+        <div class="ts-header">
+          <div class="ts-title">🎨 主题皮肤</div>
+          <div class="ts-search" id="tsSearchWrap">
+            <span class="ts-search-icon">🔍</span>
+            <input type="text" class="ts-search-input" id="tsSearchInput" placeholder="搜索主题…" oninput="filterThemes(this.value)">
+            <span class="ts-search-clear" id="tsSearchClear" onclick="clearThemeSearch()" style="display:none">✕</span>
+          </div>
+        </div>
+        <div class="ts-slider" id="tsSlider">
+          <button class="ts-arrow ts-arrow-left" id="tsArrowLeft" onclick="scrollThemes(-1)">‹</button>
+          <div class="ts-track" id="tsTrack">
+            <div class="ts-swatch" data-theme="default" data-name="晨光白" data-keywords="default default 晨光白 橙色 陶土橙 暖色 #c2692e" style="background:linear-gradient(135deg,#c2692e,#d4a053)" title="晨光白" onclick="switchTheme('default')">
+              <span class="ts-swatch-check">✓</span>
+            </div>
+            <div class="ts-swatch" data-theme="ocean" data-name="雾屿蓝" data-keywords="ocean 雾屿蓝 蓝色 亮蓝 冷色 #2e86de" style="background:linear-gradient(135deg,#2e86de,#1abc9c)" title="雾屿蓝" onclick="switchTheme('ocean')">
+              <span class="ts-swatch-check">✓</span>
+            </div>
+            <div class="ts-swatch" data-theme="moss" data-name="抹茶绿" data-keywords="moss 抹茶绿 绿色 鼠尾草 护眼 #6b8e5a" style="background:linear-gradient(135deg,#6b8e5a,#8bb776)" title="抹茶绿" onclick="switchTheme('moss')">
+              <span class="ts-swatch-check">✓</span>
+            </div>
+            <div class="ts-swatch" data-theme="dark" data-name="极夜灰" data-keywords="dark 极夜灰 暗色 冰蓝 深色 #60a5fa" style="background:linear-gradient(135deg,#60a5fa,#67e8f9)" title="极夜灰" onclick="switchTheme('dark')">
+              <span class="ts-swatch-check">✓</span>
+            </div>
+            <div class="ts-swatch" data-theme="wine" data-name="勃艮第红" data-keywords="wine 勃艮第红 暗色 玫瑰粉 红色 #f472b6" style="background:linear-gradient(135deg,#f472b6,#fb923c)" title="勃艮第红" onclick="switchTheme('wine')">
+              <span class="ts-swatch-check">✓</span>
+            </div>
+          </div>
+          <button class="ts-arrow ts-arrow-right" id="tsArrowRight" onclick="scrollThemes(1)">›</button>
+        </div>
+        <div class="ts-names" id="tsNames">
+          <span>晨光白</span><span>雾屿蓝</span><span>抹茶绿</span><span>极夜灰</span><span>勃艮第红</span>
         </div>
       </div>
     </aside>
@@ -2572,9 +2673,16 @@ function switchTheme(themeName,silent){
   /* 设置 data-theme 属性 */
   body.setAttribute('data-theme',themeName);
   
-  /* 更新选择器激活状态 */
-  document.querySelectorAll('.theme-swatch').forEach(el=>{
+  /* 更新新版选择器激活状态 */
+  document.querySelectorAll('.ts-swatch').forEach(el=>{
     el.classList.toggle('active',el.dataset.theme===themeName);
+  });
+  
+  /* 更新名称高亮 */
+  const nameSpans=document.querySelectorAll('#tsNames span');
+  const themeKeys=['default','ocean','moss','dark','wine'];
+  nameSpans.forEach((span,i)=>{
+    span.classList.toggle('active-name',themeKeys[i]===themeName);
   });
   
   /* 更新 theme-color meta */
@@ -2584,11 +2692,67 @@ function switchTheme(themeName,silent){
   /* 保存到 localStorage */
   localStorage.setItem(THEME_KEY,themeName);
   
-  /* Toast 提示 */
+  /* 切换后清空搜索 */
   if(!silent){
+    clearThemeSearch();
     showToast('已切换至 '+THEMES[themeName].name+' 主题','success');
   }
 }
+
+/* ========== 主题搜索与滑动 ========== */
+function filterThemes(keyword){
+  keyword=(keyword||'').trim().toLowerCase();
+  const swatches=document.querySelectorAll('.ts-swatch');
+  const nameSpans=document.querySelectorAll('#tsNames span');
+  const clearBtn=document.getElementById('tsSearchClear');
+  
+  if(clearBtn) clearBtn.style.display=keyword?'flex':'none';
+  
+  swatches.forEach((swatch,i)=>{
+    const kw=(swatch.dataset.keywords||'').toLowerCase();
+    const name=(swatch.dataset.name||'').toLowerCase();
+    const match=!keyword || kw.includes(keyword) || name.includes(keyword);
+    swatch.classList.toggle('filtered-out',!match);
+    if(nameSpans[i]){
+      nameSpans[i].style.opacity=match?'1':'.25';
+      nameSpans[i].style.pointerEvents=match?'auto':'none';
+    }
+  });
+}
+
+function clearThemeSearch(){
+  const input=document.getElementById('tsSearchInput');
+  if(input){ input.value=''; filterThemes(''); }
+}
+
+function scrollThemes(dir){
+  const track=document.getElementById('tsTrack');
+  if(!track) return;
+  const step=track.clientWidth*0.6;
+  track.scrollBy({left:dir*step,behavior:'smooth'});
+  setTimeout(updateThemeArrows,300);
+}
+
+function updateThemeArrows(){
+  const track=document.getElementById('tsTrack');
+  const leftBtn=document.getElementById('tsArrowLeft');
+  const rightBtn=document.getElementById('tsArrowRight');
+  if(!track||!leftBtn||!rightBtn) return;
+  leftBtn.disabled=track.scrollLeft<=2;
+  rightBtn.disabled=track.scrollLeft+track.clientWidth>=track.scrollWidth-2;
+}
+
+/* Ctrl+F 聚焦主题搜索 */
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key==='f'){
+    const input=document.getElementById('tsSearchInput');
+    if(input&&document.getElementById('themeSelectorWrap')){
+      e.preventDefault();
+      input.focus();
+      input.select();
+    }
+  }
+});
 
 /* ========== 可折叠导航分组状态 ========== */
 const COLLAPSE_KEY='navCollapsedGroups';
@@ -4836,6 +5000,12 @@ const fromURL=autoConfigFromURL();
 initSupabase();
 /* 初始化主题 */
 initTheme();
+/* 初始化主题选择器箭头状态 */
+setTimeout(function(){
+  updateThemeArrows();
+  var track=document.getElementById('tsTrack');
+  if(track) track.addEventListener('scroll',updateThemeArrows);
+},100);
 
 /* 初始渲染标志：确保只渲染一次，避免闪屏 */
 let _initialRendered=false;
