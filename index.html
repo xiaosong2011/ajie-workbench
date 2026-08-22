@@ -2002,25 +2002,28 @@ function ensureKeys(){
 let DB=loadData();
 /* 首次使用时用初始数据填充缺失的键 */
 Object.keys(INITIAL).forEach(k=>{ if(DB[k]===undefined)DB[k]=INITIAL[k]; });
-/* 提示词库：如果本地条数少于初始条数，用初始数据覆盖 */
-if(!Array.isArray(DB.aitechPrompts)||DB.aitechPrompts.length<INITIAL.aitechPrompts.length){
-  DB.aitechPrompts=INITIAL.aitechPrompts;
-}
-if(!Array.isArray(DB.aiPrompts)||DB.aiPrompts.length<INITIAL.aiPrompts.length){
-  DB.aiPrompts=INITIAL.aiPrompts;
-}
-if(!Array.isArray(DB.myPrompts)||DB.myPrompts.length<INITIAL.myPrompts.length){
-  DB.myPrompts=INITIAL.myPrompts;
-}
-/* 迁移：旧分类名"其他"→"分镜故事版"，"人物角色"→"人物角色板"，"故事"→"分镜故事版" */
-if(Array.isArray(DB.myPrompts)){
-  var _migrated=false;
-  DB.myPrompts.forEach(function(p){
-    if(p.tag==='其他'||p.tag==='故事'){p.tag='分镜故事版';_migrated=true;}
-    if(p.tag==='人物角色'){p.tag='人物角色板';_migrated=true;}
+/* 提示词库：合并初始数据，不删除用户自定义条目 */
+function mergePrompts(dbKey, initialArr){
+  if(!Array.isArray(DB[dbKey])){ DB[dbKey]=initialArr.slice(); return; }
+  var existing=new Set(DB[dbKey].map(function(p){return p.title;}));
+  initialArr.forEach(function(p){
+    if(!existing.has(p.title)) DB[dbKey].push(p);
   });
-  if(_migrated)saveData();
 }
+mergePrompts('aitechPrompts',INITIAL.aitechPrompts);
+mergePrompts('aiPrompts',INITIAL.aiPrompts);
+mergePrompts('myPrompts',INITIAL.myPrompts);
+/* 迁移：旧分类名"其他"→"分镜故事版"，"人物角色"→"人物角色板"，"故事"→"分镜故事版" */
+function migrateMyPrompts(){
+  if(!Array.isArray(DB.myPrompts))return false;
+  var migrated=false;
+  DB.myPrompts.forEach(function(p){
+    if(p.tag==='其他'||p.tag==='故事'){p.tag='分镜故事版';migrated=true;}
+    if(p.tag==='人物角色'){p.tag='人物角色板';migrated=true;}
+  });
+  return migrated;
+}
+migrateMyPrompts();
 ensureKeys();
 saveData();
 
@@ -3935,14 +3938,19 @@ function initialRender(sectionId){
         isRemoteUpdate=true;
         DB=cloudData;
         ensureKeys();
-        /* 恢复精选提示词：云端条数少于初始条数时用初始数据补齐 */
-        if(!Array.isArray(DB.aitechPrompts)||DB.aitechPrompts.length<INITIAL.aitechPrompts.length){
-          DB.aitechPrompts=INITIAL.aitechPrompts;
-        }
-        if(!Array.isArray(DB.aiPrompts)||DB.aiPrompts.length<INITIAL.aiPrompts.length){
-          DB.aiPrompts=INITIAL.aiPrompts;
+        /* 合并初始提示词，不删除用户自定义条目 */
+        mergePrompts('aitechPrompts',INITIAL.aitechPrompts);
+        mergePrompts('aiPrompts',INITIAL.aiPrompts);
+        mergePrompts('myPrompts',INITIAL.myPrompts);
+        /* 迁移旧分类名 */
+        if(migrateMyPrompts()){
+          DB.myPrompts.forEach(function(p){
+            if(p.tag==='其他'||p.tag==='故事')p.tag='分镜故事版';
+            if(p.tag==='人物角色')p.tag='人物角色板';
+          });
         }
         localStorage.setItem(STORE_KEY,JSON.stringify(DB));
+        saveData();
       }catch(e){
         console.error('[Sync] 初始化加载异常:',e);
       }finally{
