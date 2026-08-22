@@ -860,6 +860,7 @@ const NAV=[
   {id:'selfmedia',ico:'🎥', name:'自媒体学习',          group:'学习成长'},
   {id:'aitech',   ico:'🤖', name:'AI技术学习',          group:'学习成长'},
   {id:'ai',       ico:'🧠', name:'AI学习',              group:'学习成长'},
+  {id:'myprompts',ico:'📝', name:'我的提示词',          group:'学习成长'},
   {id:'fit',      ico:'💪', name:'力量训练',            group:'生活管理'},
   {id:'car',      ico:'🚗', name:'爱车管理',            group:'生活管理'},
   {id:'groom',    ico:'🧔', name:'理容穿搭',            group:'生活管理'},
@@ -905,6 +906,11 @@ const LISTS={
     {key:'tag',label:'分类',type:'select',options:['编程','写作','办公','学习','生活','角色'],placeholder:'选择分类',as:'tag'},
     {key:'title',label:'名称',type:'input',placeholder:'如：代码审查专家',as:'title'},
     {key:'desc',label:'提示词',type:'textarea',placeholder:'完整的提示词内容…',as:'desc'}
+  ]},
+  myPrompts:{title:'我的提示词',icon:'📝',dbKey:'myPrompts',copyField:'desc',clickCopy:true,fields:[
+    {key:'tag',label:'分类',type:'select',options:['工作','学习','创作','技术','生活','其他'],placeholder:'选择分类',as:'tag'},
+    {key:'title',label:'名称',type:'input',placeholder:'如：周报生成器',as:'title'},
+    {key:'desc',label:'提示词',type:'textarea',placeholder:'你自己的提示词内容…',as:'desc'}
   ]},
   weatherNotes:{title:'自定义备注',icon:'📝',dbKey:'weatherNotes',fields:[
     {key:'title',label:'备注',type:'input',placeholder:'如：下午有雷阵雨，带伞',as:'title'}
@@ -1056,6 +1062,7 @@ const SECTION_LISTS={
   groom:['groomRoutine','groomOutfit'],
   hustle:['hustleProjects'],
   ai:['aiPath','aiTools','aiPrompts'],
+  myprompts:['myPrompts'],
   weather:['weatherNotes'],
   anime:['animeTracking','animeWatchlist','animeFav'],
   salary:['salaryIncome','salaryGoal','salaryAlloc'],
@@ -1224,6 +1231,27 @@ ai:`
       <button class="tf-btn" onclick="filterListByTag('aiPrompts','角色')">🎭 角色</button>
     </div>
     <div id="lc_aiPrompts"></div>
+  </div>
+`,
+
+myprompts:`
+  <div class="page-head"><span class="bow">📝</span><h1>我的提示词</h1><span class="sub">· 自己常用的提示词集合</span></div>
+  <div class="card tint-violet">
+    <div class="card-h">💡 使用说明</div>
+    <div class="txt">这里存放你<b>个人常用</b>的提示词，点击卡片即可<b>一键复制</b>。按分类管理，随取随用。</div>
+  </div>
+  <div class="card tint-amber">
+    <div class="card-h">📝 我的提示词库 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('myPrompts')">+ 新增</button></div>
+    <div class="tag-filter" id="filter_myPrompts">
+      <button class="tf-btn active" onclick="filterListByTag('myPrompts','全部')">全部</button>
+      <button class="tf-btn" onclick="filterListByTag('myPrompts','工作')">💼 工作</button>
+      <button class="tf-btn" onclick="filterListByTag('myPrompts','学习')">📚 学习</button>
+      <button class="tf-btn" onclick="filterListByTag('myPrompts','创作')">✍️ 创作</button>
+      <button class="tf-btn" onclick="filterListByTag('myPrompts','技术')">💻 技术</button>
+      <button class="tf-btn" onclick="filterListByTag('myPrompts','生活')">🌿 生活</button>
+      <button class="tf-btn" onclick="filterListByTag('myPrompts','其他')">📦 其他</button>
+    </div>
+    <div id="lc_myPrompts"></div>
   </div>
 `,
 
@@ -1523,6 +1551,19 @@ const INITIAL={
     {title:'魔鬼代言人辩论',desc:'你是一位辩论高手。无论我提出什么观点，你都要站在对立面进行反驳。要求：\n1. 每次只反驳一个点，不要一次性全盘否定\n2. 用事实和逻辑反驳，不要抬杠\n3. 反驳后问我："你怎么看？"\n4. 如果我说的有道理，也要承认\n\n我的观点是：[输入观点]',tag:'角色'},
     {title:'面试官模拟',desc:'你是一位[输入岗位，如前端工程师]的面试官。请模拟一场面试：\n\n要求：\n1. 一次只问一个问题\n2. 等我回答后再追问或进入下一题\n3. 根据我的回答给出反馈和标准答案\n4. 面试结束后给出评分（1-10）和改进建议\n5. 覆盖：基础知识、项目经验、场景题、反问环节\n\n我的经验：[如 3年前端经验]\n请开始第一个问题。',tag:'角色'},
     {title:'万能翻译器',desc:'你是一位专业翻译。请将以下内容翻译为[目标语言，如英文/日文]，要求：\n1. 不要逐字翻译，要意译\n2. 保持原文语气和风格\n3. 专业术语使用行业标准译法\n4. 翻译后附上3个关键术语的对照表\n5. 如果原文有文化特定内容，请加注释\n\n原文：\n[粘贴内容]',tag:'角色'},
+  ],
+  myPrompts:[
+    {title:'工作周报生成器',desc:'请帮我生成本周工作周报。\n\n本周完成的事项：\n[粗略列出你做了什么]\n\n下周计划：\n[列出下周计划]\n\n要求：\n1. 用数据量化成果\n2. 突出重点贡献\n3. 语气专业自信\n4. 控制在300字以内',tag:'工作'},
+    {title:'邮件回复助手',desc:'请帮我回复以下邮件，要求：\n1. 语气专业礼貌\n2. 直接回答对方问题\n3. 如需拒绝，委婉表达并给出替代方案\n4. 控制在150字以内\n\n原邮件：\n[粘贴邮件内容]\n\n我想表达的意思：\n[简述你的回复意图]',tag:'工作'},
+    {title:'简历优化',desc:'请帮我优化以下简历内容：\n\n1. 用STAR法则改写（情境-任务-行动-结果）\n2. 突出数据化成果\n3. 动词开头，避免被动语态\n4. 每条不超过两行\n\n原始简历内容：\n[粘贴你的简历经历]',tag:'工作'},
+    {title:'学习计划制定',desc:'请帮我制定一份学习计划：\n\n学习目标：[如 掌握Python数据分析]\n当前水平：[如 零基础]\n每天可投入时间：[如 2小时]\n总周期：[如 3个月]\n\n请输出：\n1. 分阶段目标（每阶段2-3周）\n2. 每日学习任务表\n3. 推荐学习资源\n4. 每阶段验收标准\n5. 常见踩坑提醒',tag:'学习'},
+    {title:'知识点总结',desc:'请帮我总结以下知识点：\n\n1. 一句话定义\n2. 核心原理（3条以内）\n3. 常见应用场景\n4. 易混淆概念对比\n5. 一道经典面试题及答案\n\n知识点：\n[输入知识点]',tag:'学习'},
+    {title:'小红书文案生成',desc:'请帮我写一篇小红书笔记：\n\n主题：[输入主题]\n风格：[种草/避雷/教程/分享]\n字数：[如 300字]\n\n要求：\n1. 标题吸引眼球（15字以内，带emoji）\n2. 开头用痛点或场景引入\n3. 正文分段清晰，每段不超过3行\n4. 结尾引导互动\n5. 生成5个相关话题标签',tag:'创作'},
+    {title:'短视频脚本',desc:'请帮我写一个短视频脚本：\n\n主题：[输入主题]\n时长：[如 60秒]\n平台：[抖音/B站/小红书]\n\n输出格式：\n1. 钩子（前3秒抓住注意力）\n2. 正文（按时间轴分镜头）\n3. 每个镜头的字幕和画面描述\n4. BGM建议\n5. 结尾引导（点赞/关注/评论）',tag:'创作'},
+    {title:'Python脚本生成',desc:'请帮我写一个Python脚本：\n\n功能描述：[描述你想要实现的功能]\n输入：[输入数据格式]\n输出：[期望输出]\n\n要求：\n1. 代码带详细注释\n2. 包含异常处理\n3. 给出使用示例\n4. 说明依赖库及安装命令',tag:'技术'},
+    {title:'Git操作指南',desc:'请告诉我如何完成以下Git操作：\n\n我想做的事：[描述你的需求，如 撤销最后一次提交但保留修改]\n\n请给出：\n1. 具体命令（按步骤）\n2. 每步命令的作用解释\n3. 可能的副作用\n4. 恢复方法（如果出错了怎么回退）',tag:'技术'},
+    {title:'每日复盘模板',desc:'请帮我做今日复盘：\n\n今天完成的事：[列出]\n今天没完成的事：[列出]\n今天的感受：[简述]\n\n请按以下格式输出：\n1. 今日亮点（做得好的3件事）\n2. 改进点（可以做得更好的2件事）\n3. 明日重点（最重要的3件事）\n4. 一句鼓励自己的话',tag:'生活'},
+    {title:'旅行清单生成',desc:'请帮我生成旅行行李清单：\n\n目的地：[输入城市]\n天数：[如 5天]\n季节：[如 夏天]\n出行方式：[飞机/高铁/自驾]\n特殊需求：[如 带小孩/有潜水需求]\n\n请按以下分类列出：\n1. 必带证件\n2. 电子设备\n3. 衣物\n4. 洗漱用品\n5. 药品\n6. 其他\n每项标注是否必带',tag:'生活'},
   ],
   weatherNotes:[
     {title:'下午有雷阵雨，出门带伞'},
@@ -1982,6 +2023,9 @@ if(!Array.isArray(DB.aitechPrompts)||DB.aitechPrompts.length<INITIAL.aitechPromp
 }
 if(!Array.isArray(DB.aiPrompts)||DB.aiPrompts.length<INITIAL.aiPrompts.length){
   DB.aiPrompts=INITIAL.aiPrompts;
+}
+if(!Array.isArray(DB.myPrompts)||DB.myPrompts.length<INITIAL.myPrompts.length){
+  DB.myPrompts=INITIAL.myPrompts;
 }
 ensureKeys();
 saveData();
@@ -3190,6 +3234,7 @@ function renderOverview(){
       {id:'selfmedia',ico:'🎥',name:'自媒体学习',count:countSection('selfmedia')},
       {id:'aitech',ico:'🤖',name:'AI技术学习',count:countSection('aitech')},
       {id:'ai',ico:'🧠',name:'AI学习',count:countSection('ai')},
+      {id:'myprompts',ico:'📝',name:'我的提示词',count:countSection('myprompts')},
     ]},
     {name:'生活管理',color:'#10b981',sections:[
       {id:'fit',ico:'💪',name:'力量训练',count:countSection('fit')},
