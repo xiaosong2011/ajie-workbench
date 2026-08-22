@@ -297,27 +297,156 @@
   .breadcrumb .bc-sep{color:var(--ink-3);opacity:.5}
   .breadcrumb .bc-current{color:var(--ink);font-weight:600}
 
-  /* ===== 暗色主题变量 ===== */
-  body.theme-dark{
+  /* ===== 主题颜色平滑过渡 ===== */
+  body{transition:background-color .3s ease,color .3s ease}
+  .card,.nav-item,.btn,.gitem,.todo-item,.modal-box,.share-box,
+  .crud-input,.crud-textarea,.modal-close,.content,.empty,.empty-hint,
+  .ov-nav-btn,.pill,.progress,.search-box,.search-result-item{
+    transition:background-color .3s ease,border-color .3s ease,color .3s ease,box-shadow .3s ease;
+  }
+
+  /* ===== 五套主题系统 ===== */
+  /* 所有主题通过 body[data-theme="xxx"] 切换变量 */
+
+  /* 主题一：晨光白 (default) — 温暖、柔和、纸质感，陶土橙主色 */
+  body[data-theme="default"]{
+    --content-bg:#faf7f2; --card:#ffffff;
+    --ink:#3d2f24; --ink-2:#7a6552; --ink-3:#a89583;
+    --accent:#c2692e; --accent-2:#d4a053; --accent-warm:#b45309;
+    --line:#ede5da;
+    --side-1:#2d241c; --side-2:#3d3127; --side-active:#5c4432;
+    --side-text:#e8ddd0; --side-text-dim:#9a8873;
+    --tag-blue:#e8ddc8; --tag-blue-t:#8b6914;
+    --tag-mint:#d9e4cf; --tag-mint-t:#4d7c0f;
+    --tag-amber:#f5e0c8; --tag-amber-t:#c2692e;
+    --tag-violet:#e4d4dd; --tag-violet-t:#7c3aed;
+    --tag-rose:#f3dcd2; --tag-rose-t:#be123c;
+    --shadow:0 1px 3px rgba(60,40,20,.05),0 2px 8px rgba(60,40,20,.04);
+    --shadow-hover:0 4px 16px rgba(60,40,20,.08),0 8px 24px rgba(60,40,20,.06);
+  }
+
+  /* 主题二：雾屿蓝 (ocean) — 冷静、清晰、技术感，亮蓝主色 */
+  body[data-theme="ocean"]{
+    --content-bg:#f6f8fa; --card:#ffffff;
+    --ink:#1f2d3d; --ink-2:#51637a; --ink-3:#8a9bb0;
+    --accent:#2e86de; --accent-2:#1abc9c; --accent-warm:#e67e22;
+    --line:#e3e9f0;
+    --side-1:#162235; --side-2:#1d2e44; --side-active:#2b4a6b;
+    --side-text:#c4d4e3; --side-text-dim:#7d92a6;
+    --tag-blue:#dbeafe; --tag-blue-t:#1d6fb8;
+    --tag-mint:#d4f1e4; --tag-mint-t:#128a6a;
+    --tag-amber:#fde8d0; --tag-amber-t:#c4771a;
+    --tag-violet:#e6dcf7; --tag-violet-t:#6b3fa0;
+    --tag-rose:#fbdde6; --tag-rose-t:#b83d63;
+    --shadow:0 1px 3px rgba(20,40,70,.04),0 2px 8px rgba(20,40,70,.05);
+    --shadow-hover:0 4px 16px rgba(20,40,70,.08),0 8px 24px rgba(20,40,70,.06);
+  }
+
+  /* 主题三：抹茶绿 (moss) — 治愈、舒缓、护眼，鼠尾草绿主色 */
+  body[data-theme="moss"]{
+    --content-bg:#f5f7f1; --card:#ffffff;
+    --ink:#2a3328; --ink-2:#5a6b55; --ink-3:#8a9a85;
+    --accent:#6b8e5a; --accent-2:#8bb776; --accent-warm:#b8860b;
+    --line:#e3e9dc;
+    --side-1:#1e2a1d; --side-2:#2a3a29; --side-active:#3d543c;
+    --side-text:#c8d4be; --side-text-dim:#7d9270;
+    --tag-blue:#d7e3d1; --tag-blue-t:#3a6b2d;
+    --tag-mint:#d9ead0; --tag-mint-t:#4d7c3f;
+    --tag-amber:#f0e6cc; --tag-amber-t:#927019;
+    --tag-violet:#dcd5e0; --tag-violet-t:#6b3fa0;
+    --tag-rose:#ecd7d7; --tag-rose-t:#a34545;
+    --shadow:0 1px 3px rgba(40,60,30,.04),0 2px 8px rgba(40,60,30,.04);
+    --shadow-hover:0 4px 16px rgba(40,60,30,.07),0 8px 24px rgba(40,60,30,.05);
+  }
+
+  /* 主题四：极夜灰 (dark) — 高级、沉浸、不刺眼，冰蓝主色 */
+  body[data-theme="dark"]{
     --content-bg:#141927; --card:#1e2436;
     --ink:#e8ecf4; --ink-2:#aab4c8; --ink-3:#6b7690;
+    --accent:#60a5fa; --accent-2:#67e8f9; --accent-warm:#f59e0b;
     --line:#2a3147;
-    --tag-blue:#1e3a5f; --tag-blue-t:#6bb3ff;
+    --side-1:#0d1220; --side-2:#141a2e; --side-active:#1e2a45;
+    --side-text:#b8c4d8; --side-text-dim:#5f6b85;
+    --tag-blue:#1e3a5f; --tag-blue-t:#60a5fa;
     --tag-mint:#1a3d33; --tag-mint-t:#5ed6b0;
     --tag-amber:#4a3520; --tag-amber-t:#f0a957;
     --tag-violet:#3a2d5c; --tag-violet-t:#b89eff;
     --tag-rose:#4a2536; --tag-rose-t:#ff8fb3;
-    --shadow:0 1px 3px rgba(0,0,0,.2),0 2px 8px rgba(0,0,0,.15);
-    --shadow-hover:0 4px 16px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.2);
+    --shadow:0 1px 3px rgba(0,0,0,.3),0 2px 8px rgba(0,0,0,.2);
+    --shadow-hover:0 4px 16px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
   }
-  body.theme-dark .content::-webkit-scrollbar-thumb{background:#3d4560}
-  body.theme-dark .btn-ghost{background:#2d3448;color:var(--ink-2);border-color:var(--line)}
-  body.theme-dark .modal-box{background:rgba(30,36,54,.85)}
-  body.theme-dark .crud-input,
-  body.theme-dark .crud-textarea{background:#2a3147;border-color:#3d4560;color:var(--ink)}
-  body.theme-dark .crud-input:focus,
-  body.theme-dark .crud-textarea:focus{background:#2f3750;border-color:var(--accent)}
-  body.theme-dark .modal-close{background:#2a3147;color:var(--ink-3)}
+  body[data-theme="dark"] .content::-webkit-scrollbar-thumb{background:#3d4560}
+  body[data-theme="dark"] .btn-ghost{background:#2d3448;color:var(--ink-2);border-color:var(--line)}
+  body[data-theme="dark"] .modal-box{background:rgba(30,36,54,.85)}
+  body[data-theme="dark"] .crud-input,
+  body[data-theme="dark"] .crud-textarea{background:#2a3147;border-color:#3d4560;color:var(--ink)}
+  body[data-theme="dark"] .crud-input:focus,
+  body[data-theme="dark"] .crud-textarea:focus{background:#2f3750;border-color:var(--accent)}
+  body[data-theme="dark"] .modal-close{background:#2a3147;color:var(--ink-3)}
+  body[data-theme="dark"] .search-box{background:#1e2436}
+  body[data-theme="dark"] .empty,
+  body[data-theme="dark"] .empty-hint{background:linear-gradient(135deg,rgba(40,48,68,.6),rgba(30,36,54,.4));border-color:#3d4560}
+
+  /* 主题五：勃艮第红 (wine) — 复古、优雅、个性，玫瑰粉主色 */
+  body[data-theme="wine"]{
+    --content-bg:#1a1418; --card:#251c20;
+    --ink:#f0e6ea; --ink-2:#b8a4ad; --ink-3:#7d6b73;
+    --accent:#f472b6; --accent-2:#fb923c; --accent-warm:#f59e0b;
+    --line:#36282e;
+    --side-1:#1a0f14; --side-2:#271820; --side-active:#3d242f;
+    --side-text:#e0c8d2; --side-text-dim:#8a6b78;
+    --tag-blue:#2e1f3a; --tag-blue-t:#c4b5fd;
+    --tag-mint:#1f3028; --tag-mint-t:#86efac;
+    --tag-amber:#3d2420; --tag-amber-t:#fdba74;
+    --tag-violet:#3d1f3a; --tag-violet-t:#f0abfc;
+    --tag-rose:#4a2030; --tag-rose-t:#f9a8d4;
+    --shadow:0 1px 3px rgba(80,20,40,.25),0 2px 8px rgba(80,20,40,.2);
+    --shadow-hover:0 4px 16px rgba(120,30,60,.35),0 8px 24px rgba(120,30,60,.25);
+  }
+  body[data-theme="wine"] .content::-webkit-scrollbar-thumb{background:#5a3d48}
+  body[data-theme="wine"] .btn-ghost{background:#36282e;color:var(--ink-2);border-color:var(--line)}
+  body[data-theme="wine"] .modal-box{background:rgba(37,28,32,.88)}
+  body[data-theme="wine"] .crud-input,
+  body[data-theme="wine"] .crud-textarea{background:#302227;border-color:#4a353d;color:var(--ink)}
+  body[data-theme="wine"] .crud-input:focus,
+  body[data-theme="wine"] .crud-textarea:focus{background:#3a2a30;border-color:var(--accent)}
+  body[data-theme="wine"] .modal-close{background:#36282e;color:var(--ink-3)}
+  body[data-theme="wine"] .search-box{background:#251c20}
+  body[data-theme="wine"] .empty,
+  body[data-theme="wine"] .empty-hint{background:linear-gradient(135deg,rgba(60,30,40,.5),rgba(40,20,30,.3));border-color:#5a3d48}
+
+  /* ===== 主题选择器 ===== */
+  .theme-selector{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    padding:12px 14px;border-top:1px solid rgba(255,255,255,.08);
+    margin-top:auto;
+  }
+  .theme-swatch{
+    width:26px;height:26px;border-radius:50%;cursor:pointer;
+    border:2px solid rgba(255,255,255,.2);
+    transition:all .2s cubic-bezier(.34,1.56,.64,1);
+    position:relative;flex-shrink:0;
+  }
+  .theme-swatch:hover{transform:scale(1.18);border-color:rgba(255,255,255,.5)}
+  .theme-swatch.active{
+    transform:scale(1.1);
+    box-shadow:0 0 0 2px rgba(255,255,255,.35),0 2px 10px rgba(0,0,0,.3);
+    border-color:#fff;
+  }
+  .theme-swatch.active::after{
+    content:'✓';position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    color:#fff;font-size:11px;font-weight:800;
+    text-shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+  .theme-label{
+    color:var(--side-text-dim);font-size:10px;text-align:center;
+    margin-bottom:6px;letter-spacing:.5px;
+  }
+  .theme-selector-wrap{
+    padding:10px 12px;border-top:1px solid rgba(255,255,255,.06);
+    margin-top:auto;
+  }
 
   @keyframes pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
 
@@ -946,15 +1075,22 @@
       <div class="side-head">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <div class="avatar">🧑</div>
-          <div style="display:flex;align-items:center;gap:4px">
-            <span class="theme-btn" onclick="toggleTheme()" title="切换主题" id="themeBtn">🌙</span>
-            <span class="theme-btn" onclick="openSearch()" title="搜索 (Ctrl+K)">🔍</span>
-          </div>
+          <span class="theme-btn" onclick="openSearch()" title="搜索 (Ctrl+K)">🔍</span>
         </div>
         <div class="ws-name">小松的工作台</div>
         <div class="ws-sub">⚙️ 男生版 · 自我精进系统</div>
       </div>
       <nav class="nav-scroll" id="nav"></nav>
+      <div class="theme-selector-wrap">
+        <div class="theme-label">主题皮肤</div>
+        <div class="theme-selector" id="themeSelector">
+          <div class="theme-swatch" data-theme="default" style="background:linear-gradient(135deg,#c2692e,#d4a053)" title="晨光白" onclick="switchTheme('default')"></div>
+          <div class="theme-swatch" data-theme="ocean" style="background:linear-gradient(135deg,#2e86de,#1abc9c)" title="雾屿蓝" onclick="switchTheme('ocean')"></div>
+          <div class="theme-swatch" data-theme="moss" style="background:linear-gradient(135deg,#6b8e5a,#8bb776)" title="抹茶绿" onclick="switchTheme('moss')"></div>
+          <div class="theme-swatch" data-theme="dark" style="background:linear-gradient(135deg,#60a5fa,#67e8f9)" title="极夜灰" onclick="switchTheme('dark')"></div>
+          <div class="theme-swatch" data-theme="wine" style="background:linear-gradient(135deg,#f472b6,#fb923c)" title="勃艮第红" onclick="switchTheme('wine')"></div>
+        </div>
+      </div>
     </aside>
     <!-- 右侧内容 -->
     <main class="content">
@@ -2291,30 +2427,55 @@ function showToast(msg,type){
   setTimeout(()=>toast.remove(),2600);
 }
 
-/* ========== 主题切换 ========== */
+/* ========== 主题切换系统（五套皮肤） ========== */
+const THEMES={
+  'default':{name:'晨光白',color:'#2d241c',isDark:false},
+  'ocean':  {name:'雾屿蓝',color:'#162235',isDark:false},
+  'moss':   {name:'抹茶绿',color:'#1e2a1d',isDark:false},
+  'dark':   {name:'极夜灰',color:'#0d1220',isDark:true},
+  'wine':   {name:'勃艮第红',color:'#1a0f14',isDark:true},
+};
+const THEME_KEY='app-theme';
+
 function initTheme(){
-  const saved=localStorage.getItem('theme')||'light';
-  applyTheme(saved);
-}
-function applyTheme(theme){
-  const body=document.body;
-  const btn=document.getElementById('themeBtn');
-  if(theme==='dark'){
-    body.classList.add('theme-dark');
-    if(btn) btn.textContent='☀️';
-  }else{
-    body.classList.remove('theme-dark');
-    if(btn) btn.textContent='🌙';
+  let saved=localStorage.getItem(THEME_KEY);
+  if(!saved||!THEMES[saved]){
+    /* 首次访问检测系统深色模式偏好 */
+    if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){
+      saved='dark';
+    }else{
+      saved='ocean'; /* 默认雾屿蓝，最接近原风格 */
+    }
   }
-  localStorage.setItem('theme',theme);
+  switchTheme(saved,true);
+}
+
+function switchTheme(themeName,silent){
+  if(!THEMES[themeName]) return;
+  const body=document.body;
+  
+  /* 移除旧的 theme-dark 类（兼容旧代码） */
+  body.classList.remove('theme-dark');
+  
+  /* 设置 data-theme 属性 */
+  body.setAttribute('data-theme',themeName);
+  
+  /* 更新选择器激活状态 */
+  document.querySelectorAll('.theme-swatch').forEach(el=>{
+    el.classList.toggle('active',el.dataset.theme===themeName);
+  });
+  
   /* 更新 theme-color meta */
   const meta=document.querySelector('meta[name="theme-color"]');
-  if(meta) meta.setAttribute('content',theme==='dark'?'#1a1f2e':'#15273b');
-}
-function toggleTheme(){
-  const isDark=document.body.classList.contains('theme-dark');
-  applyTheme(isDark?'light':'dark');
-  showToast(isDark?'已切换到亮色模式':'已切换到暗色模式','success');
+  if(meta) meta.setAttribute('content',THEMES[themeName].color);
+  
+  /* 保存到 localStorage */
+  localStorage.setItem(THEME_KEY,themeName);
+  
+  /* Toast 提示 */
+  if(!silent){
+    showToast('已切换至 '+THEMES[themeName].name+' 主题','success');
+  }
 }
 
 /* ========== 可折叠导航分组状态 ========== */
