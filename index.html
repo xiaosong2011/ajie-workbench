@@ -666,10 +666,96 @@
   .car-img-wrap .car-img-fallback{font-size:48px;opacity:.5}
   @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
   /* 标签筛选栏 */
-  .tag-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-  .tf-btn{padding:5px 12px;font-size:12px;font-weight:600;border-radius:16px;border:1px solid var(--line);background:#fff;color:var(--ink-2);cursor:pointer;transition:all .15s}
-  .tf-btn:hover{border-color:var(--accent);color:var(--accent)}
-  .tf-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  /* ===== 分类筛选器（升级版：滑动+搜索） ===== */
+  .tag-filter-wrap{
+    margin-bottom:12px;
+  }
+  .tf-header{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:8px;gap:8px;
+  }
+  .tf-title{
+    font-size:12px;font-weight:700;color:var(--ink);
+    letter-spacing:.3px;display:flex;align-items:center;gap:6px;
+  }
+  .tf-title .count{
+    font-size:10px;font-weight:500;color:var(--ink-3);
+    background:var(--content-bg);padding:2px 6px;border-radius:10px;
+  }
+  .tf-search{
+    position:relative;display:flex;align-items:center;
+    background:var(--content-bg);
+    border:1px solid var(--line);
+    border-radius:8px;padding:0 8px;
+    transition:all .2s ease;
+    min-width:120px;max-width:180px;flex:1;
+  }
+  .tf-search:focus-within{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  .tf-search-icon{
+    font-size:11px;opacity:.5;flex-shrink:0;margin-right:4px;
+  }
+  .tf-search-input{
+    flex:1;min-width:0;border:none;outline:none;
+    background:transparent;color:var(--ink);
+    font-size:11px;padding:5px 0;
+  }
+  .tf-search-input::placeholder{color:var(--ink-3);opacity:.7}
+  .tf-search-clear{
+    font-size:10px;color:var(--ink-3);cursor:pointer;
+    padding:2px 4px;border-radius:4px;flex-shrink:0;
+    transition:all .15s ease;display:none;
+  }
+  .tf-search-clear:hover{color:var(--ink);background:var(--line)}
+  .tf-slider{
+    position:relative;display:flex;align-items:stretch;gap:4px;
+  }
+  .tf-arrow{
+    width:22px;flex-shrink:0;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:var(--card);
+    color:var(--ink-3);
+    font-size:16px;font-weight:700;line-height:1;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .2s ease;
+    padding:0;
+  }
+  .tf-arrow:hover{border-color:var(--accent);color:var(--accent);background:var(--bg-hover)}
+  .tf-arrow:disabled{opacity:.4;cursor:not-allowed}
+  .tf-track{
+    flex:1;display:flex;gap:6px;
+    overflow-x:auto;overflow-y:hidden;
+    scroll-behavior:smooth;
+    padding:1px 0 3px;
+    scrollbar-width:thin;
+    scrollbar-color:color-mix(in srgb, var(--accent) 30%, transparent) transparent;
+    -webkit-overflow-scrolling:touch;
+  }
+  .tf-track::-webkit-scrollbar{height:3px}
+  .tf-track::-webkit-scrollbar-track{background:transparent}
+  .tf-track::-webkit-scrollbar-thumb{
+    background:color-mix(in srgb, var(--accent) 25%, transparent);
+    border-radius:3px;transition:background .2s ease;
+  }
+  .tf-track::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb, var(--accent) 45%, transparent)}
+  .tf-btn{
+    padding:5px 12px;font-size:12px;font-weight:600;
+    border-radius:16px;border:1px solid var(--line);
+    background:var(--card);color:var(--ink-2);
+    cursor:pointer;transition:all .18s cubic-bezier(.34,1.56,.64,1);
+    white-space:nowrap;flex-shrink:0;
+  }
+  .tf-btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+  .tf-btn.active{
+    background:var(--accent);color:#fff;border-color:var(--accent);
+    box-shadow:0 2px 8px color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+  .tf-btn.filtered-out{
+    opacity:.3;transform:scale(.92);pointer-events:none;
+  }
   .gitem .actions{display:flex;gap:6px;flex-shrink:0;align-self:flex-start;opacity:0;transition:opacity .15s}
   .gitem:hover .actions{opacity:1}
   @media(max-width:768px){.gitem .actions{opacity:1}}
@@ -1629,14 +1715,28 @@ ai:`
   </div>
   <div class="card tint-violet">
     <div class="card-h">💬 提示词库 <span style="font-size:11px;color:var(--ink-3);font-weight:400;margin-left:4px">ChatGPT / 文本AI</span> <button class="btn btn-ghost" style="margin-left:auto;font-size:11px" onclick="restoreAiPrompts()" title="恢复精选提示词">🔄 恢复精选</button> <button class="btn btn-accent" onclick="openListModal('aiPrompts')">+ 新增</button></div>
-    <div class="tag-filter" id="filter_aiPrompts">
-      <button class="tf-btn active" onclick="filterListByTag('aiPrompts','全部')">全部</button>
-      <button class="tf-btn" onclick="filterListByTag('aiPrompts','编程')">💻 编程</button>
-      <button class="tf-btn" onclick="filterListByTag('aiPrompts','写作')">✍️ 写作</button>
-      <button class="tf-btn" onclick="filterListByTag('aiPrompts','办公')">📊 办公</button>
-      <button class="tf-btn" onclick="filterListByTag('aiPrompts','学习')">📚 学习</button>
-      <button class="tf-btn" onclick="filterListByTag('aiPrompts','生活')">🌿 生活</button>
-      <button class="tf-btn" onclick="filterListByTag('aiPrompts','角色')">🎭 角色</button>
+    <div class="tag-filter-wrap">
+      <div class="tf-header">
+        <div class="tf-title">🏷️ 分类 <span class="count" id="count_aiPrompts">7 个分类</span></div>
+        <div class="tf-search">
+          <span class="tf-search-icon">🔍</span>
+          <input type="text" class="tf-search-input" placeholder="搜索分类…" oninput="filterTags('aiPrompts',this.value)">
+          <span class="tf-search-clear" onclick="clearTagSearch('aiPrompts')">✕</span>
+        </div>
+      </div>
+      <div class="tf-slider">
+        <button class="tf-arrow tf-arrow-left" onclick="scrollTags('aiPrompts',-1)">‹</button>
+        <div class="tf-track" id="filter_aiPrompts">
+          <button class="tf-btn active" onclick="filterListByTag('aiPrompts','全部')">全部</button>
+          <button class="tf-btn" onclick="filterListByTag('aiPrompts','编程')">💻 编程</button>
+          <button class="tf-btn" onclick="filterListByTag('aiPrompts','写作')">✍️ 写作</button>
+          <button class="tf-btn" onclick="filterListByTag('aiPrompts','办公')">📊 办公</button>
+          <button class="tf-btn" onclick="filterListByTag('aiPrompts','学习')">📚 学习</button>
+          <button class="tf-btn" onclick="filterListByTag('aiPrompts','生活')">🌿 生活</button>
+          <button class="tf-btn" onclick="filterListByTag('aiPrompts','角色')">🎭 角色</button>
+        </div>
+        <button class="tf-arrow tf-arrow-right" onclick="scrollTags('aiPrompts',1)">›</button>
+      </div>
     </div>
     <div id="lc_aiPrompts"></div>
   </div>
@@ -1650,16 +1750,30 @@ myprompts:`
   </div>
   <div class="card tint-amber">
     <div class="card-h">📝 我的提示词库 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('myPrompts')">+ 新增</button></div>
-    <div class="tag-filter" id="filter_myPrompts">
-      <button class="tf-btn active" onclick="filterListByTag('myPrompts','全部')">全部</button>
-      <button class="tf-btn" onclick="filterListByTag('myPrompts','工作')">💼 工作</button>
-      <button class="tf-btn" onclick="filterListByTag('myPrompts','学习')">📚 学习</button>
-      <button class="tf-btn" onclick="filterListByTag('myPrompts','创作')">✍️ 创作</button>
-      <button class="tf-btn" onclick="filterListByTag('myPrompts','技术')">💻 技术</button>
-      <button class="tf-btn" onclick="filterListByTag('myPrompts','生活')">🌿 生活</button>
-      <button class="tf-btn" onclick="filterListByTag('myPrompts','人物角色板')">🎭 人物角色板</button>
-      <button class="tf-btn" onclick="filterListByTag('myPrompts','分镜故事版')">🎬 分镜故事版</button>
-      <button class="tf-btn" onclick="filterListByTag('myPrompts','漫剧角色')">🎭 漫剧角色</button>
+    <div class="tag-filter-wrap">
+      <div class="tf-header">
+        <div class="tf-title">🏷️ 分类 <span class="count" id="count_myPrompts">9 个分类</span></div>
+        <div class="tf-search">
+          <span class="tf-search-icon">🔍</span>
+          <input type="text" class="tf-search-input" placeholder="搜索分类…" oninput="filterTags('myPrompts',this.value)">
+          <span class="tf-search-clear" onclick="clearTagSearch('myPrompts')">✕</span>
+        </div>
+      </div>
+      <div class="tf-slider">
+        <button class="tf-arrow tf-arrow-left" onclick="scrollTags('myPrompts',-1)">‹</button>
+        <div class="tf-track" id="filter_myPrompts">
+          <button class="tf-btn active" onclick="filterListByTag('myPrompts','全部')">全部</button>
+          <button class="tf-btn" onclick="filterListByTag('myPrompts','工作')">💼 工作</button>
+          <button class="tf-btn" onclick="filterListByTag('myPrompts','学习')">📚 学习</button>
+          <button class="tf-btn" onclick="filterListByTag('myPrompts','创作')">✍️ 创作</button>
+          <button class="tf-btn" onclick="filterListByTag('myPrompts','技术')">💻 技术</button>
+          <button class="tf-btn" onclick="filterListByTag('myPrompts','生活')">🌿 生活</button>
+          <button class="tf-btn" onclick="filterListByTag('myPrompts','人物角色板')">🎭 人物角色板</button>
+          <button class="tf-btn" onclick="filterListByTag('myPrompts','分镜故事版')">🎬 分镜故事版</button>
+          <button class="tf-btn" onclick="filterListByTag('myPrompts','漫剧角色')">🎭 漫剧角色</button>
+        </div>
+        <button class="tf-arrow tf-arrow-right" onclick="scrollTags('myPrompts',1)">›</button>
+      </div>
     </div>
     <div id="lc_myPrompts"></div>
   </div>
@@ -1833,14 +1947,28 @@ aitech:`
   </div>
   <div class="card">
     <div class="card-h">💬 提示词库 <span style="font-size:11px;color:var(--ink-3);font-weight:400;margin-left:4px">源自网络社区精选</span> <button class="btn btn-ghost" style="margin-left:auto;font-size:11px" onclick="restorePrompts()" title="恢复精选提示词">🔄 恢复精选</button> <button class="btn btn-accent" onclick="openListModal('aitechPrompts')">+ 新增</button></div>
-    <div class="tag-filter" id="filter_aitechPrompts">
-      <button class="tf-btn active" onclick="filterListByTag('aitechPrompts','全部')">全部</button>
-      <button class="tf-btn" onclick="filterListByTag('aitechPrompts','图片')">🖼️ 图片</button>
-      <button class="tf-btn" onclick="filterListByTag('aitechPrompts','视频')">🎬 视频</button>
-      <button class="tf-btn" onclick="filterListByTag('aitechPrompts','人物')">🧑 人物</button>
-      <button class="tf-btn" onclick="filterListByTag('aitechPrompts','场景')">🌅 场景</button>
-      <button class="tf-btn" onclick="filterListByTag('aitechPrompts','艺术')">🎨 艺术</button>
-      <button class="tf-btn" onclick="filterListByTag('aitechPrompts','公式')">📐 公式</button>
+    <div class="tag-filter-wrap">
+      <div class="tf-header">
+        <div class="tf-title">🏷️ 分类 <span class="count" id="count_aitechPrompts">7 个分类</span></div>
+        <div class="tf-search">
+          <span class="tf-search-icon">🔍</span>
+          <input type="text" class="tf-search-input" placeholder="搜索分类…" oninput="filterTags('aitechPrompts',this.value)">
+          <span class="tf-search-clear" onclick="clearTagSearch('aitechPrompts')">✕</span>
+        </div>
+      </div>
+      <div class="tf-slider">
+        <button class="tf-arrow tf-arrow-left" onclick="scrollTags('aitechPrompts',-1)">‹</button>
+        <div class="tf-track" id="filter_aitechPrompts">
+          <button class="tf-btn active" onclick="filterListByTag('aitechPrompts','全部')">全部</button>
+          <button class="tf-btn" onclick="filterListByTag('aitechPrompts','图片')">🖼️ 图片</button>
+          <button class="tf-btn" onclick="filterListByTag('aitechPrompts','视频')">🎬 视频</button>
+          <button class="tf-btn" onclick="filterListByTag('aitechPrompts','人物')">🧑 人物</button>
+          <button class="tf-btn" onclick="filterListByTag('aitechPrompts','场景')">🌅 场景</button>
+          <button class="tf-btn" onclick="filterListByTag('aitechPrompts','艺术')">🎨 艺术</button>
+          <button class="tf-btn" onclick="filterListByTag('aitechPrompts','公式')">📐 公式</button>
+        </div>
+        <button class="tf-arrow tf-arrow-right" onclick="scrollTags('aitechPrompts',1)">›</button>
+      </div>
     </div>
     <div id="lc_aitechPrompts"></div>
   </div>
@@ -3035,6 +3163,8 @@ function switchSection(id){
   if(id==='inspo') renderInspos();
   if(id==='ledger') renderLedger();
   (SECTION_LISTS[id]||[]).forEach(k=>renderList(k));
+  /* 初始化分类筛选器箭头状态 */
+  setTimeout(function(){ initAllTagFilters(); },50);
   if(window.innerWidth<=768) toggleSidebar(false);
   /* 重新触发卡片入场动画 */
   var cards=content.querySelectorAll('.card');
@@ -3099,9 +3229,71 @@ function restoreAiPrompts(){
 var LIST_TAG_FILTER={};
 function filterListByTag(listKey,tag){
   LIST_TAG_FILTER[listKey]=tag;
-  var btns=document.querySelectorAll('#filter_'+listKey+' .tf-btn');
+  var track=document.getElementById('filter_'+listKey);
+  if(!track) return;
+  var btns=track.querySelectorAll('.tf-btn');
   btns.forEach(function(b){b.classList.toggle('active',b.textContent.replace(/^[^\u4e00-\u9fa5a-zA-Z]+/,'').trim()===tag||b.textContent.trim()===tag);});
   renderList(listKey);
+}
+
+/* ========== 分类筛选器：搜索 + 滑动 ========== */
+function filterTags(listKey,keyword){
+  keyword=(keyword||'').trim().toLowerCase();
+  var track=document.getElementById('filter_'+listKey);
+  if(!track) return;
+  var btns=track.querySelectorAll('.tf-btn');
+  var wrap=track.closest('.tag-filter-wrap');
+  var clearBtn=wrap?wrap.querySelector('.tf-search-clear'):null;
+  
+  if(clearBtn) clearBtn.style.display=keyword?'flex':'none';
+  
+  var visibleCount=0;
+  btns.forEach(function(btn){
+    var text=btn.textContent.toLowerCase();
+    var match=!keyword || text.includes(keyword);
+    btn.classList.toggle('filtered-out',!match);
+    if(match) visibleCount++;
+  });
+  
+  // 更新计数
+  var countEl=document.getElementById('count_'+listKey);
+  if(countEl) countEl.textContent=keyword?(visibleCount+' / '+btns.length+' 个'):(btns.length+' 个分类');
+}
+
+function clearTagSearch(listKey){
+  var wrap=document.querySelector('#filter_'+listKey)?.closest('.tag-filter-wrap');
+  if(!wrap) return;
+  var input=wrap.querySelector('.tf-search-input');
+  if(input){ input.value=''; filterTags(listKey,''); }
+}
+
+function scrollTags(listKey,dir){
+  var track=document.getElementById('filter_'+listKey);
+  if(!track) return;
+  var step=track.clientWidth*0.6;
+  track.scrollBy({left:dir*step,behavior:'smooth'});
+  setTimeout(function(){ updateTagArrows(listKey); },300);
+}
+
+function updateTagArrows(listKey){
+  var track=document.getElementById('filter_'+listKey);
+  if(!track) return;
+  var slider=track.closest('.tf-slider');
+  if(!slider) return;
+  var leftBtn=slider.querySelector('.tf-arrow-left');
+  var rightBtn=slider.querySelector('.tf-arrow-right');
+  if(leftBtn) leftBtn.disabled=track.scrollLeft<=2;
+  if(rightBtn) rightBtn.disabled=track.scrollLeft+track.clientWidth>=track.scrollWidth-2;
+}
+
+/* 初始化所有分类筛选器的箭头状态 */
+function initAllTagFilters(){
+  ['aiPrompts','myPrompts','aitechPrompts'].forEach(function(key){
+    var track=document.getElementById('filter_'+key);
+    if(!track) return;
+    updateTagArrows(key);
+    track.addEventListener('scroll',function(){ updateTagArrows(key); });
+  });
 }
 function renderList(listKey){
   const config=LISTS[listKey];
