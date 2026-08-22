@@ -467,6 +467,93 @@
   body[data-theme="sunset"] .empty-hint{background:linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.3));border-color:rgba(255,255,255,.5);backdrop-filter:blur(8px)}
   body[data-theme="sunset"] .sidebar{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 
+  /* ===== 智能体库模块样式 ===== */
+  .agent-form-row{margin-bottom:12px;}
+  .agent-form-row label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px;}
+  .agent-btn-row{display:flex;gap:10px;margin-top:12px;}
+  .agent-btn-row .btn{flex:1;padding:10px;font-size:14px;font-weight:600;}
+  .agent-btn-row .btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  /* 加载动画 */
+  .agent-spinner{
+    width:36px;height:36px;border:3px solid var(--line);border-top-color:var(--accent);
+    border-radius:50%;animation:agentSpin .8s linear infinite;margin:0 auto;
+  }
+  @keyframes agentSpin{to{transform:rotate(360deg)}}
+
+  /* 错误提示框 */
+  .agent-error-box{
+    background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(239,68,68,.05));
+    border:1px solid rgba(239,68,68,.3);
+    border-radius:10px;padding:12px 14px;
+  }
+  .agent-error-title{font-weight:700;color:#ef4444;margin-bottom:4px;font-size:14px;}
+  .agent-error-msg{font-size:13px;color:var(--ink-2);line-height:1.5;}
+
+  /* 结果元信息 */
+  .agent-meta-row{display:flex;padding:4px 0;font-size:13px;line-height:1.6;}
+  .agent-meta-label{font-weight:600;color:var(--ink-2);min-width:56px;flex-shrink:0;}
+  .agent-meta-value{color:var(--ink);flex:1;}
+
+  /* 角色卡片 */
+  .agent-char-list{display:flex;flex-direction:column;gap:10px;}
+  .agent-char-card{
+    background:rgba(139,92,246,.06);
+    border:1px solid rgba(139,92,246,.15);
+    border-radius:10px;padding:12px;
+  }
+  .agent-char-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .agent-char-name{font-weight:700;color:var(--ink);font-size:15px;}
+  .agent-char-role{font-size:12px;color:var(--ink-3);font-weight:400;margin-left:6px;}
+  .agent-copy-btn{padding:4px 10px;font-size:11px;}
+  .agent-char-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+  .agent-tag{
+    display:inline-block;padding:2px 8px;font-size:11px;font-weight:500;
+    background:var(--tag-violet);color:var(--tag-violet-t);border-radius:6px;
+  }
+  .agent-char-prompt{
+    background:rgba(255,255,255,.5);border-radius:8px;padding:8px 10px;
+    font-size:12px;line-height:1.5;margin-top:6px;
+  }
+  .agent-char-label{font-weight:600;color:var(--ink-2);margin-bottom:4px;font-size:12px;}
+  .agent-char-prompt-text{color:var(--ink);word-break:break-all;}
+  .agent-char-voice{margin-top:6px;font-size:12px;color:var(--ink-2);}
+
+  /* 分镜卡片 */
+  .agent-shot-table{display:flex;flex-direction:column;gap:10px;}
+  .agent-shot-card{
+    background:rgba(245,158,11,.05);
+    border:1px solid rgba(245,158,11,.15);
+    border-radius:10px;overflow:hidden;
+  }
+  .agent-shot-head{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    padding:8px 12px;background:rgba(245,158,11,.08);
+    border-bottom:1px solid rgba(245,158,11,.1);
+    font-size:12px;
+  }
+  .agent-shot-id{font-weight:700;color:var(--accent-warm);}
+  .agent-shot-camera{color:var(--ink-2);}
+  .agent-shot-dur{color:var(--ink-3);margin-left:auto;}
+  .agent-shot-head .agent-copy-btn{margin-left:auto;}
+  .agent-shot-body{padding:10px 12px;font-size:13px;}
+  .agent-shot-row{display:flex;padding:3px 0;line-height:1.5;}
+  .agent-shot-label{font-weight:600;color:var(--ink-2);min-width:50px;flex-shrink:0;font-size:12px;}
+  .agent-shot-row > span:last-child{color:var(--ink);flex:1;}
+  .agent-shot-dialogue{color:var(--accent)!important;font-style:italic;}
+  .agent-shot-narration{color:var(--ink-2)!important;}
+  .agent-shot-draw{
+    margin-top:6px;padding:8px 10px;background:rgba(255,255,255,.5);
+    border-radius:8px;font-size:12px;line-height:1.5;
+  }
+  .agent-shot-draw-text{color:var(--ink);word-break:break-all;margin-top:4px;}
+
+  /* 响应式 */
+  @media(max-width:768px){
+    .agent-btn-row{flex-direction:column;}
+    .agent-shot-head .agent-copy-btn{margin-left:0;}
+  }
+
   /* ===== 主题选择器 ===== */
   /* ===== 新版主题选择器 ===== */
   .theme-selector-wrap{
@@ -1409,6 +1496,7 @@ const NAV=[
   {id:'aitech',   ico:'🤖', name:'AI技术学习',          group:'学习成长'},
   {id:'ai',       ico:'🧠', name:'AI学习',              group:'学习成长'},
   {id:'myprompts',ico:'📝', name:'我的提示词',          group:'学习成长'},
+  {id:'agent',    ico:'🎬', name:'智能体库',            group:'学习成长'},
   {id:'fit',      ico:'💪', name:'力量训练',            group:'生活管理'},
   {id:'car',      ico:'🚗', name:'爱车管理',            group:'生活管理'},
   {id:'groom',    ico:'🧔', name:'理容穿搭',            group:'生活管理'},
@@ -1564,6 +1652,12 @@ const LISTS={
     {key:'title',label:'笔记标题',type:'input',placeholder:'如：转场技巧总结',as:'title'},
     {key:'desc',label:'内容',type:'textarea',placeholder:'学习笔记',as:'desc'}
   ]},
+  /* --- 智能体库 --- */
+  scriptProjects:{title:'漫剧项目',icon:'🎬',dbKey:'scriptProjects',fields:[
+    {key:'title',label:'项目标题',type:'input',placeholder:'如：重生之都市修仙',as:'title'},
+    {key:'tag',label:'题材',type:'input',placeholder:'如：古风爽剧',as:'tag'},
+    {key:'desc',label:'一句话梗概',type:'textarea',placeholder:'故事核心梗概',as:'desc'}
+  ]},
   /* --- AI技术学习 --- */
   aitechPrompts:{title:'提示词库',icon:'💬',dbKey:'aitechPrompts',copyField:'desc',clickCopy:true,fields:[
     {key:'title',label:'提示词名称',type:'input',placeholder:'如：人物一致性提示词',as:'title'},
@@ -1619,6 +1713,7 @@ const SECTION_LISTS={
   selfmedia:['smCases','smTopics','smScripts','smNotes'],
   aitech:['aitechPrompts','aitechComfy','aitechModels','aitechNotes'],
   bills:['billsRent','billsUtility','billsFixed'],
+  agent:['scriptProjects'],
 };
 
 /* ========== 各板块内容 ========== */
@@ -1831,6 +1926,140 @@ myprompts:`
       </div>
     </div>
     <div id="lc_myPrompts"></div>
+  </div>
+`,
+
+agent:`
+  <div class="page-head"><span class="bow">🎬</span><h1>智能体库</h1><span class="sub">· AI 漫剧创作助手 · 一键生成剧本分镜</span></div>
+
+  <!-- API 设置折叠区 -->
+  <div class="card tint-blue" id="agentApiCard">
+    <div class="card-h" style="cursor:pointer" onclick="toggleAgentApiSettings()">
+      ⚙️ API 设置
+      <span style="margin-left:auto;font-size:12px;color:var(--ink-3)" id="agentApiToggle">展开 ▼</span>
+    </div>
+    <div id="agentApiSettings" style="display:none;margin-top:10px">
+      <div class="agent-form-row">
+        <label>API 地址（Base URL）</label>
+        <input class="crud-input" id="agentApiBaseUrl" placeholder="https://api.openai.com/v1 或兼容地址">
+      </div>
+      <div class="agent-form-row">
+        <label>API Key</label>
+        <input class="crud-input" id="agentApiKey" type="password" placeholder="sk-...">
+      </div>
+      <div class="agent-form-row" style="display:flex;gap:8px">
+        <button class="btn btn-accent" style="flex:1" onclick="saveAgentApiSettings()">💾 保存设置</button>
+        <button class="btn btn-ghost" onclick="testAgentApi()">🔌 测试连接</button>
+      </div>
+      <div class="txt" style="font-size:12px;color:var(--ink-3);margin-top:6px">
+        💡 支持 OpenAI 兼容接口（如 DeepSeek、通义千问、智谱等）。数据仅保存在本地浏览器。
+      </div>
+    </div>
+  </div>
+
+  <!-- 配置区域 -->
+  <div class="card">
+    <div class="card-h">🎨 创作配置</div>
+    <div class="agent-form-row">
+      <label>画风 <span style="color:var(--ink-3);font-weight:400">（可选预设或自定义）</span></label>
+      <div style="display:flex;gap:8px">
+        <select class="crud-input" id="agentStyle" onchange="onAgentStyleChange()" style="flex:1">
+          <option value="">请选择画风…</option>
+          <option value="国漫写实">国漫写实</option>
+          <option value="韩漫">韩漫</option>
+          <option value="二次元">二次元</option>
+          <option value="古风厚涂">古风厚涂</option>
+          <option value="都市写实">都市写实</option>
+          <option value="悬疑暗黑">悬疑暗黑</option>
+          <option value="仙侠唯美">仙侠唯美</option>
+          <option value="__custom__">✏️ 自定义输入…</option>
+        </select>
+        <input class="crud-input" id="agentStyleCustom" placeholder="输入自定义画风" style="flex:1;display:none">
+      </div>
+    </div>
+    <div class="agent-form-row">
+      <label>题材类型 <span style="color:var(--ink-3);font-weight:400">（可选预设或自定义）</span></label>
+      <div style="display:flex;gap:8px">
+        <select class="crud-input" id="agentGenre" onchange="onAgentGenreChange()" style="flex:1">
+          <option value="">请选择题材…</option>
+          <option value="古风爽剧">古风爽剧</option>
+          <option value="现代都市">现代都市</option>
+          <option value="悬疑">悬疑</option>
+          <option value="仙侠">仙侠</option>
+          <option value="虐恋">虐恋</option>
+          <option value="复仇">复仇</option>
+          <option value="甜宠">甜宠</option>
+          <option value="__custom__">✏️ 自定义输入…</option>
+        </select>
+        <input class="crud-input" id="agentGenreCustom" placeholder="输入自定义题材" style="flex:1;display:none">
+      </div>
+    </div>
+    <div class="agent-form-row">
+      <label>故事灵感 <span style="color:var(--ink-3);font-weight:400">（描述你的核心想法）</span></label>
+      <textarea class="crud-textarea" id="agentIdea" rows="4" placeholder="例如：女主是现代医学生，穿越到古代成为废柴小姐，靠医术逆袭，打脸渣男，邂逅王爷…"></textarea>
+    </div>
+    <div class="agent-btn-row">
+      <button class="btn btn-accent" id="btnGenerateScript" onclick="generateManhuaScript()">✨ 生成漫剧剧本</button>
+      <button class="btn btn-mint" id="btnModifyScript" onclick="modifyManhuaScript()" disabled>✏️ 修改现有剧本</button>
+    </div>
+    <!-- 加载状态 -->
+    <div id="agentLoading" style="display:none;margin-top:12px;text-align:center;padding:20px">
+      <div class="agent-spinner"></div>
+      <div class="txt" style="margin-top:8px;color:var(--ink-2)" id="agentLoadingText">AI 正在创作中，请稍候…</div>
+    </div>
+    <!-- 错误提示 -->
+    <div id="agentError" style="display:none;margin-top:12px" class="agent-error-box">
+      <div class="agent-error-title">❌ 出错了</div>
+      <div class="agent-error-msg" id="agentErrorMsg"></div>
+    </div>
+  </div>
+
+  <!-- 结果展示区 -->
+  <div id="agentResult" style="display:none">
+    <!-- 基本信息 -->
+    <div class="card tint-rose">
+      <div class="card-h">
+        📄 漫剧剧本
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <button class="btn btn-accent" onclick="saveScriptProject()" style="padding:6px 12px;font-size:12px">💾 保存到项目</button>
+          <button class="btn btn-mint" onclick="copyFullScript()" style="padding:6px 12px;font-size:12px">📋 复制完整剧本</button>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <div class="agent-meta-row"><span class="agent-meta-label">标题：</span><span id="resTitle" class="agent-meta-value"></span></div>
+        <div class="agent-meta-row"><span class="agent-meta-label">题材：</span><span id="resGenre" class="agent-meta-value"></span></div>
+        <div class="agent-meta-row"><span class="agent-meta-label">画风：</span><span id="resStyle" class="agent-meta-value"></span></div>
+        <div class="agent-meta-row"><span class="agent-meta-label">梗概：</span><span id="resLogline" class="agent-meta-value"></span></div>
+      </div>
+    </div>
+
+    <!-- 角色列表 -->
+    <div class="card tint-violet">
+      <div class="card-h">🎭 角色列表</div>
+      <div id="resCharacters" class="agent-char-list"></div>
+    </div>
+
+    <!-- 分镜表格 -->
+    <div class="card tint-amber">
+      <div class="card-h">🎬 分镜脚本</div>
+      <div id="resShots" class="agent-shot-list"></div>
+    </div>
+
+    <!-- 修改指令 -->
+    <div class="card" style="border-left:4px solid var(--accent-2)">
+      <div class="card-h">✏️ 修改剧本</div>
+      <div class="txt" style="font-size:12px;color:var(--ink-2);margin-bottom:8px">
+        输入修改指令，AI 将在当前剧本基础上进行调整。可以同时调整画风和题材。
+      </div>
+      <textarea class="crud-textarea" id="agentModifyInstr" rows="3" placeholder="例如：把女主改成冷傲型性格，增加一场雨中相遇的戏，结局改成开放式…"></textarea>
+      <button class="btn btn-mint" style="width:100%;margin-top:8px" onclick="modifyManhuaScript()">🔄 基于当前剧本修改</button>
+    </div>
+  </div>
+
+  <!-- 历史项目列表 -->
+  <div class="card">
+    <div class="card-h">📂 漫剧项目 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('scriptProjects')">+ 新增</button></div>
+    <div id="lc_scriptProjects"></div>
   </div>
 `,
 
@@ -2719,6 +2948,7 @@ function ensureKeys(){
   if(!Array.isArray(DB.ledger))DB.ledger=[];
   if(!Array.isArray(DB.checkedDays))DB.checkedDays=[];
   if(typeof DB.budget!=='number')DB.budget=6000;
+  if(!DB.apiSettings||typeof DB.apiSettings!=='object')DB.apiSettings={apiBaseUrl:'',apiKey:''};
   Object.keys(LISTS).forEach(k=>{ const dk=LISTS[k].dbKey; if(!Array.isArray(DB[dk]))DB[dk]=[]; });
 }
 
@@ -3206,6 +3436,7 @@ function switchSection(id){
   let html;
   if(id==='data'){ html=renderDataMgr(); }
   else if(id==='overview'){ html=renderOverviewHTML(); }
+  else if(id==='agent'){ html=SECTIONS.agent; }
   else { html=SECTIONS[id]||'<div class="empty"><div class="big">🚧</div>板块建设中…</div>'; }
   /* 面包屑导航 + 顶部随机激励语滚动条 */
   const breadcrumb=id==='overview'?'':getBreadcrumb(id);
@@ -3218,6 +3449,7 @@ function switchSection(id){
   if(id==='car') renderOilPrice();
   if(id==='inspo') renderInspos();
   if(id==='ledger') renderLedger();
+  if(id==='agent') initAgentSection();
   (SECTION_LISTS[id]||[]).forEach(k=>renderList(k));
   /* 初始化分类筛选器箭头状态 */
   setTimeout(function(){ initAllTagFilters(); },50);
@@ -4987,6 +5219,7 @@ function renderDataMgr(){
     '<button class="btn btn-ghost" onclick="exportModule(\'ledger\',\'小账本\')">📊 小账本</button>'+
     '<button class="btn btn-ghost" onclick="exportModule(\'inspos\',\'灵感收藏\')">⭐ 灵感收藏</button>'+
     '<button class="btn btn-ghost" onclick="exportModule(\'todos\',\'每日计划\')">📅 每日计划</button>'+
+    '<button class="btn btn-ghost" onclick="exportModule(\'scriptProjects\',\'漫剧项目\')">🎬 漫剧项目</button>'+
     '</div></div>';
 }
 function saveCloudCfg(){
@@ -5154,6 +5387,540 @@ function resetData(){
       showToast('已清空所有数据','warn');
       switchSection('data');
     }
+  }
+}
+
+/* ========== 智能体库模块（漫剧创作 AI） ========== */
+let _currentManhuaScript=null;  /* 当前编辑中的漫剧剧本JSON */
+
+/* 漫剧创作 System Prompt */
+const MANHUA_SYSTEM_PROMPT = `# 漫剧创作智能体
+你是专业AI漫剧创作助手，服务短视频漫剧创作者，擅长网文改编、爽剧、古风、现代都市、悬疑、仙侠漫剧。
+你的输出全部为结构化JSON，方便网页程序读取解析。
+## 核心能力
+1. 故事构思：根据用户提供灵感、指定画风、指定题材，生成题材、卖点、故事大纲、人物设定。
+2. 角色卡生成：输出角色档案+可直接复制AI绘图prompt，保证角色特征统一。
+3. 剧本改写：小说片段转为漫剧剧本；台词短句化，单句台词≤15字，适配短视频字幕配音。
+4. 分镜脚本生成：拆分镜头，输出镜头ID、景别运镜、画面描述、角色动作、台词、旁白、情绪、镜头时长、AI绘图提示词、配音情绪、BGM建议。
+5. 迭代修改：接收修改指令，修改剧情、镜头、画风、角色。
+
+## 输出规范
+视频画幅9:16竖屏漫剧。
+开场3秒制造冲突钩子，每10‑15秒小反转，结尾留悬念。
+单镜头3‑7秒，一集8‑14个镜头。
+景别：特写、近景、中景、全景、远景；运镜：推、拉、摇、移、跟、闪回。
+角色描述保留固定特征标签，保证人物一致性。
+严格遵从用户指定的画风与题材类型。
+只输出JSON，禁止多余闲聊、文学大段描写。
+
+输出JSON Schema：
+{
+  "title":"漫剧标题",
+  "genre":"题材类型",
+  "logline":"一句话故事梗概",
+  "style":"整体画风",
+  "characters":[
+    {
+      "name":"角色名",
+      "role":"主角/反派/配角",
+      "personality":["性格标签"],
+      "draw_prompt":"AI绘图提示词",
+      "voice_tip":"配音音色建议"
+    }
+  ],
+  "shots":[
+    {
+      "shot_id":1,
+      "duration":4,
+      "camera":"近景，缓慢推镜头",
+      "scene":"场景环境氛围",
+      "action":"人物动作微表情",
+      "dialogue":"台词",
+      "narration":"旁白",
+      "emotion":"情绪",
+      "draw_prompt":"镜头绘图提示词",
+      "bgm":"背景音乐建议",
+      "sound_effect":"音效"
+    }
+  ]
+}`;
+
+/* 初始化智能体库页面 */
+function initAgentSection(){
+  /* 填充API设置 */
+  const s=DB.apiSettings||{};
+  const urlEl=document.getElementById('agentApiBaseUrl');
+  const keyEl=document.getElementById('agentApiKey');
+  if(urlEl) urlEl.value=s.apiBaseUrl||'';
+  if(keyEl) keyEl.value=s.apiKey||'';
+  /* 如果已有当前剧本，渲染结果 */
+  if(_currentManhuaScript){
+    renderAgentResult(_currentManhuaScript);
+  }
+}
+
+/* 切换API设置折叠 */
+function toggleAgentApiSettings(){
+  const el=document.getElementById('agentApiSettings');
+  const toggle=document.getElementById('agentApiToggle');
+  if(!el) return;
+  if(el.style.display==='none'){
+    el.style.display='block';
+    toggle.textContent='收起 ▲';
+  }else{
+    el.style.display='none';
+    toggle.textContent='展开 ▼';
+  }
+}
+
+/* 保存API设置 */
+function saveAgentApiSettings(){
+  const url=document.getElementById('agentApiBaseUrl').value.trim();
+  const key=document.getElementById('agentApiKey').value.trim();
+  DB.apiSettings={apiBaseUrl:url,apiKey:key};
+  saveData();
+  showToast('API 设置已保存','success');
+}
+
+/* 测试API连接 */
+function testAgentApi(){
+  const s=DB.apiSettings||{};
+  if(!s.apiBaseUrl||!s.apiKey){
+    showAgentError('请先填写 API 地址和 API Key，然后点击「保存设置」');
+    return;
+  }
+  showAgentLoading('正在测试连接…');
+  hideAgentError();
+  callAgentLLM('你是一个测试助手。','回复"连接成功"三个字。',true)
+    .then(()=>{
+      hideAgentLoading();
+      showToast('API 连接成功！','success');
+    })
+    .catch(err=>{
+      hideAgentLoading();
+      showAgentError('连接失败：'+(err.message||err));
+    });
+}
+
+/* 画风选择变化 */
+function onAgentStyleChange(){
+  const sel=document.getElementById('agentStyle');
+  const custom=document.getElementById('agentStyleCustom');
+  if(!sel||!custom) return;
+  custom.style.display=sel.value==='__custom__'?'block':'none';
+}
+
+/* 题材选择变化 */
+function onAgentGenreChange(){
+  const sel=document.getElementById('agentGenre');
+  const custom=document.getElementById('agentGenreCustom');
+  if(!sel||!custom) return;
+  custom.style.display=sel.value==='__custom__'?'block':'none';
+}
+
+/* 获取当前画风值 */
+function getAgentStyle(){
+  const sel=document.getElementById('agentStyle');
+  const custom=document.getElementById('agentStyleCustom');
+  if(!sel) return '';
+  if(sel.value==='__custom__') return custom?custom.value.trim():'未指定';
+  return sel.value;
+}
+
+/* 获取当前题材值 */
+function getAgentGenre(){
+  const sel=document.getElementById('agentGenre');
+  const custom=document.getElementById('agentGenreCustom');
+  if(!sel) return '';
+  if(sel.value==='__custom__') return custom?custom.value.trim():'未指定';
+  return sel.value;
+}
+
+/* 调用大模型API */
+function callAgentLLM(systemPrompt, userMessage, isTest){
+  const s=DB.apiSettings||{};
+  let baseUrl=s.apiBaseUrl||'';
+  const apiKey=s.apiKey||'';
+  if(!baseUrl||!apiKey){
+    return Promise.reject(new Error('API 地址或 Key 未设置，请先在上方「API 设置」中填写并保存'));
+  }
+  /* 规范化 baseUrl，确保以 /v1 结尾或兼容 */
+  baseUrl=baseUrl.replace(/\/+$/,'');
+  if(!baseUrl.endsWith('/v1')&&!baseUrl.endsWith('/chat/completions')){
+    baseUrl=baseUrl+'/v1';
+  }
+  const url=baseUrl+'/chat/completions';
+
+  return fetch(url,{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer '+apiKey
+    },
+    body:JSON.stringify({
+      model: isTest ? 'gpt-4o-mini' : 'gpt-4o',
+      messages:[
+        {role:'system',content:systemPrompt},
+        {role:'user',content:userMessage}
+      ],
+      temperature:0.8,
+      response_format:{type:'json_object'}
+    })
+  }).then(r=>{
+    if(!r.ok){
+      return r.text().then(t=>{
+        let msg='HTTP '+r.status;
+        try{ const e=JSON.parse(t); if(e.error&&e.error.message) msg+='：'+e.error.message; }catch(_){}
+        throw new Error(msg);
+      });
+    }
+    return r.json();
+  }).then(data=>{
+    const content=data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content;
+    if(!content) throw new Error('API 返回内容为空');
+    return content;
+  });
+}
+
+/* 从文本中提取JSON（容错处理） */
+function extractJsonFromText(text){
+  if(!text) return null;
+  /* 先尝试直接解析 */
+  try{ return JSON.parse(text); }catch(_){}
+  /* 尝试提取第一个 { 到最后一个 } */
+  const first=text.indexOf('{');
+  const last=text.lastIndexOf('}');
+  if(first>-1&&last>-1&&last>first){
+    try{ return JSON.parse(text.substring(first,last+1)); }catch(_){}
+  }
+  /* 尝试用正则匹配 JSON 对象 */
+  const match=text.match(/\{[\s\S]*\}/);
+  if(match){
+    try{ return JSON.parse(match[0]); }catch(_){}
+  }
+  return null;
+}
+
+/* 生成漫剧剧本 */
+function generateManhuaScript(){
+  const style=getAgentStyle();
+  const genre=getAgentGenre();
+  const idea=document.getElementById('agentIdea').value.trim();
+
+  if(!idea){
+    showAgentError('请填写故事灵感，描述你的核心想法');
+    return;
+  }
+  if(!style){
+    showAgentError('请选择画风');
+    return;
+  }
+  if(!genre){
+    showAgentError('请选择题材类型');
+    return;
+  }
+
+  const s=DB.apiSettings||{};
+  if(!s.apiBaseUrl||!s.apiKey){
+    showAgentError('请先在上方「API 设置」中填写 API 地址和 Key 并保存');
+    return;
+  }
+
+  hideAgentError();
+  showAgentLoading('AI 正在创作漫剧剧本，请稍候…');
+  setAgentButtonsDisabled(true);
+
+  const userMsg=`请根据以下信息创作一部完整的漫剧剧本：
+【画风】${style}
+【题材类型】${genre}
+【故事灵感】${idea}
+
+请严格按照指定的 JSON 格式输出完整的漫剧剧本，包含标题、题材、梗概、画风、角色列表和分镜镜头。`;
+
+  callAgentLLM(MANHUA_SYSTEM_PROMPT, userMsg, false)
+    .then(content=>{
+      const data=extractJsonFromText(content);
+      if(!data){
+        throw new Error('无法解析返回的 JSON 数据，请重试或调整提示词');
+      }
+      /* 数据校验 */
+      if(!data.title||!Array.isArray(data.characters)||!Array.isArray(data.shots)){
+        throw new Error('返回数据格式不完整（缺少 title、characters 或 shots）');
+      }
+      _currentManhuaScript=data;
+      renderAgentResult(data);
+      hideAgentLoading();
+      showToast('漫剧剧本生成成功！','success');
+      /* 启用修改按钮 */
+      const btn=document.getElementById('btnModifyScript');
+      if(btn) btn.disabled=false;
+    })
+    .catch(err=>{
+      hideAgentLoading();
+      showAgentError('生成失败：'+(err.message||err));
+    })
+    .finally(()=>{
+      setAgentButtonsDisabled(false);
+    });
+}
+
+/* 修改现有剧本 */
+function modifyManhuaScript(){
+  if(!_currentManhuaScript){
+    showAgentError('当前没有可修改的剧本，请先生成一个剧本');
+    return;
+  }
+  const style=getAgentStyle();
+  const genre=getAgentGenre();
+  const instr=document.getElementById('agentModifyInstr').value.trim();
+
+  if(!instr){
+    showAgentError('请输入修改指令，描述你想如何调整剧本');
+    return;
+  }
+
+  const s=DB.apiSettings||{};
+  if(!s.apiBaseUrl||!s.apiKey){
+    showAgentError('请先在上方「API 设置」中填写 API 地址和 Key 并保存');
+    return;
+  }
+
+  hideAgentError();
+  showAgentLoading('AI 正在修改剧本，请稍候…');
+  setAgentButtonsDisabled(true);
+
+  const userMsg=`以下是当前的漫剧剧本完整 JSON：
+${JSON.stringify(_currentManhuaScript)}
+
+请根据以下修改指令，调整剧本并返回完整的新 JSON（保持相同的 JSON 结构）：
+【修改指令】${instr}
+${style?'【调整画风为】'+style:''}
+${genre?'【调整题材为】'+genre:''}
+
+请输出完整的修改后的漫剧剧本 JSON。`;
+
+  callAgentLLM(MANHUA_SYSTEM_PROMPT, userMsg, false)
+    .then(content=>{
+      const data=extractJsonFromText(content);
+      if(!data){
+        throw new Error('无法解析返回的 JSON 数据，请重试或调整修改指令');
+      }
+      if(!data.title||!Array.isArray(data.characters)||!Array.isArray(data.shots)){
+        throw new Error('返回数据格式不完整');
+      }
+      _currentManhuaScript=data;
+      renderAgentResult(data);
+      hideAgentLoading();
+      showToast('剧本修改成功！','success');
+    })
+    .catch(err=>{
+      hideAgentLoading();
+      showAgentError('修改失败：'+(err.message||err));
+    })
+    .finally(()=>{
+      setAgentButtonsDisabled(false);
+    });
+}
+
+/* 设置按钮禁用状态 */
+function setAgentButtonsDisabled(disabled){
+  ['btnGenerateScript','btnModifyScript'].forEach(id=>{
+    const btn=document.getElementById(id);
+    if(btn) btn.disabled=disabled;
+  });
+}
+
+/* 显示加载状态 */
+function showAgentLoading(text){
+  const el=document.getElementById('agentLoading');
+  const txt=document.getElementById('agentLoadingText');
+  if(el) el.style.display='block';
+  if(txt&&text) txt.textContent=text;
+}
+
+/* 隐藏加载状态 */
+function hideAgentLoading(){
+  const el=document.getElementById('agentLoading');
+  if(el) el.style.display='none';
+}
+
+/* 显示错误提示 */
+function showAgentError(msg){
+  const el=document.getElementById('agentError');
+  const msgEl=document.getElementById('agentErrorMsg');
+  if(el) el.style.display='block';
+  if(msgEl) msgEl.textContent=msg;
+}
+
+/* 隐藏错误提示 */
+function hideAgentError(){
+  const el=document.getElementById('agentError');
+  if(el) el.style.display='none';
+}
+
+/* 渲染漫剧结果 */
+function renderAgentResult(data){
+  const resultEl=document.getElementById('agentResult');
+  if(!resultEl) return;
+  resultEl.style.display='block';
+
+  document.getElementById('resTitle').textContent=data.title||'未命名';
+  document.getElementById('resGenre').textContent=data.genre||'未分类';
+  document.getElementById('resStyle').textContent=data.style||'默认画风';
+  document.getElementById('resLogline').textContent=data.logline||'暂无梗概';
+
+  /* 渲染角色列表 */
+  renderCharacters(data.characters||[]);
+  /* 渲染分镜列表 */
+  renderShots(data.shots||[]);
+}
+
+/* 渲染角色卡片 */
+function renderCharacters(chars){
+  const container=document.getElementById('resCharacters');
+  if(!container) return;
+  if(!chars.length){ container.innerHTML='<div class="txt" style="color:var(--ink-3)">暂无角色</div>'; return; }
+  let html='';
+  chars.forEach((c,i)=>{
+    const tags=(c.personality||[]).map(t=>'<span class="agent-tag">'+escapeHtml(t)+'</span>').join('');
+    html+=`
+      <div class="agent-char-card">
+        <div class="agent-char-head">
+          <div class="agent-char-name">${escapeHtml(c.name||'未知角色')} <span class="agent-char-role">${escapeHtml(c.role||'')}</span></div>
+          <button class="btn btn-mint agent-copy-btn" onclick="copyCharPrompt(${i})">📋 复制绘图提示词</button>
+        </div>
+        <div class="agent-char-tags">${tags}</div>
+        <div class="agent-char-prompt">
+          <div class="agent-char-label">🎨 绘图提示词：</div>
+          <div class="agent-char-prompt-text">${escapeHtml(c.draw_prompt||'')}</div>
+        </div>
+        ${c.voice_tip?`<div class="agent-char-voice">🎙️ 配音建议：${escapeHtml(c.voice_tip)}</div>`:''}
+      </div>`;
+  });
+  container.innerHTML=html;
+}
+
+/* 渲染分镜表格 */
+function renderShots(shots){
+  const container=document.getElementById('resShots');
+  if(!container) return;
+  if(!shots.length){ container.innerHTML='<div class="txt" style="color:var(--ink-3)">暂无分镜</div>'; return; }
+  let html='<div class="agent-shot-table">';
+  shots.forEach((s,i)=>{
+    html+=`
+      <div class="agent-shot-card">
+        <div class="agent-shot-head">
+          <span class="agent-shot-id">镜头 ${s.shot_id||(i+1)}</span>
+          <span class="agent-shot-camera">${escapeHtml(s.camera||'')}</span>
+          <span class="agent-shot-dur">⏱ ${s.duration||'?'}秒</span>
+          <button class="btn btn-mint agent-copy-btn" onclick="copyShotPrompt(${i})">📋 复制绘图提示词</button>
+        </div>
+        <div class="agent-shot-body">
+          <div class="agent-shot-row"><span class="agent-shot-label">场景：</span><span>${escapeHtml(s.scene||'')}</span></div>
+          <div class="agent-shot-row"><span class="agent-shot-label">动作：</span><span>${escapeHtml(s.action||'')}</span></div>
+          ${s.dialogue?`<div class="agent-shot-row"><span class="agent-shot-label">台词：</span><span class="agent-shot-dialogue">"${escapeHtml(s.dialogue)}"</span></div>`:''}
+          ${s.narration?`<div class="agent-shot-row"><span class="agent-shot-label">旁白：</span><span class="agent-shot-narration">${escapeHtml(s.narration)}</span></div>`:''}
+          <div class="agent-shot-row"><span class="agent-shot-label">情绪：</span><span>${escapeHtml(s.emotion||'')}</span></div>
+          <div class="agent-shot-row"><span class="agent-shot-label">BGM：</span><span>${escapeHtml(s.bgm||'')}</span></div>
+          ${s.sound_effect?`<div class="agent-shot-row"><span class="agent-shot-label">音效：</span><span>${escapeHtml(s.sound_effect)}</span></div>`:''}
+          <div class="agent-shot-draw">
+            <div class="agent-shot-label">🎨 绘图提示词：</div>
+            <div class="agent-shot-draw-text">${escapeHtml(s.draw_prompt||'')}</div>
+          </div>
+        </div>
+      </div>`;
+  });
+  html+='</div>';
+  container.innerHTML=html;
+}
+
+/* 保存漫剧到项目 */
+function saveScriptProject(){
+  if(!_currentManhuaScript){
+    showToast('当前没有可保存的剧本','warn');
+    return;
+  }
+  const data=_currentManhuaScript;
+  const item={
+    title:data.title||'未命名漫剧',
+    tag:data.genre||'未分类',
+    desc:data.logline||'',
+    /* 完整剧本数据存在 desc 的扩展字段里？不，直接用 data 字段 */
+    data:JSON.parse(JSON.stringify(data))  /* 深拷贝 */
+  };
+  DB.scriptProjects.push(item);
+  saveData();
+  renderList('scriptProjects');
+  showToast('已保存到漫剧项目','success');
+}
+
+/* 复制完整剧本 */
+function copyFullScript(){
+  if(!_currentManhuaScript){
+    showToast('当前没有剧本可复制','warn');
+    return;
+  }
+  const d=_currentManhuaScript;
+  let text=`【${d.title}】\n`;
+  text+=`题材：${d.genre||''}\n`;
+  text+=`画风：${d.style||''}\n`;
+  text+=`梗概：${d.logline||''}\n\n`;
+  text+=`━━━ 角色设定 ━━━\n`;
+  (d.characters||[]).forEach(c=>{
+    text+=`\n【${c.name}】${c.role||''}\n`;
+    text+=`性格：${(c.personality||[]).join('、')}\n`;
+    text+=`绘图提示词：${c.draw_prompt||''}\n`;
+    if(c.voice_tip) text+=`配音建议：${c.voice_tip}\n`;
+  });
+  text+=`\n━━━ 分镜脚本 ━━━\n`;
+  (d.shots||[]).forEach(s=>{
+    text+=`\n── 镜头 ${s.shot_id}（${s.camera||''} · ${s.duration||'?'}秒）──\n`;
+    text+=`场景：${s.scene||''}\n`;
+    text+=`动作：${s.action||''}\n`;
+    if(s.dialogue) text+=`台词："${s.dialogue}"\n`;
+    if(s.narration) text+=`旁白：${s.narration}\n`;
+    text+=`情绪：${s.emotion||''}\n`;
+    text+=`绘图：${s.draw_prompt||''}\n`;
+    if(s.bgm) text+=`BGM：${s.bgm}\n`;
+    if(s.sound_effect) text+=`音效：${s.sound_effect}\n`;
+  });
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>showToast('完整剧本已复制到剪贴板','success'));
+  }else{
+    const ta=document.createElement('textarea');
+    ta.value=text;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');showToast('完整剧本已复制','success');}catch(e){showToast('复制失败','error');}
+    document.body.removeChild(ta);
+  }
+}
+
+/* 复制角色绘图提示词 */
+function copyCharPrompt(idx){
+  if(!_currentManhuaScript||!_currentManhuaScript.characters) return;
+  const c=_currentManhuaScript.characters[idx];
+  if(!c||!c.draw_prompt){ showToast('该角色没有绘图提示词','warn'); return; }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(c.draw_prompt).then(()=>showToast(c.name+' 绘图提示词已复制','success'));
+  }else{
+    const ta=document.createElement('textarea');
+    ta.value=c.draw_prompt;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');showToast('已复制','success');}catch(e){showToast('复制失败','error');}
+    document.body.removeChild(ta);
+  }
+}
+
+/* 复制分镜绘图提示词 */
+function copyShotPrompt(idx){
+  if(!_currentManhuaScript||!_currentManhuaScript.shots) return;
+  const s=_currentManhuaScript.shots[idx];
+  if(!s||!s.draw_prompt){ showToast('该镜头没有绘图提示词','warn'); return; }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(s.draw_prompt).then(()=>showToast('镜头 '+(s.shot_id||(idx+1))+' 绘图提示词已复制','success'));
+  }else{
+    const ta=document.createElement('textarea');
+    ta.value=s.draw_prompt;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');showToast('已复制','success');}catch(e){showToast('复制失败','error');}
+    document.body.removeChild(ta);
   }
 }
 
