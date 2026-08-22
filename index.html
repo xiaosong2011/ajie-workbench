@@ -9,7 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="小松工作台">
 <meta name="theme-color" content="#15273b">
 <meta name="format-detection" content="telephone=no">
-<title>小松的工作台 · 男生版</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%232e86de'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white' font-family='Arial'>⚡</text></svg>">
+  <title>小松的工作台 · 男生版</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 <style>
@@ -191,6 +192,115 @@
     }
     .menu-fab:active{transform:scale(.9)}
   }
+
+  /* ===== Toast 提示 ===== */
+  .toast-container{position:fixed;top:calc(var(--statusbar-h) + 10px);left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+  .toast{
+    background:rgba(30,45,60,.92);color:#fff;padding:10px 18px;border-radius:12px;
+    font-size:13px;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,.2);
+    animation:toastIn .3s cubic-bezier(.34,1.56,.64,1),toastOut .3s ease 2.2s forwards;
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    display:flex;align-items:center;gap:8px;pointer-events:auto;
+  }
+  .toast.success{background:rgba(26,168,122,.92)}
+  .toast.error{background:rgba(220,53,69,.92)}
+  .toast.warn{background:rgba(230,126,34,.92)}
+  @keyframes toastIn{from{opacity:0;transform:translateY(-20px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+  @keyframes toastOut{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-10px) scale(.95)}}
+
+  /* ===== 可折叠导航分组 ===== */
+  .nav-group-header{
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:10px;font-weight:700;color:var(--side-text-dim);letter-spacing:1px;
+    padding:14px 10px 4px;text-transform:uppercase;
+    border-top:1px solid rgba(255,255,255,.06);margin-top:6px;
+    cursor:pointer;user-select:none;
+  }
+  .nav-group-header:first-of-type{border-top:none;margin-top:2px}
+  .nav-group-header .group-arrow{
+    width:14px;height:14px;display:flex;align-items:center;justify-content:center;
+    font-size:9px;transition:transform .25s ease;opacity:.6;
+  }
+  .nav-group-header.collapsed .group-arrow{transform:rotate(-90deg)}
+  .nav-group-items{overflow:hidden;transition:max-height .3s ease}
+  .nav-group-items.collapsed{max-height:0 !important}
+
+  /* ===== 全局搜索 ===== */
+  .search-mask{
+    position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);
+    z-index:150;display:none;align-items:flex-start;justify-content:center;
+    padding-top:80px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  }
+  .search-mask.show{display:flex}
+  .search-box{
+    background:var(--card);border-radius:16px;width:90%;max-width:520px;
+    box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;
+    animation:searchPop .25s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes searchPop{from{opacity:0;transform:translateY(-20px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .search-input-wrap{
+    display:flex;align-items:center;gap:10px;padding:14px 16px;
+    border-bottom:1px solid var(--line);
+  }
+  .search-input-wrap .s-ico{font-size:18px;color:var(--ink-3)}
+  .search-input-wrap input{
+    flex:1;border:none;outline:none;background:transparent;
+    font-size:15px;color:var(--ink);font-weight:500;
+  }
+  .search-input-wrap input::placeholder{color:var(--ink-3)}
+  .search-input-wrap .s-close{
+    font-size:12px;color:var(--ink-3);cursor:pointer;padding:4px 8px;
+    border-radius:6px;background:var(--content-bg);
+  }
+  .search-results{max-height:400px;overflow-y:auto;padding:8px}
+  .search-result-item{
+    display:flex;align-items:center;gap:10px;padding:10px 12px;
+    border-radius:10px;cursor:pointer;transition:background .15s;
+  }
+  .search-result-item:hover{background:var(--content-bg)}
+  .search-result-item.selected{background:var(--content-bg);border:1px solid var(--accent)}
+  .search-result-item .sr-ico{font-size:18px;width:32px;height:32px;border-radius:8px;background:var(--content-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .search-result-item .sr-info{flex:1;min-width:0}
+  .search-result-item .sr-title{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .search-result-item .sr-desc{font-size:11px;color:var(--ink-3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .search-result-item .sr-group{font-size:10px;color:var(--accent);background:var(--tag-blue);padding:2px 6px;border-radius:4px;font-weight:600}
+  .search-empty{text-align:center;padding:30px;color:var(--ink-3);font-size:13px}
+  .search-hint{padding:8px 16px;font-size:11px;color:var(--ink-3);border-top:1px solid var(--line);display:flex;justify-content:space-between}
+  .search-hint kbd{background:var(--content-bg);padding:2px 6px;border-radius:4px;font-size:10px;font-family:inherit}
+
+  /* ===== 主题切换按钮 ===== */
+  .theme-btn{
+    width:28px;height:28px;border-radius:8px;display:inline-flex;
+    align-items:center;justify-content:center;font-size:14px;cursor:pointer;
+    transition:all .2s;
+  }
+  .theme-btn:hover{background:rgba(255,255,255,.15)}
+  .theme-btn:active{transform:scale(.9)}
+
+  /* ===== 面包屑导航 ===== */
+  .breadcrumb{
+    display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3);
+    margin-bottom:8px;flex-wrap:wrap;
+  }
+  .breadcrumb .bc-item{cursor:pointer;transition:color .15s}
+  .breadcrumb .bc-item:hover{color:var(--accent)}
+  .breadcrumb .bc-sep{color:var(--ink-3);opacity:.5}
+  .breadcrumb .bc-current{color:var(--ink);font-weight:600}
+
+  /* ===== 暗色主题变量 ===== */
+  body.theme-dark{
+    --content-bg:#1a1f2e; --card:#252b3d;
+    --ink:#e8ecf4; --ink-2:#aab4c8; --ink-3:#6b7690;
+    --line:#323952;
+    --tag-blue:#1e3a5f; --tag-blue-t:#6bb3ff;
+    --tag-mint:#1a3d33; --tag-mint-t:#5ed6b0;
+    --tag-amber:#4a3520; --tag-amber-t:#f0a957;
+    --tag-violet:#3a2d5c; --tag-violet-t:#b89eff;
+    --tag-rose:#4a2536; --tag-rose-t:#ff8fb3;
+    --shadow:0 4px 16px rgba(0,0,0,.3),0 1px 3px rgba(0,0,0,.2);
+  }
+  body.theme-dark .content::-webkit-scrollbar-thumb{background:#3d4560}
+  body.theme-dark .btn-ghost{background:#2d3448;color:var(--ink-2);border-color:var(--line)}
 
   @keyframes pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
 
@@ -803,7 +913,13 @@
     <!-- 左侧导航 -->
     <aside class="sidebar" id="sidebar">
       <div class="side-head">
-        <div class="avatar">🧑</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="avatar">🧑</div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <span class="theme-btn" onclick="toggleTheme()" title="切换主题" id="themeBtn">🌙</span>
+            <span class="theme-btn" onclick="openSearch()" title="搜索 (Ctrl+K)">🔍</span>
+          </div>
+        </div>
         <div class="ws-name">小松的工作台</div>
         <div class="ws-sub">⚙️ 男生版 · 自我精进系统</div>
       </div>
@@ -844,6 +960,27 @@
     <div class="ct-ws" id="ctWsName"></div>
     <div class="ct-desc">数据将自动同步，你和好友看到的是同一份数据。<br>一人修改，全员实时更新。</div>
     <button onclick="document.getElementById('connectToast').classList.remove('show')">开始使用</button>
+  </div>
+
+  <!-- Toast 容器 -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- 全局搜索弹窗 -->
+  <div class="search-mask" id="searchMask" onclick="if(event.target===this)closeSearch()">
+    <div class="search-box">
+      <div class="search-input-wrap">
+        <span class="s-ico">🔍</span>
+        <input type="text" id="searchInput" placeholder="搜索功能、提示词、收藏、账本…" oninput="doSearch(this.value)" autocomplete="off">
+        <span class="s-close" onclick="closeSearch()">ESC 关闭</span>
+      </div>
+      <div class="search-results" id="searchResults">
+        <div class="search-empty">输入关键词开始搜索</div>
+      </div>
+      <div class="search-hint">
+        <span>💡 搜索菜单、提示词、灵感收藏、账本记录</span>
+        <span><kbd>↑↓</kbd> 选择 <kbd>Enter</kbd> 打开</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2110,21 +2247,256 @@ function tagAccentColor(text){
   return c[1];
 }
 
-/* ========== 渲染导航 ========== */
-const navEl=document.getElementById('nav');
-NAV.forEach((n,idx)=>{
-  if(n.group&&(idx===0||NAV[idx-1].group!==n.group)){
-    const g=document.createElement('div');
-    g.className='nav-group';
-    g.textContent=n.group;
-    navEl.appendChild(g);
+/* ========== Toast 提示系统 ========== */
+function showToast(msg,type){
+  const container=document.getElementById('toastContainer');
+  if(!container) return;
+  const toast=document.createElement('div');
+  const t=type||'';
+  const icons={success:'✓',error:'✕',warn:'!','':''};
+  toast.className='toast '+t;
+  toast.innerHTML=(icons[t]?'<span style="font-size:15px;font-weight:700">'+icons[t]+'</span>':'')+escapeHtml(msg);
+  container.appendChild(toast);
+  setTimeout(()=>toast.remove(),2600);
+}
+
+/* ========== 主题切换 ========== */
+function initTheme(){
+  const saved=localStorage.getItem('theme')||'light';
+  applyTheme(saved);
+}
+function applyTheme(theme){
+  const body=document.body;
+  const btn=document.getElementById('themeBtn');
+  if(theme==='dark'){
+    body.classList.add('theme-dark');
+    if(btn) btn.textContent='☀️';
+  }else{
+    body.classList.remove('theme-dark');
+    if(btn) btn.textContent='🌙';
   }
-  const d=document.createElement('div');
-  d.className='nav-item'+(n.id==='overview'?' active':'');
-  d.dataset.id=n.id;
-  d.innerHTML='<span class="ico">'+n.ico+'</span><span class="lbl">'+n.name+'</span>'+(n.badge?'<span class="badge">'+n.badge+'</span>':'');
-  d.onclick=()=>switchSection(n.id);
-  navEl.appendChild(d);
+  localStorage.setItem('theme',theme);
+  /* 更新 theme-color meta */
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content',theme==='dark'?'#1a1f2e':'#15273b');
+}
+function toggleTheme(){
+  const isDark=document.body.classList.contains('theme-dark');
+  applyTheme(isDark?'light':'dark');
+  showToast(isDark?'已切换到亮色模式':'已切换到暗色模式','success');
+}
+
+/* ========== 可折叠导航分组状态 ========== */
+const COLLAPSE_KEY='navCollapsedGroups';
+function getCollapsedGroups(){
+  try{ return JSON.parse(localStorage.getItem(COLLAPSE_KEY))||[]; }catch(e){ return []; }
+}
+function saveCollapsedGroups(arr){
+  localStorage.setItem(COLLAPSE_KEY,JSON.stringify(arr));
+}
+function toggleNavGroup(groupName){
+  const collapsed=getCollapsedGroups();
+  const idx=collapsed.indexOf(groupName);
+  if(idx>-1) collapsed.splice(idx,1);
+  else collapsed.push(groupName);
+  saveCollapsedGroups(collapsed);
+  /* 更新UI */
+  const header=document.querySelector('.nav-group-header[data-group="'+groupName+'"]');
+  const items=document.querySelector('.nav-group-items[data-group="'+groupName+'"]');
+  if(header) header.classList.toggle('collapsed',idx===-1);
+  if(items) items.classList.toggle('collapsed',idx===-1);
+}
+
+/* ========== 全局搜索 ========== */
+let searchSelectedIndex=-1;
+function openSearch(){
+  const mask=document.getElementById('searchMask');
+  const input=document.getElementById('searchInput');
+  if(mask) mask.classList.add('show');
+  if(input){ input.value=''; input.focus(); }
+  document.getElementById('searchResults').innerHTML='<div class="search-empty">输入关键词开始搜索</div>';
+  searchSelectedIndex=-1;
+}
+function closeSearch(){
+  const mask=document.getElementById('searchMask');
+  if(mask) mask.classList.remove('show');
+}
+function doSearch(query){
+  const resultsEl=document.getElementById('searchResults');
+  if(!query||!query.trim()){
+    resultsEl.innerHTML='<div class="search-empty">输入关键词开始搜索</div>';
+    searchSelectedIndex=-1;
+    return;
+  }
+  const q=query.trim().toLowerCase();
+  const results=[];
+  
+  /* 1. 搜索菜单 */
+  NAV.forEach(n=>{
+    if(n.name.toLowerCase().includes(q)||(n.group&&n.group.toLowerCase().includes(q))){
+      results.push({type:'nav',ico:n.ico,title:n.name,desc:n.group||'',group:'功能菜单',id:n.id});
+    }
+  });
+  
+  /* 2. 搜索我的提示词 */
+  if(Array.isArray(DB.myPrompts)){
+    DB.myPrompts.forEach((p,i)=>{
+      if((p.title&&p.title.toLowerCase().includes(q))||(p.desc&&p.desc.toLowerCase().includes(q))||(p.tag&&p.tag.toLowerCase().includes(q))){
+        results.push({type:'prompt',ico:'📝',title:p.title||'未命名',desc:(p.tag?p.tag+' · ':'')+(p.desc||'').slice(0,40),group:'我的提示词',listKey:'myPrompts',index:i});
+      }
+    });
+  }
+  
+  /* 3. 搜索灵感收藏 */
+  if(Array.isArray(DB.inspos)){
+    DB.inspos.forEach((p,i)=>{
+      if((p.title&&p.title.toLowerCase().includes(q))||(p.desc&&p.desc.toLowerCase().includes(q))){
+        results.push({type:'inspo',ico:'⭐',title:p.title||'未命名',desc:(p.desc||'').slice(0,40),group:'灵感收藏',section:'inspo',index:i});
+      }
+    });
+  }
+  
+  /* 4. 搜索账本 */
+  if(Array.isArray(DB.ledger)){
+    DB.ledger.forEach((p,i)=>{
+      if((p.title&&p.title.toLowerCase().includes(q))||(p.desc&&p.desc.toLowerCase().includes(q))||(p.tag&&p.tag.toLowerCase().includes(q))){
+        results.push({type:'ledger',ico:'📊',title:p.title||'未命名',desc:(p.tag?p.tag+' · ':'')+(p.amount?'¥'+p.amount:''),group:'小账本',section:'ledger',index:i});
+      }
+    });
+  }
+  
+  /* 5. 搜索AI提示词库 */
+  if(Array.isArray(DB.aiPrompts)){
+    DB.aiPrompts.forEach((p,i)=>{
+      if((p.title&&p.title.toLowerCase().includes(q))||(p.desc&&p.desc.toLowerCase().includes(q))||(p.tag&&p.tag.toLowerCase().includes(q))){
+        results.push({type:'prompt',ico:'💬',title:p.title||'未命名',desc:(p.tag?p.tag+' · ':'')+(p.desc||'').slice(0,40),group:'AI提示词库',listKey:'aiPrompts',index:i});
+      }
+    });
+  }
+  
+  /* 渲染结果 */
+  if(results.length===0){
+    resultsEl.innerHTML='<div class="search-empty">🔍 没有找到相关结果</div>';
+    searchSelectedIndex=-1;
+    return;
+  }
+  
+  searchSelectedIndex=0;
+  resultsEl.innerHTML=results.slice(0,20).map((r,i)=>
+    '<div class="search-result-item '+(i===0?'selected':'')+'" data-index="'+i+'" onclick="handleSearchResult('+i+')">'
+      +'<div class="sr-ico">'+r.ico+'</div>'
+      +'<div class="sr-info">'
+        +'<div class="sr-title">'+escapeHtml(r.title)+'</div>'
+        +'<div class="sr-desc">'+escapeHtml(r.desc)+'</div>'
+      +'</div>'
+      +'<span class="sr-group">'+escapeHtml(r.group)+'</span>'
+    +'</div>'
+  ).join('');
+  
+  /* 保存结果供键盘操作使用 */
+  window._searchResults=results.slice(0,20);
+}
+function handleSearchResult(index){
+  const r=window._searchResults&&window._searchResults[index];
+  if(!r) return;
+  closeSearch();
+  if(r.type==='nav'){
+    switchSection(r.id);
+  }else if(r.type==='prompt'){
+    switchSection(r.listKey==='myPrompts'?'myprompts':'ai');
+    showToast('已定位到提示词：'+r.title,'success');
+  }else if(r.type==='inspo'){
+    switchSection('inspo');
+    showToast('已定位到灵感收藏','success');
+  }else if(r.type==='ledger'){
+    switchSection('ledger');
+    showToast('已定位到账本记录','success');
+  }
+}
+/* 搜索键盘操作 */
+document.addEventListener('keydown',function(e){
+  const mask=document.getElementById('searchMask');
+  if(!mask||!mask.classList.contains('show')){
+    /* Ctrl+K / Cmd+K 打开搜索 */
+    if((e.ctrlKey||e.metaKey)&&e.key==='k'){
+      e.preventDefault();
+      openSearch();
+    }
+    return;
+  }
+  if(e.key==='Escape'){ closeSearch(); }
+  else if(e.key==='ArrowDown'){
+    e.preventDefault();
+    const items=document.querySelectorAll('.search-result-item');
+    if(items.length===0) return;
+    if(searchSelectedIndex<items.length-1) searchSelectedIndex++;
+    items.forEach((el,i)=>el.classList.toggle('selected',i===searchSelectedIndex));
+    items[searchSelectedIndex].scrollIntoView({block:'nearest'});
+  }else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    const items=document.querySelectorAll('.search-result-item');
+    if(items.length===0) return;
+    if(searchSelectedIndex>0) searchSelectedIndex--;
+    items.forEach((el,i)=>el.classList.toggle('selected',i===searchSelectedIndex));
+    items[searchSelectedIndex].scrollIntoView({block:'nearest'});
+  }else if(e.key==='Enter'){
+    e.preventDefault();
+    if(searchSelectedIndex>=0) handleSearchResult(searchSelectedIndex);
+  }
+});
+
+/* ========== 面包屑导航 ========== */
+function getBreadcrumb(id){
+  const navItem=NAV.find(n=>n.id===id);
+  if(!navItem) return '';
+  return '<div class="breadcrumb">'
+    +'<span class="bc-item" onclick="switchSection(\'overview\')">🏠 总览</span>'
+    +'<span class="bc-sep">›</span>'
+    +(navItem.group?'<span class="bc-item">'+escapeHtml(navItem.group)+'</span><span class="bc-sep">›</span>':'')
+    +'<span class="bc-current">'+navItem.ico+' '+escapeHtml(navItem.name)+'</span>'
+  +'</div>';
+}
+
+/* ========== 渲染导航（支持分组折叠）========== */
+const navEl=document.getElementById('nav');
+const collapsedGroups=getCollapsedGroups();
+
+/* 按分组组织导航项 */
+const navByGroup={};
+NAV.forEach(n=>{
+  const g=n.group||'其他';
+  if(!navByGroup[g]) navByGroup[g]=[];
+  navByGroup[g].push(n);
+});
+
+Object.keys(navByGroup).forEach(groupName=>{
+  const items=navByGroup[groupName];
+  const isCollapsed=collapsedGroups.indexOf(groupName)>-1;
+  
+  /* 分组头部 */
+  const header=document.createElement('div');
+  header.className='nav-group-header'+(isCollapsed?' collapsed':'');
+  header.dataset.group=groupName;
+  header.innerHTML='<span>'+groupName+'</span><span class="group-arrow">▼</span>';
+  header.onclick=()=>toggleNavGroup(groupName);
+  navEl.appendChild(header);
+  
+  /* 分组内容容器 */
+  const groupContainer=document.createElement('div');
+  groupContainer.className='nav-group-items'+(isCollapsed?' collapsed':'');
+  groupContainer.dataset.group=groupName;
+  groupContainer.style.maxHeight=isCollapsed?'0':'1000px';
+  
+  items.forEach(n=>{
+    const d=document.createElement('div');
+    d.className='nav-item'+(n.id==='overview'?' active':'');
+    d.dataset.id=n.id;
+    d.innerHTML='<span class="ico">'+n.ico+'</span><span class="lbl">'+n.name+'</span>'+(n.badge?'<span class="badge">'+n.badge+'</span>':'');
+    d.onclick=()=>switchSection(n.id);
+    groupContainer.appendChild(d);
+  });
+  
+  navEl.appendChild(groupContainer);
 });
 
 /* ========== 随机激励语 ========== */
@@ -2183,9 +2555,10 @@ function switchSection(id){
   if(id==='data'){ html=renderDataMgr(); }
   else if(id==='overview'){ html=renderOverviewHTML(); }
   else { html=SECTIONS[id]||'<div class="empty"><div class="big">🚧</div>板块建设中…</div>'; }
-  /* 顶部随机激励语滚动条 */
+  /* 面包屑导航 + 顶部随机激励语滚动条 */
+  const breadcrumb=id==='overview'?'':getBreadcrumb(id);
   const quoteBar='<div class="quote-bar loading" id="quoteBar"><span class="qb-ico">✨</span><div class="qb-scroll"><div class="qb-text" id="quoteText">正在获取今日激励语…</div></div></div>';
-  content.innerHTML='<div class="section active">'+quoteBar+html+'</div>';
+  content.innerHTML='<div class="section active">'+breadcrumb+quoteBar+html+'</div>';
   loadRandomQuote();
   /* 后置渲染 */
   if(id==='daily') initDaily();
@@ -2234,7 +2607,7 @@ function restorePrompts(){
     DB.aitechPrompts=merged.concat(DB.aitechPrompts||[]);
     saveData();
     renderList('aitechPrompts');
-    alert('✅ 已恢复精选提示词！当前共 '+DB.aitechPrompts.length+' 条');
+    showToast('已恢复精选提示词！当前共 '+DB.aitechPrompts.length+' 条','success');
   }
 }
 
@@ -2250,7 +2623,7 @@ function restoreAiPrompts(){
     DB.aiPrompts=merged.concat(DB.aiPrompts||[]);
     saveData();
     renderList('aiPrompts');
-    alert('✅ 已恢复精选提示词！当前共 '+DB.aiPrompts.length+' 条');
+    showToast('已恢复精选提示词！当前共 '+DB.aiPrompts.length+' 条','success');
   }
 }
 
@@ -3343,6 +3716,14 @@ function renderOverviewHTML(){
   +'<div class="card">'
     +'<div class="card-h">🧭 快捷导航</div>'
     +'<div class="ov-nav-grid" id="ovNavGrid"></div>'
+  +'</div>'
+  /* 数据安全提醒 */
+  +'<div class="card tint-amber" style="border-left:4px solid var(--accent-warm)">'
+    +'<div class="card-h">💾 数据安全</div>'
+    +'<div class="txt" style="font-size:12px">数据保存在浏览器本地，<b>清缓存会丢失</b>。记得定期导出备份或开启云同步。</div>'
+    +'<div class="data-mgr" style="margin-top:10px">'
+      +'<button class="btn btn-accent" style="padding:8px 14px;font-size:12px" onclick="switchSection(\'data\')">去备份 →</button>'
+    +'</div>'
   +'</div>';
 }
 
@@ -3866,6 +4247,12 @@ function renderDataMgr(){
     '<div class="txt">• 断开连接后回到本地模式，云端数据不受影响。</div>'+
     '</div>'+
 
+    '<div class="card tint-amber" style="border-left:4px solid var(--accent-warm)">'+
+    '<div class="card-h">⚠️ 数据安全提醒</div>'+
+    '<div class="txt"><b>所有数据保存在浏览器本地（localStorage）</b>，清除浏览器缓存、更换设备或卸载浏览器都会导致数据丢失。</div>'+
+    '<div class="txt" style="margin-top:6px">👉 强烈建议：<b>定期导出备份</b>，或启用云同步功能。</div>'+
+    '</div>'+
+
     '<div class="card">'+
     '<div class="card-h">📦 本地备份与恢复</div>'+
     '<div class="txt">即使开启云同步，也建议定期导出本地备份。</div>'+
@@ -3873,6 +4260,17 @@ function renderDataMgr(){
     '<button class="btn btn-accent" onclick="exportData()">⬇️ 导出全部数据</button>'+
     '<button class="btn btn-mint" onclick="importData()">⬆️ 导入数据</button>'+
     '<button class="btn btn-ghost" onclick="resetData()">🗑️ 清空所有数据</button>'+
+    '</div></div>'+
+
+    '<div class="card">'+
+    '<div class="card-h">📋 单模块导出</div>'+
+    '<div class="txt">只导出某个模块的数据，方便单独备份或迁移。</div>'+
+    '<div class="data-mgr" style="flex-wrap:wrap">'+
+    '<button class="btn btn-ghost" onclick="exportModule(\'myPrompts\',\'我的提示词\')">📝 我的提示词</button>'+
+    '<button class="btn btn-ghost" onclick="exportModule(\'aiPrompts\',\'AI提示词库\')">💬 AI提示词库</button>'+
+    '<button class="btn btn-ghost" onclick="exportModule(\'ledger\',\'小账本\')">📊 小账本</button>'+
+    '<button class="btn btn-ghost" onclick="exportModule(\'inspos\',\'灵感收藏\')">⭐ 灵感收藏</button>'+
+    '<button class="btn btn-ghost" onclick="exportModule(\'todos\',\'每日计划\')">📅 每日计划</button>'+
     '</div></div>';
 }
 function saveCloudCfg(){
@@ -3977,6 +4375,23 @@ function exportData(){
   a.download='xiaosong-workbench-backup-'+new Date().toISOString().slice(0,10)+'.json';
   a.click();
   URL.revokeObjectURL(url);
+  showToast('数据导出成功！','success');
+}
+function exportModule(dbKey,moduleName){
+  const data=DB[dbKey];
+  if(data===undefined||(Array.isArray(data)&&data.length===0)){
+    showToast(moduleName+'暂无数据可导出','warn');
+    return;
+  }
+  const exportObj={module:dbKey,name:moduleName,exportDate:new Date().toISOString(),data:data};
+  const blob=new Blob([JSON.stringify(exportObj,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='xiaosong-'+dbKey+'-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(moduleName+' 导出成功！','success');
 }
 function importData(){
   const input=document.createElement('input');
@@ -3989,11 +4404,26 @@ function importData(){
     reader.onload=ev=>{
       try{
         const data=JSON.parse(ev.target.result);
-        if(confirm('导入会覆盖当前所有数据，确定继续？')){
-          DB=data; ensureKeys(); saveData();
-          alert('导入成功！'); switchSection('data');
+        /* 判断是否为单模块导出 */
+        if(data.module&&data.data!==undefined){
+          const moduleName=data.name||data.module;
+          if(!confirm('检测到「'+moduleName+'」单模块数据，导入后将合并到当前数据中。确认导入？')) return;
+          if(Array.isArray(data.data)&&Array.isArray(DB[data.module])){
+            DB[data.module]=data.data.concat(DB[data.module]);
+          }else{
+            DB[data.module]=data.data;
+          }
+          ensureKeys(); saveData();
+          showToast(moduleName+' 导入成功！','success');
+          switchSection('data');
+        }else{
+          if(confirm('导入会覆盖当前所有数据，确定继续？')){
+            DB=data; ensureKeys(); saveData();
+            showToast('数据导入成功！','success');
+            switchSection('data');
+          }
         }
-      }catch(err){ alert('导入失败：文件格式错误'); }
+      }catch(err){ showToast('导入失败：文件格式错误','error'); }
     };
     reader.readAsText(file);
   };
@@ -4005,7 +4435,7 @@ function resetData(){
       DB={};
       ensureKeys();
       saveData();
-      alert('已清空所有数据。');
+      showToast('已清空所有数据','warn');
       switchSection('data');
     }
   }
@@ -4100,6 +4530,8 @@ function generateShareLink(){
 const fromURL=autoConfigFromURL();
 /* 初始化 Supabase（如果有配置） */
 initSupabase();
+/* 初始化主题 */
+initTheme();
 
 /* 初始渲染标志：确保只渲染一次，避免闪屏 */
 let _initialRendered=false;
