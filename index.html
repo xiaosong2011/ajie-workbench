@@ -2319,12 +2319,12 @@ function renderListItem(listKey,item,i){
     var carItem=DB.carInfo&&DB.carInfo[i]?DB.carInfo[i]:{};
     var customImg=carItem.customImg||'';
     if(customImg){
-      html+='<div class="car-img-wrap" id="carImgWrap_'+i+'"><img src="'+escapeHtml(customImg)+'" style="width:100%;height:100%;object-fit:contain;padding:4px"></div>';
+      html+='<div class="car-img-wrap" id="carImgWrap_'+i+'" style="position:relative"><img src="'+escapeHtml(customImg)+'" style="width:100%;height:100%;object-fit:contain;padding:4px"><button class="btn btn-ghost" style="position:absolute;top:6px;right:6px;font-size:11px;padding:4px 10px;background:rgba(255,255,255,.85);backdrop-filter:blur(4px)" onclick="uploadCarImage('+i+')">📷 更换</button></div>';
     } else {
       html+='<div class="car-img-wrap" id="carImgWrap_'+i+'"><div class="car-img-loading">🚗</div></div>';
       setTimeout(function(){loadCarImage(carTitle,'carImgWrap_'+i);},50);
+      html+='<div style="text-align:right;margin-top:-4px;margin-bottom:4px"><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="uploadCarImage('+i+')">📷 添加图片</button></div>';
     }
-    html+='<div style="text-align:right;margin-top:-4px;margin-bottom:4px"><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="uploadCarImage('+i+')">📷 更换图片</button></div>';
   }
   if(titleParts.length) html+='<div class="gt'+(checkboxChecked?' done-t':'')+(config.copyField?' prompt-clickable" onclick="openPromptDetail(\''+listKey+'\','+i+')':'')+'">'+escapeHtml(titleParts.join(' · '))+'</div>';
   if(metaParts.length) html+='<div class="gmeta">'+escapeHtml(metaParts.join(' · '))+'</div>';
@@ -3200,7 +3200,7 @@ function _setCarImg(wrap,src,brand){
   };
   img.src=src;
 }
-/* 用户上传自定义车辆图片 */
+/* 用户上传自定义车辆图片，自动抠图 */
 function uploadCarImage(i){
   var input=document.createElement('input');
   input.type='file';
@@ -3208,41 +3208,112 @@ function uploadCarImage(i){
   input.onchange=function(e){
     var file=e.target.files[0];
     if(!file)return;
-    if(file.size>2*1024*1024){
-      var reader=new FileReader();
-      reader.onload=function(ev){
-        var img=new Image();
-        img.onload=function(){
-          var canvas=document.createElement('canvas');
-          var maxW=800,maxH=600;
-          var w=img.width,h=img.height;
-          if(w>maxW){h=h*maxW/w;w=maxW;}
-          if(h>maxH){w=w*maxH/h;h=maxH;}
-          canvas.width=w;canvas.height=h;
-          canvas.getContext('2d').drawImage(img,0,0,w,h);
-          var dataUrl=canvas.toDataURL('image/jpeg',0.85);
-          if(!DB.carInfo)DB.carInfo=[];
-          if(!DB.carInfo[i])DB.carInfo[i]={};
-          DB.carInfo[i].customImg=dataUrl;
-          saveData();
-          renderList('carInfo');
-        };
-        img.src=ev.target.result;
-      };
-      reader.readAsDataURL(file);
-    }else{
-      var reader=new FileReader();
-      reader.onload=function(ev){
+    /* 显示抠图进度 */
+    var toast=document.createElement('div');
+    toast.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.8);color:#fff;padding:20px 32px;border-radius:16px;font-size:14px;z-index:99999;text-align:center';
+    toast.innerHTML='<div style="margin-bottom:8px">📸 正在处理图片...</div><div style="font-size:12px;opacity:.7">自动抠图中，请稍候</div>';
+    document.body.appendChild(toast);
+    
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      var img=new Image();
+      img.onload=function(){
+        var canvas=document.createElement('canvas');
+        var maxW=800,maxH=600;
+        var w=img.width,h=img.height;
+        if(w>maxW){h=h*maxW/w;w=maxW;}
+        if(h>maxH){w=w*maxH/h;h=maxH;}
+        canvas.width=w;canvas.height=h;
+        var ctx=canvas.getContext('2d');
+        ctx.drawImage(img,0,0,w,h);
+        
+        /* 自动抠图：基于边缘颜色采样 + 色差移除 */
+        try{
+          autoRemoveBg(ctx,w,h);
+        }catch(err){
+          console.warn('抠图失败，使用原图:',err);
+        }
+        
+        var dataUrl=canvas.toDataURL('image/png');
         if(!DB.carInfo)DB.carInfo=[];
         if(!DB.carInfo[i])DB.carInfo[i]={};
-        DB.carInfo[i].customImg=ev.target.result;
+        DB.carInfo[i].customImg=dataUrl;
         saveData();
+        
+        toast.remove();
         renderList('carInfo');
       };
-      reader.readAsDataURL(file);
-    }
+      img.onerror=function(){ toast.remove(); alert('图片加载失败'); };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
   };
   input.click();
+}
+
+/* 纯Canvas自动抠图：边缘采样 + 色差移除 + 边缘羽化 */
+function autoRemoveBg(ctx,w,h){
+  var imageData=ctx.getImageData(0,0,w,h);
+  var data=imageData.data;
+  
+  /* 1. 采样四条边的像素颜色 */
+  var samples=[];
+  var step=Math.max(2,Math.floor(Math.min(w,h)/30));
+  for(var x=0;x<w;x+=step){
+    var idxTL=(0*w+x)*4; samples.push([data[idxTL],data[idxTL+1],data[idxTL+2]]);
+    var idxBL=((h-1)*w+x)*4; samples.push([data[idxBL],data[idxBL+1],data[idxBL+2]]);
+  }
+  for(var y=0;y<h;y+=step){
+    var idxLT=(y*w+0)*4; samples.push([data[idxLT],data[idxLT+1],data[idxLT+2]]);
+    var idxRT=(y*w+(w-1))*4; samples.push([data[idxRT],data[idxRT+1],data[idxRT+2]]);
+  }
+  
+  /* 2. 聚类找主背景色：用简单色彩量化 */
+  var bgColors=[];
+  samples.forEach(function(s){
+    var qr=Math.round(s[0]/32)*32, qg=Math.round(s[1]/32)*32, qb=Math.round(s[2]/32)*32;
+    var key=qr+','+qg+','+qb;
+    var found=bgColors.find(function(c){return c.key===key;});
+    if(found){found.count++;}
+    else{bgColors.push({key:key,r:qr,qg:qg,qb:qb,count:1,rs:0,gs:0,bs:0});}
+    if(found){found.rs+=s[0]; found.gs+=s[1]; found.bs+=s[2]; found.count++;}
+    else{bgColors[bgColors.length-1].rs=s[0]; bgColors[bgColors.length-1].gs=s[1]; bgColors[bgColors.length-1].bs=s[2];}
+  });
+  
+  /* 取出现最多的颜色作为背景 */
+  bgColors.sort(function(a,b){return b.count-a.count;});
+  var bg=bgColors[0];
+  var bgR=bg.rs/bg.count, bgG=bg.gs/bg.count, bgB=bg.bs/bg.count;
+  
+  /* 3. 如果有多个主要边缘色，取前2个 */
+  var bgList=[{r:bgR,g:bgG,b:bgB}];
+  if(bgColors.length>1 && bgColors[1].count>bgColors[0].count*0.3){
+    var bg2=bgColors[1];
+    bgList.push({r:bg2.rs/bg2.count,g:bg2.gs/bg2.count,b:bg2.bs/bg2.count});
+  }
+  
+  /* 4. 遍历像素，与背景色比较 */
+  var threshold=45;  /* 完全透明的色差阈值 */
+  var feather=25;    /* 羽化范围 */
+  
+  for(var i=0;i<data.length;i+=4){
+    var r=data[i],g=data[i+1],b=data[i+2];
+    var minDist=999999;
+    for(var bi=0;bi<bgList.length;bi++){
+      var bgc=bgList[bi];
+      var dist=Math.sqrt((r-bgc.r)*(r-bgc.r)+(g-bgc.g)*(g-bgc.g)+(b-bgc.b)*(b-bgc.b));
+      if(dist<minDist)minDist=dist;
+    }
+    if(minDist<threshold){
+      data[i+3]=0; /* 完全透明 */
+    } else if(minDist<threshold+feather){
+      /* 边缘羽化 */
+      var alpha=(minDist-threshold)/feather;
+      data[i+3]=Math.round(alpha*255);
+    }
+  }
+  
+  ctx.putImageData(imageData,0,0);
 }
 /* 删除自定义车辆图片 */
 function removeCarImage(i){
