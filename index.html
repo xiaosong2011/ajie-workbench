@@ -901,6 +901,11 @@ const LISTS={
     {key:'category',label:'分类',type:'input',placeholder:'如：编程',as:'meta'},
     {key:'title',label:'工具',type:'input',placeholder:'如：Cursor、Copilot',as:'title'}
   ]},
+  aiPrompts:{title:'提示词库',icon:'💬',dbKey:'aiPrompts',copyField:'desc',clickCopy:true,fields:[
+    {key:'tag',label:'分类',type:'select',options:['编程','写作','办公','学习','生活','角色'],placeholder:'选择分类',as:'tag'},
+    {key:'title',label:'名称',type:'input',placeholder:'如：代码审查专家',as:'title'},
+    {key:'desc',label:'提示词',type:'textarea',placeholder:'完整的提示词内容…',as:'desc'}
+  ]},
   weatherNotes:{title:'自定义备注',icon:'📝',dbKey:'weatherNotes',fields:[
     {key:'title',label:'备注',type:'input',placeholder:'如：下午有雷阵雨，带伞',as:'title'}
   ]},
@@ -1050,7 +1055,7 @@ const SECTION_LISTS={
   car:['carInfo','carMaintenance','carFuel','carDocs'],
   groom:['groomRoutine','groomOutfit'],
   hustle:['hustleProjects'],
-  ai:['aiPath','aiTools'],
+  ai:['aiPath','aiTools','aiPrompts'],
   weather:['weatherNotes'],
   anime:['animeTracking','animeWatchlist','animeFav'],
   salary:['salaryIncome','salaryGoal','salaryAlloc'],
@@ -1206,6 +1211,19 @@ ai:`
   <div class="card tint-slate">
     <div class="card-h">🛠️ 常用工具 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('aiTools')">+ 新增</button></div>
     <div id="lc_aiTools"></div>
+  </div>
+  <div class="card tint-violet">
+    <div class="card-h">💬 提示词库 <span style="font-size:11px;color:var(--ink-3);font-weight:400;margin-left:4px">ChatGPT / 文本AI</span> <button class="btn btn-ghost" style="margin-left:auto;font-size:11px" onclick="restoreAiPrompts()" title="恢复精选提示词">🔄 恢复精选</button> <button class="btn btn-accent" onclick="openListModal('aiPrompts')">+ 新增</button></div>
+    <div class="tag-filter" id="filter_aiPrompts">
+      <button class="tf-btn active" onclick="filterListByTag('aiPrompts','全部')">全部</button>
+      <button class="tf-btn" onclick="filterListByTag('aiPrompts','编程')">💻 编程</button>
+      <button class="tf-btn" onclick="filterListByTag('aiPrompts','写作')">✍️ 写作</button>
+      <button class="tf-btn" onclick="filterListByTag('aiPrompts','办公')">📊 办公</button>
+      <button class="tf-btn" onclick="filterListByTag('aiPrompts','学习')">📚 学习</button>
+      <button class="tf-btn" onclick="filterListByTag('aiPrompts','生活')">🌿 生活</button>
+      <button class="tf-btn" onclick="filterListByTag('aiPrompts','角色')">🎭 角色</button>
+    </div>
+    <div id="lc_aiPrompts"></div>
   </div>
 `,
 
@@ -1475,6 +1493,36 @@ const INITIAL={
     {category:'编程',title:'Cursor、GitHub Copilot'},
     {category:'通用',title:'ChatGPT、Claude、通义千问'},
     {category:'绘图',title:'Midjourney、即梦'},
+  ],
+  aiPrompts:[
+    /* --- 编程 --- */
+    {title:'代码审查专家',desc:'你是一位资深代码审查专家。请审查以下代码，从以下维度给出建议：\n1. 代码质量（可读性、命名规范、注释）\n2. 潜在 Bug（空指针、边界条件、异常处理）\n3. 性能问题（时间/空间复杂度、不必要的循环）\n4. 安全隐患（SQL注入、XSS、敏感信息泄露）\n5. 改进建议（具体到代码行）\n\n请审查的代码：\n[粘贴代码]',tag:'编程'},
+    {title:'Bug修复助手',desc:'你是一位全栈开发工程师。我遇到了一个Bug，请帮我分析原因并给出修复方案。\n\n问题描述：[描述Bug现象]\n技术栈：[如 React + Node.js + MySQL]\n相关代码：[粘贴代码]\n错误日志：[粘贴报错信息]\n已尝试的方法：[列出你试过的方案]\n\n请按以下格式回答：\n1. 问题定位\n2. 根本原因\n3. 修复代码（给出完整修改后的代码）\n4. 预防措施',tag:'编程'},
+    {title:'技术方案设计',desc:'你是一位系统架构师。请为以下需求设计技术方案：\n\n需求描述：[描述你要实现的功能]\n当前技术栈：[如 Vue3 + Express + PostgreSQL]\n预期用户量：[如 日活1万]\n\n请输出：\n1. 整体架构图（文字描述）\n2. 数据库表设计\n3. API接口设计（RESTful）\n4. 关键技术选型及理由\n5. 潜在风险和应对方案',tag:'编程'},
+    {title:'正则表达式生成',desc:'你是一位正则表达式专家。请根据以下需求生成正则表达式：\n\n匹配目标：[描述你要匹配的内容]\n使用场景：[如 表单验证/数据提取/替换]\n编程语言：[如 JavaScript/Python]\n\n请输出：\n1. 正则表达式\n2. 测试用例（至少5个匹配和不匹配的例子）\n3. 逐段解释每个部分的含义',tag:'编程'},
+    {title:'代码重构建议',desc:'请帮我把以下代码重构得更优雅，要求：\n1. 遵循单一职责原则\n2. 提取重复逻辑为公共函数\n3. 改善命名和可读性\n4. 保持功能不变\n5. 给出重构前后的对比说明\n\n原始代码：\n[粘贴代码]',tag:'编程'},
+    /* --- 写作 --- */
+    {title:'爆款标题生成',desc:'你是一位小红书爆款内容专家。请为以下内容生成10个吸引点击的标题：\n\n内容主题：[描述主题]\n目标受众：[如 25-35岁职场女性]\n核心卖点：[描述核心价值]\n\n标题要求：\n- 15字以内\n- 制造好奇心缺口\n- 包含数字或情绪词\n- 避免标题党\n\n请给出10个标题并标注推荐指数（1-5星）',tag:'写作'},
+    {title:'公众号文章润色',desc:'你是一位资深公众号编辑。请帮我润色以下文章：\n\n要求：\n1. 保持原文核心观点不变\n2. 优化开头，前3句抓住读者\n3. 增加过渡句，段落衔接更自然\n4. 精简冗余表达\n5. 适当增加金句和比喻\n6. 语气：专业但亲切，像朋友聊天\n\n原文：\n[粘贴文章]',tag:'写作'},
+    {title:'短视频脚本',desc:'你是一位短视频编导。请帮我写一个60秒的短视频脚本：\n\n主题：[描述主题]\n平台：[抖音/视频号/小红书]\n风格：[搞笑/干货/种草/情感]\n\n脚本格式：\n- 0-3秒：钩子（必须3秒内抓住注意力）\n- 4-15秒：痛点引入\n- 16-45秒：解决方案/核心内容\n- 46-55秒：干货总结\n- 56-60秒：引导互动（点赞/关注/评论）\n\n每段请标注：画面描述、口播文案、字幕、BGM建议',tag:'写作'},
+    {title:'周报/日报生成',desc:'请帮我写一份工作周报，要求简洁、专业、突出成果。\n\n本周完成事项（粗略列出）：\n[列出你做了什么]\n\n下周计划：\n[列出下周要做什么]\n\n格式要求：\n1. 本周成果（用数据量化，如完成3个需求、bug率降低20%）\n2. 遇到的问题及解决方案\n3. 下周计划（按优先级排列）\n4. 需要协调的资源\n语气：自信、客观、不啰嗦',tag:'办公'},
+    /* --- 办公 --- */
+    {title:'Excel公式生成',desc:'你是一位Excel专家。请根据以下需求生成公式：\n\n需求描述：[描述你想实现的功能]\n数据说明：[如 A列是姓名，B列是金额，C列是日期]\nExcel版本：[如 Office 365 / WPS]\n\n请输出：\n1. 完整公式\n2. 逐步解释公式各部分含义\n3. 注意事项（如数组公式需Ctrl+Shift+Enter）',tag:'办公'},
+    {title:'会议纪要整理',desc:'请帮我把以下会议记录整理成正式的会议纪要：\n\n原始记录（可以是碎片化的笔记）：\n[粘贴会议记录]\n\n输出格式：\n1. 会议基本信息（时间、参会人、议题）\n2. 讨论要点（按议题分类）\n3. 决议事项（明确谁、做什么、何时完成）\n4. 待跟进事项\n5. 下次会议时间\n语气：正式、简洁',tag:'办公'},
+    {title:'PPT大纲生成',desc:'你是一位PPT设计顾问。请帮我生成一份PPT大纲：\n\n主题：[描述PPT主题]\n受众：[如 领导汇报/客户提案/培训分享]\n时长：[如 15分钟/30分钟]\n\n输出格式：\n1. 封面标题（主标题+副标题）\n2. 目录页（4-6个章节）\n3. 每页的标题和要点（每页3-5个要点）\n4. 建议配图方向\n5. 结尾页（总结+行动号召）\n\n总计建议页数',tag:'办公'},
+    /* --- 学习 --- */
+    {title:'费曼学习法教练',desc:'你是一位费曼学习法教练。我想学习以下知识点，请用费曼方法引导我：\n\n学习主题：[输入主题]\n我的当前水平：[小白/有一些基础/比较熟悉]\n\n请按以下步骤进行：\n1. 用最简单的语言解释这个概念（假设我是小学生）\n2. 举一个生活中的类比\n3. 问我3个问题，检验我是否真的理解\n4. 指出我可能的误解\n5. 给我一个小练习来巩固',tag:'学习'},
+    {title:'读书笔记提取',desc:'请帮我整理以下内容的读书笔记：\n\n[粘贴书中的段落或章节]\n\n输出格式：\n1. 一句话总结（30字以内）\n2. 核心观点（3-5条）\n3. 重要金句（摘录原文）\n4. 我的思考（引导我思考如何应用）\n5. 行动清单（可以立即做的3件事）',tag:'学习'},
+    {title:'知识点类比解释',desc:'请把以下复杂概念用类比的方式解释，让我一听就懂：\n\n概念：[输入概念]\n我的背景：[如 我是前端开发/我是文科生]\n\n要求：\n1. 用一个我熟悉的事物做类比\n2. 通过类比解释核心原理\n3. 指出类比的局限性（哪里不能套用）\n4. 给出一个实际例子',tag:'学习'},
+    /* --- 生活 --- */
+    {title:'健身计划定制',desc:'你是一位专业健身教练。请根据以下信息定制健身计划：\n\n性别/年龄：[如 男/28岁]\n身高/体重：[如 175cm/75kg]\n目标：[减脂/增肌/塑形/体能提升]\n可锻炼时间：[如 每周4次，每次1小时]\n场地：[健身房/居家]\n有无伤病：[描述]\n\n请输出：\n1. 每周训练安排表（周一到周日）\n2. 每次训练的具体动作、组数、次数\n3. 饮食建议（每日蛋白质/碳水/脂肪摄入量）\n4. 一个月后的预期效果',tag:'生活'},
+    {title:'旅行规划师',desc:'你是一位旅行规划专家。请帮我规划一次旅行：\n\n目的地：[输入城市/国家]\n出发城市：[输入城市]\n天数：[如 5天4晚]\n预算：[如 5000元/人]\n出行人数：[如 2人]\n偏好：[美食/自然风景/人文历史/购物/亲子]\n\n请输出：\n1. 每日行程表（上午/下午/晚上）\n2. 推荐餐厅（含人均消费）\n3. 住宿区域建议\n4. 交通方式\n5. 必备物品清单\n6. 预算明细',tag:'生活'},
+    {title:'菜谱生成',desc:'你是一位营养师兼厨师。请根据以下条件推荐菜谱：\n\n我有食材：[列出冰箱里的食材]\n饮食偏好：[如 减脂/素食/无辣]\n烹饪时间：[如 30分钟内]\n人数：[如 2人]\n\n请推荐3道菜，每道包含：\n1. 菜名和成品图片描述\n2. 食材用量\n3. 详细步骤\n4. 营养信息（卡路里/蛋白质/碳水/脂肪）',tag:'生活'},
+    /* --- 角色 --- */
+    {title:'苏格拉底式追问',desc:'从现在起，你是一位苏格拉底式导师。我不会直接问你答案，而是通过不断追问引导我思考。每次我只说一句话或一个问题，你用反问的方式引导我深入思考，直到我自己得出结论。不要直接给答案。如果我的思路偏离了，用提问的方式拉回来。\n\n我想探讨的话题是：[输入话题]',tag:'角色'},
+    {title:'魔鬼代言人辩论',desc:'你是一位辩论高手。无论我提出什么观点，你都要站在对立面进行反驳。要求：\n1. 每次只反驳一个点，不要一次性全盘否定\n2. 用事实和逻辑反驳，不要抬杠\n3. 反驳后问我："你怎么看？"\n4. 如果我说的有道理，也要承认\n\n我的观点是：[输入观点]',tag:'角色'},
+    {title:'面试官模拟',desc:'你是一位[输入岗位，如前端工程师]的面试官。请模拟一场面试：\n\n要求：\n1. 一次只问一个问题\n2. 等我回答后再追问或进入下一题\n3. 根据我的回答给出反馈和标准答案\n4. 面试结束后给出评分（1-10）和改进建议\n5. 覆盖：基础知识、项目经验、场景题、反问环节\n\n我的经验：[如 3年前端经验]\n请开始第一个问题。',tag:'角色'},
+    {title:'万能翻译器',desc:'你是一位专业翻译。请将以下内容翻译为[目标语言，如英文/日文]，要求：\n1. 不要逐字翻译，要意译\n2. 保持原文语气和风格\n3. 专业术语使用行业标准译法\n4. 翻译后附上3个关键术语的对照表\n5. 如果原文有文化特定内容，请加注释\n\n原文：\n[粘贴内容]',tag:'角色'},
   ],
   weatherNotes:[
     {title:'下午有雷阵雨，出门带伞'},
@@ -1932,6 +1980,9 @@ Object.keys(INITIAL).forEach(k=>{ if(DB[k]===undefined)DB[k]=INITIAL[k]; });
 if(!Array.isArray(DB.aitechPrompts)||DB.aitechPrompts.length<INITIAL.aitechPrompts.length){
   DB.aitechPrompts=INITIAL.aitechPrompts;
 }
+if(!Array.isArray(DB.aiPrompts)||DB.aiPrompts.length<INITIAL.aiPrompts.length){
+  DB.aiPrompts=INITIAL.aiPrompts;
+}
 ensureKeys();
 saveData();
 
@@ -2114,6 +2165,22 @@ function restorePrompts(){
     saveData();
     renderList('aitechPrompts');
     alert('✅ 已恢复精选提示词！当前共 '+DB.aitechPrompts.length+' 条');
+  }
+}
+
+/* 恢复AI学习提示词 */
+function restoreAiPrompts(){
+  if(confirm('将用精选提示词补充当前库（你自定义的也会保留）。确认恢复？')){
+    var existing={};
+    (DB.aiPrompts||[]).forEach(function(p){ existing[p.title]=p; });
+    var merged=[];
+    INITIAL.aiPrompts.forEach(function(p){
+      if(!existing[p.title]) merged.push(p);
+    });
+    DB.aiPrompts=merged.concat(DB.aiPrompts||[]);
+    saveData();
+    renderList('aiPrompts');
+    alert('✅ 已恢复精选提示词！当前共 '+DB.aiPrompts.length+' 条');
   }
 }
 
@@ -3878,6 +3945,9 @@ function initialRender(sectionId){
         /* 恢复精选提示词：云端条数少于初始条数时用初始数据补齐 */
         if(!Array.isArray(DB.aitechPrompts)||DB.aitechPrompts.length<INITIAL.aitechPrompts.length){
           DB.aitechPrompts=INITIAL.aitechPrompts;
+        }
+        if(!Array.isArray(DB.aiPrompts)||DB.aiPrompts.length<INITIAL.aiPrompts.length){
+          DB.aiPrompts=INITIAL.aiPrompts;
         }
         localStorage.setItem(STORE_KEY,JSON.stringify(DB));
       }catch(e){
