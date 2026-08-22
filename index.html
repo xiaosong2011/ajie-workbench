@@ -415,6 +415,58 @@
   body[data-theme="wine"] .empty,
   body[data-theme="wine"] .empty-hint{background:linear-gradient(135deg,rgba(60,30,40,.5),rgba(40,20,30,.3));border-color:#5a3d48}
 
+  /* 主题六：落霞粉 (sunset) — 梦幻晚霞背景，玻璃拟态卡片，粉紫渐变主色 */
+  body[data-theme="sunset"]{
+    --content-bg:transparent; --card:rgba(255,255,255,.72);
+    --ink:#4a2c4a; --ink-2:#7d5a7d; --ink-3:#a88aa8;
+    --accent:#e879a8; --accent-2:#b479e8; --accent-warm:#f59e0b;
+    --line:rgba(255,255,255,.5);
+    --side-1:rgba(42,24,54,.85); --side-2:rgba(58,34,72,.8); --side-active:rgba(132,72,168,.6);
+    --side-text:#f0e0f5; --side-text-dim:#b89cc8;
+    --tag-blue:rgba(200,180,230,.6); --tag-blue-t:#6b3fa0;
+    --tag-mint:rgba(180,220,200,.6); --tag-mint-t:#2d7a5a;
+    --tag-amber:rgba(250,210,170,.6); --tag-amber-t:#c2692e;
+    --tag-violet:rgba(220,190,240,.6); --tag-violet-t:#7c3aed;
+    --tag-rose:rgba(245,200,220,.6); --tag-rose-t:#be123c;
+    --shadow:0 4px 16px rgba(120,50,120,.12),0 2px 8px rgba(120,50,120,.08);
+    --shadow-hover:0 8px 32px rgba(120,50,120,.18),0 4px 16px rgba(120,50,120,.12);
+  }
+  body[data-theme="sunset"] .device{
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(255,200,220,.6) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 30%, rgba(200,170,240,.5) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 80%, rgba(255,220,180,.5) 0%, transparent 50%),
+      linear-gradient(135deg, #ffd6e8 0%, #e8d5f5 35%, #d5e8f5 70%, #fff0d6 100%);
+    background-attachment: fixed;
+  }
+  body[data-theme="sunset"] .card,
+  body[data-theme="sunset"] .stat-card,
+  body[data-theme="sunset"] .quick-item,
+  body[data-theme="sunset"] .list-item{
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background:rgba(255,255,255,.72);
+    border:1px solid rgba(255,255,255,.6);
+  }
+  body[data-theme="sunset"] .card:hover,
+  body[data-theme="sunset"] .stat-card:hover,
+  body[data-theme="sunset"] .quick-item:hover,
+  body[data-theme="sunset"] .list-item:hover{
+    background:rgba(255,255,255,.85);
+  }
+  body[data-theme="sunset"] .content::-webkit-scrollbar-thumb{background:rgba(180,120,180,.4)}
+  body[data-theme="sunset"] .btn-ghost{background:rgba(255,255,255,.6);color:var(--ink-2);border-color:rgba(255,255,255,.5);backdrop-filter:blur(8px)}
+  body[data-theme="sunset"] .modal-box{background:rgba(255,255,255,.85);backdrop-filter:blur(20px)}
+  body[data-theme="sunset"] .crud-input,
+  body[data-theme="sunset"] .crud-textarea{background:rgba(255,255,255,.7);border-color:rgba(255,255,255,.5);color:var(--ink);backdrop-filter:blur(8px)}
+  body[data-theme="sunset"] .crud-input:focus,
+  body[data-theme="sunset"] .crud-textarea:focus{background:rgba(255,255,255,.88);border-color:var(--accent)}
+  body[data-theme="sunset"] .modal-close{background:rgba(255,255,255,.6);color:var(--ink-3);backdrop-filter:blur(8px)}
+  body[data-theme="sunset"] .search-box{background:rgba(255,255,255,.6);backdrop-filter:blur(8px)}
+  body[data-theme="sunset"] .empty,
+  body[data-theme="sunset"] .empty-hint{background:linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,.3));border-color:rgba(255,255,255,.5);backdrop-filter:blur(8px)}
+  body[data-theme="sunset"] .sidebar{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+
   /* ===== 主题选择器 ===== */
   /* ===== 新版主题选择器 ===== */
   .theme-selector-wrap{
@@ -1271,11 +1323,14 @@
             <div class="ts-swatch" data-theme="wine" data-name="勃艮第红" data-keywords="wine 勃艮第红 暗色 玫瑰粉 红色 #f472b6" style="background:linear-gradient(135deg,#f472b6,#fb923c)" title="勃艮第红" onclick="switchTheme('wine')">
               <span class="ts-swatch-check">✓</span>
             </div>
+            <div class="ts-swatch" data-theme="sunset" data-name="落霞粉" data-keywords="sunset 落霞粉 背景图 渐变 玻璃拟态 粉色 紫色 #e879a8" style="background:linear-gradient(135deg,#ffd6e8,#b479e8)" title="落霞粉" onclick="switchTheme('sunset')">
+              <span class="ts-swatch-check">✓</span>
+            </div>
           </div>
           <button class="ts-arrow ts-arrow-right" id="tsArrowRight" onclick="scrollThemes(1)">›</button>
         </div>
         <div class="ts-names" id="tsNames">
-          <span>晨光白</span><span>雾屿蓝</span><span>抹茶绿</span><span>极夜灰</span><span>勃艮第红</span>
+          <span>晨光白</span><span>雾屿蓝</span><span>抹茶绿</span><span>极夜灰</span><span>勃艮第红</span><span>落霞粉</span>
         </div>
       </div>
     </aside>
@@ -2775,6 +2830,7 @@ const THEMES={
   'moss':   {name:'抹茶绿',color:'#1e2a1d',isDark:false},
   'dark':   {name:'极夜灰',color:'#0d1220',isDark:true},
   'wine':   {name:'勃艮第红',color:'#1a0f14',isDark:true},
+  'sunset': {name:'落霞粉',color:'#e879a8',isDark:false},
 };
 const THEME_KEY='app-theme';
 
@@ -2808,7 +2864,7 @@ function switchTheme(themeName,silent){
   
   /* 更新名称高亮 */
   const nameSpans=document.querySelectorAll('#tsNames span');
-  const themeKeys=['default','ocean','moss','dark','wine'];
+  const themeKeys=['default','ocean','moss','dark','wine','sunset'];
   nameSpans.forEach((span,i)=>{
     span.classList.toggle('active-name',themeKeys[i]===themeName);
   });
