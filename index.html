@@ -2952,7 +2952,7 @@ function ensureKeys(){
   if(!Array.isArray(DB.ledger))DB.ledger=[];
   if(!Array.isArray(DB.checkedDays))DB.checkedDays=[];
   if(typeof DB.budget!=='number')DB.budget=6000;
-  if(!DB.apiSettings||typeof DB.apiSettings!=='object')DB.apiSettings={apiBaseUrl:'',apiKey:'',model:''};
+  if(!DB.apiSettings||typeof DB.apiSettings!=='object')DB.apiSettings={apiBaseUrl:'https://open.bigmodel.cn/api/paas/v4',apiKey:'f82aacd27d1746fe8496af89fb962850.HgVimCdseWlUZXpk',model:'glm-4-flash'};
   Object.keys(LISTS).forEach(k=>{ const dk=LISTS[k].dbKey; if(!Array.isArray(DB[dk]))DB[dk]=[]; });
 }
 
