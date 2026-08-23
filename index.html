@@ -1499,6 +1499,7 @@ const NAV=[
   {id:'ai',       ico:'🧠', name:'AI学习',              group:'学习成长'},
   {id:'myprompts',ico:'📝', name:'我的提示词',          group:'学习成长'},
   {id:'agent',    ico:'🎬', name:'智能体库',            group:'学习成长'},
+  {id:'skillagent',ico:'🎭', name:'技能智能体',          group:'学习成长'},
   {id:'fit',      ico:'💪', name:'力量训练',            group:'生活管理'},
   {id:'car',      ico:'🚗', name:'爱车管理',            group:'生活管理'},
   {id:'groom',    ico:'🧔', name:'理容穿搭',            group:'生活管理'},
@@ -2326,6 +2327,75 @@ agent:`
   <div class="card">
     <div class="card-h">📂 漫剧项目 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('scriptProjects')">+ 新增</button></div>
     <div id="lc_scriptProjects"></div>
+  </div>
+`,
+
+skillagent:`
+  <div class="page-head"><span class="bow">🎭</span><h1>技能智能体</h1><span class="sub">· 小逻 + 老李专业技能 · 选择技能直接对话 AI</span></div>
+
+  <!-- 技能分类选择 -->
+  <div class="card tint-violet">
+    <div class="card-h">🎯 选择技能分类</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px" id="saCategoryBtns">
+      <button class="btn btn-accent" onclick="saSelectCategory('小逻剧本')">📖 小逻剧本</button>
+      <button class="btn btn-ghost" onclick="saSelectCategory('小逻分镜')">🎬 小逻分镜</button>
+      <button class="btn btn-ghost" onclick="saSelectCategory('小逻角色')">👤 小逻角色</button>
+      <button class="btn btn-ghost" onclick="saSelectCategory('小逻场景')">🏞️ 小逻场景</button>
+      <button class="btn btn-ghost" onclick="saSelectCategory('小逻视频')">🎥 小逻视频</button>
+      <button class="btn btn-ghost" onclick="saSelectCategory('小逻资产')">💎 小逻资产</button>
+      <button class="btn btn-ghost" onclick="saSelectCategory('老李漫剧')">🎬 老李漫剧</button>
+      <button class="btn btn-ghost" onclick="saSelectCategory('老李参考')">📚 老李参考</button>
+    </div>
+  </div>
+
+  <!-- 具体技能选择 -->
+  <div class="card tint-blue">
+    <div class="card-h">📋 选择具体技能</div>
+    <select id="saSkillSelect" class="crud-input" style="margin-top:8px" onchange="saOnSkillChange()">
+      <option value="">-- 请先选择分类 --</option>
+    </select>
+    <div id="saSkillDesc" style="margin-top:8px;font-size:12px;color:var(--ink-3);display:none;padding:8px;background:var(--content-bg);border-radius:8px"></div>
+  </div>
+
+  <!-- 用户输入 -->
+  <div class="card tint-mint">
+    <div class="card-h">✍️ 你的需求描述</div>
+    <div class="txt" style="font-size:12px;color:var(--ink-2);margin-bottom:8px">
+      描述你要创作的内容，AI 将以选中的技能作为系统提示词进行生成。
+    </div>
+    <textarea class="crud-textarea" id="saUserInput" rows="5" placeholder="例如：写一个90秒的都市悬疑短剧，男主是神秘企业家，开场在雨夜小巷..."></textarea>
+    <button class="btn btn-accent" style="width:100%;margin-top:10px" id="saGenerateBtn" onclick="saGenerate()">🚀 生成内容</button>
+  </div>
+
+  <!-- API 设置快捷入口 -->
+  <div class="card" style="border-left:4px solid var(--accent-warm)">
+    <div class="card-h" style="cursor:pointer" onclick="saToggleApiSettings()">
+      ⚙️ API 设置
+      <span style="margin-left:auto;font-size:12px;color:var(--ink-3)" id="saApiToggle">展开 ▼</span>
+    </div>
+    <div id="saApiSettings" style="display:none;margin-top:10px">
+      <div class="txt" style="font-size:12px;color:var(--ink-2);margin-bottom:8px">
+        技能智能体复用「智能体库」的 API 设置，如需修改请前往智能体库页面。
+      </div>
+      <div id="saApiInfo" style="font-size:13px;color:var(--ink-2)"></div>
+    </div>
+  </div>
+
+  <!-- 生成结果 -->
+  <div class="card tint-amber" id="saResultCard" style="display:none">
+    <div class="card-h">
+      📤 生成结果
+      <button class="btn btn-mint" style="margin-left:auto" onclick="saCopyResult()">📋 复制全部</button>
+    </div>
+    <div id="saResult" style="white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.7;max-height:600px;overflow-y:auto;padding:8px"></div>
+  </div>
+
+  <!-- 加载中 -->
+  <div class="card" id="saLoadingCard" style="display:none">
+    <div style="text-align:center;padding:30px">
+      <div style="font-size:40px;animation:spin 1s linear infinite;display:inline-block">⚙️</div>
+      <div style="margin-top:10px;color:var(--ink-2)">AI 正在生成，请稍候...</div>
+    </div>
   </div>
 `,
 
@@ -3816,6 +3886,7 @@ function switchSection(id){
   if(id==='data'){ html=renderDataMgr(); }
   else if(id==='overview'){ html=renderOverviewHTML(); }
   else if(id==='agent'){ html=SECTIONS.agent; }
+  else if(id==='skillagent'){ html=SECTIONS.skillagent; }
   else if(id==='workshop'){ html=SECTIONS.workshop; }
   else { html=SECTIONS[id]||'<div class="empty"><div class="big">🚧</div>板块建设中…</div>'; }
   /* 面包屑导航 + 顶部随机激励语滚动条 */
@@ -3830,6 +3901,7 @@ function switchSection(id){
   if(id==='inspo') renderInspos();
   if(id==='ledger') renderLedger();
   if(id==='agent') initAgentSection();
+  if(id==='skillagent') saInit();
   if(id==='workshop') wsInitWorkshop();
   (SECTION_LISTS[id]||[]).forEach(k=>renderList(k));
   /* 初始化分类筛选器箭头状态 */
@@ -5098,6 +5170,8 @@ function renderOverview(){
       {id:'aitech',ico:'🤖',name:'AI技术学习',count:countSection('aitech')},
       {id:'ai',ico:'🧠',name:'AI学习',count:countSection('ai')},
       {id:'myprompts',ico:'📝',name:'我的提示词',count:countSection('myprompts')},
+      {id:'agent',ico:'🎬',name:'智能体库',count:0},
+      {id:'skillagent',ico:'🎭',name:'技能智能体',count:0},
     ]},
     {name:'生活管理',color:'#10b981',sections:[
       {id:'fit',ico:'💪',name:'力量训练',count:countSection('fit')},
@@ -8020,6 +8094,198 @@ document.addEventListener('click',function(e){
     container.appendChild(p);
   }
 })();
+
+/* ================================================================
+   技能智能体模块（小逻+老李专业技能对话）
+   ================================================================ */
+var _saCurrentCategory='小逻剧本';
+var _saCurrentSkill=null;
+
+/* 初始化技能智能体页面 */
+function saInit(){
+  saSelectCategory('小逻剧本');
+  var s=DB.apiSettings||{};
+  var info=document.getElementById('saApiInfo');
+  if(info){
+    info.innerHTML='服务商: '+(s.apiBaseUrl||'未设置')+'<br>模型: '+(s.model||'未设置')+'<br>Key: '+(s.apiKey?('已设置('+(s.apiKey.length>12?s.apiKey.substring(0,8)+'...':'')+')'):'未设置');
+  }
+  var cache=loadTempCache();
+  if(cache&&cache.type==='skillagent'&&cache.data){
+    var el=document.getElementById('saResult');
+    var card=document.getElementById('saResultCard');
+    if(el&&card){
+      el.textContent=cache.data;
+      card.style.display='block';
+      var remain=getTempCacheRemaining();
+      showToast('已恢复上次生成结果（剩余'+remain+'秒有效）','info');
+    }
+  }
+}
+
+function saSelectCategory(cat){
+  _saCurrentCategory=cat;
+  _saCurrentSkill=null;
+  var btns=document.querySelectorAll('#saCategoryBtns .btn');
+  btns.forEach(function(b){
+    if(b.textContent.indexOf(cat)>-1){
+      b.className='btn btn-accent';
+    }else{
+      b.className='btn btn-ghost';
+    }
+  });
+  var select=document.getElementById('saSkillSelect');
+  var desc=document.getElementById('saSkillDesc');
+  if(!select) return;
+  select.innerHTML='<option value="">-- 请选择技能 --</option>';
+  var prompts=(DB.myPrompts||[]).filter(function(p){return p.tag===cat;});
+  if(prompts.length===0){
+    select.innerHTML='<option value="">该分类暂无技能</option>';
+    if(desc){desc.style.display='none';}
+    return;
+  }
+  prompts.forEach(function(p){
+    var opt=document.createElement('option');
+    opt.value=p.title;
+    opt.textContent=p.title;
+    select.appendChild(opt);
+  });
+  if(desc){desc.style.display='none';}
+}
+
+function saOnSkillChange(){
+  var select=document.getElementById('saSkillSelect');
+  var desc=document.getElementById('saSkillDesc');
+  if(!select) return;
+  var title=select.value;
+  if(!title){
+    _saCurrentSkill=null;
+    if(desc) desc.style.display='none';
+    return;
+  }
+  var prompt=(DB.myPrompts||[]).find(function(p){return p.title===title;});
+  if(!prompt){
+    _saCurrentSkill=null;
+    if(desc) desc.style.display='none';
+    return;
+  }
+  _saCurrentSkill=prompt;
+  if(desc){
+    var preview=prompt.desc.substring(0,300);
+    if(prompt.desc.length>300) preview+='...';
+    desc.innerHTML='<strong>'+title+'</strong><br>'+preview.replace(/\\n/g,'<br>');
+    desc.style.display='block';
+  }
+}
+
+function saToggleApiSettings(){
+  var el=document.getElementById('saApiSettings');
+  var toggle=document.getElementById('saApiToggle');
+  if(!el) return;
+  if(el.style.display==='none'){
+    el.style.display='block';
+    toggle.textContent='收起 ▲';
+  }else{
+    el.style.display='none';
+    toggle.textContent='展开 ▼';
+  }
+}
+
+function saGenerate(){
+  if(!_saCurrentSkill){
+    showToast('请先选择一个技能','error');
+    return;
+  }
+  var input=document.getElementById('saUserInput');
+  var userMsg=input?input.value.trim():'';
+  if(!userMsg){
+    showToast('请输入你的需求描述','error');
+    return;
+  }
+  var s=DB.apiSettings||{};
+  if(!s.apiBaseUrl||!s.apiKey){
+    showToast('请先在智能体库中设置 API','error');
+    return;
+  }
+  var loadingCard=document.getElementById('saLoadingCard');
+  var resultCard=document.getElementById('saResultCard');
+  var generateBtn=document.getElementById('saGenerateBtn');
+  if(loadingCard) loadingCard.style.display='block';
+  if(resultCard) resultCard.style.display='none';
+  if(generateBtn){generateBtn.disabled=true;generateBtn.textContent='⏳ 生成中...';}
+  var systemPrompt=_saCurrentSkill.desc;
+  systemPrompt+='\n\n## 额外要求\n请根据用户的需求，运用上述技能的专业规范生成完整内容。输出纯文本格式，不要输出JSON。';
+  saCallLLM(systemPrompt,userMsg).then(function(content){
+    if(loadingCard) loadingCard.style.display='none';
+    if(generateBtn){generateBtn.disabled=false;generateBtn.textContent='🚀 生成内容';}
+    var el=document.getElementById('saResult');
+    var card=document.getElementById('saResultCard');
+    if(el){
+      el.textContent=content;
+      card.style.display='block';
+      saveTempCache('skillagent',content,{skill:_saCurrentSkill.title,category:_saCurrentCategory});
+    }
+    showToast('生成完成！','success');
+  }).catch(function(err){
+    if(loadingCard) loadingCard.style.display='none';
+    if(generateBtn){generateBtn.disabled=false;generateBtn.textContent='🚀 生成内容';}
+    showToast('生成失败：'+err.message,'error');
+  });
+}
+
+function saCallLLM(systemPrompt,userMessage){
+  var s=DB.apiSettings||{};
+  var baseUrl=s.apiBaseUrl||'';
+  var apiKey=s.apiKey||'';
+  var model=s.model||'glm-4-plus';
+  if(!baseUrl||!apiKey){
+    return Promise.reject(new Error('API 地址或 Key 未设置'));
+  }
+  baseUrl=baseUrl.replace(/\/+$/,'');
+  if(baseUrl.endsWith('/chat/completions')){
+  }else if(/\/v\d+$/.test(baseUrl)){
+  }else{
+    baseUrl=baseUrl+'/v1';
+  }
+  var url=baseUrl+'/chat/completions';
+  return fetch(url,{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer '+apiKey
+    },
+    body:JSON.stringify({
+      model:model,
+      messages:[
+        {role:'system',content:systemPrompt},
+        {role:'user',content:userMessage}
+      ],
+      temperature:0.8,
+      max_tokens:8192
+    })
+  }).then(function(r){
+    if(!r.ok){
+      return r.text().then(function(t){
+        var msg='HTTP '+r.status;
+        try{var e=JSON.parse(t);if(e.error&&e.error.message)msg+='：'+e.error.message;}catch(_){}
+        throw new Error(msg);
+      });
+    }
+    return r.json();
+  }).then(function(data){
+    var content=data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content;
+    if(!content) throw new Error('API 返回内容为空');
+    return content;
+  });
+}
+
+function saCopyResult(){
+  var el=document.getElementById('saResult');
+  if(!el){showToast('暂无内容','error');return;}
+  var text=el.textContent||'';
+  if(!text){showToast('暂无内容','error');return;}
+  copyToClipboard(text);
+  showToast('已复制全部内容','success');
+}
 
 /* ================================================================
    AI漫剧工坊 - 与智能体库同款：输入→生成→可复制提示词
