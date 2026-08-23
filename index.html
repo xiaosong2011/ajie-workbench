@@ -1998,6 +1998,32 @@ agent:`
         <input class="crud-input" id="agentGenreCustom" placeholder="输入自定义题材" style="flex:1;display:none">
       </div>
     </div>
+    <!-- 输出模式 -->
+    <div class="agent-form-row">
+      <label>输出模式</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);flex:1;min-width:120px">
+          <input type="radio" name="agentOutputMode" value="script" checked onchange="switchOutputMode('script')">
+          <span>📜 漫剧剧本</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);flex:1;min-width:120px">
+          <input type="radio" name="agentOutputMode" value="storyboard" onchange="switchOutputMode('storyboard')">
+          <span>🎬 分镜故事板</span>
+        </label>
+      </div>
+    </div>
+    <!-- 故事板风格选择（故事板模式时显示） -->
+    <div class="agent-form-row" id="agentStoryboardStyleRow" style="display:none">
+      <label>故事板风格</label>
+      <select class="crud-select" id="agentStoryboardStyle" onchange="onStoryboardStyleChange()">
+        <option value="sketch">手绘草稿速写风</option>
+        <option value="pencil">铅笔单线条稿</option>
+        <option value="action">动作分镜（快速粗犷）</option>
+        <option value="director">导演轨道故事板</option>
+        <option value="3dwhite">3D白模（黏土风格）</option>
+        <option value="scenemap">场景平面视图</option>
+      </select>
+    </div>
     <div class="agent-form-row">
       <label>故事灵感 <span style="color:var(--ink-3);font-weight:400">（描述你的核心想法）</span></label>
       <textarea class="crud-textarea" id="agentIdea" rows="4" placeholder="例如：女主是现代医学生，穿越到古代成为废柴小姐，靠医术逆袭，打脸渣男，邂逅王爷…"></textarea>
@@ -2043,9 +2069,15 @@ agent:`
       <div id="resCharacters" class="agent-char-list"></div>
     </div>
 
+    <!-- 故事板图例 -->
+    <div class="card tint-sky" id="resLegendCard" style="display:none">
+      <div class="card-h">📌 图例说明</div>
+      <div id="resLegend"></div>
+    </div>
+
     <!-- 分镜表格 -->
     <div class="card tint-amber">
-      <div class="card-h">🎬 分镜脚本</div>
+      <div class="card-h" id="resShotsTitle">🎬 分镜脚本</div>
       <div id="resShots" class="agent-shot-list"></div>
     </div>
 
@@ -5407,6 +5439,101 @@ function resetData(){
 /* ========== 智能体库模块（漫剧创作 AI） ========== */
 let _currentManhuaScript=null;  /* 当前编辑中的漫剧剧本JSON */
 
+/* 输出模式切换 */
+function switchOutputMode(mode){
+  const sbRow=document.getElementById('agentStoryboardStyleRow');
+  const btn=document.getElementById('btnGenerateScript');
+  if(mode==='storyboard'){
+    sbRow.style.display='block';
+    if(btn) btn.innerHTML='🎬 生成分镜故事板';
+  } else {
+    sbRow.style.display='none';
+    if(btn) btn.innerHTML='✨ 生成漫剧剧本';
+  }
+}
+function onStoryboardStyleChange(){
+  /* 预留：风格切换时可做的事 */
+}
+function getAgentOutputMode(){
+  const radios=document.querySelectorAll('input[name="agentOutputMode"]');
+  for(const r of radios){ if(r.checked) return r.value; }
+  return 'script';
+}
+function getAgentStoryboardStyle(){
+  return document.getElementById('agentStoryboardStyle')?.value || 'sketch';
+}
+
+/* 分镜故事板 System Prompt */
+const STORYBOARD_SYSTEM_PROMPT = `# 分镜故事板创作智能体
+你是专业AI分镜故事板创作助手，服务短视频漫剧创作者、动画导演、影视前期美术。
+你的输出全部为结构化JSON，方便网页程序读取解析和渲染为分镜故事板。
+
+## 核心能力
+1. 根据用户提供的故事灵感、指定画风、指定题材，生成专业级分镜故事板。
+2. 输出包含：项目信息、布局规格、美术风格、角色列表、完整分镜镜头列表、图例说明。
+3. 每个镜头包含：镜头编号、镜头类型（景别+运镜）、动作节点、画面描述、表演提示、音效说明、AI绘图提示词。
+4. 支持多种故事板风格：手绘草稿、铅笔线稿、动作分镜、导演轨道、3D白模、场景平面。
+
+## 输出规范
+视频画幅9:16竖屏漫剧。
+开场3秒制造冲突钩子，每10‑15秒小反转，结尾留悬念。
+单镜头3‑7秒，一集8‑14个镜头。
+景别：特写、近景、中景、全景、远景；运镜：推、拉、摇、移、跟、甩拍、手持、过肩、俯拍、仰拍。
+角色描述保留固定特征标签，保证人物一致性。
+严格遵从用户指定的画风与题材类型。
+只输出JSON，禁止多余闲聊、文学大段描写。
+
+## 故事板风格说明
+- sketch（手绘草稿速写风）：松散随性草稿线，黑白单色线稿，少量彩色手绘箭头标注运动轨迹
+- pencil（铅笔单线条稿）：脸部留白带十字定位辅助线，不展示五官，彩色箭头标注引导线
+- action（动作分镜）：快速粗犷的铅笔线条，突出骨肉碰撞冲击力与肌肉紧绷爆发力，彩色箭头标注
+- director（导演轨道故事板）：包含项目卡、场景包、角色设定、情感曲线、空间连续性、导演轨道
+- 3dwhite（3D白模）：明亮黏土模型风格3D预演，哑光浅黏土质感，无纹理体块模型
+- scenemap（场景平面视图）：黑白线条工程图风格，纯白背景，俯视视角无透视
+
+## 输出JSON Schema
+{
+  "output_mode": "storyboard",
+  "title": "故事板标题",
+  "type": "故事板类型（如：手绘线稿-动作分镜故事板）",
+  "style": "整体美术风格",
+  "layout": {
+    "grid": "3×2",
+    "total_panels": 6
+  },
+  "genre": "题材类型",
+  "logline": "一句话故事梗概",
+  "characters": [
+    {
+      "name": "角色名",
+      "role": "主角/反派/配角",
+      "reference": "@图片1",
+      "personality": ["性格标签"],
+      "description": "外貌体型特征描述"
+    }
+  ],
+  "legend": {
+    "red_arrow": "机位运动/构图",
+    "blue_arrow": "角色动作轨迹",
+    "green_mark": "互动关系/攻击轨迹",
+    "orange_mark": "效果/冲击力",
+    "purple_mark": "音效/标注引导"
+  },
+  "panels": [
+    {
+      "panel_id": "P01",
+      "shot_type": "中景/固定",
+      "action": "动作节点名称",
+      "performance": "表演提示",
+      "sound": "音效说明",
+      "description": "详细画面描述，包含镜头角度、景别、角色动作、特效位置、环境参照等",
+      "draw_prompt": "AI绘图提示词（可直接用于生成分镜画面）",
+      "duration": 4
+    }
+  ]
+}
+`;
+
 /* 漫剧创作 System Prompt */
 const MANHUA_SYSTEM_PROMPT = `# 漫剧创作智能体
 你是专业AI漫剧创作助手，服务短视频漫剧创作者，擅长网文改编、爽剧、古风、现代都市、悬疑、仙侠漫剧。
@@ -5650,30 +5777,63 @@ function generateManhuaScript(){
   }
 
   hideAgentError();
-  showAgentLoading('AI 正在创作漫剧剧本，请稍候…');
+  const mode=getAgentOutputMode();
+  const isStoryboard=mode==='storyboard';
+  
+  showAgentLoading(isStoryboard?'AI 正在生成分镜故事板，请稍候…':'AI 正在创作漫剧剧本，请稍候…');
   setAgentButtonsDisabled(true);
 
-  const userMsg=`请根据以下信息创作一部完整的漫剧剧本：
+  let systemPrompt,userMsg;
+  if(isStoryboard){
+    const sbStyle=getAgentStoryboardStyle();
+    const styleNameMap={
+      sketch:'手绘草稿速写风',
+      pencil:'铅笔单线条稿（脸部留白十字线）',
+      action:'动作分镜（快速粗犷）',
+      director:'导演轨道故事板',
+      '3dwhite':'3D白模（黏土风格）',
+      scenemap:'场景平面视图'
+    };
+    const styleName=styleNameMap[sbStyle]||'手绘草稿速写风';
+    systemPrompt=STORYBOARD_SYSTEM_PROMPT;
+    userMsg=`请根据以下信息生成一份专业的分镜故事板：
+【画风】${style}
+【题材类型】${genre}
+【故事板风格】${styleName}
+【故事灵感】${idea}
+
+请严格按照指定的 JSON 格式输出完整的分镜故事板，包含标题、类型、风格、布局、角色列表、图例和分镜镜头列表（panels）。
+每个镜头必须包含：panel_id、shot_type、action、description、draw_prompt。`;
+  } else {
+    systemPrompt=MANHUA_SYSTEM_PROMPT;
+    userMsg=`请根据以下信息创作一部完整的漫剧剧本：
 【画风】${style}
 【题材类型】${genre}
 【故事灵感】${idea}
 
 请严格按照指定的 JSON 格式输出完整的漫剧剧本，包含标题、题材、梗概、画风、角色列表和分镜镜头。`;
+  }
 
-  callAgentLLM(MANHUA_SYSTEM_PROMPT, userMsg, false)
+  callAgentLLM(systemPrompt, userMsg, false)
     .then(content=>{
       const data=extractJsonFromText(content);
       if(!data){
         throw new Error('无法解析返回的 JSON 数据，请重试或调整提示词');
       }
       /* 数据校验 */
-      if(!data.title||!Array.isArray(data.characters)||!Array.isArray(data.shots)){
-        throw new Error('返回数据格式不完整（缺少 title、characters 或 shots）');
+      if(isStoryboard){
+        if(!data.title||!Array.isArray(data.panels)){
+          throw new Error('返回数据格式不完整（缺少 title 或 panels）');
+        }
+      } else {
+        if(!data.title||!Array.isArray(data.characters)||!Array.isArray(data.shots)){
+          throw new Error('返回数据格式不完整（缺少 title、characters 或 shots）');
+        }
       }
       _currentManhuaScript=data;
       renderAgentResult(data);
       hideAgentLoading();
-      showToast('漫剧剧本生成成功！','success');
+      showToast(isStoryboard?'分镜故事板生成成功！':'漫剧剧本生成成功！','success');
       /* 启用修改按钮 */
       const btn=document.getElementById('btnModifyScript');
       if(btn) btn.disabled=false;
@@ -5690,15 +5850,17 @@ function generateManhuaScript(){
 /* 修改现有剧本 */
 function modifyManhuaScript(){
   if(!_currentManhuaScript){
-    showAgentError('当前没有可修改的剧本，请先生成一个剧本');
+    showAgentError('当前没有可修改的内容，请先生成一个剧本或故事板');
     return;
   }
   const style=getAgentStyle();
   const genre=getAgentGenre();
   const instr=document.getElementById('agentModifyInstr').value.trim();
+  const mode=getAgentOutputMode();
+  const isStoryboard=mode==='storyboard';
 
   if(!instr){
-    showAgentError('请输入修改指令，描述你想如何调整剧本');
+    showAgentError('请输入修改指令，描述你想如何调整');
     return;
   }
 
@@ -5709,10 +5871,24 @@ function modifyManhuaScript(){
   }
 
   hideAgentError();
-  showAgentLoading('AI 正在修改剧本，请稍候…');
+  showAgentLoading(isStoryboard?'AI 正在修改故事板，请稍候…':'AI 正在修改剧本，请稍候…');
   setAgentButtonsDisabled(true);
 
-  const userMsg=`以下是当前的漫剧剧本完整 JSON：
+  let systemPrompt,userMsg;
+  if(isStoryboard){
+    systemPrompt=STORYBOARD_SYSTEM_PROMPT;
+    userMsg=`以下是当前的分镜故事板完整 JSON：
+${JSON.stringify(_currentManhuaScript)}
+
+请根据以下修改指令，调整故事板并返回完整的新 JSON（保持相同的 JSON 结构）：
+【修改指令】${instr}
+${style?'【调整画风为】'+style:''}
+${genre?'【调整题材为】'+genre:''}
+
+请输出完整的修改后的分镜故事板 JSON。`;
+  } else {
+    systemPrompt=MANHUA_SYSTEM_PROMPT;
+    userMsg=`以下是当前的漫剧剧本完整 JSON：
 ${JSON.stringify(_currentManhuaScript)}
 
 请根据以下修改指令，调整剧本并返回完整的新 JSON（保持相同的 JSON 结构）：
@@ -5721,20 +5897,27 @@ ${style?'【调整画风为】'+style:''}
 ${genre?'【调整题材为】'+genre:''}
 
 请输出完整的修改后的漫剧剧本 JSON。`;
+  }
 
-  callAgentLLM(MANHUA_SYSTEM_PROMPT, userMsg, false)
+  callAgentLLM(systemPrompt, userMsg, false)
     .then(content=>{
       const data=extractJsonFromText(content);
       if(!data){
         throw new Error('无法解析返回的 JSON 数据，请重试或调整修改指令');
       }
-      if(!data.title||!Array.isArray(data.characters)||!Array.isArray(data.shots)){
-        throw new Error('返回数据格式不完整');
+      if(isStoryboard){
+        if(!data.title||!Array.isArray(data.panels)){
+          throw new Error('返回数据格式不完整（缺少 title 或 panels）');
+        }
+      } else {
+        if(!data.title||!Array.isArray(data.characters)||!Array.isArray(data.shots)){
+          throw new Error('返回数据格式不完整');
+        }
       }
       _currentManhuaScript=data;
       renderAgentResult(data);
       hideAgentLoading();
-      showToast('剧本修改成功！','success');
+      showToast(isStoryboard?'故事板修改成功！':'剧本修改成功！','success');
     })
     .catch(err=>{
       hideAgentLoading();
@@ -5787,15 +5970,123 @@ function renderAgentResult(data){
   if(!resultEl) return;
   resultEl.style.display='block';
 
+  /* 判断是否是故事板模式 */
+  const isStoryboard=data.output_mode==='storyboard'||Array.isArray(data.panels);
+
   document.getElementById('resTitle').textContent=data.title||'未命名';
   document.getElementById('resGenre').textContent=data.genre||'未分类';
-  document.getElementById('resStyle').textContent=data.style||'默认画风';
+  document.getElementById('resStyle').textContent=data.style||(isStoryboard?'故事板':'默认画风');
   document.getElementById('resLogline').textContent=data.logline||'暂无梗概';
 
-  /* 渲染角色列表 */
-  renderCharacters(data.characters||[]);
-  /* 渲染分镜列表 */
-  renderShots(data.shots||[]);
+  if(isStoryboard){
+    /* 故事板模式：更新标签 */
+    const titleCard=document.querySelector('#agentResult .card.tint-rose .card-h');
+    if(titleCard){
+      if(titleCard.firstChild&&titleCard.firstChild.nodeType===3){
+        titleCard.firstChild.textContent='🎬 分镜故事板 ';
+      }
+    }
+    /* 更新分镜标题 */
+    const shotsTitle=document.getElementById('resShotsTitle');
+    if(shotsTitle) shotsTitle.textContent='🎬 分镜面板';
+    /* 显示图例卡片 */
+    const legendCard=document.getElementById('resLegendCard');
+    if(legendCard) legendCard.style.display='block';
+    /* 渲染角色列表（如果有） */
+    renderCharacters(data.characters||[]);
+    /* 渲染故事板面板 */
+    renderStoryboardPanels(data.panels||[]);
+    /* 渲染图例（如果有） */
+    renderStoryboardLegend(data.legend||{});
+  } else {
+    /* 剧本模式：恢复原标题 */
+    const titleCard=document.querySelector('#agentResult .card.tint-rose .card-h');
+    if(titleCard){
+      if(titleCard.firstChild&&titleCard.firstChild.nodeType===3){
+        titleCard.firstChild.textContent='📄 漫剧剧本 ';
+      }
+    }
+    /* 恢复分镜标题 */
+    const shotsTitle=document.getElementById('resShotsTitle');
+    if(shotsTitle) shotsTitle.textContent='🎬 分镜脚本';
+    /* 隐藏图例卡片 */
+    const legendCard=document.getElementById('resLegendCard');
+    if(legendCard) legendCard.style.display='none';
+    /* 渲染角色列表 */
+    renderCharacters(data.characters||[]);
+    /* 渲染分镜列表 */
+    renderShots(data.shots||[]);
+  }
+}
+
+/* 渲染故事板面板 */
+function renderStoryboardPanels(panels){
+  const container=document.getElementById('resShots');
+  if(!container) return;
+  if(!panels.length){ container.innerHTML='<div class="txt" style="color:var(--ink-3)">暂无分镜</div>'; return; }
+  let html='<div class="agent-shot-table">';
+  panels.forEach((p,i)=>{
+    html+=`
+      <div class="agent-shot-card">
+        <div class="agent-shot-head">
+          <span class="agent-shot-id">${p.panel_id||('P'+(i+1))}</span>
+          <span class="agent-shot-camera">${escapeHtml(p.shot_type||'')}</span>
+          <span class="agent-shot-dur">🎬 ${escapeHtml(p.action||'')}</span>
+          <button class="btn btn-mint agent-copy-btn" onclick="copyPanelPrompt(${i})">📋 复制绘图提示词</button>
+        </div>
+        <div class="agent-shot-body">
+          <div class="agent-shot-row"><span class="agent-shot-label">动作：</span><span>${escapeHtml(p.action||'')}</span></div>
+          ${p.performance?`<div class="agent-shot-row"><span class="agent-shot-label">表演：</span><span>${escapeHtml(p.performance)}</span></div>`:''}
+          ${p.sound?`<div class="agent-shot-row"><span class="agent-shot-label">音效：</span><span class="agent-shot-narration">${escapeHtml(p.sound)}</span></div>`:''}
+          <div class="agent-shot-row"><span class="agent-shot-label">画面：</span><span>${escapeHtml(p.description||'')}</span></div>
+          ${p.duration?`<div class="agent-shot-row"><span class="agent-shot-label">时长：</span><span>${p.duration}秒</span></div>`:''}
+          <div class="agent-shot-draw">
+            <div class="agent-shot-label">🎨 绘图提示词：</div>
+            <div class="agent-shot-draw-text">${escapeHtml(p.draw_prompt||'')}</div>
+          </div>
+        </div>
+      </div>`;
+  });
+  html+='</div>';
+  container.innerHTML=html;
+}
+
+/* 渲染故事板图例 */
+function renderStoryboardLegend(legend){
+  const legendEl=document.getElementById('resLegend');
+  if(!legendEl) return;
+  if(!legend||!Object.keys(legend).length){
+    legendEl.style.display='none';
+    return;
+  }
+  legendEl.style.display='block';
+  let html='<div style="display:flex;flex-wrap:wrap;gap:8px 16px">';
+  const iconMap={
+    red_arrow:'🔴',
+    blue_arrow:'🔵',
+    green_mark:'🟢',
+    orange_mark:'🟠',
+    purple_mark:'🟣',
+    x_marker:'❌',
+    black_text:'⬛'
+  };
+  for(const [k,v] of Object.entries(legend)){
+    const icon=iconMap[k]||'📍';
+    html+=`<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2)">
+      <span>${icon}</span><span>${escapeHtml(v)}</span>
+    </div>`;
+  }
+  html+='</div>';
+  legendEl.innerHTML=html;
+}
+
+/* 复制单镜头绘图提示词（故事板模式） */
+function copyPanelPrompt(idx){
+  const data=_currentManhuaScript;
+  if(!data||!data.panels||!data.panels[idx]) return;
+  const prompt=data.panels[idx].draw_prompt||'';
+  copyToClipboard(prompt);
+  showToast('镜头绘图提示词已复制','success');
 }
 
 /* 渲染角色卡片 */
@@ -5880,33 +6171,66 @@ function saveScriptProject(){
 /* 复制完整剧本 */
 function copyFullScript(){
   if(!_currentManhuaScript){
-    showToast('当前没有剧本可复制','warn');
+    showToast('当前没有内容可复制','warn');
     return;
   }
   const d=_currentManhuaScript;
+  const isStoryboard=d.output_mode==='storyboard'||Array.isArray(d.panels);
+  
   let text=`【${d.title}】\n`;
   text+=`题材：${d.genre||''}\n`;
-  text+=`画风：${d.style||''}\n`;
-  text+=`梗概：${d.logline||''}\n\n`;
-  text+=`━━━ 角色设定 ━━━\n`;
-  (d.characters||[]).forEach(c=>{
-    text+=`\n【${c.name}】${c.role||''}\n`;
-    text+=`性格：${(c.personality||[]).join('、')}\n`;
-    text+=`绘图提示词：${c.draw_prompt||''}\n`;
-    if(c.voice_tip) text+=`配音建议：${c.voice_tip}\n`;
-  });
-  text+=`\n━━━ 分镜脚本 ━━━\n`;
-  (d.shots||[]).forEach(s=>{
-    text+=`\n── 镜头 ${s.shot_id}（${s.camera||''} · ${s.duration||'?'}秒）──\n`;
-    text+=`场景：${s.scene||''}\n`;
-    text+=`动作：${s.action||''}\n`;
-    if(s.dialogue) text+=`台词："${s.dialogue}"\n`;
-    if(s.narration) text+=`旁白：${s.narration}\n`;
-    text+=`情绪：${s.emotion||''}\n`;
-    text+=`绘图：${s.draw_prompt||''}\n`;
-    if(s.bgm) text+=`BGM：${s.bgm}\n`;
-    if(s.sound_effect) text+=`音效：${s.sound_effect}\n`;
-  });
+  text+=`风格：${d.style||''}\n`;
+  if(d.logline) text+=`梗概：${d.logline}\n`;
+  if(d.type) text+=`类型：${d.type}\n`;
+  if(d.layout&&d.layout.grid) text+=`布局：${d.layout.grid}（共${d.layout.total_panels||''}格）\n`;
+  text+='\n';
+  
+  if(d.characters&&d.characters.length){
+    text+=`━━━ 角色设定 ━━━\n`;
+    d.characters.forEach(c=>{
+      text+=`\n【${c.name}】${c.role||''}\n`;
+      if(c.personality) text+=`性格：${(c.personality||[]).join('、')}\n`;
+      if(c.description) text+=`描述：${c.description}\n`;
+      if(c.draw_prompt) text+=`绘图提示词：${c.draw_prompt}\n`;
+      if(c.voice_tip) text+=`配音建议：${c.voice_tip}\n`;
+    });
+    text+='\n';
+  }
+  
+  if(isStoryboard){
+    /* 故事板格式 */
+    if(d.legend&&Object.keys(d.legend).length){
+      text+=`━━━ 图例说明 ━━━\n`;
+      for(const [k,v] of Object.entries(d.legend)){
+        text+=`· ${k}：${v}\n`;
+      }
+      text+='\n';
+    }
+    text+=`━━━ 分镜面板 ━━━\n`;
+    (d.panels||[]).forEach((p,i)=>{
+      text+=`\n── ${p.panel_id||('P'+(i+1))} / ${p.shot_type||''} / ${p.action||''} ──\n`;
+      if(p.performance) text+=`表演：${p.performance}\n`;
+      if(p.sound) text+=`音效：${p.sound}\n`;
+      text+=`画面：${p.description||''}\n`;
+      if(p.duration) text+=`时长：${p.duration}秒\n`;
+      if(p.draw_prompt) text+=`绘图：${p.draw_prompt}\n`;
+    });
+  } else {
+    /* 剧本格式 */
+    text+=`━━━ 分镜脚本 ━━━\n`;
+    (d.shots||[]).forEach(s=>{
+      text+=`\n── 镜头 ${s.shot_id}（${s.camera||''} · ${s.duration||'?'}秒）──\n`;
+      text+=`场景：${s.scene||''}\n`;
+      text+=`动作：${s.action||''}\n`;
+      if(s.dialogue) text+=`台词："${s.dialogue}"\n`;
+      if(s.narration) text+=`旁白：${s.narration}\n`;
+      text+=`情绪：${s.emotion||''}\n`;
+      text+=`绘图：${s.draw_prompt||''}\n`;
+      if(s.bgm) text+=`BGM：${s.bgm}\n`;
+      if(s.sound_effect) text+=`音效：${s.sound_effect}\n`;
+    });
+  }
+  
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(text).then(()=>showToast('完整剧本已复制到剪贴板','success'));
   }else{
