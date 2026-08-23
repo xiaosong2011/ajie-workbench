@@ -2063,6 +2063,16 @@ agent:`
       <span style="margin-left:auto;font-size:12px;color:var(--ink-3)" id="agentApiToggle">展开 ▼</span>
     </div>
     <div id="agentApiSettings" style="display:none;margin-top:10px">
+      <!-- 快速切换服务商 -->
+      <div class="agent-form-row">
+        <label>快速切换服务商</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-accent" style="padding:6px 14px;font-size:13px" onclick="switchProvider('zhipu')">🟣 智谱AI</button>
+          <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px" onclick="switchProvider('doubao')">🟢 豆包大模型</button>
+          <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px" onclick="switchProvider('deepseek')">🔵 DeepSeek</button>
+          <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px" onclick="switchProvider('custom')">⚙️ 自定义</button>
+        </div>
+      </div>
       <div class="agent-form-row">
         <label>API 地址（Base URL）</label>
         <input class="crud-input" id="agentApiBaseUrl" placeholder="https://api.openai.com/v1 或兼容地址">
@@ -2072,12 +2082,25 @@ agent:`
         <input class="crud-input" id="agentApiKey" type="password" placeholder="sk-...">
       </div>
       <div class="agent-form-row">
-        <label>模型名称 <span style="color:var(--ink-3);font-weight:400">（推荐 glm-4-plus，提示词更详细完整）</span></label>
+        <label>模型名称 <span style="color:var(--ink-3);font-weight:400">（选择模型，影响生成质量和速度）</span></label>
         <select class="crud-input" id="agentApiModel">
-          <option value="glm-4-plus">glm-4-plus（推荐，质量最高）</option>
-          <option value="glm-4">glm-4（高质量）</option>
-          <option value="glm-4-flash">glm-4-flash（免费轻量，提示词会偏简短）</option>
-          <option value="glm-4-long">glm-4-long（超长上下文）</option>
+          <optgroup label="🟣 智谱AI（GLM）">
+            <option value="glm-4-plus">glm-4-plus（推荐，质量最高）</option>
+            <option value="glm-4">glm-4（高质量）</option>
+            <option value="glm-4-flash">glm-4-flash（免费轻量，提示词偏简短）</option>
+            <option value="glm-4-long">glm-4-long（超长上下文）</option>
+          </optgroup>
+          <optgroup label="🟢 豆包大模型（Doubao）">
+            <option value="doubao-seed-1-6-250615">doubao-seed-1.6（推荐，自适应思考，质量高）</option>
+            <option value="doubao-seed-1-6-flash-250615">doubao-seed-1.6-flash（快速版）</option>
+            <option value="doubao-pro-32k">doubao-pro-32k（经典Pro版）</option>
+            <option value="doubao-pro-128k">doubao-pro-128k（超长上下文）</option>
+            <option value="doubao-lite-32k">doubao-lite-32k（轻量极速）</option>
+          </optgroup>
+          <optgroup label="🔵 DeepSeek">
+            <option value="deepseek-chat">deepseek-chat（通用对话）</option>
+            <option value="deepseek-reasoner">deepseek-reasoner（深度推理）</option>
+          </optgroup>
         </select>
       </div>
       <div class="agent-form-row" style="display:flex;gap:8px">
@@ -2085,7 +2108,7 @@ agent:`
         <button class="btn btn-ghost" onclick="testAgentApi()">🔌 测试连接</button>
       </div>
       <div class="txt" style="font-size:12px;color:var(--ink-3);margin-top:6px">
-        💡 支持 OpenAI 兼容接口（如 DeepSeek、通义千问、智谱等）。数据仅保存在本地浏览器。
+        💡 支持智谱AI、豆包大模型、DeepSeek等OpenAI兼容接口。数据仅保存在本地浏览器。豆包需在火山引擎方舟平台获取API Key。
       </div>
     </div>
   </div>
@@ -6210,6 +6233,42 @@ function toggleAgentApiSettings(){
     el.style.display='none';
     toggle.textContent='展开 ▼';
   }
+}
+
+/* 快速切换服务商预设 */
+var PROVIDER_PRESETS={
+  zhipu:{baseUrl:'https://open.bigmodel.cn/api/paas/v4',model:'glm-4-plus',name:'智谱AI'},
+  doubao:{baseUrl:'https://ark.cn-beijing.volces.com/api/v3',model:'doubao-seed-1-6-250615',name:'豆包大模型'},
+  deepseek:{baseUrl:'https://api.deepseek.com/v1',model:'deepseek-chat',name:'DeepSeek'}
+};
+function switchProvider(provider){
+  var preset=PROVIDER_PRESETS[provider];
+  if(!preset){
+    /* 自定义：不做任何自动填充 */
+    document.querySelectorAll('#agentApiSettings .btn').forEach(function(b){
+      if(b.textContent.indexOf('智谱')>-1||b.textContent.indexOf('豆包')>-1||b.textContent.indexOf('DeepSeek')>-1){
+        b.className='btn btn-ghost';
+      }
+      if(b.textContent.indexOf('自定义')>-1) b.className='btn btn-accent';
+    });
+    showToast('已切换为自定义模式，请手动填写','info');
+    return;
+  }
+  /* 填充预设 */
+  var urlEl=document.getElementById('agentApiBaseUrl');
+  var modelEl=document.getElementById('agentApiModel');
+  if(urlEl) urlEl.value=preset.baseUrl;
+  if(modelEl) modelEl.value=preset.model;
+  /* 更新按钮高亮 */
+  var btns=document.querySelectorAll('#agentApiSettings .agent-form-row:first-child .btn');
+  btns.forEach(function(b){
+    if(b.textContent.indexOf(preset.name)>-1){
+      b.className='btn btn-accent';
+    }else{
+      b.className='btn btn-ghost';
+    }
+  });
+  showToast('已切换到'+preset.name+'，请填入对应的API Key后保存','info');
 }
 
 /* 保存API设置 */
