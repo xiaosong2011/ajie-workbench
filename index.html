@@ -3123,6 +3123,21 @@ function copyText(el,customText){
     document.body.removeChild(ta);
   }
 }
+/* 通用复制到剪贴板（带toast提示） */
+function copyToClipboard(text){
+  if(!text) return;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>showToast('已复制到剪贴板','success'));
+  }else{
+    const ta=document.createElement('textarea');
+    ta.value=text;
+    ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);
+    ta.select();
+    try{document.execCommand('copy');showToast('已复制到剪贴板','success');}catch(e){showToast('复制失败','error');}
+    document.body.removeChild(ta);
+  }
+}
 /* 复制列表项的某个字段 */
 function copyListItemField(btn,listKey,i,fieldKey){
   const config=LISTS[listKey];
@@ -3781,6 +3796,12 @@ function renderListItem(listKey,item,i){
   }
   if(fieldParts.length) html+='<div class="gfields">'+fieldParts.join('')+'</div>';
   if(tagParts.length) html+='<div class="gtags">'+tagParts.join('')+'</div>';
+  if(config.copyField){
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-light)">';
+    html+='<span style="font-size:11px;color:var(--ink-3)">点击卡片查看完整提示词</span>';
+    html+='<button class="btn btn-mint" style="padding:4px 10px;font-size:11px" onclick="event.stopPropagation();quickCopyPrompt(\''+listKey+'\','+i+')">📋 一键复制</button>';
+    html+='</div>';
+  }
   html+='</div>';
   html+='<button class="item-more" onclick="showItemMenu(event,\''+listKey+'\','+i+')">⋯</button>';
   html+='</div></div>';
@@ -3864,6 +3885,15 @@ function copyPromptFromDetail(listKey,i){
   if(!item||!config.copyField)return;
   var btn=document.querySelector('#promptDetailModal .pmt-copy');
   copyText(btn,String(item[config.copyField]));
+}
+/* 快速复制提示词（列表项一键复制） */
+function quickCopyPrompt(listKey,i){
+  const config=LISTS[listKey];
+  if(!config)return;
+  const items=DB[config.dbKey]||[];
+  const item=items[i];
+  if(!item||!config.copyField)return;
+  copyToClipboard(String(item[config.copyField]));
 }
 
 function _menuEdit(listKey,i){
