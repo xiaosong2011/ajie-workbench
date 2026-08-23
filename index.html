@@ -3189,6 +3189,48 @@ function saveData(){
   localStorage.setItem(STORE_KEY,JSON.stringify(DB));
   if(sbClient&&!isRemoteUpdate)saveToCloud();
 }
+
+/* --- 临时生成缓存（5分钟TTL，防止刷新/退出丢失生成结果） --- */
+var TEMP_CACHE_KEY='ajie_temp_cache';
+var TEMP_CACHE_TTL=5*60*1000; /* 5分钟 */
+/* 保存生成结果到临时缓存 */
+function saveTempCache(type,data,extra){
+  try{
+    var cache={
+      type:type,
+      data:data,
+      extra:extra||{},
+      timestamp:Date.now()
+    };
+    localStorage.setItem(TEMP_CACHE_KEY,JSON.stringify(cache));
+  }catch(e){ console.warn('临时缓存保存失败:',e); }
+}
+/* 从临时缓存恢复（超过5分钟返回null） */
+function loadTempCache(){
+  try{
+    var raw=localStorage.getItem(TEMP_CACHE_KEY);
+    if(!raw) return null;
+    var cache=JSON.parse(raw);
+    if(!cache||!cache.timestamp) return null;
+    var elapsed=Date.now()-cache.timestamp;
+    if(elapsed>TEMP_CACHE_TTL){
+      localStorage.removeItem(TEMP_CACHE_KEY);
+      return null;
+    }
+    return cache;
+  }catch(e){ return null; }
+}
+/* 清除临时缓存 */
+function clearTempCache(){
+  localStorage.removeItem(TEMP_CACHE_KEY);
+}
+/* 获取临时缓存剩余时间（秒） */
+function getTempCacheRemaining(){
+  var cache=loadTempCache();
+  if(!cache) return 0;
+  var elapsed=Date.now()-cache.timestamp;
+  return Math.max(0,Math.ceil((TEMP_CACHE_TTL-elapsed)/1000));
+}
 function ensureKeys(){
   if(!Array.isArray(DB.todos))DB.todos=[];
   if(!Array.isArray(DB.inspos))DB.inspos=[];
@@ -6137,6 +6179,15 @@ function initAgentSection(){
   /* 如果已有当前剧本，渲染结果 */
   if(_currentManhuaScript){
     renderAgentResult(_currentManhuaScript);
+  }else{
+    /* 检查临时缓存是否有可恢复的数据 */
+    var cache=loadTempCache();
+    if(cache&&cache.type==='agent'&&cache.data){
+      _currentManhuaScript=cache.data;
+      renderAgentResult(cache.data);
+      var remain=getTempCacheRemaining();
+      showToast('已恢复上次生成结果（剩余'+remain+'秒有效）','info');
+    }
   }
 }
 
@@ -6438,6 +6489,8 @@ ${charType==='both'?'输出全套模式（character_both），同时包含 refer
         else successMsg='角色全套设定生成成功！';
       }
       showToast(successMsg,'success');
+      /* 保存到临时缓存（5分钟内刷新可恢复） */
+      saveTempCache('agent',data,{output_mode:data.output_mode||'manhua'});
       /* 启用修改按钮 */
       const btn=document.getElementById('btnModifyScript');
       if(btn) btn.disabled=false;
@@ -6561,6 +6614,8 @@ ${genre?'【调整题材为】'+genre:''}
       if(isCharacter) toastMsg='角色设定修改成功！';
       if(isPipeline) toastMsg='全流程资产修改成功！';
       showToast(toastMsg,'success');
+      /* 更新临时缓存 */
+      saveTempCache('agent',data,{output_mode:data.output_mode||'manhua'});
     })
     .catch(err=>{
       hideAgentLoading();
@@ -7857,6 +7912,28 @@ function wsInitWorkshop(){
   fi.addEventListener('change',function(){
     if(fi.files.length>0) wsHandleFile(fi.files[0]);
   });
+  /* 检查临时缓存是否有可恢复的工坊数据 */
+  if(!wsState.result){
+    var cache=loadTempCache();
+    if(cache&&cache.type==='workshop'&&cache.data){
+      var data=cache.data;
+      var extra=cache.extra||{};
+      wsState.result=data;
+      wsState.characters=data.characters||[];
+      wsState.scenes=data.scenes||[];
+      wsState.panels=(data.storyboard&&data.storyboard.panels)?data.storyboard.panels:[];
+      wsState.fullPrompt=(data.storyboard&&data.storyboard.full_prompt)?data.storyboard.full_prompt:'';
+      /* 恢复配置项 */
+      var styleEl=document.getElementById('wsStyle');
+      if(styleEl&&extra.style) styleEl.value=extra.style;
+      var typeEl=document.getElementById('wsNovelType');
+      if(typeEl&&extra.novelType) typeEl.value=extra.novelType;
+      /* 渲染结果 */
+      wsRenderResult(data,extra.style||'',extra.novelType||'');
+      var remain=getTempCacheRemaining();
+      showToast('已恢复上次生成结果（剩余'+remain+'秒有效）','info');
+    }
+  }
 }
 
 /* 处理文件上传 */
@@ -7957,6 +8034,8 @@ function wsGenerate(){
       wsRenderResult(data,style,novelType);
       wsHideLoading();
       showToast('✅ 生成完成！提示词可一键复制','success');
+      /* 保存到临时缓存（5分钟内刷新可恢复） */
+      saveTempCache('workshop',data,{style:style,novelType:novelType});
     })
     .catch(function(err){
       wsHideLoading();
