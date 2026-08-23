@@ -2072,8 +2072,13 @@ agent:`
         <input class="crud-input" id="agentApiKey" type="password" placeholder="sk-...">
       </div>
       <div class="agent-form-row">
-        <label>模型名称 <span style="color:var(--ink-3);font-weight:400">（如 gpt-4o / glm-4-flash / deepseek-chat）</span></label>
-        <input class="crud-input" id="agentApiModel" placeholder="例如：glm-4-flash">
+        <label>模型名称 <span style="color:var(--ink-3);font-weight:400">（推荐 glm-4-plus，提示词更详细完整）</span></label>
+        <select class="crud-input" id="agentApiModel">
+          <option value="glm-4-plus">glm-4-plus（推荐，质量最高）</option>
+          <option value="glm-4">glm-4（高质量）</option>
+          <option value="glm-4-flash">glm-4-flash（免费轻量，提示词会偏简短）</option>
+          <option value="glm-4-long">glm-4-long（超长上下文）</option>
+        </select>
       </div>
       <div class="agent-form-row" style="display:flex;gap:8px">
         <button class="btn btn-accent" style="flex:1" onclick="saveAgentApiSettings()">💾 保存设置</button>
@@ -3237,13 +3242,15 @@ function ensureKeys(){
   if(!Array.isArray(DB.ledger))DB.ledger=[];
   if(!Array.isArray(DB.checkedDays))DB.checkedDays=[];
   if(typeof DB.budget!=='number')DB.budget=6000;
-  if(!DB.apiSettings||typeof DB.apiSettings!=='object')DB.apiSettings={apiBaseUrl:'https://open.bigmodel.cn/api/paas/v4',apiKey:'f82aacd27d1746fe8496af89fb962850.HgVimCdseWlUZXpk',model:'glm-4-flash'};
+  if(!DB.apiSettings||typeof DB.apiSettings!=='object')DB.apiSettings={apiBaseUrl:'https://open.bigmodel.cn/api/paas/v4',apiKey:'f82aacd27d1746fe8496af89fb962850.HgVimCdseWlUZXpk',model:'glm-4-plus'};
   Object.keys(LISTS).forEach(k=>{ const dk=LISTS[k].dbKey; if(!Array.isArray(DB[dk]))DB[dk]=[]; });
 }
 
 let DB=loadData();
 /* 首次使用时用初始数据填充缺失的键 */
 Object.keys(INITIAL).forEach(k=>{ if(DB[k]===undefined)DB[k]=INITIAL[k]; });
+/* 迁移：将 glm-4-flash 升级为 glm-4-plus（能力更强，生成提示词更详细） */
+if(DB.apiSettings&&DB.apiSettings.model==='glm-4-flash'){DB.apiSettings.model='glm-4-plus';saveData();}
 /* 提示词库：合并初始数据，不删除用户自定义条目 */
 function mergePrompts(dbKey, initialArr){
   if(!Array.isArray(DB[dbKey])){ DB[dbKey]=initialArr.slice(); return; }
@@ -6303,6 +6310,7 @@ function callAgentLLM(systemPrompt, userMessage, isTest){
         {role:'user',content:userMessage}
       ],
       temperature:0.8,
+      max_tokens:8192,
       response_format:{type:'json_object'}
     })
   }).then(r=>{
