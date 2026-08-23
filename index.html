@@ -6036,10 +6036,21 @@ const PIPELINE_SYSTEM_PROMPT = `# AI短剧分镜&资产生成专家
 ## ⚠️ 完整提示词强制要求（极重要）
 所有prompt_full、prompt_mj、prompt_sd、draw_prompt字段必须是完整、详细、可直接复制使用的AI绘图提示词，禁止写简短描述！
 - prompt_full（通用完整版）：必须包含画风+角色全外貌描述（脸型五官肤色发型体型服装）+场景环境+光影+构图+质量词+画幅，不少于150字
+  示例：超写实真人摄影, 影视级角色设定, 一个25岁中国男性, 方脸剑眉, 深邃丹凤眼, 高挺鼻梁, 薄唇, 古铜色肌肤, 黑色短发碎刘海, 180cm高瘦精壮体型, 身穿深蓝中山装立领扣紧, 柔和棚光, 纯白背景, 正面站姿双臂自然下垂, same face, consistent face, masterpiece, best quality, 8k, ultra detailed, photorealistic, professional character reference sheet --ar 9:16
 - prompt_mj（MJ版）：必须包含角色核心特征+场景+光影+质量词+--ar参数+--style raw
+  示例：Professional film character reference sheet, 25yo Chinese male, square face sharp eyebrows, deep phoenix eyes, high nose, thin lips, bronze skin, black short hair, navy Zhongshan suit, soft studio light, pure white background, same face, photorealistic --ar 9:16 --style raw
 - prompt_sd（SD版）：必须包含(masterpiece, best quality, 8k:1.3)+完整角色描述+场景+光影+负面词
+  示例：(masterpiece, best quality, 8k, ultra realistic:1.3), 影视级真人角色设定表, 25岁中国男性, 方脸剑眉, 深邃丹凤眼, 高挺鼻梁, 薄唇, 古铜色肌肤, 黑色短发碎刘海, 深蓝中山装, 四视图多角度, 锁脸锁人设, 真实原生皮肤, 纯白背景, 柔和棚光, 低饱和高级质感, (negative:1.2) deformed, extra limbs, text, watermark
 - draw_prompt（故事板）：必须包含画风+角色描述+动作+场景+构图+分镜标记+质量词，不少于100字
+  示例：国漫写实手绘草稿速写风格storyboard, 松散铅笔线稿, 一个身穿黑色风衣的年轻男子站在雨中街道中央, 剑眉冷目, 咬牙表情, 黑色短发被雨水打湿, 手持长剑, 中景固定镜头, 正面平视构图, 路灯光从右上方照射, 雨滴飞溅, 红色箭头标注镜头固定, 蓝色箭头标注人物站姿, 紫色标记雨声效果, clean lines, professional storyboard sketch, detailed --ar 9:16
 - positive/negative（视频提示词）：必须包含画面动态+运镜+人物动作+光影+风格，不少于80字
+  正向示例：镜头缓慢推进, 一个身穿黑色风衣的年轻男子站在雨中街道中央, 剑眉冷目表情冷峻, 黑色短发被雨水打湿, 手持长剑未出鞘, 路灯光从右上方照射, 雨滴持续飞溅, 人物呼吸起伏可见, 背景虚化, 国漫写实风格, 电影级光影
+  负面示例：静态画面, 畸形肢体, 多人物, 文字水印, 模糊, 崩坏五官, 扭曲, 画面闪烁, 突然跳变, 低质量
+
+## ⚠️ panel_id 对齐要求（极重要）
+video_prompts 数组中的每个 panel_id 必须与 storyboard.panels 中的 panel_id 完全一一对应！
+例如 storyboard 有 P01-P06 共6格，则 video_prompts 也必须有 P01-P06 共6组，顺序一致。
+
 每个提示词字段都必须是可以直接粘贴到对应工具使用的完整提示词，禁止只写几个词的简短描述。
 
 只输出JSON，禁止多余闲聊。
@@ -6066,8 +6077,18 @@ const STORYBOARD_SYSTEM_PROMPT = `# 分镜故事板创作智能体
 只输出JSON，禁止多余闲聊、文学大段描写。
 
 ## ⚠️ 完整提示词强制要求（极重要）
-所有draw_prompt字段必须是完整、详细、可直接复制使用的AI绘图提示词，禁止写简短描述！
-每个draw_prompt必须包含以下全部要素，缺一不可：
+所有draw_prompt字段（包括角色draw_prompt和分镜draw_prompt）必须是完整、详细、可直接复制使用的AI绘图提示词，禁止写简短描述！
+
+### 角色 draw_prompt 要求
+每个角色的draw_prompt必须包含以下全部要素，缺一不可：
+1. 【画风】：手绘草稿速写风格指定（sketch/pencil/action等）
+2. 【角色全外貌】：脸型、五官、肤色、发型、服装全套、表情，含锁脸关键词如"same face, consistent face"
+3. 【质量词】：character reference sheet, professional, detailed等
+4. 【画幅】：--ar 9:16
+角色draw_prompt示例：手绘草稿速写风格character sheet, 一个25岁中国男性, 方脸剑眉, 深邃丹凤眼, 高挺鼻梁, 薄唇, 古铜色肌肤, 黑色短发碎刘海, 身穿黑色风衣, 冷峻表情, same face, consistent face, clean lines, professional character sketch, detailed --ar 9:16
+
+### 分镜 draw_prompt 要求
+每个分镜的draw_prompt必须包含以下全部要素，缺一不可：
 1. 【画风】：手绘草稿速写风格指定（sketch/pencil/action等）
 2. 【角色描述】：角色全外貌描述（脸型、五官、发型、服装、表情），含锁脸关键词
 3. 【场景环境】：完整场景描述（地点、时间、天气、氛围、道具）
@@ -6076,8 +6097,8 @@ const STORYBOARD_SYSTEM_PROMPT = `# 分镜故事板创作智能体
 6. 【光影】：光源方向、明暗效果、氛围渲染
 7. 【分镜标记】：红色箭头=机位运动、蓝色箭头=动作轨迹、绿色标记=互动关系、橙色标记=冲击力、紫色标记=音效
 8. 【质量词】：storyboard sketch, line art, clean lines, professional, detailed等
+分镜draw_prompt示例：手绘草稿速写风格storyboard, 松散随性铅笔线稿, 一个身穿黑色风衣的年轻男子站在雨中街道中央, 剑眉冷目, 咬牙表情, 黑色短发被雨水打湿, 手持雨伞但未撑开, 中景固定镜头, 正面平视构图, 路灯光从右上方照射, 雨滴飞溅, 蓝色箭头标注人物站立不动, 紫色标记雨声效果, clean lines, professional storyboard sketch, detailed --ar 9:16
 每个draw_prompt长度不少于100字，必须是可直接粘贴到AI绘图工具使用的完整提示词。
-示例（完整版）：手绘草稿速写风格storyboard, 松散随性铅笔线稿, 一个身穿黑色风衣的年轻男子站在雨中街道中央, 剑眉冷目, 咬牙表情, 黑色短发被雨水打湿, 手持雨伞但未撑开, 中景固定镜头, 正面平视构图, 路灯光从右上方照射, 雨滴飞溅, 蓝色箭头标注人物站立不动, 紫色标记雨声效果, clean lines, professional storyboard sketch, detailed --ar 9:16
 
 ## 故事板风格说明
 - sketch（手绘草稿速写风）：松散随性草稿线，黑白单色线稿，少量彩色手绘箭头标注运动轨迹
@@ -6105,7 +6126,8 @@ const STORYBOARD_SYSTEM_PROMPT = `# 分镜故事板创作智能体
       "role": "主角/反派/配角",
       "reference": "@图片1",
       "personality": ["性格标签"],
-      "description": "外貌体型特征描述"
+      "description": "外貌体型特征描述",
+      "draw_prompt": "角色AI绘图提示词（含锁脸关键词+全外貌描述+画风+质量词，可直接复制使用）"
     }
   ],
   "legend": {
@@ -7105,7 +7127,8 @@ function renderCharWardrobeHtml(data,isBoth){
 function copyCharPositivePrompt(){
   const d=_currentManhuaScript;
   if(!d) return;
-  const data=d.output_mode==='character_wardrobe'?d:(d.wardrobe||d);
+  const isCharWard=d.output_mode==='character_wardrobe';
+  const data=isCharWard?d:(d.reference||d);
   copyToClipboard(data.positive_prompt||'');
   showToast('正向提示词已复制','success');
 }
@@ -7113,7 +7136,8 @@ function copyCharPositivePrompt(){
 function copyCharNegativePrompt(){
   const d=_currentManhuaScript;
   if(!d) return;
-  const data=d.output_mode==='character_wardrobe'?d:(d.wardrobe||d);
+  const isCharWard=d.output_mode==='character_wardrobe';
+  const data=isCharWard?d:(d.reference||d);
   copyToClipboard(data.negative_prompt||'');
   showToast('负面提示词已复制','success');
 }
@@ -8126,7 +8150,7 @@ function wsGenerate(){
 function wsBuildSystemPrompt(mode){
   if(mode==='parse'){
     /* 解析模式：使用角色设定卡模版 */
-    return CHARACTER_SYSTEM_PROMPT+'\n\n## 额外要求\n请同时输出 novels_name、novel_type、summary 字段。角色设定卡需包含全部四视图和职业姿态，所有draw_prompt必须完整可复制。';
+    return CHARACTER_SYSTEM_PROMPT+'\n\n## 额外要求\n请同时输出 novel_name、novel_type、summary 字段。角色设定卡需包含全部四视图和职业姿态，所有draw_prompt必须完整可复制。';
   }else if(mode==='quick'){
     /* 快速模式：使用分镜故事板模版 */
     return STORYBOARD_SYSTEM_PROMPT+'\n\n## 额外要求\n请同时输出 novel_name、novel_type、summary、characters(含draw_prompt)、scenes(含draw_prompt)字段。分镜panel的draw_prompt必须完整可复制。生成4-6格分镜。';
