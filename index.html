@@ -7918,11 +7918,16 @@ function wsInitWorkshop(){
     if(cache&&cache.type==='workshop'&&cache.data){
       var data=cache.data;
       var extra=cache.extra||{};
+      var mode=extra.mode||'full';
       wsState.result=data;
-      wsState.characters=data.characters||[];
-      wsState.scenes=data.scenes||[];
-      wsState.panels=(data.storyboard&&data.storyboard.panels)?data.storyboard.panels:[];
-      wsState.fullPrompt=(data.storyboard&&data.storyboard.full_prompt)?data.storyboard.full_prompt:'';
+      wsState.mode=mode;
+      wsState.style=extra.style||'';
+      wsState.novelType=extra.novelType||'';
+      /* 统一适配三种模版的输出格式 */
+      wsState.characters=wsExtractChars(data,mode);
+      wsState.scenes=wsExtractScenes(data,mode);
+      wsState.panels=wsExtractPanels(data,mode);
+      wsState.fullPrompt=wsExtractFullPrompt(data,mode);
       /* 恢复配置项 */
       var styleEl=document.getElementById('wsStyle');
       if(styleEl&&extra.style) styleEl.value=extra.style;
@@ -8027,15 +8032,19 @@ function wsGenerate(){
         throw new Error('AI返回的内容无法解析为JSON，请重试');
       }
       wsState.result=data;
-      wsState.characters=data.characters||[];
-      wsState.scenes=data.scenes||[];
-      wsState.panels=(data.storyboard&&data.storyboard.panels)?data.storyboard.panels:[];
-      wsState.fullPrompt=(data.storyboard&&data.storyboard.full_prompt)?data.storyboard.full_prompt:'';
+      wsState.mode=mode;
+      wsState.style=style;
+      wsState.novelType=novelType;
+      /* 统一适配三种模版的输出格式 */
+      wsState.characters=wsExtractChars(data,mode);
+      wsState.scenes=wsExtractScenes(data,mode);
+      wsState.panels=wsExtractPanels(data,mode);
+      wsState.fullPrompt=wsExtractFullPrompt(data,mode);
       wsRenderResult(data,style,novelType);
       wsHideLoading();
       showToast('✅ 生成完成！提示词可一键复制','success');
       /* 保存到临时缓存（5分钟内刷新可恢复） */
-      saveTempCache('workshop',data,{style:style,novelType:novelType});
+      saveTempCache('workshop',data,{style:style,novelType:novelType,mode:mode});
     })
     .catch(function(err){
       wsHideLoading();
@@ -8046,62 +8055,18 @@ function wsGenerate(){
     });
 }
 
-/* 构建系统提示词 */
+/* 构建系统提示词 - 直接复用智能体库的专业模版 */
 function wsBuildSystemPrompt(mode){
-  var modeDesc={
-    parse:'只解析模式：提取角色、场景、情感和风格推荐，不生成完整分镜',
-    full:'完整分镜模式：提取全部信息并生成8-16格详细分镜故事板，每格必须包含绘图提示词',
-    quick:'快速分镜模式：提取核心信息并生成4-6格简化分镜'
-  };
-  return '你是一个专业的小说→漫剧分镜转换专家。请分析用户提供的小说内容，提取关键信息并返回标准JSON。'+modeDesc[mode]+'\n\n'+
-    '返回JSON格式（严格遵循，只返回JSON不要其他文字）：\n'+
-    '{\n'+
-    '  "novel_name":"小说名称",\n'+
-    '  "novel_type":"小说类型",\n'+
-    '  "summary":"小说梗概（50-100字）",\n'+
-    '  "characters":[\n'+
-    '    {"name":"角色名","type":"主角/配角/反派","emoji":"表情","description":"简短描述","prompt":"角色绘图提示词"}\n'+
-    '  ],\n'+
-    '  "scenes":[\n'+
-    '    {"name":"场景名","type":"室内/室外","description":"场景描述","prompt":"场景绘图提示词"}\n'+
-    '  ],\n'+
-    '  "storyboard":{\n'+
-    '    "panels":[\n'+
-    '      {\n'+
-    '        "id":"P01",\n'+
-    '        "shot_type":"远景/中景/近景/特写",\n'+
-    '        "camera_movement":"固定/推拉/摇移",\n'+
-    '        "composition":"画面构图描述",\n'+
-    '        "characters":["出场角色"],\n'+
-    '        "dialogue":"对白内容",\n'+
-    '        "emotion":"情绪",\n'+
-    '        "prompt":"完整绘图提示词（可直接复制使用）"\n'+
-    '      }\n'+
-    '    ],\n'+
-    '    "full_prompt":"所有分镜提示词汇总文本"\n'+
-    '  }\n'+
-    '}\n\n'+
-    '要求：\n'+
-    '1. 角色至少3-8个，每个角色必须有prompt字段（可直接用于AI绘图）\n'+
-    '2. 场景至少2-5个，每个场景必须有prompt字段\n'+
-    '3. 分镜格数：parse模式0格，full模式8-16格，quick模式4-6格\n'+
-    '4. 每格分镜的prompt必须包含完整的绘图描述（画风、场景、角色、动作、光影等）\n'+
-    '5. full_prompt字段汇总所有分镜提示词，每行一条\n'+
-    '6. 所有prompt字段都要可直接复制到AI绘图工具使用\n'+
-    '\n'+
-    '## ⚠️ 完整提示词强制要求（极重要）\n'+
-    '所有prompt字段必须是完整、详细、可直接复制使用的AI绘图提示词，禁止写简短描述！\n'+
-    '每个prompt必须包含以下全部要素，缺一不可：\n'+
-    '1.【画风】：用户指定的画风\n'+
-    '2.【角色描述】：角色全外貌描述（脸型、五官、肤色、发型、服装、表情），含锁脸关键词\n'+
-    '3.【场景环境】：完整场景描述（地点、时间、天气、氛围）\n'+
-    '4.【动作姿态】：角色具体动作和姿态\n'+
-    '5.【构图镜头】：景别、角度、构图方式\n'+
-    '6.【光影】：光源方向、光影效果\n'+
-    '7.【质量词】：masterpiece, best quality, 8k, ultra detailed, highly detailed等\n'+
-    '8.【画幅】：--ar 9:16（竖屏）\n'+
-    '每个prompt长度不少于100字，必须是可直接粘贴到Midjourney/SD等工具使用的完整提示词。\n'+
-    '示例：国漫写实风格，一个身穿黑色古装长袍的年轻男子，剑眉星目，冷峻表情，黑色长发束冠，手持长剑站在悬崖边缘，远景俯拍，云雾缭绕，晨光从左侧斜射，史诗感构图，masterpiece, best quality, 8k, ultra detailed, cinematic lighting --ar 9:16';
+  if(mode==='parse'){
+    /* 解析模式：使用角色设定卡模版 */
+    return CHARACTER_SYSTEM_PROMPT+'\n\n## 额外要求\n请同时输出 novels_name、novel_type、summary 字段。角色设定卡需包含全部四视图和职业姿态，所有draw_prompt必须完整可复制。';
+  }else if(mode==='quick'){
+    /* 快速模式：使用分镜故事板模版 */
+    return STORYBOARD_SYSTEM_PROMPT+'\n\n## 额外要求\n请同时输出 novel_name、novel_type、summary、characters(含draw_prompt)、scenes(含draw_prompt)字段。分镜panel的draw_prompt必须完整可复制。生成4-6格分镜。';
+  }else{
+    /* 完整模式：使用全流程资产生成专家模版 */
+    return PIPELINE_SYSTEM_PROMPT+'\n\n## 额外要求\n所有prompt_full、prompt_mj、prompt_sd、draw_prompt字段必须完整详细，不少于100字，可直接粘贴到AI绘图工具使用。';
+  }
 }
 
 /* 渲染结果 */
@@ -8110,23 +8075,207 @@ function wsRenderResult(data,style,novelType){
   if(!resultEl) return;
   resultEl.style.display='block';
 
-  /* 基本信息 */
+  /* 基本信息 - 适配三种模版 */
   var el;
-  el=document.getElementById('wsResName'); if(el) el.textContent=data.novel_name||'未命名';
-  el=document.getElementById('wsResType'); if(el) el.textContent=data.novel_type||novelType||'—';
+  var name=data.novel_name||data.title||'未命名';
+  var type=data.novel_type||(data.analysis&&data.analysis.genre)||novelType||'—';
+  var summary=data.summary||(data.analysis&&data.analysis.summary)||(data.logline)||'暂无梗概';
+  el=document.getElementById('wsResName'); if(el) el.textContent=name;
+  el=document.getElementById('wsResType'); if(el) el.textContent=type;
   el=document.getElementById('wsResStyle'); if(el) el.textContent=style||'—';
-  el=document.getElementById('wsResSummary'); if(el) el.textContent=data.summary||'暂无梗概';
+  el=document.getElementById('wsResSummary'); if(el) el.textContent=summary;
 
   /* 渲染角色 */
-  wsRenderChars(data.characters||[]);
+  wsRenderChars(wsState.characters);
   /* 渲染场景 */
-  wsRenderScenes(data.scenes||[]);
+  wsRenderScenes(wsState.scenes);
   /* 渲染分镜 */
-  wsRenderPanels((data.storyboard&&data.storyboard.panels)?data.storyboard.panels:[]);
+  wsRenderPanels(wsState.panels);
   /* 渲染完整提示词 */
-  wsRenderFullPrompt((data.storyboard&&data.storyboard.full_prompt)?data.storyboard.full_prompt:'');
+  wsRenderFullPrompt(wsState.fullPrompt);
 
   resultEl.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* === 数据提取函数：适配三种专业模版格式 === */
+
+/* 统一提取角色数据 */
+function wsExtractChars(data,mode){
+  if(mode==='full'){
+    /* PIPELINE格式：character_assets */
+    var arr=data.character_assets||[];
+    return arr.map(function(c){
+      return {
+        name:c.name||'角色',
+        type:(c.profile&&c.profile.identity)||'角色',
+        description:(c.profile&&c.profile.appearance)||'',
+        prompt:c.prompt_full||c.draw_prompt||'',
+        prompt_mj:c.prompt_mj||'',
+        prompt_sd:c.prompt_sd||''
+      };
+    });
+  }else if(mode==='parse'){
+    /* CHARACTER格式：角色设定卡 */
+    return [{
+      name:data.name||'角色',
+      type:data.job||'角色',
+      description:(data.intro||'')+(data.special_feature?(' '+data.special_feature):''),
+      prompt:data.positive_prompt||'',
+      negative_prompt:data.negative_prompt||'',
+      four_views:data.four_views||null,
+      poses:data.poses||null,
+      raw:data
+    }];
+  }else{
+    /* STORYBOARD格式：characters */
+    var chars=data.characters||[];
+    return chars.map(function(c){
+      return {
+        name:c.name||'角色',
+        type:c.role||c.type||'角色',
+        description:(c.description||'')+(c.personality?(' 性格:'+(c.personality||[]).join(',')):''),
+        prompt:c.draw_prompt||c.prompt||''
+      };
+    });
+  }
+}
+
+/* 统一提取场景数据 */
+function wsExtractScenes(data,mode){
+  if(mode==='full'){
+    /* PIPELINE格式：scene_assets */
+    var arr=data.scene_assets||[];
+    return arr.map(function(s){
+      return {
+        name:s.name||'场景',
+        type:'场景',
+        description:s.environment||'',
+        prompt:s.prompt_full||s.draw_prompt||'',
+        prompt_mj:s.prompt_mj||'',
+        prompt_sd:s.prompt_sd||''
+      };
+    });
+  }else if(mode==='parse'){
+    /* CHARACTER格式：无独立场景，从atmosphere_refs提取 */
+    var refs=data.atmosphere_refs||[];
+    if(!refs.length) return [];
+    return refs.map(function(r,i){
+      return {name:'氛围参考'+(i+1),type:'参考',description:r,prompt:''};
+    });
+  }else{
+    /* STORYBOARD格式：无独立场景字段，从panels提取场景信息 */
+    var panels=data.panels||[];
+    var sceneMap={};
+    panels.forEach(function(p){
+      if(p.scene){
+        var key=p.scene.substring(0,20);
+        if(!sceneMap[key]) sceneMap[key]={name:p.scene,type:'场景',description:p.scene||'',prompt:p.draw_prompt||''};
+      }
+    });
+    return Object.values(sceneMap);
+  }
+}
+
+/* 统一提取分镜数据 */
+function wsExtractPanels(data,mode){
+  if(mode==='full'){
+    /* PIPELINE格式：storyboard.panels */
+    var sb=data.storyboard||{};
+    var panels=sb.panels||[];
+    return panels.map(function(p,i){
+      return {
+        id:p.panel_id||('P'+(i+1)),
+        shot_type:p.shot_type||'',
+        camera_movement:p.camera_move||'固定',
+        composition:p.description||'',
+        characters:[],
+        dialogue:'',
+        emotion:'',
+        prompt:p.draw_prompt||'',
+        video_positive:'',
+        video_negative:''
+      };
+    });
+  }else if(mode==='parse'){
+    /* CHARACTER格式：无分镜 */
+    return [];
+  }else{
+    /* STORYBOARD格式：panels */
+    var panels=data.panels||[];
+    return panels.map(function(p,i){
+      return {
+        id:p.panel_id||('P'+(i+1)),
+        shot_type:p.shot_type||'',
+        camera_movement:p.action||'',
+        composition:p.description||'',
+        characters:[],
+        dialogue:'',
+        emotion:'',
+        prompt:p.draw_prompt||'',
+        performance:p.performance||'',
+        sound:p.sound||''
+      };
+    });
+  }
+}
+
+/* 统一提取完整提示词 */
+function wsExtractFullPrompt(data,mode){
+  if(mode==='full'){
+    /* PIPELINE格式：汇总所有prompt */
+    var parts=[];
+    if(data.character_assets&&data.character_assets.length){
+      parts.push('===== 角色资产提示词 =====');
+      data.character_assets.forEach(function(c){
+        if(c.prompt_full) parts.push('['+c.name+'] '+c.prompt_full);
+      });
+    }
+    if(data.scene_assets&&data.scene_assets.length){
+      parts.push('\n===== 场景资产提示词 =====');
+      data.scene_assets.forEach(function(s){
+        if(s.prompt_full) parts.push('['+s.name+'] '+s.prompt_full);
+      });
+    }
+    if(data.storyboard&&data.storyboard.panels&&data.storyboard.panels.length){
+      parts.push('\n===== 分镜故事板提示词 =====');
+      data.storyboard.panels.forEach(function(p,i){
+        if(p.draw_prompt) parts.push('['+(p.panel_id||('P'+(i+1)))+'] '+p.draw_prompt);
+      });
+    }
+    if(data.video_prompts&&data.video_prompts.length){
+      parts.push('\n===== 视频生成提示词 =====');
+      data.video_prompts.forEach(function(v,i){
+        if(v.positive) parts.push('['+(v.panel_id||('P'+(i+1)))+'] 正向: '+v.positive);
+        if(v.negative) parts.push('['+(v.panel_id||('P'+(i+1)))+'] 负面: '+v.negative);
+      });
+    }
+    return parts.join('\n');
+  }else if(mode==='parse'){
+    /* CHARACTER格式 */
+    var parts=[];
+    if(data.positive_prompt) parts.push('===== 正向提示词 =====\n'+data.positive_prompt);
+    if(data.negative_prompt) parts.push('\n===== 负面提示词 =====\n'+data.negative_prompt);
+    if(data.four_views){
+      parts.push('\n===== 四视图提示词 =====');
+      Object.keys(data.four_views).forEach(function(k){
+        var v=data.four_views[k];
+        if(v.draw_prompt) parts.push('['+k+'] '+v.draw_prompt);
+      });
+    }
+    if(data.poses){
+      parts.push('\n===== 姿态提示词 =====');
+      data.poses.forEach(function(p){
+        if(p.draw_prompt) parts.push('['+p.name+'] '+p.draw_prompt);
+      });
+    }
+    return parts.join('\n');
+  }else{
+    /* STORYBOARD格式 */
+    var panels=data.panels||[];
+    return panels.map(function(p,i){
+      return '['+(p.panel_id||('P'+(i+1)))+'] '+(p.draw_prompt||'');
+    }).filter(Boolean).join('\n\n');
+  }
 }
 
 /* 渲染角色列表（带复制按钮） */
@@ -8141,13 +8290,32 @@ function wsRenderChars(chars){
   var card=document.getElementById('wsResCharsCard');
   if(card) card.style.display='block';
   c.innerHTML=chars.map(function(ch,idx){
+    var promptText=ch.prompt||ch.prompt_full||'';
+    var extraPrompts='';
+    if(ch.prompt_mj) extraPrompts+='<div style="margin-top:4px;font-size:11px;color:var(--ink-3)">MJ版：'+escapeHtml(ch.prompt_mj)+'</div>';
+    if(ch.prompt_sd) extraPrompts+='<div style="margin-top:4px;font-size:11px;color:var(--ink-3)">SD版：'+escapeHtml(ch.prompt_sd)+'</div>';
+    if(ch.four_views){
+      extraPrompts+='<div style="margin-top:8px;font-size:12px;color:var(--ink-2)">📍 四视图：</div>';
+      var viewNames={front:'正面',three_quarter:'3/4侧',side:'侧面',back:'背面'};
+      Object.keys(ch.four_views).forEach(function(k){
+        var v=ch.four_views[k];
+        if(v.draw_prompt) extraPrompts+='<div style="margin-top:2px;font-size:11px;color:var(--ink-3)">· '+(viewNames[k]||k)+'：'+escapeHtml(v.draw_prompt.substring(0,80))+'... <button class="btn btn-mint" style="padding:1px 6px;font-size:10px;margin-left:4px" onclick="wsCopyViewPrompt('+idx+',\''+k+'\')">📋</button></div>';
+      });
+    }
+    if(ch.poses){
+      extraPrompts+='<div style="margin-top:8px;font-size:12px;color:var(--ink-2)">🏃 姿态参考：</div>';
+      ch.poses.forEach(function(p,pi){
+        if(p.draw_prompt) extraPrompts+='<div style="margin-top:2px;font-size:11px;color:var(--ink-3)">· '+(p.name||'姿态'+(pi+1))+'：'+escapeHtml(p.draw_prompt.substring(0,80))+'... <button class="btn btn-mint" style="padding:1px 6px;font-size:10px;margin-left:4px" onclick="wsCopyPosePrompt('+idx+','+pi+')">📋</button></div>';
+      });
+    }
     return '<div class="agent-char-card">'+
       '<div class="agent-char-head">'+
-        '<span class="agent-char-name">'+(ch.emoji||'👤')+' '+escapeHtml(ch.name||'角色')+'<span class="agent-char-role">'+(ch.type||'角色')+'</span></span>'+
+        '<span class="agent-char-name">👤 '+escapeHtml(ch.name||'角色')+'<span class="agent-char-role">'+escapeHtml(ch.type||'角色')+'</span></span>'+
         '<button class="btn btn-mint agent-copy-btn" onclick="wsCopyCharPrompt('+idx+')">📋 复制提示词</button>'+
       '</div>'+
       (ch.description?'<div class="txt" style="font-size:13px;color:var(--ink-2);margin-bottom:6px">'+escapeHtml(ch.description)+'</div>':'')+
-      (ch.prompt?'<div class="agent-char-prompt">'+escapeHtml(ch.prompt)+'</div>':'')+
+      (promptText?'<div class="agent-char-prompt"><div class="agent-char-label">🎨 绘图提示词：</div><div class="agent-char-prompt-text">'+escapeHtml(promptText)+'</div></div>':'')+
+      extraPrompts+
     '</div>';
   }).join('');
 }
@@ -8164,13 +8332,18 @@ function wsRenderScenes(scenes){
   var card=document.getElementById('wsResScenesCard');
   if(card) card.style.display='block';
   c.innerHTML=scenes.map(function(s,idx){
+    var promptText=s.prompt||s.prompt_full||'';
+    var extraPrompts='';
+    if(s.prompt_mj) extraPrompts+='<div style="margin-top:4px;font-size:11px;color:var(--ink-3)">MJ版：'+escapeHtml(s.prompt_mj)+'</div>';
+    if(s.prompt_sd) extraPrompts+='<div style="margin-top:4px;font-size:11px;color:var(--ink-3)">SD版：'+escapeHtml(s.prompt_sd)+'</div>';
     return '<div class="agent-char-card">'+
       '<div class="agent-char-head">'+
-        '<span class="agent-char-name">🏠 '+escapeHtml(s.name||'场景')+'<span class="agent-char-role">'+(s.type||'室外')+'</span></span>'+
+        '<span class="agent-char-name">🏠 '+escapeHtml(s.name||'场景')+'<span class="agent-char-role">'+escapeHtml(s.type||'场景')+'</span></span>'+
         '<button class="btn btn-mint agent-copy-btn" onclick="wsCopyScenePrompt('+idx+')">📋 复制提示词</button>'+
       '</div>'+
       (s.description?'<div class="txt" style="font-size:13px;color:var(--ink-2);margin-bottom:6px">'+escapeHtml(s.description)+'</div>':'')+
-      (s.prompt?'<div class="agent-char-prompt">'+escapeHtml(s.prompt)+'</div>':'')+
+      (promptText?'<div class="agent-char-prompt"><div class="agent-char-label">🎨 绘图提示词：</div><div class="agent-char-prompt-text">'+escapeHtml(promptText)+'</div></div>':'')+
+      extraPrompts+
     '</div>';
   }).join('');
 }
@@ -8188,13 +8361,15 @@ function wsRenderPanels(panels){
     html+=
       '<div class="agent-shot-card">'+
         '<div class="agent-shot-head">'+
-          '<span class="agent-shot-id">'+(p.id||('P'+(i+1)))+'</span>'+
+          '<span class="agent-shot-id">'+escapeHtml(p.id||('P'+(i+1)))+'</span>'+
           '<span class="agent-shot-camera">'+escapeHtml(p.shot_type||'')+'</span>'+
           '<span class="agent-shot-dur">🎬 '+escapeHtml(p.camera_movement||'固定')+'</span>'+
           '<button class="btn btn-mint agent-copy-btn" onclick="wsCopyPanelPrompt('+i+')">📋 复制绘图提示词</button>'+
         '</div>'+
         '<div class="agent-shot-body">'+
           (p.composition?'<div class="agent-shot-row"><span class="agent-shot-label">画面：</span><span>'+escapeHtml(p.composition)+'</span></div>':'')+
+          (p.performance?'<div class="agent-shot-row"><span class="agent-shot-label">表演：</span><span>'+escapeHtml(p.performance)+'</span></div>':'')+
+          (p.sound?'<div class="agent-shot-row"><span class="agent-shot-label">音效：</span><span>'+escapeHtml(p.sound)+'</span></div>':'')+
           (p.characters&&p.characters.length?'<div class="agent-shot-row"><span class="agent-shot-label">角色：</span><span>'+escapeHtml(p.characters.join('、'))+'</span></div>':'')+
           (p.dialogue?'<div class="agent-shot-row"><span class="agent-shot-label">对白：</span><span>'+escapeHtml(p.dialogue)+'</span></div>':'')+
           (p.emotion?'<div class="agent-shot-row"><span class="agent-shot-label">情绪：</span><span>'+escapeHtml(p.emotion)+'</span></div>':'')+
@@ -8202,6 +8377,8 @@ function wsRenderPanels(panels){
             '<div class="agent-shot-label">🎨 绘图提示词：</div>'+
             '<div class="agent-shot-draw-text">'+escapeHtml(p.prompt||'')+'</div>'+
           '</div>'+
+          (p.video_positive?'<div style="margin-top:6px;padding:6px 8px;background:rgba(76,175,80,.08);border-radius:6px"><span style="font-size:11px;color:var(--mint);font-weight:600">▶ 正向视频词：</span><div style="font-size:12px;color:var(--ink-2);margin-top:2px">'+escapeHtml(p.video_positive)+'</div></div>':'')+
+          (p.video_negative?'<div style="margin-top:4px;padding:6px 8px;background:rgba(244,67,54,.08);border-radius:6px"><span style="font-size:11px;color:var(--danger);font-weight:600">▶ 负面视频词：</span><div style="font-size:12px;color:var(--ink-2);margin-top:2px">'+escapeHtml(p.video_negative)+'</div></div>':'')+
         '</div>'+
       '</div>';
   });
@@ -8214,7 +8391,7 @@ function wsRenderFullPrompt(text){
   var el=document.getElementById('wsFullPrompt');
   if(!el) return;
   if(!text){
-    /* 如果没有full_prompt，自动汇总所有分镜提示词 */
+    /* 如果没有汇总文本，自动从panels生成 */
     text=wsState.panels.map(function(p,i){
       return '['+(p.id||('P'+(i+1)))+'] '+(p.prompt||'');
     }).filter(Boolean).join('\n\n');
@@ -8227,24 +8404,50 @@ function wsRenderFullPrompt(text){
 /* 复制角色提示词 */
 function wsCopyCharPrompt(idx){
   var ch=wsState.characters[idx];
-  if(!ch||!ch.prompt){showToast('该角色无提示词','error');return;}
-  copyToClipboard(ch.prompt);
+  if(!ch) return;
+  var text=ch.prompt||ch.prompt_full||'';
+  if(!text){showToast('该角色无提示词','error');return;}
+  copyToClipboard(text);
   showToast('角色「'+ch.name+'」提示词已复制','success');
+}
+
+/* 复制视图提示词 */
+function wsCopyViewPrompt(idx,key){
+  var ch=wsState.characters[idx];
+  if(!ch||!ch.four_views||!ch.four_views[key]) return;
+  var text=ch.four_views[key].draw_prompt||'';
+  if(!text){showToast('该视图无提示词','error');return;}
+  copyToClipboard(text);
+  showToast('视图提示词已复制','success');
+}
+
+/* 复制姿态提示词 */
+function wsCopyPosePrompt(idx,pi){
+  var ch=wsState.characters[idx];
+  if(!ch||!ch.poses||!ch.poses[pi]) return;
+  var text=ch.poses[pi].draw_prompt||'';
+  if(!text){showToast('该姿态无提示词','error');return;}
+  copyToClipboard(text);
+  showToast('姿态提示词已复制','success');
 }
 
 /* 复制场景提示词 */
 function wsCopyScenePrompt(idx){
   var s=wsState.scenes[idx];
-  if(!s||!s.prompt){showToast('该场景无提示词','error');return;}
-  copyToClipboard(s.prompt);
+  if(!s) return;
+  var text=s.prompt||s.prompt_full||'';
+  if(!text){showToast('该场景无提示词','error');return;}
+  copyToClipboard(text);
   showToast('场景「'+s.name+'」提示词已复制','success');
 }
 
 /* 复制分镜提示词 */
 function wsCopyPanelPrompt(idx){
   var p=wsState.panels[idx];
-  if(!p||!p.prompt){showToast('该分镜无提示词','error');return;}
-  copyToClipboard(p.prompt);
+  if(!p) return;
+  var text=p.prompt||'';
+  if(!text){showToast('该分镜无提示词','error');return;}
+  copyToClipboard(text);
   showToast('分镜「'+(p.id||('P'+(idx+1)))+'」提示词已复制','success');
 }
 
@@ -8255,14 +8458,18 @@ function wsCopyAll(){
   if(wsState.characters.length){
     parts.push('===== 角色提示词 =====');
     wsState.characters.forEach(function(ch){
-      if(ch.prompt) parts.push('['+ch.name+'] '+ch.prompt);
+      var text=ch.prompt||ch.prompt_full||'';
+      if(text) parts.push('['+ch.name+'] '+text);
+      if(ch.prompt_mj) parts.push('['+ch.name+' MJ版] '+ch.prompt_mj);
+      if(ch.prompt_sd) parts.push('['+ch.name+' SD版] '+ch.prompt_sd);
     });
   }
   /* 场景提示词 */
   if(wsState.scenes.length){
     parts.push('\n===== 场景提示词 =====');
     wsState.scenes.forEach(function(s){
-      if(s.prompt) parts.push('['+s.name+'] '+s.prompt);
+      var text=s.prompt||s.prompt_full||'';
+      if(text) parts.push('['+s.name+'] '+text);
     });
   }
   /* 分镜提示词 */
