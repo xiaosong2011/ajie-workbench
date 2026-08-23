@@ -480,6 +480,7 @@
     border-radius:50%;animation:agentSpin .8s linear infinite;margin:0 auto;
   }
   @keyframes agentSpin{to{transform:rotate(360deg)}}
+  @keyframes wsSpin{to{transform:rotate(360deg)}}
 
   /* 错误提示框 */
   .agent-error-box{
@@ -1487,6 +1488,7 @@ const NAV=[
   {id:'daily',    ico:'📅', name:'每日计划', badge:6, group:'核心日常'},
   {id:'inspo',    ico:'⭐', name:'灵感收藏',            group:'核心日常'},
   {id:'weather',  ico:'☀️', name:'天气',                group:'核心日常'},
+  {id:'workshop', ico:'🎬', name:'AI漫剧工坊',          group:'核心日常'},
   {id:'salary',   ico:'💰', name:'工资储蓄',            group:'财务理财'},
   {id:'ledger',   ico:'📊', name:'小账本',              group:'财务理财'},
   {id:'repay',    ico:'🏦', name:'还款提醒',            group:'财务理财'},
@@ -1926,6 +1928,231 @@ myprompts:`
       </div>
     </div>
     <div id="lc_myPrompts"></div>
+  </div>
+`,
+
+workshop:`
+  <div class="page-head"><span class="bow">🎬</span><h1>AI漫剧工坊</h1><span class="sub">· 小说 → 漫剧分镜 · 一键生成</span></div>
+
+  <div class="card tint-rose" id="wsHeaderCard">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="font-size:32px">🎬</span>
+        <div>
+          <div style="font-size:20px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent">AI漫剧工坊</div>
+          <div style="font-size:14px;color:var(--ink-3)">小说 → 漫剧分镜 · 一键生成</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink-3)">
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mint);margin-right:6px;animation:pulse-dot 2s infinite"></span>系统就绪</span>
+        <span>|</span>
+        <span id="wsStatusText">等待上传</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 步骤进度条 -->
+  <div class="card" style="padding:16px 20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px" id="wsStepsBar">
+      <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-3)" class="ws-step active" data-step="1">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--surface);border:2px solid var(--border);font-weight:700;font-size:13px" class="ws-num">1</span>
+        <span class="ws-label">上传小说</span>
+      </div>
+      <div style="flex:1;min-width:20px;height:2px;background:var(--border)" class="ws-connector" data-conn="1"></div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-3)" class="ws-step" data-step="2">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--surface);border:2px solid var(--border);font-weight:700;font-size:13px" class="ws-num">2</span>
+        <span class="ws-label">审阅设定</span>
+      </div>
+      <div style="flex:1;min-width:20px;height:2px;background:var(--border)" class="ws-connector" data-conn="2"></div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-3)" class="ws-step" data-step="3">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--surface);border:2px solid var(--border);font-weight:700;font-size:13px" class="ws-num">3</span>
+        <span class="ws-label">分镜预览</span>
+      </div>
+      <div style="flex:1;min-width:20px;height:2px;background:var(--border)" class="ws-connector" data-conn="3"></div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-3)" class="ws-step" data-step="4">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--surface);border:2px solid var(--border);font-weight:700;font-size:13px" class="ws-num">4</span>
+        <span class="ws-label">对白编辑</span>
+      </div>
+      <div style="flex:1;min-width:20px;height:2px;background:var(--border)" class="ws-connector" data-conn="4"></div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-3)" class="ws-step" data-step="5">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--surface);border:2px solid var(--border);font-weight:700;font-size:13px" class="ws-num">5</span>
+        <span class="ws-label">导出发布</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 步骤1：上传小说 -->
+  <div class="card ws-panel active" id="wsStep1">
+    <div class="card-h">📖 上传你的小说</div>
+    <p style="color:var(--ink-3);margin-bottom:16px;font-size:15px">支持 .txt / .docx / .epub / .pdf，或直接粘贴文本。</p>
+    <div style="border:2px dashed var(--border);border-radius:12px;padding:48px 20px;text-align:center;transition:.3s;cursor:pointer;background:var(--surface)" id="wsDropZone">
+      <div style="font-size:48px;margin-bottom:12px">📤</div>
+      <p style="font-size:16px;font-weight:500">拖拽文件到此处，或 <strong style="color:var(--accent)">点击选择</strong></p>
+      <p style="color:var(--ink-3);font-size:14px">支持 .txt .docx .epub .pdf</p>
+      <input type="file" id="wsFileInput" accept=".txt,.docx,.epub,.pdf" style="display:none">
+    </div>
+    <div style="text-align:center;color:var(--ink-3);margin:12px 0;font-size:14px">— 或直接粘贴 —</div>
+    <textarea class="crud-input" id="wsNovelInput" style="width:100%;min-height:180px;padding:16px;border-radius:12px;font-size:15px;line-height:1.7;resize:vertical" placeholder="将你的小说全文粘贴在这里..."></textarea>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin:16px 0">
+      <label style="font-size:14px;color:var(--ink-3);min-width:80px">小说类型</label>
+      <select class="crud-select" id="wsNovelType" style="min-width:140px">
+        <option value="古风仙侠">古风仙侠</option>
+        <option value="都市">都市</option>
+        <option value="奇幻">奇幻</option>
+        <option value="科幻">科幻</option>
+        <option value="悬疑">悬疑</option>
+        <option value="其他">其他</option>
+      </select>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px">
+      <button class="btn btn-secondary" onclick="wsParse()">📊 快速解析</button>
+      <button class="btn btn-accent" onclick="wsFull()">🎬 完整流程</button>
+      <button class="btn" style="background:var(--amber);color:#0D0A0B;font-weight:600" onclick="wsQuick()">⚡ 快速模式</button>
+    </div>
+    <div id="wsLoading" style="display:none;margin-top:14px">
+      <span style="display:inline-block;width:20px;height:20px;border:3px solid var(--border);border-top:3px solid var(--accent);border-radius:50%;animation:wsSpin .8s linear infinite"></span>
+      <span style="margin-left:10px;color:var(--ink-3)">AI 正在处理中，请稍候...</span>
+    </div>
+  </div>
+
+  <!-- 步骤2：审阅设定 -->
+  <div class="card ws-panel" id="wsStep2" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <div class="card-h" style="margin:0">✅ 审阅 AI 解析结果 <span class="pill" style="background:var(--accent);color:#fff;font-size:12px;padding:2px 12px;border-radius:20px">解析完成</span></div>
+      <button class="btn btn-secondary btn-sm" onclick="wsGoStep(1)">← 返回修改</button>
+    </div>
+    <div style="margin-top:16px;font-size:14px;color:var(--ink-3)">📖 小说：<strong id="wsNovelName" style="color:var(--ink)">—</strong> · 📝 类型：<strong id="wsNovelTypeDisplay" style="color:var(--ink)">—</strong></div>
+  </div>
+  <div class="card ws-panel" id="wsStep2b" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <div class="card-h" style="margin:0">👤 角色清单</div>
+      <button class="btn btn-secondary btn-sm" onclick="wsAddChar()">➕ 添加角色</button>
+    </div>
+    <div id="wsCharList" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px"><span style="color:var(--ink-3);font-size:14px">请先解析小说</span></div>
+  </div>
+  <div class="card ws-panel" id="wsStep2c" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <div class="card-h" style="margin:0">🏠 场景清单</div>
+      <button class="btn btn-secondary btn-sm" onclick="wsAddScene()">➕ 添加场景</button>
+    </div>
+    <div id="wsSceneList" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px"><span style="color:var(--ink-3);font-size:14px">请先解析小说</span></div>
+  </div>
+  <div class="card ws-panel" id="wsStep2d0" style="display:none">
+    <div class="card-h">📈 情感曲线</div>
+    <div id="wsEmotionDisplay" style="font-size:18px;letter-spacing:4px;padding:8px 0"><span style="color:var(--ink-3)">请先解析小说</span></div>
+  </div>
+  <div class="card ws-panel" id="wsStep2d" style="display:none">
+    <div class="card-h">🎨 风格推荐</div>
+    <div id="wsStyleDisplay" style="margin-top:12px;padding:14px 18px;background:var(--surface);border-radius:8px;border-left:4px solid var(--accent)"><span style="color:var(--ink-3)">请先解析小说</span></div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+      <button class="btn btn-secondary btn-sm" onclick="wsConfirmStyle()">👍 确认</button>
+      <button class="btn btn-secondary btn-sm" onclick="wsSwitchStyle()">🔄 换一个</button>
+      <button class="btn btn-secondary btn-sm" onclick="wsCustomStyle()">✏️ 自定义</button>
+    </div>
+  </div>
+  <div class="card ws-panel" id="wsStep2e" style="display:none">
+    <div style="display:flex;justify-content:flex-end;gap:10px">
+      <button class="btn btn-accent" onclick="wsGoStep(3)">下一步：生成分镜 →</button>
+    </div>
+  </div>
+
+  <!-- 步骤3：分镜预览 -->
+  <div class="card ws-panel" id="wsStep3" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <div class="card-h" style="margin:0">🎬 分镜故事板</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-secondary btn-sm" onclick="wsSetLayout('horizontal')">🖥️ 横屏</button>
+        <button class="btn btn-secondary btn-sm" onclick="wsSetLayout('vertical')">📱 竖屏</button>
+        <button class="btn btn-sm" style="background:var(--amber);color:#0D0A0B;font-weight:600" onclick="wsCopyAllPrompts()">📋 复制全部提示词</button>
+      </div>
+    </div>
+    <div style="margin-top:10px;font-size:14px;color:var(--ink-3)">总格数：<strong id="wsPanelCount" style="color:var(--amber)">0</strong> 格 · 风格：<strong id="wsStyleLock">—</strong> · 布局：<strong id="wsLayoutDisplay">4×3</strong></div>
+  </div>
+  <div class="card ws-panel" id="wsStep3b" style="display:none">
+    <div id="wsStoryboardGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:12px"><div style="grid-column:1/-1;text-align:center;color:var(--ink-3);padding:40px 0">暂无分镜数据，请先生成分镜</div></div>
+  </div>
+  <div class="card ws-panel" id="wsStep3c" style="display:none">
+    <div class="card-h">📊 生图策略</div>
+    <div id="wsStrategyDisplay" style="font-size:14px;line-height:1.8;color:var(--ink-3)"><span style="color:var(--ink-3)">请先生成分镜</span></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="btn btn-accent" onclick="wsGoStep(4)">下一步：对白编辑 →</button>
+    </div>
+  </div>
+
+  <!-- 步骤4：对白编辑 -->
+  <div class="card ws-panel" id="wsStep4" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <div class="card-h" style="margin:0">💬 对白气泡编辑</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm" onclick="wsSetDialogueMode('bubble')">💬 气泡式</button>
+        <button class="btn btn-secondary btn-sm" onclick="wsSetDialogueMode('subtitle')">📝 字幕式</button>
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:14px;color:var(--ink-3)">当前模式：<strong id="wsDialogueModeDisplay">气泡式</strong></div>
+  </div>
+  <div class="card ws-panel" id="wsStep4b" style="display:none">
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:20px" class="ws-dialogue-layout">
+      <div>
+        <div style="font-size:14px;color:var(--ink-3);margin-bottom:8px">选择分镜格</div>
+        <div id="wsDialogueList" style="max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:6px"><div style="color:var(--ink-3);font-size:14px">请先生成分镜</div></div>
+      </div>
+      <div>
+        <div style="font-size:14px;color:var(--ink-3);margin-bottom:8px">编辑对白</div>
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-size:13px;color:var(--ink-3);margin-bottom:4px">格编号</label>
+          <input class="crud-input" type="text" id="wsEditPanelId" readonly placeholder="—" style="width:100%">
+        </div>
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-size:13px;color:var(--ink-3);margin-bottom:4px">角色</label>
+          <input class="crud-input" type="text" id="wsEditCharacter" placeholder="说话角色" style="width:100%">
+        </div>
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-size:13px;color:var(--ink-3);margin-bottom:4px">对白内容</label>
+          <textarea class="crud-input" id="wsEditDialogueText" placeholder="输入对白内容..." style="width:100%;min-height:60px;resize:vertical"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button class="btn btn-secondary btn-sm" onclick="wsApplyDialogueCurrent()">✅ 应用到当前格</button>
+          <button class="btn btn-secondary btn-sm" onclick="wsApplyDialogueAll()">📋 应用到全部</button>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="btn btn-accent" onclick="wsGoStep(5)">下一步：导出发布 →</button>
+    </div>
+  </div>
+
+  <!-- 步骤5：导出发布 -->
+  <div class="card ws-panel" id="wsStep5" style="display:none">
+    <div class="card-h">📤 导出你的漫剧</div>
+    <p style="color:var(--ink-3);font-size:15px;margin-bottom:16px">选择以下格式导出你的漫剧成品。</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:12px">
+      <button class="btn btn-outline" style="display:flex;align-items:center;gap:10px;padding:16px 20px;background:var(--surface);border-radius:10px;border:1px solid var(--border);color:var(--ink);font-size:14px;font-weight:500;text-align:left" onclick="wsExport('images')"><span style="font-size:24px">📸</span> 图片包</button>
+      <button class="btn btn-outline" style="display:flex;align-items:center;gap:10px;padding:16px 20px;background:var(--surface);border-radius:10px;border:1px solid var(--border);color:var(--ink);font-size:14px;font-weight:500;text-align:left" onclick="wsExport('script')"><span style="font-size:24px">📄</span> 分镜脚本</button>
+      <button class="btn btn-outline" style="display:flex;align-items:center;gap:10px;padding:16px 20px;background:var(--surface);border-radius:10px;border:1px solid var(--border);color:var(--ink);font-size:14px;font-weight:500;text-align:left" onclick="wsExport('vertical')"><span style="font-size:24px">📱</span> 竖屏漫剧</button>
+      <button class="btn btn-outline" style="display:flex;align-items:center;gap:10px;padding:16px 20px;background:var(--surface);border-radius:10px;border:1px solid var(--border);color:var(--ink);font-size:14px;font-weight:500;text-align:left" onclick="wsExport('video')"><span style="font-size:24px">🎬</span> 视频脚本</button>
+      <button class="btn btn-outline" style="display:flex;align-items:center;gap:10px;padding:16px 20px;background:var(--surface);border-radius:10px;border:1px solid var(--border);color:var(--ink);font-size:14px;font-weight:500;text-align:left" onclick="wsExport('prompts')"><span style="font-size:24px">📋</span> 提示词包</button>
+      <button class="btn btn-outline" style="display:flex;align-items:center;gap:10px;padding:16px 20px;background:var(--surface);border-radius:10px;border:1px solid var(--border);color:var(--ink);font-size:14px;font-weight:500;text-align:left" onclick="wsExport('share')"><span style="font-size:24px">🔗</span> 分享链接</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:20px">
+      <div style="background:var(--surface);border-radius:10px;padding:16px 18px;text-align:center;border:1px solid var(--border)"><div style="font-size:28px;font-weight:700;color:var(--amber)" id="wsStatPanels">0</div><div style="font-size:13px;color:var(--ink-3);margin-top:4px">总格数</div></div>
+      <div style="background:var(--surface);border-radius:10px;padding:16px 18px;text-align:center;border:1px solid var(--border)"><div style="font-size:28px;font-weight:700;color:var(--amber)" id="wsStatDuration">0s</div><div style="font-size:13px;color:var(--ink-3);margin-top:4px">预估时长</div></div>
+      <div style="background:var(--surface);border-radius:10px;padding:16px 18px;text-align:center;border:1px solid var(--border)"><div style="font-size:28px;font-weight:700;color:var(--amber)" id="wsStatTime">—</div><div style="font-size:13px;color:var(--ink-3);margin-top:4px">处理时间</div></div>
+      <div style="background:var(--surface);border-radius:10px;padding:16px 18px;text-align:center;border:1px solid var(--border)"><div style="font-size:28px;font-weight:700;color:var(--mint)" id="wsStatStatus">⏳</div><div style="font-size:13px;color:var(--ink-3);margin-top:4px">状态</div></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="btn btn-secondary" onclick="wsGoStep(1)">🔄 重新开始</button>
+    </div>
+  </div>
+
+  <!-- 漫剧工坊模态框 -->
+  <div class="modal-mask" id="wsModal" onclick="wsCloseModal(event)">
+    <div class="modal-box" style="max-width:600px" onclick="event.stopPropagation()">
+      <div class="modal-title" id="wsModalTitle">详情</div>
+      <div class="modal-body" id="wsModalBody" style="font-size:15px;line-height:1.8;color:var(--ink-2)"></div>
+      <div class="modal-actions" style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end">
+        <button class="btn btn-secondary btn-sm" onclick="wsCloseModal()">关闭</button>
+      </div>
+    </div>
   </div>
 `,
 
@@ -3575,6 +3802,7 @@ function switchSection(id){
   if(id==='data'){ html=renderDataMgr(); }
   else if(id==='overview'){ html=renderOverviewHTML(); }
   else if(id==='agent'){ html=SECTIONS.agent; }
+  else if(id==='workshop'){ html=SECTIONS.workshop; }
   else { html=SECTIONS[id]||'<div class="empty"><div class="big">🚧</div>板块建设中…</div>'; }
   /* 面包屑导航 + 顶部随机激励语滚动条 */
   const breadcrumb=id==='overview'?'':getBreadcrumb(id);
@@ -3588,6 +3816,7 @@ function switchSection(id){
   if(id==='inspo') renderInspos();
   if(id==='ledger') renderLedger();
   if(id==='agent') initAgentSection();
+  if(id==='workshop') wsInitWorkshop();
   (SECTION_LISTS[id]||[]).forEach(k=>renderList(k));
   /* 初始化分类筛选器箭头状态 */
   setTimeout(function(){ initAllTagFilters(); },50);
@@ -4841,6 +5070,7 @@ function renderOverview(){
       {id:'daily',ico:'📅',name:'每日计划',count:countTodos()},
       {id:'inspo',ico:'⭐',name:'灵感收藏',count:(DB.inspos||[]).length},
       {id:'weather',ico:'☀️',name:'天气',count:(DB.weatherNotes||[]).length},
+      {id:'workshop',ico:'🎬',name:'AI漫剧工坊',count:0},
     ]},
     {name:'财务理财',color:'#f59e0b',sections:[
       {id:'salary',ico:'💰',name:'工资储蓄',count:countSection('salary')},
@@ -7652,6 +7882,619 @@ document.addEventListener('click',function(e){
     container.appendChild(p);
   }
 })();
+
+/* ================================================================
+   AI漫剧工坊 - 完整功能实现
+   ================================================================ */
+var wsState={
+  step:1,
+  novelText:'',
+  novelType:'古风仙侠',
+  result:null,
+  layout:'horizontal',
+  dialogueMode:'bubble',
+  characters:[],
+  scenes:[],
+  emotions:[],
+  style:null,
+  panels:[],
+  fullPrompt:'',
+  allPrompts:[],
+  loading:false,
+  currentDialoguePanel:null
+};
+
+/* 初始化工坊 */
+function wsInitWorkshop(){
+  /* 绑定拖拽上传 */
+  var dz=document.getElementById('wsDropZone');
+  var fi=document.getElementById('wsFileInput');
+  if(!dz||!fi) return;
+  dz.addEventListener('click',function(){fi.click();});
+  dz.addEventListener('dragover',function(e){e.preventDefault();dz.style.borderColor='var(--accent)';});
+  dz.addEventListener('dragleave',function(){dz.style.borderColor='var(--border)';});
+  dz.addEventListener('drop',function(e){
+    e.preventDefault();
+    dz.style.borderColor='var(--border)';
+    if(e.dataTransfer.files.length>0) wsHandleFile(e.dataTransfer.files[0]);
+  });
+  fi.addEventListener('change',function(){
+    if(fi.files.length>0) wsHandleFile(fi.files[0]);
+  });
+  console.log('AI漫剧工坊已加载，等待用户上传小说');
+}
+
+/* 处理文件上传 */
+function wsHandleFile(file){
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var ta=document.getElementById('wsNovelInput');
+    if(ta) ta.value=e.target.result;
+    var st=document.getElementById('wsStatusText');
+    if(st) st.textContent='已加载: '+file.name;
+  };
+  reader.readAsText(file);
+}
+
+/* 步骤切换 */
+function wsGoStep(n){
+  wsState.step=n;
+  /* 切换面板显示 */
+  var stepMap={
+    1:['wsStep1'],
+    2:['wsStep2','wsStep2b','wsStep2c','wsStep2d0','wsStep2d','wsStep2e'],
+    3:['wsStep3','wsStep3b','wsStep3c'],
+    4:['wsStep4','wsStep4b'],
+    5:['wsStep5']
+  };
+  /* 隐藏所有面板 */
+  document.querySelectorAll('.ws-panel').forEach(function(el){el.style.display='none';});
+  /* 显示当前步骤面板 */
+  (stepMap[n]||[]).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.style.display='block';
+  });
+  /* 更新步骤条 */
+  var steps=document.querySelectorAll('.ws-step');
+  var conns=document.querySelectorAll('.ws-connector');
+  steps.forEach(function(item,idx){
+    var num=idx+1;
+    item.classList.remove('active');
+    if(num===n){
+      item.classList.add('active');
+      item.querySelector('.ws-num').style.background='var(--accent)';
+      item.querySelector('.ws-num').style.borderColor='var(--accent)';
+      item.querySelector('.ws-num').style.color='#fff';
+    }else if(num<n){
+      item.querySelector('.ws-num').style.background='var(--mint)';
+      item.querySelector('.ws-num').style.borderColor='var(--mint)';
+      item.querySelector('.ws-num').style.color='#fff';
+      item.querySelector('.ws-label').style.color='var(--mint)';
+    }else{
+      item.querySelector('.ws-num').style.background='var(--surface)';
+      item.querySelector('.ws-num').style.borderColor='var(--border)';
+      item.querySelector('.ws-num').style.color='var(--ink-3)';
+      item.querySelector('.ws-label').style.color='var(--ink-3)';
+    }
+  });
+  conns.forEach(function(c,idx){
+    c.style.background=(idx+1)<n?'var(--mint)':'var(--border)';
+  });
+  /* 滚动到顶部 */
+  var content=document.getElementById('content');
+  if(content) content.scrollTo({top:0,behavior:'smooth'});
+  var st=document.getElementById('wsStatusText');
+  if(st) st.textContent='步骤 '+n+'/5';
+}
+
+/* 解析模式 */
+function wsParse(){wsCallAPI('parse');}
+function wsFull(){wsCallAPI('full');}
+function wsQuick(){wsCallAPI('quick');}
+
+/* 调用AI API */
+function wsCallAPI(mode){
+  var ta=document.getElementById('wsNovelInput');
+  var text=ta?ta.value.trim():'';
+  if(!text){
+    showToast('请先输入或上传小说内容！','error');
+    return;
+  }
+  wsState.novelText=text;
+  var sel=document.getElementById('wsNovelType');
+  wsState.novelType=sel?sel.value:'古风仙侠';
+
+  var s=DB.apiSettings||{};
+  if(!s.apiBaseUrl||!s.apiKey){
+    showToast('请先在「智能体库」中设置API地址和Key','error');
+    return;
+  }
+
+  /* 显示加载 */
+  var loader=document.getElementById('wsLoading');
+  if(loader) loader.style.display='flex';
+  var btns=document.querySelectorAll('#wsStep1 .btn');
+  btns.forEach(function(b){b.disabled=true;});
+  var st=document.getElementById('wsStatusText');
+  if(st) st.textContent='⏳ 处理中...';
+  wsState.loading=true;
+
+  /* 构建系统提示词 */
+  var sysPrompt=wsBuildSystemPrompt(mode);
+  /* 截取小说文本（避免超长） */
+  var novelChunk=text.length>8000?text.substring(0,8000)+'\n...(内容过长已截断)':text;
+  var userMsg='小说类型：'+wsState.novelType+'\n模式：'+mode+'\n\n请分析以下小说内容并返回JSON：\n\n'+novelChunk;
+
+  /* 调用API */
+  callAgentLLM(sysPrompt,userMsg,false)
+    .then(function(resp){
+      var data=extractJsonFromText(resp);
+      if(!data){
+        throw new Error('AI返回的内容无法解析为JSON，请重试');
+      }
+      wsState.result=data;
+      wsRenderResult(data);
+      wsGoStep(2);
+      var st2=document.getElementById('wsStatusText');
+      if(st2) st2.textContent='✅ 解析完成';
+      showToast('AI解析完成！','success');
+    })
+    .catch(function(err){
+      showToast('生成失败：'+(err.message||err),'error');
+      var st3=document.getElementById('wsStatusText');
+      if(st3) st3.textContent='❌ 失败';
+    })
+    .finally(function(){
+      if(loader) loader.style.display='none';
+      btns.forEach(function(b){b.disabled=false;});
+      wsState.loading=false;
+    });
+}
+
+/* 构建系统提示词 */
+function wsBuildSystemPrompt(mode){
+  var modeDesc={
+    parse:'快速解析模式：只提取角色、场景、情感和风格推荐，不需要完整分镜',
+    full:'完整流程模式：提取全部信息并生成详细分镜故事板',
+    quick:'快速模式：提取核心信息并生成简化分镜（4-6格）'
+  };
+  return '你是一个专业的小说→漫剧分镜转换专家。请分析用户提供的小说内容，提取关键信息并返回标准JSON格式的数据。'+modeDesc[mode]+'\n\n'+
+    '返回JSON格式如下（严格遵循）：\n'+
+    '{\n'+
+    '  "novel_name":"小说名称",\n'+
+    '  "novel_type":"小说类型",\n'+
+    '  "characters":[\n'+
+    '    {"name":"角色名","type":"主角/配角/反派","emoji":"表情符号","description":"简短描述"}\n'+
+    '  ],\n'+
+    '  "scenes":[\n'+
+    '    {"name":"场景名","type":"室内/室外/特殊","description":"场景描述"}\n'+
+    '  ],\n'+
+    '  "emotions":[\n'+
+    '    {"emoji":"😀","label":"情绪描述"}\n'+
+    '  ],\n'+
+    '  "style":{\n'+
+    '    "name":"推荐画风名称",\n'+
+    '    "description":"画风描述",\n'+
+    '    "palette":["主色调1","主色调2","主色调3"],\n'+
+    '    "forbidden":["禁止元素1","禁止元素2"]\n'+
+    '  },\n'+
+    '  "storyboard":{\n'+
+    '    "panels":[\n'+
+    '      {\n'+
+    '        "id":"P01",\n'+
+    '        "shot_type":"远景/中景/近景/特写",\n'+
+    '        "camera_movement":"固定/推拉/摇移/跟拍",\n'+
+    '        "composition":"画面构图描述",\n'+
+    '        "characters":["出场角色"],\n'+
+    '        "dialogue":"对白内容",\n'+
+    '        "emotion":"情绪",\n'+
+    '        "risk_level":"安全",\n'+
+    '        "risk_emoji":"🟢",\n'+
+    '        "keyframe_type":"普通格/关键帧",\n'+
+    '        "keyframe_emoji":"⭐",\n'+
+    '        "suggested_generations":4,\n'+
+    '        "prompt":"绘图提示词"\n'+
+    '      }\n'+
+    '    ],\n'+
+    '    "full_prompt":"完整提示词汇总",\n'+
+    '    "all_prompts":["提示词1","提示词2"]\n'+
+    '  }\n'+
+    '}\n\n'+
+    '要求：\n'+
+    '1. 角色至少提取3-8个主要角色\n'+
+    '2. 场景至少提取2-5个主要场景\n'+
+    '3. 情感曲线至少3-5个节点\n'+
+    '4. 分镜格数：parse模式0格，full模式8-16格，quick模式4-6格\n'+
+    '5. 每格分镜必须有prompt绘图提示词\n'+
+    '6. 只返回JSON，不要有任何其他文字';
+}
+
+/* 渲染解析结果 */
+function wsRenderResult(data){
+  var el;
+  el=document.getElementById('wsNovelName');
+  if(el) el.textContent=data.novel_name||'未命名';
+  el=document.getElementById('wsNovelTypeDisplay');
+  if(el) el.textContent=data.novel_type||'—';
+
+  wsState.characters=data.characters||[];
+  wsRenderCharacters();
+
+  wsState.scenes=data.scenes||[];
+  wsRenderScenes();
+
+  wsState.emotions=data.emotions||[];
+  wsRenderEmotions();
+
+  wsState.style=data.style||null;
+  wsRenderStyle();
+
+  wsState.panels=(data.storyboard&&data.storyboard.panels)?data.storyboard.panels:[];
+  wsState.fullPrompt=(data.storyboard&&data.storyboard.full_prompt)?data.storyboard.full_prompt:'';
+  wsState.allPrompts=(data.storyboard&&data.storyboard.all_prompts)?data.storyboard.all_prompts:[];
+
+  el=document.getElementById('wsStatPanels');
+  if(el) el.textContent=wsState.panels.length;
+  el=document.getElementById('wsStatDuration');
+  if(el) el.textContent=(wsState.panels.length*3)+'s';
+  el=document.getElementById('wsStatTime');
+  if(el) el.textContent='约2分钟';
+  el=document.getElementById('wsStatStatus');
+  if(el) el.textContent='✅';
+
+  wsRenderStoryboard();
+  wsRenderDialogueList();
+}
+
+/* 渲染角色列表 */
+function wsRenderCharacters(){
+  var c=document.getElementById('wsCharList');
+  if(!c) return;
+  if(!wsState.characters.length){
+    c.innerHTML='<span style="color:var(--ink-3);font-size:14px">暂无角色数据</span>';
+    return;
+  }
+  c.innerHTML=wsState.characters.map(function(ch,idx){
+    var roleClass=ch.type==='配角'?'':ch.type==='反派'?'':'';
+    return '<span style="display:inline-flex;align-items:center;gap:8px;background:var(--surface);padding:6px 14px 6px 10px;border-radius:20px;border:1px solid var(--border);font-size:13px;transition:.3s">'+
+      (ch.emoji||'👤')+' '+ch.name+
+      ' <span style="font-size:10px;padding:1px 8px;border-radius:10px;background:'+(ch.type==='配角'?'var(--violet,#8b5cf6)':ch.type==='反派'?'#ef4444':'var(--accent)')+';color:#fff">'+(ch.type||'角色')+'</span>'+
+      ' <span style="cursor:pointer;color:var(--ink-3);font-size:14px" onclick="wsEditChar('+idx+')">✏️</span>'+
+      ' <span style="cursor:pointer;color:var(--ink-3);font-size:14px" onclick="wsDeleteChar('+idx+')">✕</span>'+
+      '</span>';
+  }).join('');
+}
+
+/* 渲染场景列表 */
+function wsRenderScenes(){
+  var c=document.getElementById('wsSceneList');
+  if(!c) return;
+  if(!wsState.scenes.length){
+    c.innerHTML='<span style="color:var(--ink-3);font-size:14px">暂无场景数据</span>';
+    return;
+  }
+  c.innerHTML=wsState.scenes.map(function(s,idx){
+    return '<span style="display:inline-flex;align-items:center;gap:8px;background:var(--surface);padding:6px 14px 6px 10px;border-radius:20px;border:1px solid var(--border);font-size:13px">'+
+      '🏠 '+s.name+
+      ' <span style="color:var(--ink-3);font-size:12px">'+(s.type||'室外')+'</span>'+
+      ' <span style="cursor:pointer;color:var(--ink-3)" onclick="wsEditScene('+idx+')">✏️</span>'+
+      ' <span style="cursor:pointer;color:var(--ink-3)" onclick="wsDeleteScene('+idx+')">✕</span>'+
+      '</span>';
+  }).join('');
+}
+
+/* 渲染情感曲线 */
+function wsRenderEmotions(){
+  var c=document.getElementById('wsEmotionDisplay');
+  if(!c) return;
+  if(!wsState.emotions.length){
+    c.innerHTML='<span style="color:var(--ink-3)">暂无数据</span>';
+    return;
+  }
+  c.innerHTML=wsState.emotions.map(function(e){return e.emoji||'•';}).join(' → ');
+}
+
+/* 渲染风格推荐 */
+function wsRenderStyle(){
+  var c=document.getElementById('wsStyleDisplay');
+  if(!c) return;
+  if(!wsState.style){
+    c.innerHTML='<span style="color:var(--ink-3)">暂无数据</span>';
+    return;
+  }
+  var pal=(wsState.style.palette||[]).join(' · ');
+  var forb=(wsState.style.forbidden||[]).join('、');
+  c.innerHTML=
+    '<div style="font-weight:600;font-size:16px;color:var(--amber)">'+(wsState.style.name||'推荐风格')+'</div>'+
+    '<div style="margin-top:6px;font-size:14px">'+(wsState.style.description||'—')+'</div>'+
+    '<div style="margin-top:6px;font-size:13px;color:var(--ink-3)">色彩：'+pal+'</div>'+
+    '<div style="margin-top:4px;font-size:13px;color:#ef4444">🚫 禁止：'+forb+'</div>';
+  var lock=document.getElementById('wsStyleLock');
+  if(lock) lock.textContent=wsState.style.name||'已锁定';
+}
+
+/* 角色/场景操作 */
+function wsAddChar(){
+  var name=prompt('输入角色名称：');
+  if(name){
+    wsState.characters.push({name:name,type:'角色',emoji:'👤'});
+    wsRenderCharacters();
+  }
+}
+function wsDeleteChar(idx){
+  if(confirm('确定删除该角色？')){
+    wsState.characters.splice(idx,1);
+    wsRenderCharacters();
+  }
+}
+function wsEditChar(idx){
+  var c=wsState.characters[idx];
+  var n=prompt('修改角色名称：',c.name);
+  if(n){c.name=n;wsRenderCharacters();}
+}
+function wsAddScene(){
+  var name=prompt('输入场景名称：');
+  if(name){
+    wsState.scenes.push({name:name,type:'室外'});
+    wsRenderScenes();
+  }
+}
+function wsDeleteScene(idx){
+  if(confirm('确定删除该场景？')){
+    wsState.scenes.splice(idx,1);
+    wsRenderScenes();
+  }
+}
+function wsEditScene(idx){
+  var s=wsState.scenes[idx];
+  var n=prompt('修改场景名称：',s.name);
+  if(n){s.name=n;wsRenderScenes();}
+}
+
+/* 风格操作 */
+function wsConfirmStyle(){
+  showToast('✅ 风格已确认：'+(wsState.style?wsState.style.name:'当前风格'),'success');
+}
+function wsSwitchStyle(){
+  var styles=['暗黑妖异风','水墨仙侠风','热血漫画风','赛博霓虹风','温暖治愈风'];
+  var current=wsState.style?wsState.style.name:'';
+  var next=styles.find(function(s){return s!==current;})||styles[0];
+  if(wsState.style){
+    wsState.style.name=next;
+    wsState.style.description=next+'风格，适配当前小说类型';
+    wsRenderStyle();
+    showToast('🔄 已切换至：'+next,'success');
+  }else{
+    showToast('请先解析小说','error');
+  }
+}
+function wsCustomStyle(){
+  var input=prompt('请输入自定义风格描述：');
+  if(input&&wsState.style){
+    wsState.style.description=input;
+    wsState.style.name='自定义风格';
+    wsRenderStyle();
+    showToast('✅ 风格已更新','success');
+  }else if(input){
+    wsState.style={name:'自定义风格',description:input,palette:[],forbidden:[]};
+    wsRenderStyle();
+    showToast('✅ 风格已更新','success');
+  }
+}
+
+/* 渲染分镜故事板 */
+function wsRenderStoryboard(){
+  var grid=document.getElementById('wsStoryboardGrid');
+  if(!grid) return;
+  var panels=wsState.panels;
+  if(!panels.length){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--ink-3);padding:40px 0">暂无分镜数据，请先生成分镜</div>';
+    return;
+  }
+  grid.style.gridTemplateColumns=wsState.layout==='vertical'?'1fr':'repeat(4,1fr)';
+  var el=document.getElementById('wsPanelCount');
+  if(el) el.textContent=panels.length;
+  el=document.getElementById('wsLayoutDisplay');
+  if(el) el.textContent=wsState.layout==='vertical'?'竖屏':'4×3';
+
+  grid.innerHTML=panels.map(function(p,idx){
+    return '<div style="background:var(--surface);border-radius:10px;border:1px solid var(--border);padding:14px 16px;transition:.3s;cursor:pointer;position:relative" onclick="wsOpenPanelDetail('+idx+')" '+
+      'onmouseover="this.style.borderColor=\'var(--accent)\';this.style.transform=\'translateY(-2px)\'" '+
+      'onmouseout="this.style.borderColor=\'var(--border)\';this.style.transform=\'\'">'+
+      '<div style="position:absolute;top:10px;right:10px;font-size:16px">'+(p.risk_emoji||'🟢')+'</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+      '<span style="font-weight:700;font-size:15px;color:var(--amber)">'+(p.id||('P'+String(idx+1).padStart(2,'0')))+'</span>'+
+      '<span style="font-size:12px">'+(p.keyframe_emoji||'⭐')+' '+(p.keyframe_type||'普通格')+'</span>'+
+      '</div>'+
+      '<div style="font-size:13px;color:var(--ink-3);margin-bottom:4px">'+(p.shot_type||'—')+' · '+(p.camera_movement||'固定')+'</div>'+
+      '<div style="font-size:13px;color:var(--ink-3);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">'+(p.composition||'—')+'</div>'+
+      (p.characters&&p.characters.length?'<div style="font-size:12px;color:var(--ink-3);margin-top:4px">👤 '+p.characters.join('、')+'</div>':'')+
+      '<div style="position:absolute;bottom:10px;right:10px;font-size:12px;background:rgba(0,0,0,.6);padding:2px 10px;border-radius:10px;color:var(--amber)">🔄 '+(p.suggested_generations||4)+'抽</div>'+
+      '</div>';
+  }).join('');
+  wsRenderStrategy();
+}
+
+/* 渲染生图策略 */
+function wsRenderStrategy(){
+  var c=document.getElementById('wsStrategyDisplay');
+  if(!c) return;
+  var panels=wsState.panels;
+  if(!panels.length){
+    c.innerHTML='<span style="color:var(--ink-3)">暂无数据</span>';
+    return;
+  }
+  var safe=panels.filter(function(p){return p.risk_level==='安全'||p.risk_emoji==='🟢';});
+  var warn=panels.filter(function(p){return p.risk_level==='注意'||p.risk_emoji==='🟡';});
+  var danger=panels.filter(function(p){return p.risk_level==='高风险'||p.risk_emoji==='🔴';});
+  c.innerHTML=
+    '<div style="display:flex;flex-wrap:wrap;gap:20px">'+
+    '<span>🟢 普通格（×'+safe.length+'）：建议 4-6 抽</span>'+
+    '<span>🟡 重要格（×'+warn.length+'）：建议 8-12 抽</span>'+
+    '<span>🔴 关键帧（×'+danger.length+'）：建议 15-20 抽</span>'+
+    '</div>'+
+    (danger.length?'<div style="margin-top:8px;color:#ef4444">⚠️ 高风险格：'+danger.map(function(p){return p.id||'P';}).join('、')+' 建议分批生成+PS合成</div>':'');
+}
+
+/* 设置布局 */
+function wsSetLayout(mode){
+  wsState.layout=mode;
+  wsRenderStoryboard();
+}
+
+/* 分镜详情弹窗 */
+function wsOpenPanelDetail(idx){
+  var p=wsState.panels[idx];
+  if(!p) return;
+  var title=document.getElementById('wsModalTitle');
+  var body=document.getElementById('wsModalBody');
+  if(title) title.textContent=p.id||('分镜详情');
+  if(body) body.innerHTML=
+    '<p><strong>镜头：</strong>'+(p.shot_type||'—')+' · '+(p.camera_movement||'固定')+'</p>'+
+    '<p><strong>画面：</strong>'+(p.composition||'—')+'</p>'+
+    '<p><strong>角色：</strong>'+((p.characters||[]).join('、')||'—')+'</p>'+
+    '<p><strong>对白：</strong>'+(p.dialogue||'无')+'</p>'+
+    '<p><strong>情绪：</strong>'+(p.emotion||'—')+'</p>'+
+    '<p><strong>风险：</strong>'+(p.risk_emoji||'🟢')+' '+(p.risk_level||'安全')+'</p>'+
+    '<p><strong>类型：</strong>'+(p.keyframe_emoji||'⭐')+' '+(p.keyframe_type||'普通格')+'</p>'+
+    '<p><strong>建议抽卡：</strong>'+(p.suggested_generations||4)+' 张</p>'+
+    (p.prompt?'<hr style="border-color:var(--border);margin:12px 0"><p><strong>提示词：</strong><br><span style="font-size:13px;color:var(--ink-3);word-break:break-all">'+p.prompt+'</span></p>':'');
+  var modal=document.getElementById('wsModal');
+  if(modal) modal.classList.add('show');
+}
+
+/* 关闭弹窗 */
+function wsCloseModal(e){
+  if(!e||e.target===e.currentTarget){
+    var modal=document.getElementById('wsModal');
+    if(modal) modal.classList.remove('show');
+  }
+}
+
+/* 复制全部提示词 */
+function wsCopyAllPrompts(){
+  var text=wsState.fullPrompt||wsState.allPrompts.join('\n')||wsState.panels.map(function(p){return p.prompt||'';}).filter(Boolean).join('\n');
+  if(!text){showToast('暂无提示词可复制','error');return;}
+  copyToClipboard(text);
+  showToast('✅ 已复制 '+(wsState.panels.length||'全部')+' 条提示词到剪贴板！','success');
+}
+
+/* 对白编辑模式 */
+function wsSetDialogueMode(mode){
+  wsState.dialogueMode=mode;
+  var el=document.getElementById('wsDialogueModeDisplay');
+  if(el) el.textContent=mode==='bubble'?'气泡式':'字幕式';
+}
+
+/* 渲染对白列表 */
+function wsRenderDialogueList(){
+  var c=document.getElementById('wsDialogueList');
+  if(!c) return;
+  var panels=wsState.panels;
+  if(!panels.length){
+    c.innerHTML='<div style="color:var(--ink-3);font-size:14px">请先生成分镜</div>';
+    return;
+  }
+  c.innerHTML=panels.map(function(p,idx){
+    return '<div style="padding:10px 14px;background:var(--surface);border-radius:8px;border:1px solid '+(wsState.currentDialoguePanel===idx?'var(--accent)':'var(--border)')+';cursor:pointer;transition:.3s;font-size:14px" onclick="wsSelectDialoguePanel('+idx+')">'+
+      (p.id||('P'+String(idx+1).padStart(2,'0')))+
+      (p.dialogue?' 💬':'')+
+      ' <span style="color:var(--ink-3);font-size:12px">'+(p.shot_type||'')+'</span>'+
+      '</div>';
+  }).join('');
+  if(wsState.currentDialoguePanel===null&&panels.length) wsSelectDialoguePanel(0);
+}
+
+/* 选择对白面板 */
+function wsSelectDialoguePanel(idx){
+  wsState.currentDialoguePanel=idx;
+  var p=wsState.panels[idx];
+  if(!p) return;
+  var el;
+  el=document.getElementById('wsEditPanelId');
+  if(el) el.value=p.id||('P'+String(idx+1).padStart(2,'0'));
+  el=document.getElementById('wsEditCharacter');
+  if(el) el.value=(p.characters&&p.characters.length)?p.characters[0]:'';
+  el=document.getElementById('wsEditDialogueText');
+  if(el) el.value=p.dialogue||'';
+  wsRenderDialogueList();
+}
+
+/* 应用对白到当前格 */
+function wsApplyDialogueCurrent(){
+  var idx=wsState.currentDialoguePanel;
+  if(idx===null){showToast('请先选择分镜格','error');return;}
+  var p=wsState.panels[idx];
+  var ta=document.getElementById('wsEditDialogueText');
+  var ci=document.getElementById('wsEditCharacter');
+  p.dialogue=ta?ta.value:'';
+  var char=ci?ci.value:'';
+  if(char){
+    if(!p.characters) p.characters=[];
+    if(p.characters.indexOf(char)<0) p.characters.push(char);
+  }
+  wsRenderDialogueList();
+  showToast('✅ 已应用到当前格','success');
+}
+
+/* 应用对白到全部 */
+function wsApplyDialogueAll(){
+  var ta=document.getElementById('wsEditDialogueText');
+  var ci=document.getElementById('wsEditCharacter');
+  var text=ta?ta.value:'';
+  var char=ci?ci.value:'';
+  wsState.panels.forEach(function(p){
+    if(text) p.dialogue=text;
+    if(char){
+      if(!p.characters) p.characters=[];
+      if(p.characters.indexOf(char)<0) p.characters.push(char);
+    }
+  });
+  wsRenderDialogueList();
+  showToast('✅ 已应用到全部 '+wsState.panels.length+' 格','success');
+}
+
+/* 导出功能 */
+function wsExport(type){
+  var names={
+    'images':'📸 图片包',
+    'script':'📄 分镜脚本',
+    'vertical':'📱 竖屏漫剧',
+    'video':'🎬 视频脚本',
+    'prompts':'📋 提示词包',
+    'share':'🔗 分享链接'
+  };
+  if(type==='prompts'){
+    var text=wsState.fullPrompt||wsState.allPrompts.join('\n')||wsState.panels.map(function(p){return p.prompt||'';}).filter(Boolean).join('\n');
+    if(text){
+      copyToClipboard(text);
+      showToast('✅ 提示词已复制到剪贴板','success');
+      return;
+    }
+  }
+  if(type==='script'){
+    var script='小说：'+((wsState.result&&wsState.result.novel_name)||'未命名')+'\n';
+    script+='类型：'+((wsState.result&&wsState.result.novel_type)||'—')+'\n';
+    script+='风格：'+(wsState.style?wsState.style.name:'—')+'\n\n';
+    script+='=== 分镜脚本 ===\n\n';
+    wsState.panels.forEach(function(p,idx){
+      script+='['+(p.id||('P'+String(idx+1).padStart(2,'0')))+'] '+(p.shot_type||'')+' · '+(p.camera_movement||'固定')+'\n';
+      script+='画面：'+(p.composition||'—')+'\n';
+      script+='角色：'+((p.characters||[]).join('、')||'—')+'\n';
+      script+='对白：'+(p.dialogue||'无')+'\n';
+      script+='情绪：'+(p.emotion||'—')+'\n';
+      script+='提示词：'+(p.prompt||'—')+'\n\n';
+    });
+    var blob=new Blob([script],{type:'text/plain;charset=utf-8'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='漫剧分镜脚本.txt';
+    a.click();
+    showToast('✅ 分镜脚本已下载','success');
+    return;
+  }
+  showToast('📤 '+names[type]+'：总格数 '+wsState.panels.length+' 格，角色 '+wsState.characters.length+' 个，场景 '+wsState.scenes.length+' 个','info');
+}
 </script>
 </body>
 </html>
