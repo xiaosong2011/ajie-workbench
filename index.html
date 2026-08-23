@@ -3164,7 +3164,7 @@ function startPolling(){
             isRemoteUpdate=true;
             DB=data.data;
             ensureKeys();
-            localStorage.setItem(STORE_KEY,JSON.stringify(DB));
+            try{ localStorage.setItem(STORE_KEY,JSON.stringify(DB)); }catch(e){ console.warn('[Sync] 轮询保存失败:',e.name); }
             /* 弹窗打开时仅更新数据，不触发页面重渲染（避免干扰表单操作） */
             if(isModalOpen()){
               _pendingCloudRender=true;
@@ -3215,7 +3215,7 @@ function subscribeCloud(){
           isRemoteUpdate=true;
           DB=newData;
           ensureKeys();
-          localStorage.setItem(STORE_KEY,JSON.stringify(DB));
+          try{ localStorage.setItem(STORE_KEY,JSON.stringify(DB)); }catch(e){ console.warn('[Sync] 订阅保存失败:',e.name); }
           /* 弹窗打开时仅更新数据，不触发页面重渲染（避免干扰表单操作） */
           if(isModalOpen()){
             _pendingCloudRender=true;
@@ -3238,7 +3238,28 @@ function loadData(){
   try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ return {}; }
 }
 function saveData(){
-  localStorage.setItem(STORE_KEY,JSON.stringify(DB));
+  try{
+    var jsonStr=JSON.stringify(DB);
+    localStorage.setItem(STORE_KEY,jsonStr);
+  }catch(e){
+    console.warn('[Storage] localStorage保存失败，可能超出容量限制:',e.name);
+    /* 存储超限时，仅保存核心数据（不含大提示词条目） */
+    try{
+      var liteDB=JSON.parse(JSON.stringify(DB));
+      /* 压缩myPrompts：只保留非小逻/老李的核心条目 */
+      if(Array.isArray(liteDB.myPrompts)){
+        liteDB.myPrompts=liteDB.myPrompts.filter(function(p){
+          return p.tag!=='小逻剧本'&&p.tag!=='小逻分镜'&&p.tag!=='小逻角色'&&
+                 p.tag!=='小逻场景'&&p.tag!=='小逻视频'&&p.tag!=='小逻资产'&&
+                 p.tag!=='老李漫剧'&&p.tag!=='老李参考';
+        });
+      }
+      localStorage.setItem(STORE_KEY,JSON.stringify(liteDB));
+      console.warn('[Storage] 已降级保存核心数据（不含小逻/老李技能库）');
+    }catch(e2){
+      console.error('[Storage] 降级保存也失败:',e2);
+    }
+  }
   if(sbClient&&!isRemoteUpdate)saveToCloud();
 }
 
@@ -3297,7 +3318,7 @@ let DB=loadData();
 /* 首次使用时用初始数据填充缺失的键 */
 Object.keys(INITIAL).forEach(k=>{ if(DB[k]===undefined)DB[k]=INITIAL[k]; });
 /* 迁移：将 glm-4-flash 升级为 glm-4-plus（能力更强，生成提示词更详细） */
-if(DB.apiSettings&&DB.apiSettings.model==='glm-4-flash'){DB.apiSettings.model='glm-4-plus';saveData();}
+if(DB.apiSettings&&DB.apiSettings.model==='glm-4-flash'){DB.apiSettings.model='glm-4-plus';}
 /* 提示词库：合并初始数据，不删除用户自定义条目 */
 function mergePrompts(dbKey, initialArr){
   if(!Array.isArray(DB[dbKey])){ DB[dbKey]=initialArr.slice(); return; }
@@ -7888,7 +7909,7 @@ function initialRender(sectionId){
             if(p.tag==='人物角色')p.tag='人物角色板';
           });
         }
-        localStorage.setItem(STORE_KEY,JSON.stringify(DB));
+        try{ localStorage.setItem(STORE_KEY,JSON.stringify(DB)); }catch(e){ console.warn('[Sync] localStorage保存失败:',e.name); }
         saveData();
       }catch(e){
         console.error('[Sync] 初始化加载异常:',e);
