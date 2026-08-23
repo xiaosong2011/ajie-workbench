@@ -2010,6 +2010,10 @@ agent:`
           <input type="radio" name="agentOutputMode" value="storyboard" onchange="switchOutputMode('storyboard')">
           <span>🎬 分镜故事板</span>
         </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);flex:1;min-width:120px">
+          <input type="radio" name="agentOutputMode" value="character" onchange="switchOutputMode('character')">
+          <span>🎭 角色设定</span>
+        </label>
       </div>
     </div>
     <!-- 故事板风格选择（故事板模式时显示） -->
@@ -2023,6 +2027,68 @@ agent:`
         <option value="3dwhite">3D白模（黏土风格）</option>
         <option value="scenemap">场景平面视图</option>
       </select>
+    </div>
+    <!-- 角色设定类型（角色模式时显示） -->
+    <div class="agent-form-row" id="agentCharTypeRow" style="display:none">
+      <label>生成类型</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);flex:1;min-width:100px">
+          <input type="radio" name="agentCharType" value="reference" checked>
+          <span>📋 角色设定卡</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);flex:1;min-width:100px">
+          <input type="radio" name="agentCharType" value="wardrobe">
+          <span>👗 10套衣橱</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);flex:1;min-width:100px">
+          <input type="radio" name="agentCharType" value="both">
+          <span>🎁 全套生成</span>
+        </label>
+      </div>
+    </div>
+    <!-- 角色基础信息（角色模式时显示） -->
+    <div id="agentCharInfoRow" style="display:none">
+      <div class="agent-form-row">
+        <label>角色姓名</label>
+        <input class="crud-input" id="agentCharName" placeholder="如：林晚晴">
+      </div>
+      <div style="display:flex;gap:8px">
+        <div class="agent-form-row" style="flex:1">
+          <label>性别</label>
+          <select class="crud-select" id="agentCharGender">
+            <option value="女">女</option>
+            <option value="男">男</option>
+          </select>
+        </div>
+        <div class="agent-form-row" style="flex:1">
+          <label>年龄</label>
+          <input class="crud-input" id="agentCharAge" placeholder="如：25" type="number">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div class="agent-form-row" style="flex:1">
+          <label>时代背景</label>
+          <select class="crud-select" id="agentCharEra">
+            <option value="现代">现代</option>
+            <option value="古风">古风</option>
+            <option value="民国">民国</option>
+            <option value="仙侠">仙侠</option>
+            <option value="未来">未来</option>
+          </select>
+        </div>
+        <div class="agent-form-row" style="flex:1">
+          <label>身份职业</label>
+          <input class="crud-input" id="agentCharJob" placeholder="如：医女/总裁">
+        </div>
+      </div>
+      <div class="agent-form-row">
+        <label>人物气质</label>
+        <input class="crud-input" id="agentCharTemperament" placeholder="如：清冷孤傲、温婉贤淑">
+      </div>
+      <div class="agent-form-row">
+        <label>特殊外貌特征</label>
+        <input class="crud-input" id="agentCharFeature" placeholder="如：右眉上方有一颗小痣">
+      </div>
     </div>
     <div class="agent-form-row">
       <label>故事灵感 <span style="color:var(--ink-3);font-weight:400">（描述你的核心想法）</span></label>
@@ -2064,7 +2130,7 @@ agent:`
     </div>
 
     <!-- 角色列表 -->
-    <div class="card tint-violet">
+    <div class="card tint-violet" id="resCharactersCard">
       <div class="card-h">🎭 角色列表</div>
       <div id="resCharacters" class="agent-char-list"></div>
     </div>
@@ -2728,6 +2794,13 @@ const INITIAL={
     {title:'Stable Diffusion通用公式',desc:'[风格/画质前缀] + [主体描述] + [场景元素] + [艺术风格] + [光影] + [技术参数]\n\n示例：(masterpiece, best quality, 8k:1.3) + a 25-year-old woman smiling + standing in a flower field + watercolor style + soft golden hour light + 50mm f/1.4',tag:'公式'},
     {title:'即梦/小红书中文公式',desc:'主体 + 细节 + 动作 + 环境 + 风格 + 光影 + 画质 + 约束\n\n示例：一位年轻女性 + 长发飘飘白色连衣裙 + 奔跑 + 向日葵花田中 + 吉卜力水彩风 + 逆光金色光晕 + 4K超清 + 不得变形不得模糊',tag:'公式'},
     {title:'AI视频通用公式',desc:'[主体] + [动作] + [镜头运动] + [风格/光线] + [情绪/氛围]\n\n示例：A woman in red coat + walks slowly + tracking shot from side + cinematic neon lighting + melancholic mood, 16:9',tag:'公式'},
+    /* --- 影视级角色设定 --- */
+    {title:'影视级角色总设定卡（完整版）',desc:'# 影视级角色总设定卡（Character Reference Sheet）\n\n## 人物基础档案\n姓名：【自行填写】\n性别：【男/女】\n年龄：【自行填写】\n身高：【自行填写】\n体重：【自行填写】\n身份职业：【自行填写】\n时代背景：【现代/民国/古风/仙侠/未来】\n人物气质：【自行填写】\n性格关键词：【填写4个核心关键词】\n特殊外貌识别特征：【专属固定标记，无则留白】\n\n## 核心设计总则（强制生效）\n严格统一人物本体：同一张脸、同一骨相五官、同一年龄、同一身材比例、同一核心发型，全视图人物高度统一，无换模、无变脸、无体型偏差。\n根据人物身份、阶层、时代、性格、气质定制专属五官、脸型、妆容、穿搭体系，拒绝流水线网红脸，强化个人专属辨识度，特殊外貌特征为终身固定识别点。\n整体风格克制高级、影视写实质感、真人标准人体比例，完全对标专业影视剧组人设参考标准。\n\n## 固定版式·竖版专业美术设定表\n• 底色：纯净象牙白/暖白无杂质背景\n• 排版：高端杂志网格布局、极细分割线、极简装饰、专业标准化版式\n• 整体定位：影视前期美术设定、AAA游戏建模参考图、专业服化道参考素材\n\n页面七大固定分区：\n1. 左侧人物信息区：角色设定表标题、完整人物档案、3-4句人物性格简介、6个人物核心标签、身高比例刻度、人物全身剪影\n2. 中央基础造型四视图：统一造型的正面、3/4侧、侧面、背面四视图，全套造型完全统一无变动\n3. 右上色彩&表情系统：6组人物专属固定主色卡；8种标准化表情（平静、沉思、浅笑、惊讶、无奈、专注、疏离、温柔），五官完全固定，仅微调眼神与面部肌肉状态\n4. 中部精细细节展示：发型细节（正面、侧颜、半背、背面多角度高清细节）；面部细节（正脸/侧脸特写，标注5项核心五官识别特征）\n5. 职业姿态参考：6组专属人设动作（工作状态、日常站立、行走姿态、职业道具握持、思考状态、设备使用姿态）\n6. 底部服化道细节：服装细节（5-6处核心剪裁、面料、设计工艺细节展示）；配饰细节（全套首饰、道具、数码产品、职业专属配件高清细节）；鞋履细节（完整鞋型、材质、版型特写细节）\n7. 氛围素材区：5-6组人物动态剪影、5张适配人物世界观的整体氛围参考图\n\n## 通用正向视觉关键词（完整版）\n超写实真人摄影，影视级角色美术设定，AAA游戏人物参考手册，真实亚洲人五官，原生自然皮肤纹理，极致发丝细节，精准标准人体比例，低饱和高级色调，柔和专业棚拍柔光，高清对焦，无磨皮，无滤镜，极简杂志排版，干净纯白背景，专业版式设计，高端时尚质感，8K超清，超精细细节，影视剧组建模标准图\n\n## 绝对禁止负面规则（防崩坏核心）\n禁止变脸、改脸型、改发型、改年龄、改身材比例、多人物入镜、多余杂物\n禁止动漫、卡通、二次元、手绘、Q版、夸张畸形五官肢体\n禁止裁切人物、缺手缺脚、错误透视、模糊五官、过度磨皮、网红滤镜\n禁止高饱和艳色、潮牌大logo、奇装异服、杂乱背景、文字遮挡人物\n禁止夸张怪异表情、服装随机变色、不符合人设的穿搭造型',tag:'人物'},
+    {title:'同角色10套剧情衣橱设定卡（完整版）',desc:'# 同角色10套剧情衣橱设定卡\n\n## 核心硬性基准（锁人设核心）\n完全沿用已生成的原人物模型，100%锁定人物本体\n锁定维度：脸型、骨相、五官、肤色、年龄感、身高体型、气质、发色、核心发型\n仅可微调：束发、发冠、帽子等外在装饰，人物本体绝不更换\n最终效果：同一真人角色、10套差异化剧情穿搭，成套影视级角色衣橱，彻底杜绝换模换人问题\n\n## 设计核心要求\n根据人物时代、身份、职业、阶层、生活场景，定制10套完全差异化、不重复、不同场景的完整穿搭。\n每套完整包含：全套服饰层次、专属鞋履、全套配饰、面料纹样、专属配色、场景适配道具。\n严格拒绝同款换色、风格割裂、跨时代混搭，统一人物审美体系，整体质感高度统一，场景适配度拉满。\n\n## 现代人设10大场景\n都市通勤、商务会议、正式晚宴、日常休闲、居家松弛、运动出行、文艺看展、朋友聚会、差旅穿搭、典礼正装\n\n## 古风人设10大场景\n日常便服、雅致常服、世家礼服、雅集游园、书斋静坐、远行游历、习武劲装、冬日御寒、祭祀正装、宴会华服\n\n## 固定版式要求\n尺寸比例：3:4竖版穿搭设定卡\n顶部标题：人物衣橱设定 · 10套剧情造型\n副标题：角色建模/影视服化道专用参考\n整体排版：顶部固定人物信息+专属头像，主体2行5列网格整齐排布\n单卡标准：编号+穿搭名称+2个风格关键词+完整全身高清人物展示\n\n## 通用正向视觉关键词（完整版）\n超写实真人，人物高度统一，锁脸锁人设，全套造型专属设计，无缝纯白背景，柔和专业棚拍光，真实面料自然褶皱，原生真实皮肤质感，高清精致五官细节，人物完整全身出镜无裁切，极简网格排版，影视角色衣橱设定，8K超清，极致细节刻画，高级低饱和质感\n\n## 绝对禁止负面规则\n禁止更换人物模型、变脸、改动五官、变更人物气质\n禁止高饱和艳色、网红流水线脸、夸张浓妆、畸形人体比例\n禁止杂乱背景、身体裁切、错误透视比例、违和混搭配饰\n禁止古今服饰乱混搭、不符合人物身份阶层的穿搭造型\n禁止敷衍同款换色、造型同质化、无差异化设计',tag:'人物'},
+    {title:'MJ-人设总设定卡（极简版）',desc:'Professional film character reference sheet, 8K photorealistic, same facial features and body proportion, Asian real person, soft studio light, pure white background, grid layout, character four views, expression set, color palette, costume and accessory details, cinematic texture, low saturation advanced tone, ultra detailed, sharp focus --ar 9:16 --style raw --s 250',tag:'人物'},
+    {title:'MJ-10套衣橱（极简版）',desc:'Character wardrobe design sheet, 10 different full-body outfits, same identical character face and figure, consistent temperament, no model change, realistic fabric, clean grid layout, seamless white background, photorealistic, 8K, ultra detailed --ar 3:4 --style raw',tag:'人物'},
+    {title:'SD-人设总设定卡（中文优化版）',desc:'影视级真人角色设定表，四视图，多角度细节展示，完整表情系统，专属色彩色卡，高清极致细节，真实原生皮肤，自然精致五官，标准人体比例，纯白极简背景，高端杂志网格排版，低饱和高级质感，8K超清，无滤镜无磨皮，人物100%统一，影视建模标准',tag:'人物'},
+    {title:'SD-10套衣橱设定卡（中文优化版）',desc:'同一人物10套差异化剧情穿搭，锁脸锁身材锁气质，全身完整无裁切构图，真实面料自然褶皱，全套配饰完整细节，排版整齐干净，纯白无杂质背景，超写实真人质感，影视服化道标准，整体风格高度统一，细节拉满',tag:'人物'},
   ],
   aitechComfy:[
     {title:'人物换脸工作流',meta:'B站教程',desc:'用IPAdapter + FaceID实现角色面部一致性'},
@@ -5442,13 +5515,28 @@ let _currentManhuaScript=null;  /* 当前编辑中的漫剧剧本JSON */
 /* 输出模式切换 */
 function switchOutputMode(mode){
   const sbRow=document.getElementById('agentStoryboardStyleRow');
+  const charTypeRow=document.getElementById('agentCharTypeRow');
+  const charInfoRow=document.getElementById('agentCharInfoRow');
   const btn=document.getElementById('btnGenerateScript');
+  const ideaLabel=document.querySelector('#agentIdea').closest('.agent-form-row').querySelector('label');
   if(mode==='storyboard'){
     sbRow.style.display='block';
+    charTypeRow.style.display='none';
+    charInfoRow.style.display='none';
     if(btn) btn.innerHTML='🎬 生成分镜故事板';
+    if(ideaLabel) ideaLabel.innerHTML='故事灵感 <span style="color:var(--ink-3);font-weight:400">（描述你的核心想法）</span>';
+  } else if(mode==='character'){
+    sbRow.style.display='none';
+    charTypeRow.style.display='block';
+    charInfoRow.style.display='block';
+    if(btn) btn.innerHTML='🎭 生成角色设定';
+    if(ideaLabel) ideaLabel.innerHTML='补充描述 <span style="color:var(--ink-3);font-weight:400">（可选，补充角色细节）</span>';
   } else {
     sbRow.style.display='none';
+    charTypeRow.style.display='none';
+    charInfoRow.style.display='none';
     if(btn) btn.innerHTML='✨ 生成漫剧剧本';
+    if(ideaLabel) ideaLabel.innerHTML='故事灵感 <span style="color:var(--ink-3);font-weight:400">（描述你的核心想法）</span>';
   }
 }
 function onStoryboardStyleChange(){
@@ -5462,6 +5550,132 @@ function getAgentOutputMode(){
 function getAgentStoryboardStyle(){
   return document.getElementById('agentStoryboardStyle')?.value || 'sketch';
 }
+function getAgentCharType(){
+  const radios=document.querySelectorAll('input[name="agentCharType"]');
+  for(const r of radios){ if(r.checked) return r.value; }
+  return 'reference';
+}
+function getAgentCharInfo(){
+  return {
+    name:document.getElementById('agentCharName')?.value.trim()||'',
+    gender:document.getElementById('agentCharGender')?.value||'女',
+    age:document.getElementById('agentCharAge')?.value.trim()||'',
+    era:document.getElementById('agentCharEra')?.value||'现代',
+    job:document.getElementById('agentCharJob')?.value.trim()||'',
+    temperament:document.getElementById('agentCharTemperament')?.value.trim()||'',
+    feature:document.getElementById('agentCharFeature')?.value.trim()||''
+  };
+}
+
+/* 角色设定 System Prompt */
+const CHARACTER_SYSTEM_PROMPT = `# 影视级角色设定创作智能体
+你是专业AI角色美术设定总监，服务短视频漫剧创作者、动画导演、影视前期美术、3D建模师。
+你的输出全部为结构化JSON，方便网页程序读取解析和渲染为角色设定展示。
+
+## 核心能力
+1. 根据用户提供的角色信息、指定画风、指定时代背景，生成专业级影视角色设定。
+2. 支持两种输出：角色总设定卡（Reference Sheet）、10套剧情衣橱设定（Wardrobe Sheet）。
+3. 角色设定卡包含：人物档案、造型四视图、色彩表情系统、发型面部细节、职业姿态、服化道细节、氛围参考。
+4. 衣橱设定包含：10套完全差异化的场景穿搭，每套含服装层次、鞋履、配饰、配色、道具。
+
+## 设计总则（强制生效）
+严格统一人物本体：同一张脸、同一骨相五官、同一年龄、同一身材比例、同一核心发型，全视图人物高度统一。
+根据人物身份、阶层、时代、性格、气质定制专属五官、脸型、妆容、穿搭体系，拒绝流水线网红脸，强化个人专属辨识度。
+整体风格克制高级、影视写实质感、真人标准人体比例，完全对标专业影视剧组人设参考标准。
+所有AI绘图提示词必须包含锁脸关键词和人物固定特征描述，保证人物一致性。
+
+## 输出 JSON Schema
+
+### 角色设定卡模式（reference）
+{
+  "output_mode": "character_reference",
+  "name": "角色名",
+  "gender": "性别",
+  "age": "年龄",
+  "era": "时代背景",
+  "job": "身份职业",
+  "temperament": "人物气质",
+  "personality_tags": ["关键词1","关键词2","关键词3","关键词4"],
+  "special_feature": "特殊外貌识别特征",
+  "style": "整体美术风格",
+  "intro": "3-4句人物性格简介",
+  "color_palette": ["色值1","色值2","色值3","色值4","色值5","色值6"],
+  "expressions": [
+    {"name":"平静","desc":"表情描述"},
+    {"name":"沉思","desc":"表情描述"},
+    {"name":"浅笑","desc":"表情描述"},
+    {"name":"惊讶","desc":"表情描述"},
+    {"name":"无奈","desc":"表情描述"},
+    {"name":"专注","desc":"表情描述"},
+    {"name":"疏离","desc":"表情描述"},
+    {"name":"温柔","desc":"表情描述"}
+  ],
+  "hair_details": "发型细节描述（正面、侧颜、半背、背面多角度）",
+  "facial_features": ["五官特征1","五官特征2","五官特征3","五官特征4","五官特征5"],
+  "four_views": {
+    "front": {"desc":"正面视图描述","draw_prompt":"AI绘图提示词"},
+    "three_quarter": {"desc":"3/4侧视图描述","draw_prompt":"AI绘图提示词"},
+    "side": {"desc":"侧面视图描述","draw_prompt":"AI绘图提示词"},
+    "back": {"desc":"背面视图描述","draw_prompt":"AI绘图提示词"}
+  },
+  "poses": [
+    {"name":"工作状态","desc":"动作描述","draw_prompt":"绘图提示词"},
+    {"name":"日常站立","desc":"动作描述","draw_prompt":"绘图提示词"},
+    {"name":"行走姿态","desc":"动作描述","draw_prompt":"绘图提示词"},
+    {"name":"道具握持","desc":"动作描述","draw_prompt":"绘图提示词"},
+    {"name":"思考状态","desc":"动作描述","draw_prompt":"绘图提示词"},
+    {"name":"设备使用","desc":"动作描述","draw_prompt":"绘图提示词"}
+  ],
+  "costume_details": ["服装细节1","服装细节2","服装细节3","服装细节4","服装细节5"],
+  "accessory_details": ["配饰细节1","配饰细节2","配饰细节3"],
+  "shoe_details": "鞋履细节描述",
+  "atmosphere_refs": ["氛围参考1","氛围参考2","氛围参考3","氛围参考4","氛围参考5"],
+  "positive_prompt": "通用正向视觉关键词（完整版）",
+  "negative_prompt": "绝对禁止负面规则"
+}
+
+### 衣橱设定模式（wardrobe）
+{
+  "output_mode": "character_wardrobe",
+  "name": "角色名",
+  "gender": "性别",
+  "age": "年龄",
+  "era": "时代背景",
+  "job": "身份职业",
+  "temperament": "人物气质",
+  "style": "整体美术风格",
+  "wardrobes": [
+    {
+      "id": "W01",
+      "name": "穿搭名称（如：都市通勤）",
+      "keywords": ["关键词1","关键词2"],
+      "scene": "适用场景描述",
+      "outfit": "全套服饰层次描述",
+      "shoes": "鞋履描述",
+      "accessories": ["配饰1","配饰2","配饰3"],
+      "color_scheme": "配色方案",
+      "props": "场景适配道具",
+      "draw_prompt": "AI绘图提示词（含锁脸+人物特征）"
+    }
+  ],
+  "positive_prompt": "通用正向视觉关键词",
+  "negative_prompt": "绝对禁止负面规则"
+}
+
+### 全套模式（both）
+{
+  "output_mode": "character_both",
+  "reference": { /* 同角色设定卡结构 */ },
+  "wardrobe": { /* 同衣橱设定结构 */ }
+}
+
+## 时代场景对照
+- 现代人设10大场景：都市通勤、商务会议、正式晚宴、日常休闲、居家松弛、运动出行、文艺看展、朋友聚会、差旅穿搭、典礼正装
+- 古文人设10大场景：日常便服、雅致常服、世家礼服、雅集游园、书斋静坐、远行游历、习武劲装、冬日御寒、祭祀正装、宴会华服
+
+## 输出要求
+只输出JSON，禁止多余闲聊。每个绘图提示词都必须包含人物固定特征（脸型、五官、肤色、年龄、核心发型）以保证一致性。
+`;
 
 /* 分镜故事板 System Prompt */
 const STORYBOARD_SYSTEM_PROMPT = `# 分镜故事板创作智能体
@@ -5756,8 +5970,12 @@ function generateManhuaScript(){
   const style=getAgentStyle();
   const genre=getAgentGenre();
   const idea=document.getElementById('agentIdea').value.trim();
+  const mode=getAgentOutputMode();
+  const isStoryboard=mode==='storyboard';
+  const isCharacter=mode==='character';
 
-  if(!idea){
+  /* 角色模式不强制要求故事灵感，但需要画风 */
+  if(!isCharacter && !idea){
     showAgentError('请填写故事灵感，描述你的核心想法');
     return;
   }
@@ -5765,7 +5983,7 @@ function generateManhuaScript(){
     showAgentError('请选择画风');
     return;
   }
-  if(!genre){
+  if(!isCharacter && !genre){
     showAgentError('请选择题材类型');
     return;
   }
@@ -5777,14 +5995,42 @@ function generateManhuaScript(){
   }
 
   hideAgentError();
-  const mode=getAgentOutputMode();
-  const isStoryboard=mode==='storyboard';
   
-  showAgentLoading(isStoryboard?'AI 正在生成分镜故事板，请稍候…':'AI 正在创作漫剧剧本，请稍候…');
+  let loadingText='AI 正在创作漫剧剧本，请稍候…';
+  if(isStoryboard) loadingText='AI 正在生成分镜故事板，请稍候…';
+  if(isCharacter){
+    const charType=getAgentCharType();
+    if(charType==='reference') loadingText='AI 正在生成角色设定卡，请稍候…';
+    else if(charType==='wardrobe') loadingText='AI 正在生成10套剧情衣橱，请稍候…';
+    else loadingText='AI 正在生成角色全套设定，请稍候…';
+  }
+  showAgentLoading(loadingText);
   setAgentButtonsDisabled(true);
 
   let systemPrompt,userMsg;
-  if(isStoryboard){
+  if(isCharacter){
+    const charInfo=getAgentCharInfo();
+    const charType=getAgentCharType();
+    const typeNameMap={reference:'角色设定卡',wardrobe:'10套剧情衣橱',both:'角色设定卡+10套衣橱全套'};
+    systemPrompt=CHARACTER_SYSTEM_PROMPT;
+    userMsg=`请根据以下信息生成一份专业的影视级角色设定：
+【画风】${style}
+【生成类型】${typeNameMap[charType]||'角色设定卡'}
+【角色姓名】${charInfo.name||'未命名'}
+【性别】${charInfo.gender}
+【年龄】${charInfo.age||'未指定'}
+【时代背景】${charInfo.era}
+【身份职业】${charInfo.job||'未指定'}
+【人物气质】${charInfo.temperament||'未指定'}
+【特殊外貌特征】${charInfo.feature||'无'}
+${idea?`【补充描述】${idea}`:''}
+
+请严格按照指定的 JSON 格式输出完整的角色设定数据。
+${charType==='reference'?'输出角色设定卡模式（character_reference）。':''}
+${charType==='wardrobe'?'输出衣橱设定模式（character_wardrobe），包含10套完全差异化的穿搭。':''}
+${charType==='both'?'输出全套模式（character_both），同时包含 reference 和 wardrobe 两部分。':''}
+每个绘图提示词都必须包含人物固定特征（脸型、五官、肤色、年龄、核心发型）以保证人物一致性。`;
+  } else if(isStoryboard){
     const sbStyle=getAgentStoryboardStyle();
     const styleNameMap={
       sketch:'手绘草稿速写风',
@@ -5821,7 +6067,11 @@ function generateManhuaScript(){
         throw new Error('无法解析返回的 JSON 数据，请重试或调整提示词');
       }
       /* 数据校验 */
-      if(isStoryboard){
+      if(isCharacter){
+        if(!data.output_mode){
+          throw new Error('返回数据格式不完整（缺少 output_mode）');
+        }
+      } else if(isStoryboard){
         if(!data.title||!Array.isArray(data.panels)){
           throw new Error('返回数据格式不完整（缺少 title 或 panels）');
         }
@@ -5833,7 +6083,15 @@ function generateManhuaScript(){
       _currentManhuaScript=data;
       renderAgentResult(data);
       hideAgentLoading();
-      showToast(isStoryboard?'分镜故事板生成成功！':'漫剧剧本生成成功！','success');
+      let successMsg='漫剧剧本生成成功！';
+      if(isStoryboard) successMsg='分镜故事板生成成功！';
+      if(isCharacter){
+        const ct=getAgentCharType();
+        if(ct==='reference') successMsg='角色设定卡生成成功！';
+        else if(ct==='wardrobe') successMsg='10套衣橱生成成功！';
+        else successMsg='角色全套设定生成成功！';
+      }
+      showToast(successMsg,'success');
       /* 启用修改按钮 */
       const btn=document.getElementById('btnModifyScript');
       if(btn) btn.disabled=false;
@@ -5850,7 +6108,7 @@ function generateManhuaScript(){
 /* 修改现有剧本 */
 function modifyManhuaScript(){
   if(!_currentManhuaScript){
-    showAgentError('当前没有可修改的内容，请先生成一个剧本或故事板');
+    showAgentError('当前没有可修改的内容，请先生成');
     return;
   }
   const style=getAgentStyle();
@@ -5858,6 +6116,7 @@ function modifyManhuaScript(){
   const instr=document.getElementById('agentModifyInstr').value.trim();
   const mode=getAgentOutputMode();
   const isStoryboard=mode==='storyboard';
+  const isCharacter=mode==='character';
 
   if(!instr){
     showAgentError('请输入修改指令，描述你想如何调整');
@@ -5871,11 +6130,24 @@ function modifyManhuaScript(){
   }
 
   hideAgentError();
-  showAgentLoading(isStoryboard?'AI 正在修改故事板，请稍候…':'AI 正在修改剧本，请稍候…');
+  let loadingText='AI 正在修改剧本，请稍候…';
+  if(isStoryboard) loadingText='AI 正在修改故事板，请稍候…';
+  if(isCharacter) loadingText='AI 正在修改角色设定，请稍候…';
+  showAgentLoading(loadingText);
   setAgentButtonsDisabled(true);
 
   let systemPrompt,userMsg;
-  if(isStoryboard){
+  if(isCharacter){
+    systemPrompt=CHARACTER_SYSTEM_PROMPT;
+    userMsg=`以下是当前的角色设定完整 JSON：
+${JSON.stringify(_currentManhuaScript)}
+
+请根据以下修改指令，调整角色设定并返回完整的新 JSON（保持相同的 JSON 结构）：
+【修改指令】${instr}
+${style?'【调整画风为】'+style:''}
+
+请输出完整的修改后的角色设定 JSON。`;
+  } else if(isStoryboard){
     systemPrompt=STORYBOARD_SYSTEM_PROMPT;
     userMsg=`以下是当前的分镜故事板完整 JSON：
 ${JSON.stringify(_currentManhuaScript)}
@@ -5905,7 +6177,11 @@ ${genre?'【调整题材为】'+genre:''}
       if(!data){
         throw new Error('无法解析返回的 JSON 数据，请重试或调整修改指令');
       }
-      if(isStoryboard){
+      if(isCharacter){
+        if(!data.output_mode){
+          throw new Error('返回数据格式不完整（缺少 output_mode）');
+        }
+      } else if(isStoryboard){
         if(!data.title||!Array.isArray(data.panels)){
           throw new Error('返回数据格式不完整（缺少 title 或 panels）');
         }
@@ -5917,7 +6193,10 @@ ${genre?'【调整题材为】'+genre:''}
       _currentManhuaScript=data;
       renderAgentResult(data);
       hideAgentLoading();
-      showToast(isStoryboard?'故事板修改成功！':'剧本修改成功！','success');
+      let toastMsg='剧本修改成功！';
+      if(isStoryboard) toastMsg='故事板修改成功！';
+      if(isCharacter) toastMsg='角色设定修改成功！';
+      showToast(toastMsg,'success');
     })
     .catch(err=>{
       hideAgentLoading();
@@ -5970,51 +6249,66 @@ function renderAgentResult(data){
   if(!resultEl) return;
   resultEl.style.display='block';
 
-  /* 判断是否是故事板模式 */
+  /* 判断模式 */
   const isStoryboard=data.output_mode==='storyboard'||Array.isArray(data.panels);
+  const isCharRef=data.output_mode==='character_reference';
+  const isCharWard=data.output_mode==='character_wardrobe';
+  const isCharBoth=data.output_mode==='character_both';
+  const isCharacter=isCharRef||isCharWard||isCharBoth;
 
-  document.getElementById('resTitle').textContent=data.title||'未命名';
-  document.getElementById('resGenre').textContent=data.genre||'未分类';
-  document.getElementById('resStyle').textContent=data.style||(isStoryboard?'故事板':'默认画风');
-  document.getElementById('resLogline').textContent=data.logline||'暂无梗概';
+  /* 基本信息卡片 */
+  const titleCard=document.querySelector('#agentResult .card.tint-rose .card-h');
+  const shotsTitle=document.getElementById('resShotsTitle');
+  const legendCard=document.getElementById('resLegendCard');
+  const charCard=document.getElementById('resCharactersCard');
 
-  if(isStoryboard){
-    /* 故事板模式：更新标签 */
-    const titleCard=document.querySelector('#agentResult .card.tint-rose .card-h');
-    if(titleCard){
-      if(titleCard.firstChild&&titleCard.firstChild.nodeType===3){
-        titleCard.firstChild.textContent='🎬 分镜故事板 ';
-      }
+  if(isCharacter){
+    /* 角色设定模式 */
+    let charData=isCharBoth?data.reference:data;
+    if(titleCard&&titleCard.firstChild&&titleCard.firstChild.nodeType===3){
+      if(isCharBoth) titleCard.firstChild.textContent='🎭 角色全套设定 ';
+      else if(isCharWard) titleCard.firstChild.textContent='👗 角色衣橱设定 ';
+      else titleCard.firstChild.textContent='🎭 角色设定卡 ';
     }
-    /* 更新分镜标题 */
-    const shotsTitle=document.getElementById('resShotsTitle');
+    document.getElementById('resTitle').textContent=charData.name||'未命名角色';
+    document.getElementById('resGenre').textContent=(charData.era||'')+(charData.job?' · '+charData.job:'')||'未分类';
+    document.getElementById('resStyle').textContent=charData.style||'影视级写实';
+    document.getElementById('resLogline').textContent=charData.intro||(charData.temperament?charData.temperament:'暂无简介');
+
+    if(legendCard) legendCard.style.display='none';
+    if(charCard) charCard.style.display='none';
+    if(shotsTitle) shotsTitle.textContent='🎭 角色详情';
+
+    /* 渲染角色内容 */
+    renderCharacterContent(data);
+  } else if(isStoryboard){
+    /* 故事板模式 */
+    if(titleCard&&titleCard.firstChild&&titleCard.firstChild.nodeType===3){
+      titleCard.firstChild.textContent='🎬 分镜故事板 ';
+    }
+    document.getElementById('resTitle').textContent=data.title||'未命名';
+    document.getElementById('resGenre').textContent=data.genre||'未分类';
+    document.getElementById('resStyle').textContent=data.style||'故事板';
+    document.getElementById('resLogline').textContent=data.logline||'暂无梗概';
     if(shotsTitle) shotsTitle.textContent='🎬 分镜面板';
-    /* 显示图例卡片 */
-    const legendCard=document.getElementById('resLegendCard');
     if(legendCard) legendCard.style.display='block';
-    /* 渲染角色列表（如果有） */
+    if(charCard) charCard.style.display='block';
     renderCharacters(data.characters||[]);
-    /* 渲染故事板面板 */
     renderStoryboardPanels(data.panels||[]);
-    /* 渲染图例（如果有） */
     renderStoryboardLegend(data.legend||{});
   } else {
-    /* 剧本模式：恢复原标题 */
-    const titleCard=document.querySelector('#agentResult .card.tint-rose .card-h');
-    if(titleCard){
-      if(titleCard.firstChild&&titleCard.firstChild.nodeType===3){
-        titleCard.firstChild.textContent='📄 漫剧剧本 ';
-      }
+    /* 剧本模式 */
+    if(titleCard&&titleCard.firstChild&&titleCard.firstChild.nodeType===3){
+      titleCard.firstChild.textContent='📄 漫剧剧本 ';
     }
-    /* 恢复分镜标题 */
-    const shotsTitle=document.getElementById('resShotsTitle');
+    document.getElementById('resTitle').textContent=data.title||'未命名';
+    document.getElementById('resGenre').textContent=data.genre||'未分类';
+    document.getElementById('resStyle').textContent=data.style||'默认画风';
+    document.getElementById('resLogline').textContent=data.logline||'暂无梗概';
     if(shotsTitle) shotsTitle.textContent='🎬 分镜脚本';
-    /* 隐藏图例卡片 */
-    const legendCard=document.getElementById('resLegendCard');
     if(legendCard) legendCard.style.display='none';
-    /* 渲染角色列表 */
+    if(charCard) charCard.style.display='block';
     renderCharacters(data.characters||[]);
-    /* 渲染分镜列表 */
     renderShots(data.shots||[]);
   }
 }
@@ -6089,6 +6383,266 @@ function copyPanelPrompt(idx){
   showToast('镜头绘图提示词已复制','success');
 }
 
+/* 渲染角色设定内容 */
+function renderCharacterContent(data){
+  const container=document.getElementById('resShots');
+  if(!container) return;
+  const isCharRef=data.output_mode==='character_reference';
+  const isCharWard=data.output_mode==='character_wardrobe';
+  const isCharBoth=data.output_mode==='character_both';
+  const refData=isCharBoth?data.reference:data;
+  const wardData=isCharBoth?data.wardrobe:data;
+
+  let html='';
+
+  /* 角色设定卡部分 */
+  if(isCharRef||isCharBoth){
+    html+=renderCharReferenceHtml(refData);
+  }
+
+  /* 衣橱设定部分 */
+  if(isCharWard||isCharBoth){
+    html+=renderCharWardrobeHtml(wardData,isCharBoth);
+  }
+
+  /* 正向/负向提示词 */
+  const promptData=isCharWard?wardData:refData;
+  if(promptData&&(promptData.positive_prompt||promptData.negative_prompt)){
+    html+=`<div style="margin-top:16px;padding:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border)">`;
+    if(promptData.positive_prompt){
+      html+=`<div style="margin-bottom:8px"><span style="color:var(--accent);font-weight:500">✅ 正向提示词：</span><button class="btn btn-mint" style="padding:2px 8px;font-size:11px;margin-left:8px" onclick="copyCharPositivePrompt()">📋 复制</button></div>`;
+      html+=`<div style="font-size:12px;color:var(--ink-2);line-height:1.6">${escapeHtml(promptData.positive_prompt)}</div>`;
+    }
+    if(promptData.negative_prompt){
+      html+=`<div style="margin:8px 0"><span style="color:var(--danger);font-weight:500">❌ 负面提示词：</span><button class="btn btn-mint" style="padding:2px 8px;font-size:11px;margin-left:8px" onclick="copyCharNegativePrompt()">📋 复制</button></div>`;
+      html+=`<div style="font-size:12px;color:var(--ink-2);line-height:1.6">${escapeHtml(promptData.negative_prompt)}</div>`;
+    }
+    html+=`</div>`;
+  }
+
+  container.innerHTML=html;
+}
+
+/* 角色设定卡 HTML */
+function renderCharReferenceHtml(data){
+  if(!data) return '';
+  let html='';
+
+  /* 人物档案 & 性格标签 */
+  html+=`<div style="margin-bottom:16px">
+    <div style="font-weight:500;margin-bottom:8px">📋 人物档案</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--ink-2)">
+      <span>性别：${escapeHtml(data.gender||'-')}</span>
+      <span>年龄：${escapeHtml(data.age||'-')}</span>
+      <span>时代：${escapeHtml(data.era||'-')}</span>
+      <span>职业：${escapeHtml(data.job||'-')}</span>
+      <span>气质：${escapeHtml(data.temperament||'-')}</span>
+      ${data.special_feature?`<span>特征：${escapeHtml(data.special_feature)}</span>`:''}
+    </div>
+    ${data.personality_tags&&data.personality_tags.length?`
+    <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">
+      ${data.personality_tags.map(t=>'<span class="agent-tag">'+escapeHtml(t)+'</span>').join('')}
+    </div>`:''}
+  </div>`;
+
+  /* 色彩色卡 */
+  if(data.color_palette&&data.color_palette.length){
+    html+=`<div style="margin-bottom:16px">
+      <div style="font-weight:500;margin-bottom:8px">🎨 专属色卡</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${data.color_palette.map(c=>`<div style="width:48px;height:48px;border-radius:8px;background:${c};border:1px solid var(--border);box-shadow:0 2px 4px rgba(0,0,0,0.1)" title="${escapeHtml(c)}"></div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  /* 表情系统 */
+  if(data.expressions&&data.expressions.length){
+    html+=`<div style="margin-bottom:16px">
+      <div style="font-weight:500;margin-bottom:8px">😊 表情系统</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${data.expressions.map(e=>`<div style="padding:6px 12px;background:var(--surface);border-radius:6px;border:1px solid var(--border);font-size:12px">
+          <div style="font-weight:500">${escapeHtml(e.name||'')}</div>
+          <div style="color:var(--ink-3);font-size:11px;margin-top:2px">${escapeHtml(e.desc||'')}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  /* 四视图 */
+  if(data.four_views){
+    html+=`<div style="margin-bottom:16px">
+      <div style="font-weight:500;margin-bottom:8px">👤 造型四视图</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        ${renderCharViewCard('正面',data.four_views.front,0)}
+        ${renderCharViewCard('3/4侧',data.four_views.three_quarter,1)}
+        ${renderCharViewCard('侧面',data.four_views.side,2)}
+        ${renderCharViewCard('背面',data.four_views.back,3)}
+      </div>
+    </div>`;
+  }
+
+  /* 发型 & 面部细节 */
+  if(data.hair_details||(data.facial_features&&data.facial_features.length)){
+    html+=`<div style="margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap">
+      ${data.hair_details?`<div style="flex:1;min-width:200px">
+        <div style="font-weight:500;margin-bottom:6px">💇 发型细节</div>
+        <div style="font-size:12px;color:var(--ink-2);line-height:1.6">${escapeHtml(data.hair_details)}</div>
+      </div>`:''}
+      ${data.facial_features&&data.facial_features.length?`<div style="flex:1;min-width:200px">
+        <div style="font-weight:500;margin-bottom:6px">👁️ 五官识别特征</div>
+        <ul style="margin:0;padding-left:18px;font-size:12px;color:var(--ink-2);line-height:1.8">
+          ${data.facial_features.map(f=>`<li>${escapeHtml(f)}</li>`).join('')}
+        </ul>
+      </div>`:''}
+    </div>`;
+  }
+
+  /* 职业姿态 */
+  if(data.poses&&data.poses.length){
+    html+=`<div style="margin-bottom:16px">
+      <div style="font-weight:500;margin-bottom:8px">💃 职业姿态参考</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        ${data.poses.map((p,i)=>`<div style="padding:8px;background:var(--surface);border-radius:6px;border:1px solid var(--border)">
+          <div style="font-size:12px;font-weight:500">${escapeHtml(p.name||'')}</div>
+          <div style="font-size:11px;color:var(--ink-3);margin-top:4px;line-height:1.5">${escapeHtml(p.desc||'')}</div>
+          ${p.draw_prompt?`<button class="btn btn-mint" style="padding:2px 6px;font-size:10px;margin-top:6px;width:100%" onclick="copyCharPosePrompt(${i})">📋 复制绘图词</button>`:''}
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  /* 服化道细节 */
+  if((data.costume_details&&data.costume_details.length)||(data.accessory_details&&data.accessory_details.length)||data.shoe_details){
+    html+=`<div style="margin-bottom:16px">
+      <div style="font-weight:500;margin-bottom:8px">👗 服化道细节</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink-2)">
+        ${data.costume_details&&data.costume_details.length?`<div style="flex:1;min-width:180px">
+          <div style="font-weight:500;margin-bottom:4px;color:var(--ink-1)">服装剪裁：</div>
+          <ul style="margin:0;padding-left:16px;line-height:1.8">
+            ${data.costume_details.map(d=>`<li>${escapeHtml(d)}</li>`).join('')}
+          </ul>
+        </div>`:''}
+        ${data.accessory_details&&data.accessory_details.length?`<div style="flex:1;min-width:180px">
+          <div style="font-weight:500;margin-bottom:4px;color:var(--ink-1)">配饰细节：</div>
+          <ul style="margin:0;padding-left:16px;line-height:1.8">
+            ${data.accessory_details.map(d=>`<li>${escapeHtml(d)}</li>`).join('')}
+          </ul>
+        </div>`:''}
+        ${data.shoe_details?`<div style="flex:1;min-width:180px">
+          <div style="font-weight:500;margin-bottom:4px;color:var(--ink-1)">鞋履细节：</div>
+          <div style="line-height:1.6">${escapeHtml(data.shoe_details)}</div>
+        </div>`:''}
+      </div>
+    </div>`;
+  }
+
+  /* 氛围参考 */
+  if(data.atmosphere_refs&&data.atmosphere_refs.length){
+    html+=`<div style="margin-bottom:16px">
+      <div style="font-weight:500;margin-bottom:8px">🌆 氛围参考</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${data.atmosphere_refs.map(r=>`<span class="agent-tag" style="background:var(--accent-soft)">${escapeHtml(r)}</span>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  return html;
+}
+
+/* 单视图卡片 */
+function renderCharViewCard(label,view,idx){
+  if(!view) return '';
+  return `<div style="padding:8px;background:var(--surface);border-radius:6px;border:1px solid var(--border)">
+    <div style="font-size:12px;font-weight:500;text-align:center;margin-bottom:4px">${label}</div>
+    <div style="font-size:11px;color:var(--ink-3);line-height:1.5">${escapeHtml(view.desc||'')}</div>
+    ${view.draw_prompt?`<button class="btn btn-mint" style="padding:2px 6px;font-size:10px;margin-top:6px;width:100%" onclick="copyCharViewPrompt(${idx})">📋 复制绘图词</button>`:''}
+  </div>`;
+}
+
+/* 衣橱设定 HTML */
+function renderCharWardrobeHtml(data,isBoth){
+  if(!data||!data.wardrobes||!data.wardrobes.length) return '';
+  let html='';
+  if(isBoth){
+    html+=`<div style="margin:20px 0 12px;padding-top:16px;border-top:2px dashed var(--border)">
+      <div style="font-weight:500;font-size:15px">👗 10套剧情衣橱</div>
+    </div>`;
+  }
+  html+=`<div class="agent-shot-table">`;
+  data.wardrobes.forEach((w,i)=>{
+    const keywords=(w.keywords||[]).map(k=>`<span class="agent-tag" style="font-size:10px">${escapeHtml(k)}</span>`).join('');
+    html+=`
+      <div class="agent-shot-card">
+        <div class="agent-shot-head">
+          <span class="agent-shot-id">${w.id||('W'+(i+1))}</span>
+          <span class="agent-shot-camera">${escapeHtml(w.name||'')}</span>
+          <span class="agent-shot-dur">${keywords}</span>
+          <button class="btn btn-mint agent-copy-btn" onclick="copyWardrobePrompt(${i})">📋 复制绘图词</button>
+        </div>
+        <div class="agent-shot-body">
+          <div class="agent-shot-row"><span class="agent-shot-label">场景：</span><span>${escapeHtml(w.scene||'')}</span></div>
+          <div class="agent-shot-row"><span class="agent-shot-label">穿搭：</span><span>${escapeHtml(w.outfit||'')}</span></div>
+          ${w.shoes?`<div class="agent-shot-row"><span class="agent-shot-label">鞋履：</span><span>${escapeHtml(w.shoes)}</span></div>`:''}
+          ${w.accessories&&w.accessories.length?`<div class="agent-shot-row"><span class="agent-shot-label">配饰：</span><span>${w.accessories.map(a=>escapeHtml(a)).join('、')}</span></div>`:''}
+          ${w.color_scheme?`<div class="agent-shot-row"><span class="agent-shot-label">配色：</span><span>${escapeHtml(w.color_scheme)}</span></div>`:''}
+          ${w.props?`<div class="agent-shot-row"><span class="agent-shot-label">道具：</span><span>${escapeHtml(w.props)}</span></div>`:''}
+          <div class="agent-shot-draw">
+            <div class="agent-shot-label">🎨 绘图提示词：</div>
+            <div class="agent-shot-draw-text">${escapeHtml(w.draw_prompt||'')}</div>
+          </div>
+        </div>
+      </div>`;
+  });
+  html+='</div>';
+  return html;
+}
+
+/* 复制角色正向提示词 */
+function copyCharPositivePrompt(){
+  const d=_currentManhuaScript;
+  if(!d) return;
+  const data=d.output_mode==='character_wardrobe'?d:(d.wardrobe||d);
+  copyToClipboard(data.positive_prompt||'');
+  showToast('正向提示词已复制','success');
+}
+/* 复制角色负面提示词 */
+function copyCharNegativePrompt(){
+  const d=_currentManhuaScript;
+  if(!d) return;
+  const data=d.output_mode==='character_wardrobe'?d:(d.wardrobe||d);
+  copyToClipboard(data.negative_prompt||'');
+  showToast('负面提示词已复制','success');
+}
+/* 复制视图绘图提示词 */
+function copyCharViewPrompt(idx){
+  const d=_currentManhuaScript;
+  if(!d) return;
+  const ref=d.output_mode==='character_both'?d.reference:d;
+  if(!ref||!ref.four_views) return;
+  const keys=['front','three_quarter','side','back'];
+  const view=ref.four_views[keys[idx]];
+  copyToClipboard(view?.draw_prompt||'');
+  showToast('视图绘图提示词已复制','success');
+}
+/* 复制姿态绘图提示词 */
+function copyCharPosePrompt(idx){
+  const d=_currentManhuaScript;
+  if(!d) return;
+  const ref=d.output_mode==='character_both'?d.reference:d;
+  if(!ref||!ref.poses||!ref.poses[idx]) return;
+  copyToClipboard(ref.poses[idx].draw_prompt||'');
+  showToast('姿态绘图提示词已复制','success');
+}
+/* 复制衣橱绘图提示词 */
+function copyWardrobePrompt(idx){
+  const d=_currentManhuaScript;
+  if(!d) return;
+  const ward=d.output_mode==='character_both'?d.wardrobe:d;
+  if(!ward||!ward.wardrobes||!ward.wardrobes[idx]) return;
+  copyToClipboard(ward.wardrobes[idx].draw_prompt||'');
+  showToast('穿搭绘图提示词已复制','success');
+}
+
 /* 渲染角色卡片 */
 function renderCharacters(chars){
   const container=document.getElementById('resCharacters');
@@ -6151,21 +6705,22 @@ function renderShots(shots){
 /* 保存漫剧到项目 */
 function saveScriptProject(){
   if(!_currentManhuaScript){
-    showToast('当前没有可保存的剧本','warn');
+    showToast('当前没有可保存的内容','warn');
     return;
   }
   const data=_currentManhuaScript;
+  const isChar=data.output_mode&&data.output_mode.startsWith('character');
+  const refData=isChar?(data.reference||data):data;
   const item={
-    title:data.title||'未命名漫剧',
-    tag:data.genre||'未分类',
-    desc:data.logline||'',
-    /* 完整剧本数据存在 desc 的扩展字段里？不，直接用 data 字段 */
-    data:JSON.parse(JSON.stringify(data))  /* 深拷贝 */
+    title:isChar?(refData.name||'未命名角色'):(data.title||'未命名漫剧'),
+    tag:isChar?((refData.era||'')+(refData.job?'·'+refData.job:'')):(data.genre||'未分类'),
+    desc:isChar?(refData.intro||refData.temperament||''):(data.logline||''),
+    data:JSON.parse(JSON.stringify(data))
   };
   DB.scriptProjects.push(item);
   saveData();
   renderList('scriptProjects');
-  showToast('已保存到漫剧项目','success');
+  showToast(isChar?'已保存到角色项目':'已保存到漫剧项目','success');
 }
 
 /* 复制完整剧本 */
@@ -6176,67 +6731,159 @@ function copyFullScript(){
   }
   const d=_currentManhuaScript;
   const isStoryboard=d.output_mode==='storyboard'||Array.isArray(d.panels);
-  
-  let text=`【${d.title}】\n`;
-  text+=`题材：${d.genre||''}\n`;
-  text+=`风格：${d.style||''}\n`;
-  if(d.logline) text+=`梗概：${d.logline}\n`;
-  if(d.type) text+=`类型：${d.type}\n`;
-  if(d.layout&&d.layout.grid) text+=`布局：${d.layout.grid}（共${d.layout.total_panels||''}格）\n`;
-  text+='\n';
-  
-  if(d.characters&&d.characters.length){
-    text+=`━━━ 角色设定 ━━━\n`;
-    d.characters.forEach(c=>{
-      text+=`\n【${c.name}】${c.role||''}\n`;
-      if(c.personality) text+=`性格：${(c.personality||[]).join('、')}\n`;
-      if(c.description) text+=`描述：${c.description}\n`;
-      if(c.draw_prompt) text+=`绘图提示词：${c.draw_prompt}\n`;
-      if(c.voice_tip) text+=`配音建议：${c.voice_tip}\n`;
-    });
-    text+='\n';
-  }
-  
-  if(isStoryboard){
-    /* 故事板格式 */
-    if(d.legend&&Object.keys(d.legend).length){
-      text+=`━━━ 图例说明 ━━━\n`;
-      for(const [k,v] of Object.entries(d.legend)){
-        text+=`· ${k}：${v}\n`;
+  const isCharRef=d.output_mode==='character_reference';
+  const isCharWard=d.output_mode==='character_wardrobe';
+  const isCharBoth=d.output_mode==='character_both';
+  const isCharacter=isCharRef||isCharWard||isCharBoth;
+
+  let text='';
+  if(isCharacter){
+    const ref=isCharBoth?d.reference:d;
+    const ward=isCharBoth?d.wardrobe:d;
+
+    if(isCharRef||isCharBoth){
+      text+=`【${ref.name||'未命名角色'} · 角色设定卡】\n`;
+      text+=`性别：${ref.gender||''}\n`;
+      text+=`年龄：${ref.age||''}\n`;
+      text+=`时代：${ref.era||''}\n`;
+      text+=`职业：${ref.job||''}\n`;
+      text+=`气质：${ref.temperament||''}\n`;
+      if(ref.special_feature) text+=`特征：${ref.special_feature}\n`;
+      if(ref.style) text+=`画风：${ref.style}\n`;
+      if(ref.intro) text+=`\n${ref.intro}\n`;
+      if(ref.personality_tags&&ref.personality_tags.length){
+        text+=`性格标签：${ref.personality_tags.join('、')}\n`;
       }
       text+='\n';
+
+      /* 四视图 */
+      if(ref.four_views){
+        text+=`━━━ 造型四视图 ━━━\n`;
+        const viewMap={front:'正面',three_quarter:'3/4侧',side:'侧面',back:'背面'};
+        for(const [k,v] of Object.entries(ref.four_views)){
+          text+=`\n【${viewMap[k]||k}】${v.desc||''}\n`;
+          if(v.draw_prompt) text+=`绘图：${v.draw_prompt}\n`;
+        }
+        text+='\n';
+      }
+
+      /* 表情系统 */
+      if(ref.expressions&&ref.expressions.length){
+        text+=`━━━ 表情系统 ━━━\n`;
+        ref.expressions.forEach(e=>{
+          text+=`· ${e.name}：${e.desc||''}\n`;
+        });
+        text+='\n';
+      }
+
+      /* 职业姿态 */
+      if(ref.poses&&ref.poses.length){
+        text+=`━━━ 职业姿态参考 ━━━\n`;
+        ref.poses.forEach(p=>{
+          text+=`\n【${p.name}】${p.desc||''}\n`;
+          if(p.draw_prompt) text+=`绘图：${p.draw_prompt}\n`;
+        });
+        text+='\n';
+      }
+
+      /* 服化道 */
+      if(ref.costume_details&&ref.costume_details.length){
+        text+=`━━━ 服化道细节 ━━━\n`;
+        text+=`服装：${ref.costume_details.join('、')}\n`;
+        if(ref.accessory_details) text+=`配饰：${ref.accessory_details.join('、')}\n`;
+        if(ref.shoe_details) text+=`鞋履：${ref.shoe_details}\n`;
+        text+='\n';
+      }
+
+      /* 正负向提示词 */
+      if(ref.positive_prompt) text+=`✅ 正向：${ref.positive_prompt}\n`;
+      if(ref.negative_prompt) text+=`❌ 负面：${ref.negative_prompt}\n`;
     }
-    text+=`━━━ 分镜面板 ━━━\n`;
-    (d.panels||[]).forEach((p,i)=>{
-      text+=`\n── ${p.panel_id||('P'+(i+1))} / ${p.shot_type||''} / ${p.action||''} ──\n`;
-      if(p.performance) text+=`表演：${p.performance}\n`;
-      if(p.sound) text+=`音效：${p.sound}\n`;
-      text+=`画面：${p.description||''}\n`;
-      if(p.duration) text+=`时长：${p.duration}秒\n`;
-      if(p.draw_prompt) text+=`绘图：${p.draw_prompt}\n`;
-    });
+
+    if(isCharWard||isCharBoth){
+      if(isCharBoth) text+='\n═══════════════════════\n\n';
+      text+=`【${ward.name||ref.name||'角色'} · 10套剧情衣橱】\n`;
+      text+=`时代：${ward.era||ref.era||''}\n`;
+      text+=`职业：${ward.job||ref.job||''}\n`;
+      text+='\n';
+      text+=`━━━ 10套穿搭 ━━━\n`;
+      (ward.wardrobes||[]).forEach((w,i)=>{
+        text+=`\n── ${w.id||('W'+(i+1))} ${w.name||''} ──\n`;
+        if(w.keywords) text+=`风格：${w.keywords.join('、')}\n`;
+        if(w.scene) text+=`场景：${w.scene}\n`;
+        if(w.outfit) text+=`穿搭：${w.outfit}\n`;
+        if(w.shoes) text+=`鞋履：${w.shoes}\n`;
+        if(w.accessories) text+=`配饰：${w.accessories.join('、')}\n`;
+        if(w.color_scheme) text+=`配色：${w.color_scheme}\n`;
+        if(w.props) text+=`道具：${w.props}\n`;
+        if(w.draw_prompt) text+=`绘图：${w.draw_prompt}\n`;
+      });
+      if(ward.positive_prompt) text+=`\n✅ 正向：${ward.positive_prompt}\n`;
+      if(ward.negative_prompt) text+=`❌ 负面：${ward.negative_prompt}\n`;
+    }
   } else {
-    /* 剧本格式 */
-    text+=`━━━ 分镜脚本 ━━━\n`;
-    (d.shots||[]).forEach(s=>{
-      text+=`\n── 镜头 ${s.shot_id}（${s.camera||''} · ${s.duration||'?'}秒）──\n`;
-      text+=`场景：${s.scene||''}\n`;
-      text+=`动作：${s.action||''}\n`;
-      if(s.dialogue) text+=`台词："${s.dialogue}"\n`;
-      if(s.narration) text+=`旁白：${s.narration}\n`;
-      text+=`情绪：${s.emotion||''}\n`;
-      text+=`绘图：${s.draw_prompt||''}\n`;
-      if(s.bgm) text+=`BGM：${s.bgm}\n`;
-      if(s.sound_effect) text+=`音效：${s.sound_effect}\n`;
-    });
+    text=`【${d.title}】\n`;
+    text+=`题材：${d.genre||''}\n`;
+    text+=`风格：${d.style||''}\n`;
+    if(d.logline) text+=`梗概：${d.logline}\n`;
+    if(d.type) text+=`类型：${d.type}\n`;
+    if(d.layout&&d.layout.grid) text+=`布局：${d.layout.grid}（共${d.layout.total_panels||''}格）\n`;
+    text+='\n';
+    
+    if(d.characters&&d.characters.length){
+      text+=`━━━ 角色设定 ━━━\n`;
+      d.characters.forEach(c=>{
+        text+=`\n【${c.name}】${c.role||''}\n`;
+        if(c.personality) text+=`性格：${(c.personality||[]).join('、')}\n`;
+        if(c.description) text+=`描述：${c.description}\n`;
+        if(c.draw_prompt) text+=`绘图提示词：${c.draw_prompt}\n`;
+        if(c.voice_tip) text+=`配音建议：${c.voice_tip}\n`;
+      });
+      text+='\n';
+    }
+    
+    if(isStoryboard){
+      /* 故事板格式 */
+      if(d.legend&&Object.keys(d.legend).length){
+        text+=`━━━ 图例说明 ━━━\n`;
+        for(const [k,v] of Object.entries(d.legend)){
+          text+=`· ${k}：${v}\n`;
+        }
+        text+='\n';
+      }
+      text+=`━━━ 分镜面板 ━━━\n`;
+      (d.panels||[]).forEach((p,i)=>{
+        text+=`\n── ${p.panel_id||('P'+(i+1))} / ${p.shot_type||''} / ${p.action||''} ──\n`;
+        if(p.performance) text+=`表演：${p.performance}\n`;
+        if(p.sound) text+=`音效：${p.sound}\n`;
+        text+=`画面：${p.description||''}\n`;
+        if(p.duration) text+=`时长：${p.duration}秒\n`;
+        if(p.draw_prompt) text+=`绘图：${p.draw_prompt}\n`;
+      });
+    } else {
+      /* 剧本格式 */
+      text+=`━━━ 分镜脚本 ━━━\n`;
+      (d.shots||[]).forEach(s=>{
+        text+=`\n── 镜头 ${s.shot_id}（${s.camera||''} · ${s.duration||'?'}秒）──\n`;
+        text+=`场景：${s.scene||''}\n`;
+        text+=`动作：${s.action||''}\n`;
+        if(s.dialogue) text+=`台词："${s.dialogue}"\n`;
+        if(s.narration) text+=`旁白：${s.narration}\n`;
+        text+=`情绪：${s.emotion||''}\n`;
+        text+=`绘图：${s.draw_prompt||''}\n`;
+        if(s.bgm) text+=`BGM：${s.bgm}\n`;
+        if(s.sound_effect) text+=`音效：${s.sound_effect}\n`;
+      });
+    }
   }
   
+  const toastMsg=isCharacter?'角色设定已复制':'完整剧本已复制';
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(()=>showToast('完整剧本已复制到剪贴板','success'));
+    navigator.clipboard.writeText(text).then(()=>showToast(toastMsg+'到剪贴板','success'));
   }else{
     const ta=document.createElement('textarea');
     ta.value=text;document.body.appendChild(ta);ta.select();
-    try{document.execCommand('copy');showToast('完整剧本已复制','success');}catch(e){showToast('复制失败','error');}
+    try{document.execCommand('copy');showToast(toastMsg,'success');}catch(e){showToast('复制失败','error');}
     document.body.removeChild(ta);
   }
 }
