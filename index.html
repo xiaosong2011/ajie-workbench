@@ -2014,6 +2014,10 @@ agent:`
           <input type="radio" name="agentOutputMode" value="character" onchange="switchOutputMode('character')">
           <span>🎭 角色设定</span>
         </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);flex:1;min-width:120px">
+          <input type="radio" name="agentOutputMode" value="pipeline" onchange="switchOutputMode('pipeline')">
+          <span>⚡ 全流程资产</span>
+        </label>
       </div>
     </div>
     <!-- 故事板风格选择（故事板模式时显示） -->
@@ -5531,6 +5535,12 @@ function switchOutputMode(mode){
     charInfoRow.style.display='block';
     if(btn) btn.innerHTML='🎭 生成角色设定';
     if(ideaLabel) ideaLabel.innerHTML='补充描述 <span style="color:var(--ink-3);font-weight:400">（可选，补充角色细节）</span>';
+  } else if(mode==='pipeline'){
+    sbRow.style.display='none';
+    charTypeRow.style.display='none';
+    charInfoRow.style.display='none';
+    if(btn) btn.innerHTML='⚡ 生成全流程资产';
+    if(ideaLabel) ideaLabel.innerHTML='剧本/故事梗概 <span style="color:var(--ink-3);font-weight:400">（输入短剧剧本或故事梗概）</span>';
   } else {
     sbRow.style.display='none';
     charTypeRow.style.display='none';
@@ -5675,6 +5685,113 @@ const CHARACTER_SYSTEM_PROMPT = `# 影视级角色设定创作智能体
 
 ## 输出要求
 只输出JSON，禁止多余闲聊。每个绘图提示词都必须包含人物固定特征（脸型、五官、肤色、年龄、核心发型）以保证一致性。
+`;
+
+/* 全流程资产生成 System Prompt */
+const PIPELINE_SYSTEM_PROMPT = `# AI短剧分镜&资产生成专家
+你是专业AI短剧分镜与资产生成总监，服务短视频漫剧创作者、短剧制片团队。
+你的输出全部为结构化JSON，方便网页程序读取解析和渲染。
+
+## 核心任务
+接收用户输入的短剧剧本/故事梗概，完成全套流水线输出：
+1. 剧本解析：题材、美术风格、故事梗概、出场角色清单、出场场景清单、关键冲突
+2. 角色资产库：每个角色含基础档案+通用完整版提示词+MJ精简版+SD优化版
+3. 场景资产库：每个场景含环境描述+通用完整版提示词+MJ精简版+SD优化版
+4. 分镜故事板：国漫写实手绘草稿速写风，3×2布局6格，带分镜标记符号
+5. 分镜视频生成提示词：每格分镜对应正向+负面视频提示词
+
+## 角色资产规范
+- 角色提示词严格沿用影视级角色设定卡标准，锁脸锁骨相，保证人物一致性
+- 每个角色输出：基础档案（姓名、性格、外貌、身份）+ 三版提示词
+- 通用完整版：超写实真人摄影，影视级角色设定，四视图，表情系统，纯白背景，8K超清
+- MJ精简版：Professional film character reference sheet, photorealistic, same face, soft studio light, pure white background --ar 9:16 --style raw
+- SD优化版：影视级真人角色设定表，四视图多角度，锁脸锁人设，真实原生皮肤，纯白背景，8K超清，低饱和高级质感
+
+## 场景资产规范
+- 每个场景输出：环境描述（氛围、时间、光影）+ 三版提示词
+- 通用完整版：完整场景描述+光影+氛围+构图+画质关键词
+- MJ精简版：场景核心元素 + cinematic lighting, photorealistic, 8k --ar 16:9 --style raw
+- SD优化版：(masterpiece, best quality, 8k, ultra realistic:1.3), 场景描述, 光影, 电影质感
+
+## 分镜故事板规范
+- 布局：3×2（6格），竖屏9:16漫剧
+- 风格：国漫写实手绘草稿速写风，线稿+淡阴影，带分镜标记符号
+- 标记符号：red_arrow机位运动、blue_arrow动作轨迹、green_mark互动攻击、orange_mark冲击力、purple_mark音效标注
+- 每格分镜包含：panel_id、shot_type（镜头类型）、camera_move（机位运动）、description（画面描述）、draw_prompt（故事板绘图提示词）
+- 开场3秒制造冲突钩子，每10-15秒小反转，结尾留悬念
+
+## 视频提示词规范
+- 每格分镜对应一组视频提示词
+- 正向提示词要写清楚：画面内容、运镜方式、物体动态、人物动作、光影、风格
+- 不要静态描述，要有动态感
+- 负面提示词统一防崩坏：畸形肢体、多人物、文字水印、模糊、崩坏五官、扭曲
+- 适配可灵/即梦/Runway视频生成
+
+## 输出 JSON Schema
+{
+  "output_mode": "pipeline",
+  "title": "项目标题",
+  "analysis": {
+    "genre": "故事题材",
+    "art_style": "美术风格",
+    "summary": "故事梗概",
+    "characters": ["角色1","角色2"],
+    "scenes": ["场景1","场景2"],
+    "conflict": "关键冲突"
+  },
+  "character_assets": [
+    {
+      "name": "角色姓名",
+      "profile": {
+        "personality": "人设性格",
+        "appearance": "外貌描述",
+        "identity": "身份"
+      },
+      "prompt_full": "通用完整版提示词",
+      "prompt_mj": "MJ精简版提示词",
+      "prompt_sd": "SD优化版提示词"
+    }
+  ],
+  "scene_assets": [
+    {
+      "name": "场景名称",
+      "environment": "环境描述（氛围、时间、光影）",
+      "prompt_full": "通用完整版提示词",
+      "prompt_mj": "MJ精简版提示词",
+      "prompt_sd": "SD优化版提示词"
+    }
+  ],
+  "storyboard": {
+    "layout": "3×2",
+    "total_panels": 6,
+    "style": "国漫写实手绘草稿速写风",
+    "panels": [
+      {
+        "panel_id": "P01",
+        "shot_type": "中景",
+        "camera_move": "固定",
+        "description": "画面描述",
+        "draw_prompt": "故事板绘图提示词"
+      }
+    ]
+  },
+  "video_prompts": [
+    {
+      "panel_id": "P01",
+      "positive": "正向视频提示词",
+      "negative": "负面视频提示词"
+    }
+  ]
+}
+
+## 约束规则
+1. 所有提示词要可直接复制，不要换行错乱
+2. 角色板严格沿用影视级角色设定卡标准，锁脸锁骨相，禁止变脸
+3. 故事板统一：国漫写实，手绘草稿速写，故事板分镜稿，线稿+淡阴影，带分镜标记符号
+4. 视频提示词要写清楚运镜、物体动态、人物动作，不要静态描述
+5. 负面词统一防崩坏：畸形肢体、多人物、文字水印、模糊、崩坏五官、扭曲
+
+只输出JSON，禁止多余闲聊。
 `;
 
 /* 分镜故事板 System Prompt */
@@ -5973,10 +6090,11 @@ function generateManhuaScript(){
   const mode=getAgentOutputMode();
   const isStoryboard=mode==='storyboard';
   const isCharacter=mode==='character';
+  const isPipeline=mode==='pipeline';
 
   /* 角色模式不强制要求故事灵感，但需要画风 */
   if(!isCharacter && !idea){
-    showAgentError('请填写故事灵感，描述你的核心想法');
+    showAgentError(mode==='pipeline'?'请输入短剧剧本或故事梗概':'请填写故事灵感，描述你的核心想法');
     return;
   }
   if(!style){
@@ -5998,6 +6116,7 @@ function generateManhuaScript(){
   
   let loadingText='AI 正在创作漫剧剧本，请稍候…';
   if(isStoryboard) loadingText='AI 正在生成分镜故事板，请稍候…';
+  if(isPipeline) loadingText='AI 正在生成全流程资产，请稍候…';
   if(isCharacter){
     const charType=getAgentCharType();
     if(charType==='reference') loadingText='AI 正在生成角色设定卡，请稍候…';
@@ -6008,7 +6127,22 @@ function generateManhuaScript(){
   setAgentButtonsDisabled(true);
 
   let systemPrompt,userMsg;
-  if(isCharacter){
+  if(isPipeline){
+    systemPrompt=PIPELINE_SYSTEM_PROMPT;
+    userMsg=`请根据以下短剧剧本/故事梗概，生成全套AI短剧分镜与资产：
+【画风】${style}
+${genre?`【题材类型】${genre}`:''}
+【剧本/故事梗概】${idea}
+
+请严格按照指定的 JSON 格式输出完整的全流程资产数据，包含：
+1. analysis：剧本解析（题材、美术风格、梗概、角色清单、场景清单、关键冲突）
+2. character_assets：角色资产库（每个角色含基础档案+三版提示词）
+3. scene_assets：场景资产库（每个场景含环境描述+三版提示词）
+4. storyboard：分镜故事板（3×2布局6格，国漫写实手绘草稿速写风）
+5. video_prompts：分镜视频生成提示词（每格分镜对应正向+负面）
+
+所有提示词要可直接复制，角色板锁脸锁人设，故事板带分镜标记符号。`;
+  } else if(isCharacter){
     const charInfo=getAgentCharInfo();
     const charType=getAgentCharType();
     const typeNameMap={reference:'角色设定卡',wardrobe:'10套剧情衣橱',both:'角色设定卡+10套衣橱全套'};
@@ -6067,7 +6201,11 @@ ${charType==='both'?'输出全套模式（character_both），同时包含 refer
         throw new Error('无法解析返回的 JSON 数据，请重试或调整提示词');
       }
       /* 数据校验 */
-      if(isCharacter){
+      if(isPipeline){
+        if(!data.output_mode||!data.analysis){
+          throw new Error('返回数据格式不完整（缺少 output_mode 或 analysis）');
+        }
+      } else if(isCharacter){
         if(!data.output_mode){
           throw new Error('返回数据格式不完整（缺少 output_mode）');
         }
@@ -6085,6 +6223,7 @@ ${charType==='both'?'输出全套模式（character_both），同时包含 refer
       hideAgentLoading();
       let successMsg='漫剧剧本生成成功！';
       if(isStoryboard) successMsg='分镜故事板生成成功！';
+      if(isPipeline) successMsg='全流程资产生成成功！';
       if(isCharacter){
         const ct=getAgentCharType();
         if(ct==='reference') successMsg='角色设定卡生成成功！';
@@ -6117,6 +6256,7 @@ function modifyManhuaScript(){
   const mode=getAgentOutputMode();
   const isStoryboard=mode==='storyboard';
   const isCharacter=mode==='character';
+  const isPipeline=mode==='pipeline';
 
   if(!instr){
     showAgentError('请输入修改指令，描述你想如何调整');
@@ -6133,11 +6273,23 @@ function modifyManhuaScript(){
   let loadingText='AI 正在修改剧本，请稍候…';
   if(isStoryboard) loadingText='AI 正在修改故事板，请稍候…';
   if(isCharacter) loadingText='AI 正在修改角色设定，请稍候…';
+  if(isPipeline) loadingText='AI 正在修改全流程资产，请稍候…';
   showAgentLoading(loadingText);
   setAgentButtonsDisabled(true);
 
   let systemPrompt,userMsg;
-  if(isCharacter){
+  if(isPipeline){
+    systemPrompt=PIPELINE_SYSTEM_PROMPT;
+    userMsg=`以下是当前的全流程资产完整 JSON：
+${JSON.stringify(_currentManhuaScript)}
+
+请根据以下修改指令，调整全流程资产并返回完整的新 JSON（保持相同的 JSON 结构）：
+【修改指令】${instr}
+${style?'【调整画风为】'+style:''}
+${genre?'【调整题材为】'+genre:''}
+
+请输出完整的修改后的全流程资产 JSON。`;
+  } else if(isCharacter){
     systemPrompt=CHARACTER_SYSTEM_PROMPT;
     userMsg=`以下是当前的角色设定完整 JSON：
 ${JSON.stringify(_currentManhuaScript)}
@@ -6177,7 +6329,11 @@ ${genre?'【调整题材为】'+genre:''}
       if(!data){
         throw new Error('无法解析返回的 JSON 数据，请重试或调整修改指令');
       }
-      if(isCharacter){
+      if(isPipeline){
+        if(!data.output_mode||!data.analysis){
+          throw new Error('返回数据格式不完整（缺少 output_mode 或 analysis）');
+        }
+      } else if(isCharacter){
         if(!data.output_mode){
           throw new Error('返回数据格式不完整（缺少 output_mode）');
         }
@@ -6196,6 +6352,7 @@ ${genre?'【调整题材为】'+genre:''}
       let toastMsg='剧本修改成功！';
       if(isStoryboard) toastMsg='故事板修改成功！';
       if(isCharacter) toastMsg='角色设定修改成功！';
+      if(isPipeline) toastMsg='全流程资产修改成功！';
       showToast(toastMsg,'success');
     })
     .catch(err=>{
@@ -6255,6 +6412,7 @@ function renderAgentResult(data){
   const isCharWard=data.output_mode==='character_wardrobe';
   const isCharBoth=data.output_mode==='character_both';
   const isCharacter=isCharRef||isCharWard||isCharBoth;
+  const isPipeline=data.output_mode==='pipeline';
 
   /* 基本信息卡片 */
   const titleCard=document.querySelector('#agentResult .card.tint-rose .card-h');
@@ -6262,7 +6420,24 @@ function renderAgentResult(data){
   const legendCard=document.getElementById('resLegendCard');
   const charCard=document.getElementById('resCharactersCard');
 
-  if(isCharacter){
+  if(isPipeline){
+    /* 全流程资产模式 */
+    if(titleCard&&titleCard.firstChild&&titleCard.firstChild.nodeType===3){
+      titleCard.firstChild.textContent='⚡ 全流程资产 ';
+    }
+    const a=data.analysis||{};
+    document.getElementById('resTitle').textContent=data.title||'未命名项目';
+    document.getElementById('resGenre').textContent=a.genre||'未分类';
+    document.getElementById('resStyle').textContent=a.art_style||'国漫写实';
+    document.getElementById('resLogline').textContent=a.summary||'暂无梗概';
+
+    if(legendCard) legendCard.style.display='none';
+    if(charCard) charCard.style.display='none';
+    if(shotsTitle) shotsTitle.textContent='⚡ 资产详情';
+
+    /* 渲染全流程内容 */
+    renderPipelineContent(data);
+  } else if(isCharacter){
     /* 角色设定模式 */
     let charData=isCharBoth?data.reference:data;
     if(titleCard&&titleCard.firstChild&&titleCard.firstChild.nodeType===3){
@@ -6643,6 +6818,210 @@ function copyWardrobePrompt(idx){
   showToast('穿搭绘图提示词已复制','success');
 }
 
+/* ========== 全流程资产生成渲染 ========== */
+function renderPipelineContent(data){
+  const container=document.getElementById('resShots');
+  if(!container) return;
+  const a=data.analysis||{};
+  let html='';
+
+  /* 1. 剧本解析 */
+  html+=`<div style="margin-bottom:20px">
+    <div style="font-weight:500;font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+      <span style="display:inline-block;width:4px;height:18px;background:var(--accent);border-radius:2px"></span>
+      📋 剧本解析
+    </div>
+    <div style="padding:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border)">
+      <div style="display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;margin-bottom:8px">
+        <span><b>题材：</b>${escapeHtml(a.genre||'-')}</span>
+        <span><b>美术风格：</b>${escapeHtml(a.art_style||'-')}</span>
+      </div>
+      <div style="font-size:13px;color:var(--ink-2);line-height:1.7;margin-bottom:8px"><b>故事梗概：</b>${escapeHtml(a.summary||'-')}</div>
+      ${a.characters&&a.characters.length?`<div style="font-size:13px;margin-bottom:6px"><b>出场角色：</b>${a.characters.map(c=>'<span class="agent-tag">'+escapeHtml(c)+'</span>').join(' ')}</div>`:''}
+      ${a.scenes&&a.scenes.length?`<div style="font-size:13px;margin-bottom:6px"><b>出场场景：</b>${a.scenes.map(s=>'<span class="agent-tag" style="background:var(--mint-soft)">'+escapeHtml(s)+'</span>').join(' ')}</div>`:''}
+      ${a.conflict?`<div style="font-size:13px;color:var(--ink-2)"><b>关键冲突：</b>${escapeHtml(a.conflict)}</div>`:''}
+    </div>
+  </div>`;
+
+  /* 2. 角色资产库 */
+  if(data.character_assets&&data.character_assets.length){
+    html+=`<div style="margin-bottom:20px">
+      <div style="font-weight:500;font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        <span style="display:inline-block;width:4px;height:18px;background:var(--violet);border-radius:2px"></span>
+        🎭 角色资产库
+      </div>`;
+    data.character_assets.forEach((c,i)=>{
+      html+=`
+        <div style="margin-bottom:12px;padding:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border)">
+          <div style="font-weight:500;margin-bottom:8px;color:var(--violet)">【${escapeHtml(c.name||'角色'+(i+1))}】</div>
+          ${c.profile?`<div style="font-size:12px;color:var(--ink-2);margin-bottom:8px;line-height:1.6">
+            ${c.profile.identity?`<div><b>身份：</b>${escapeHtml(c.profile.identity)}</div>`:''}
+            ${c.profile.personality?`<div><b>性格：</b>${escapeHtml(c.profile.personality)}</div>`:''}
+            ${c.profile.appearance?`<div><b>外貌：</b>${escapeHtml(c.profile.appearance)}</div>`:''}
+          </div>`:''}
+          <div style="font-size:12px">
+            <div style="margin-bottom:6px">
+              <span style="color:var(--accent);font-weight:500">通用完整版：</span>
+              <button class="btn btn-mint" style="padding:2px 8px;font-size:10px;margin-left:6px" onclick="copyPipelineCharPrompt(${i},'full')">📋 复制</button>
+            </div>
+            <div style="background:var(--bg);padding:8px;border-radius:6px;font-size:11px;color:var(--ink-3);line-height:1.5;word-break:break-all">${escapeHtml(c.prompt_full||'')}</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;font-size:12px">
+            <div style="flex:1">
+              <div style="margin-bottom:4px"><span style="color:var(--mint);font-weight:500">MJ精简版：</span>
+                <button class="btn btn-mint" style="padding:2px 6px;font-size:10px;margin-left:4px" onclick="copyPipelineCharPrompt(${i},'mj')">📋</button>
+              </div>
+              <div style="background:var(--bg);padding:6px;border-radius:4px;font-size:10px;color:var(--ink-3);line-height:1.4;word-break:break-all">${escapeHtml(c.prompt_mj||'')}</div>
+            </div>
+            <div style="flex:1">
+              <div style="margin-bottom:4px"><span style="color:var(--sky);font-weight:500">SD优化版：</span>
+                <button class="btn btn-mint" style="padding:2px 6px;font-size:10px;margin-left:4px" onclick="copyPipelineCharPrompt(${i},'sd')">📋</button>
+              </div>
+              <div style="background:var(--bg);padding:6px;border-radius:4px;font-size:10px;color:var(--ink-3);line-height:1.4;word-break:break-all">${escapeHtml(c.prompt_sd||'')}</div>
+            </div>
+          </div>
+        </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  /* 3. 场景资产库 */
+  if(data.scene_assets&&data.scene_assets.length){
+    html+=`<div style="margin-bottom:20px">
+      <div style="font-weight:500;font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        <span style="display:inline-block;width:4px;height:18px;background:var(--sky);border-radius:2px"></span>
+        🏞️ 场景资产库
+      </div>`;
+    data.scene_assets.forEach((s,i)=>{
+      html+=`
+        <div style="margin-bottom:12px;padding:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border)">
+          <div style="font-weight:500;margin-bottom:8px;color:var(--sky)">【${escapeHtml(s.name||'场景'+(i+1))}】</div>
+          ${s.environment?`<div style="font-size:12px;color:var(--ink-2);margin-bottom:8px;line-height:1.6"><b>环境描述：</b>${escapeHtml(s.environment)}</div>`:''}
+          <div style="font-size:12px">
+            <div style="margin-bottom:6px">
+              <span style="color:var(--accent);font-weight:500">通用完整版：</span>
+              <button class="btn btn-mint" style="padding:2px 8px;font-size:10px;margin-left:6px" onclick="copyPipelineScenePrompt(${i},'full')">📋 复制</button>
+            </div>
+            <div style="background:var(--bg);padding:8px;border-radius:6px;font-size:11px;color:var(--ink-3);line-height:1.5;word-break:break-all">${escapeHtml(s.prompt_full||'')}</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;font-size:12px">
+            <div style="flex:1">
+              <div style="margin-bottom:4px"><span style="color:var(--mint);font-weight:500">MJ精简版：</span>
+                <button class="btn btn-mint" style="padding:2px 6px;font-size:10px;margin-left:4px" onclick="copyPipelineScenePrompt(${i},'mj')">📋</button>
+              </div>
+              <div style="background:var(--bg);padding:6px;border-radius:4px;font-size:10px;color:var(--ink-3);line-height:1.4;word-break:break-all">${escapeHtml(s.prompt_mj||'')}</div>
+            </div>
+            <div style="flex:1">
+              <div style="margin-bottom:4px"><span style="color:var(--violet);font-weight:500">SD优化版：</span>
+                <button class="btn btn-mint" style="padding:2px 6px;font-size:10px;margin-left:4px" onclick="copyPipelineScenePrompt(${i},'sd')">📋</button>
+              </div>
+              <div style="background:var(--bg);padding:6px;border-radius:4px;font-size:10px;color:var(--ink-3);line-height:1.4;word-break:break-all">${escapeHtml(s.prompt_sd||'')}</div>
+            </div>
+          </div>
+        </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  /* 4. 分镜故事板 */
+  if(data.storyboard&&data.storyboard.panels&&data.storyboard.panels.length){
+    const sb=data.storyboard;
+    html+=`<div style="margin-bottom:20px">
+      <div style="font-weight:500;font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        <span style="display:inline-block;width:4px;height:18px;background:var(--amber);border-radius:2px"></span>
+        🎬 分镜故事板
+        <span style="font-size:12px;font-weight:400;color:var(--ink-3)">布局：${escapeHtml(sb.layout||'')} · 共${sb.total_panels||sb.panels.length}格</span>
+      </div>
+      <div class="agent-shot-table">`;
+    sb.panels.forEach((p,i)=>{
+      html+=`
+        <div class="agent-shot-card">
+          <div class="agent-shot-head">
+            <span class="agent-shot-id">${p.panel_id||('P'+(i+1))}</span>
+            <span class="agent-shot-camera">${escapeHtml(p.shot_type||'')}</span>
+            <span class="agent-shot-dur">${escapeHtml(p.camera_move||'')}</span>
+            <button class="btn btn-mint agent-copy-btn" onclick="copyPipelineStoryboardPrompt(${i})">📋 复制绘图词</button>
+          </div>
+          <div class="agent-shot-body">
+            <div class="agent-shot-row"><span class="agent-shot-label">画面：</span><span>${escapeHtml(p.description||'')}</span></div>
+            <div class="agent-shot-draw">
+              <div class="agent-shot-label">🎨 故事板绘图提示词：</div>
+              <div class="agent-shot-draw-text">${escapeHtml(p.draw_prompt||'')}</div>
+            </div>
+          </div>
+        </div>`;
+    });
+    html+=`</div></div>`;
+  }
+
+  /* 5. 分镜视频生成提示词 */
+  if(data.video_prompts&&data.video_prompts.length){
+    html+=`<div style="margin-bottom:10px">
+      <div style="font-weight:500;font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        <span style="display:inline-block;width:4px;height:18px;background:var(--rose);border-radius:2px"></span>
+        🎥 分镜视频生成提示词
+      </div>`;
+    data.video_prompts.forEach((v,i)=>{
+      html+=`
+        <div style="margin-bottom:10px;padding:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border)">
+          <div style="font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:8px">
+            <span class="agent-shot-id">${v.panel_id||('P'+(i+1))}</span>
+            <span style="font-size:12px">视频提示词</span>
+          </div>
+          <div style="font-size:12px;margin-bottom:6px">
+            <span style="color:var(--accent);font-weight:500">正向：</span>
+            <button class="btn btn-mint" style="padding:2px 8px;font-size:10px;margin-left:6px" onclick="copyPipelineVideoPrompt(${i},'positive')">📋 复制</button>
+          </div>
+          <div style="background:var(--bg);padding:8px;border-radius:6px;font-size:11px;color:var(--ink-2);line-height:1.5;word-break:break-all">${escapeHtml(v.positive||'')}</div>
+          <div style="font-size:12px;margin-top:8px;margin-bottom:6px">
+            <span style="color:var(--danger);font-weight:500">负面：</span>
+            <button class="btn btn-mint" style="padding:2px 8px;font-size:10px;margin-left:6px" onclick="copyPipelineVideoPrompt(${i},'negative')">📋 复制</button>
+          </div>
+          <div style="background:var(--bg);padding:8px;border-radius:6px;font-size:11px;color:var(--ink-3);line-height:1.5;word-break:break-all">${escapeHtml(v.negative||'')}</div>
+        </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  container.innerHTML=html;
+}
+
+/* 全流程 - 复制角色提示词 */
+function copyPipelineCharPrompt(idx,type){
+  const d=_currentManhuaScript;
+  if(!d||!d.character_assets||!d.character_assets[idx]) return;
+  const c=d.character_assets[idx];
+  const map={full:'prompt_full',mj:'prompt_mj',sd:'prompt_sd'};
+  const text=c[map[type]]||'';
+  copyToClipboard(text);
+  showToast('角色提示词已复制','success');
+}
+/* 全流程 - 复制场景提示词 */
+function copyPipelineScenePrompt(idx,type){
+  const d=_currentManhuaScript;
+  if(!d||!d.scene_assets||!d.scene_assets[idx]) return;
+  const s=d.scene_assets[idx];
+  const map={full:'prompt_full',mj:'prompt_mj',sd:'prompt_sd'};
+  const text=s[map[type]]||'';
+  copyToClipboard(text);
+  showToast('场景提示词已复制','success');
+}
+/* 全流程 - 复制故事板绘图提示词 */
+function copyPipelineStoryboardPrompt(idx){
+  const d=_currentManhuaScript;
+  if(!d||!d.storyboard||!d.storyboard.panels||!d.storyboard.panels[idx]) return;
+  copyToClipboard(d.storyboard.panels[idx].draw_prompt||'');
+  showToast('故事板绘图提示词已复制','success');
+}
+/* 全流程 - 复制视频提示词 */
+function copyPipelineVideoPrompt(idx,type){
+  const d=_currentManhuaScript;
+  if(!d||!d.video_prompts||!d.video_prompts[idx]) return;
+  const text=d.video_prompts[idx][type]||'';
+  copyToClipboard(text);
+  showToast(type==='positive'?'视频正向提示词已复制':'视频负面提示词已复制','success');
+}
+
 /* 渲染角色卡片 */
 function renderCharacters(chars){
   const container=document.getElementById('resCharacters');
@@ -6709,18 +7088,36 @@ function saveScriptProject(){
     return;
   }
   const data=_currentManhuaScript;
+  const isPipeline=data.output_mode==='pipeline';
   const isChar=data.output_mode&&data.output_mode.startsWith('character');
   const refData=isChar?(data.reference||data):data;
+  let title,tag,desc,toastMsg;
+  if(isPipeline){
+    title=data.title||'未命名项目';
+    tag=(data.analysis?.genre||'')+'·全流程资产';
+    desc=data.analysis?.summary||'';
+    toastMsg='已保存到全流程项目';
+  } else if(isChar){
+    title=refData.name||'未命名角色';
+    tag=(refData.era||'')+(refData.job?'·'+refData.job:'');
+    desc=refData.intro||refData.temperament||'';
+    toastMsg='已保存到角色项目';
+  } else {
+    title=data.title||'未命名漫剧';
+    tag=data.genre||'未分类';
+    desc=data.logline||'';
+    toastMsg='已保存到漫剧项目';
+  }
   const item={
-    title:isChar?(refData.name||'未命名角色'):(data.title||'未命名漫剧'),
-    tag:isChar?((refData.era||'')+(refData.job?'·'+refData.job:'')):(data.genre||'未分类'),
-    desc:isChar?(refData.intro||refData.temperament||''):(data.logline||''),
+    title:title,
+    tag:tag,
+    desc:desc,
     data:JSON.parse(JSON.stringify(data))
   };
   DB.scriptProjects.push(item);
   saveData();
   renderList('scriptProjects');
-  showToast(isChar?'已保存到角色项目':'已保存到漫剧项目','success');
+  showToast(toastMsg,'success');
 }
 
 /* 复制完整剧本 */
@@ -6735,9 +7132,69 @@ function copyFullScript(){
   const isCharWard=d.output_mode==='character_wardrobe';
   const isCharBoth=d.output_mode==='character_both';
   const isCharacter=isCharRef||isCharWard||isCharBoth;
+  const isPipeline=d.output_mode==='pipeline';
 
   let text='';
-  if(isCharacter){
+  if(isPipeline){
+    const a=d.analysis||{};
+    text+=`===【${d.title||'未命名项目'} · 全流程资产】===\n\n`;
+    text+=`题材：${a.genre||'-'}\n`;
+    text+=`美术风格：${a.art_style||'-'}\n`;
+    text+=`故事梗概：${a.summary||'-'}\n`;
+    if(a.characters) text+=`出场角色：${a.characters.join('、')}\n`;
+    if(a.scenes) text+=`出场场景：${a.scenes.join('、')}\n`;
+    if(a.conflict) text+=`关键冲突：${a.conflict}\n`;
+    text+='\n';
+
+    /* 角色资产 */
+    if(d.character_assets&&d.character_assets.length){
+      text+=`===【角色资产库】===\n\n`;
+      d.character_assets.forEach((c,i)=>{
+        text+=`【角色${i+1}：${c.name||''}】\n`;
+        if(c.profile){
+          text+=`身份：${c.profile.identity||''}\n`;
+          text+=`性格：${c.profile.personality||''}\n`;
+          text+=`外貌：${c.profile.appearance||''}\n`;
+        }
+        text+=`通用完整版：${c.prompt_full||''}\n`;
+        text+=`MJ精简版：${c.prompt_mj||''}\n`;
+        text+=`SD优化版：${c.prompt_sd||''}\n\n`;
+      });
+    }
+
+    /* 场景资产 */
+    if(d.scene_assets&&d.scene_assets.length){
+      text+=`===【场景资产库】===\n\n`;
+      d.scene_assets.forEach((s,i)=>{
+        text+=`【场景${i+1}：${s.name||''}】\n`;
+        text+=`环境描述：${s.environment||''}\n`;
+        text+=`通用完整版：${s.prompt_full||''}\n`;
+        text+=`MJ精简版：${s.prompt_mj||''}\n`;
+        text+=`SD优化版：${s.prompt_sd||''}\n\n`;
+      });
+    }
+
+    /* 分镜故事板 */
+    if(d.storyboard&&d.storyboard.panels&&d.storyboard.panels.length){
+      text+=`===【分镜故事板】===\n`;
+      text+=`布局：${d.storyboard.layout||''}（共${d.storyboard.total_panels||d.storyboard.panels.length}格）\n\n`;
+      d.storyboard.panels.forEach((p,i)=>{
+        text+=`── ${p.panel_id||('P'+(i+1))} / ${p.shot_type||''} / ${p.camera_move||''} ──\n`;
+        text+=`画面：${p.description||''}\n`;
+        text+=`绘图：${p.draw_prompt||''}\n\n`;
+      });
+    }
+
+    /* 视频提示词 */
+    if(d.video_prompts&&d.video_prompts.length){
+      text+=`===【分镜视频生成提示词】===\n\n`;
+      d.video_prompts.forEach((v,i)=>{
+        text+=`${v.panel_id||('P'+(i+1))}视频提示词：\n`;
+        text+=`正向：${v.positive||''}\n`;
+        text+=`负面：${v.negative||''}\n\n`;
+      });
+    }
+  } else if(isCharacter){
     const ref=isCharBoth?d.reference:d;
     const ward=isCharBoth?d.wardrobe:d;
 
@@ -6877,7 +7334,9 @@ function copyFullScript(){
     }
   }
   
-  const toastMsg=isCharacter?'角色设定已复制':'完整剧本已复制';
+  let toastMsg='完整剧本已复制';
+  if(isCharacter) toastMsg='角色设定已复制';
+  if(isPipeline) toastMsg='全流程资产已复制';
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(text).then(()=>showToast(toastMsg+'到剪贴板','success'));
   }else{
