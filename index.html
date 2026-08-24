@@ -2626,11 +2626,11 @@ inspo:`
       🎬 飞书漫剧库
       <span style="margin-left:auto;display:flex;align-items:center;gap:8px">
         <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="openFeishuConfig()">⚙️ 配置</button>
-        <button class="btn btn-accent" style="padding:6px 12px;font-size:12px" onclick="syncFeishuManju()">🔄 同步</button>
+        <button class="btn btn-accent" style="padding:6px 12px;font-size:12px" onclick="syncFeishuManju()">🔄 刷新</button>
       </span>
     </div>
     <div id="feishuManjuList">
-      <div style="text-align:center;padding:20px 0;color:var(--ink-3);font-size:13px">点击「配置」填写飞书信息，再点「同步」拉取漫剧数据</div>
+      <div style="text-align:center;padding:20px 0;color:var(--ink-3);font-size:13px">点击「刷新」加载漫剧数据（数据由GitHub Actions每小时自动同步）</div>
     </div>
   </div>
   <div class="card tint-amber">
@@ -6069,38 +6069,31 @@ function getFeishuToken(cfg){
     });
 }
 
-/* 从飞书获取漫剧表数据 */
+/* 从本地JSON文件获取漫剧表数据（由GitHub Actions定时同步） */
 function fetchFeishuManju(){
-  var cfg=loadFeishuCfg();
-  if(!cfg.appId||!cfg.appSecret||!cfg.baseToken||!cfg.tableId){
-    return Promise.reject(new Error('请先配置飞书信息'));
-  }
-  return getFeishuToken(cfg).then(function(token){
-    var url='https://open.feishu.cn/open-apis/bitable/v1/apps/'+cfg.baseToken+'/tables/'+cfg.tableId+'/records?page_size=100';
-    return fetch(url,{
-      headers:{'Authorization':'Bearer '+token}
-    }).then(function(r){return r.json();})
-      .then(function(d){
-        if(d.code!==0) throw new Error(d.msg||'获取数据失败');
-        var items=(d.data&&d.data.items)||[];
-        return items.map(function(item){
-          var fields=item.fields||{};
-          return {
-            recordId:item.record_id,
-            title:fields['漫剧别名']||'未命名',
-            bookId:fields['书名ID']||'',
-            fields:fields
-          };
-        });
+  return fetch('feishu-manju.json?_='+Date.now())
+    .then(function(r){
+      if(!r.ok) throw new Error('数据文件加载失败 ('+r.status+')');
+      return r.json();
+    })
+    .then(function(d){
+      var items=(d.data)||[];
+      return items.map(function(item){
+        return {
+          recordId:item.recordId||'',
+          title:item.title||(item.fields&&item.fields['漫剧别名'])||'未命名',
+          bookId:item.bookId||(item.fields&&item.fields['书名ID'])||'',
+          fields:item.fields||{}
+        };
       });
-  });
+    });
 }
 
-/* 同步飞书漫剧数据 */
+/* 从JSON文件加载飞书漫剧数据 */
 function syncFeishuManju(){
   var listEl=document.getElementById('feishuManjuList');
   if(!listEl) return Promise.reject(new Error('元素不存在'));
-  listEl.innerHTML='<div style="text-align:center;padding:20px 0;color:var(--ink-3);font-size:13px">⏳ 正在从飞书同步…</div>';
+  listEl.innerHTML='<div style="text-align:center;padding:20px 0;color:var(--ink-3);font-size:13px">⏳ 正在加载数据…</div>';
 
   return fetchFeishuManju().then(function(items){
     /* 保存到本地 */
@@ -6109,10 +6102,10 @@ function syncFeishuManju(){
       updateTime:Date.now()
     }));
     renderFeishuManju(items);
-    showToast('同步成功！共 '+items.length+' 条','success');
+    showToast('加载成功！共 '+items.length+' 条','success');
     return items;
   }).catch(function(err){
-    listEl.innerHTML='<div style="text-align:center;padding:20px 0;color:#e74c3c;font-size:13px">❌ 同步失败：'+escapeHtml(err.message)+'</div>';
+    listEl.innerHTML='<div style="text-align:center;padding:20px 0;color:#e74c3c;font-size:13px">❌ 加载失败：'+escapeHtml(err.message)+'</div>';
     /* 如果有本地缓存，显示本地数据 */
     var local=loadFeishuManjuLocal();
     if(local&&local.length>0){
@@ -6134,14 +6127,32 @@ function loadFeishuManjuLocal(){
   }catch(e){ return []; }
 }
 
-/* 页面打开时加载本地飞书漫剧数据 */
+/* 页面打开时加载飞书漫剧数据（优先从JSON文件加载，失败则用本地缓存） */
 function loadFeishuManjuFromLocal(){
   var listEl=document.getElementById('feishuManjuList');
   if(!listEl) return;
-  var items=loadFeishuManjuLocal();
-  if(items.length>0){
-    renderFeishuManju(items);
-  }
+  /* 先尝试从JSON文件加载最新数据 */
+  fetchFeishuManju().then(function(items){
+    if(items.length>0){
+      localStorage.setItem('ajie_feishu_manju',JSON.stringify({
+        data:items,
+        updateTime:Date.now()
+      }));
+      renderFeishuManju(items);
+    }else{
+      /* JSON文件为空，尝试本地缓存 */
+      var local=loadFeishuManjuLocal();
+      if(local.length>0){
+        renderFeishuManju(local);
+      }
+    }
+  }).catch(function(){
+    /* 加载失败，使用本地缓存 */
+    var local=loadFeishuManjuLocal();
+    if(local.length>0){
+      renderFeishuManju(local);
+    }
+  });
 }
 
 /* 下拉刷新初始化 */
@@ -6224,7 +6235,7 @@ function renderFeishuManju(items){
   var listEl=document.getElementById('feishuManjuList');
   if(!listEl) return;
   if(items.length===0){
-    listEl.innerHTML='<div style="text-align:center;padding:20px 0;color:var(--ink-3);font-size:13px">暂无数据，点击「同步」从飞书拉取</div>';
+    listEl.innerHTML='<div style="text-align:center;padding:20px 0;color:var(--ink-3);font-size:13px">暂无数据，点击「刷新」重新加载</div>';
     return;
   }
   var html='<div class="fs-manju-grid">';
