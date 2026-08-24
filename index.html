@@ -935,6 +935,214 @@
   .ov-nav-btn .ov-nav-name{font-size:11.5px;color:var(--ink-2);font-weight:600}
   .ov-nav-btn .ov-nav-count{font-size:10px;color:var(--ink-3)}
 
+  /* ===== 总览价格卡片（金价+油价） ===== */
+  .ov-price-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-bottom:12px;
+  }
+  .ov-price-card .card-h{
+    font-size:14px;
+    font-weight:700;
+  }
+  .ov-refresh-btn{
+    border:none;
+    background:none;
+    cursor:pointer;
+    font-size:16px;
+    padding:4px;
+    margin-left:auto;
+    transition:transform .3s;
+  }
+  .ov-refresh-btn:active{
+    transform:rotate(180deg);
+  }
+  .ov-price-content{
+    padding:4px 0;
+  }
+  .ov-price-loading{
+    text-align:center;
+    padding:12px 0;
+    color:var(--ink-3);
+    font-size:13px;
+  }
+  .ov-oil-tools{
+    margin-left:auto;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .ov-city-select{
+    font-size:12px;
+    padding:3px 8px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:#fff;
+    color:var(--ink-2);
+    cursor:pointer;
+  }
+  /* 金价内容样式 */
+  .ov-gold-main{
+    display:flex;
+    align-items:flex-end;
+    gap:10px;
+    padding:4px 0 8px;
+  }
+  .ov-gold-price{
+    font-size:30px;
+    font-weight:900;
+    color:var(--accent-warm);
+    line-height:1;
+  }
+  .ov-gold-unit{
+    font-size:13px;
+    color:var(--ink-3);
+    padding-bottom:3px;
+  }
+  .ov-gold-change{
+    font-size:12px;
+    font-weight:600;
+    padding-bottom:3px;
+    margin-left:auto;
+  }
+  .ov-gold-up{ color:#ef4444; }
+  .ov-gold-down{ color:#10b981; }
+  .ov-gold-range{
+    display:flex;
+    gap:12px;
+    font-size:12px;
+    color:var(--ink-3);
+  }
+  .ov-gold-foot{
+    display:flex;
+    justify-content:space-between;
+    font-size:11px;
+    color:var(--ink-3);
+    margin-top:6px;
+  }
+  .ov-gold-source{
+    text-align:right;
+    font-size:10px;
+    color:var(--ink-3);
+    margin-top:2px;
+  }
+  /* 油价内容样式 */
+  .ov-oil-list{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    margin-top:2px;
+  }
+  .ov-oil-item{
+    flex:1;
+    min-width:55px;
+    background:#fff;
+    border-radius:8px;
+    padding:6px 4px;
+    text-align:center;
+    border:1px solid var(--line);
+  }
+  .ov-oil-name{
+    font-size:11px;
+    color:var(--ink-3);
+  }
+  .ov-oil-price{
+    font-size:16px;
+    font-weight:800;
+    color:var(--accent-warm);
+    margin:1px 0;
+  }
+  .ov-oil-price-gray{ color:var(--ink); }
+  .ov-oil-unit{
+    font-size:10px;
+    color:var(--ink-3);
+  }
+  .ov-oil-foot{
+    display:flex;
+    justify-content:space-between;
+    font-size:11px;
+    color:var(--ink-3);
+    margin-top:6px;
+  }
+  .ov-oil-foot-right{
+    justify-content:flex-end;
+  }
+  .ov-oil-error{
+    font-size:10px;
+    color:#e74c3c;
+    margin-top:2px;
+  }
+  /* 手机端：价格卡片单列堆叠，更舒展 */
+  @media(max-width:768px){
+    .ov-price-grid{
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+    .ov-price-card .card-h{
+      font-size:15px;
+      padding:12px 14px;
+    }
+    .ov-price-content{
+      padding:4px 14px 14px;
+    }
+    .ov-refresh-btn{
+      font-size:18px;
+      padding:6px;
+    }
+    .ov-city-select{
+      font-size:13px;
+      padding:5px 10px;
+    }
+    /* 手机端金价格式 */
+    .ov-gold-main{
+      padding:8px 0 12px;
+    }
+    .ov-gold-price{
+      font-size:36px;
+    }
+    .ov-gold-unit{
+      font-size:14px;
+      padding-bottom:5px;
+    }
+    .ov-gold-change{
+      font-size:14px;
+      padding-bottom:5px;
+    }
+    .ov-gold-range{
+      font-size:13px;
+      gap:16px;
+    }
+    .ov-gold-foot{
+      font-size:12px;
+      margin-top:8px;
+    }
+    /* 手机端油价格式 */
+    .ov-oil-list{
+      gap:8px;
+      margin-top:4px;
+    }
+    .ov-oil-item{
+      min-width:65px;
+      padding:10px 6px;
+      border-radius:10px;
+    }
+    .ov-oil-name{
+      font-size:12px;
+    }
+    .ov-oil-price{
+      font-size:20px;
+      margin:2px 0;
+    }
+    .ov-oil-unit{
+      font-size:11px;
+    }
+    .ov-oil-foot{
+      font-size:12px;
+      margin-top:8px;
+    }
+  }
+
   /* ===== 灵感收藏卡片 ===== */
   .inspo-card{
     position:relative;border-radius:14px;margin-bottom:12px;overflow:hidden;
@@ -5124,26 +5332,26 @@ function renderOverviewHTML(){
   return ''
   +'<div class="page-head"><span class="bow">🏠</span><h1>总览</h1><span class="sub">· 一目了然 · 全局掌握</span></div>'
   /* 今日金价 + 今日油价 */
-  +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">'
-    +'<div class="card tint-amber" id="ovGoldCard" style="overflow:hidden;margin:0">'
+  +'<div class="ov-price-grid">'
+    +'<div class="card tint-amber ov-price-card" id="ovGoldCard" style="overflow:hidden;margin:0">'
       +'<div class="card-h" style="display:flex;align-items:center">'
         +'🥇 今日金价'
-        +'<button onclick="refreshGoldPrice()" style="border:none;background:none;cursor:pointer;font-size:16px;padding:4px;margin-left:auto" title="刷新">🔄</button>'
+        +'<button onclick="refreshGoldPrice()" class="ov-refresh-btn" title="刷新">🔄</button>'
       +'</div>'
-      +'<div id="ovGoldContent" style="padding:4px 0">'
-        +'<div style="text-align:center;padding:12px 0;color:var(--ink-3);font-size:13px">正在获取金价…</div>'
+      +'<div id="ovGoldContent" class="ov-price-content">'
+        +'<div class="ov-price-loading">正在获取金价…</div>'
       +'</div>'
     +'</div>'
-    +'<div class="card tint-amber" id="ovOilCard" style="overflow:hidden;margin:0">'
+    +'<div class="card tint-amber ov-price-card" id="ovOilCard" style="overflow:hidden;margin:0">'
       +'<div class="card-h" style="display:flex;align-items:center">'
         +'⛽ 今日油价'
-        +'<span style="margin-left:auto;display:flex;align-items:center;gap:6px">'
-          +'<select id="ovOilCitySelect" onchange="ovChangeOilCity(this.value)" style="font-size:12px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink-2);cursor:pointer"></select>'
-          +'<button onclick="renderOvOilPrice()" style="border:none;background:none;cursor:pointer;font-size:16px;padding:4px" title="刷新">🔄</button>'
+        +'<span class="ov-oil-tools">'
+          +'<select id="ovOilCitySelect" onchange="ovChangeOilCity(this.value)" class="ov-city-select"></select>'
+          +'<button onclick="renderOvOilPrice()" class="ov-refresh-btn" title="刷新">🔄</button>'
         +'</span>'
       +'</div>'
-      +'<div id="ovOilContent" style="padding:4px 0">'
-        +'<div style="text-align:center;padding:12px 0;color:var(--ink-3);font-size:13px">正在获取油价…</div>'
+      +'<div id="ovOilContent" class="ov-price-content">'
+        +'<div class="ov-price-loading">正在获取油价…</div>'
       +'</div>'
     +'</div>'
   +'</div>'
@@ -5323,23 +5531,23 @@ function renderGoldPriceData(box,data){
   var dateStr=data.date||'';
   var source=data.source||'';
   var isUp=change&&change.indexOf('+')===0;
-  var changeColor=isUp?'#ef4444':'#10b981';
+  var changeClass=isUp?'ov-gold-up':'ov-gold-down';
 
   var html=''
-    +'<div style="display:flex;align-items:flex-end;gap:12px;padding:4px 0 8px">'
-      +'<div style="font-size:32px;font-weight:900;color:var(--accent-warm);line-height:1">'+price+'</div>'
-      +'<div style="font-size:13px;color:var(--ink-3);padding-bottom:4px">'+unit+'</div>'
-      +(change?'<div style="font-size:13px;font-weight:600;padding-bottom:4px;margin-left:auto;color:'+changeColor+'">'+escapeHtml(change)+' ('+escapeHtml(changePct)+')</div>':'')
+    +'<div class="ov-gold-main">'
+      +'<div class="ov-gold-price">'+price+'</div>'
+      +'<div class="ov-gold-unit">'+unit+'</div>'
+      +(change?'<div class="ov-gold-change '+changeClass+'">'+escapeHtml(change)+' ('+escapeHtml(changePct)+')</div>':'')
     +'</div>'
-    +'<div style="display:flex;gap:12px;font-size:12px;color:var(--ink-3)">'
+    +'<div class="ov-gold-range">'
       +'<span>📈 最高 '+escapeHtml(high)+'</span>'
       +'<span>📉 最低 '+escapeHtml(low)+'</span>'
     +'</div>'
-    +'<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3);margin-top:6px">'
+    +'<div class="ov-gold-foot">'
       +(dateStr?'<span>📅 '+escapeHtml(dateStr)+'</span>':'')
       +'<span>🔄 每5分钟自动刷新</span>'
     +'</div>'
-    +(source?'<div style="text-align:right;font-size:10px;color:var(--ink-3);margin-top:2px">数据来源：'+escapeHtml(source)+'</div>':'');
+    +(source?'<div class="ov-gold-source">数据来源：'+escapeHtml(source)+'</div>':'');
   box.innerHTML=html;
 }
 
@@ -5401,17 +5609,16 @@ function ovChangeOilCity(slug){
 
 function renderOvOilPriceData(box,cityData,cityName,updatedAt){
   var prices=cityData.prices;
-  var html='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:2px">';
+  var html='<div class="ov-oil-list">';
   prices.forEach(function(p){
-    html+='<div style="flex:1;min-width:60px;background:#fff;border-radius:8px;padding:6px 4px;text-align:center;border:1px solid var(--line)">'+
-      '<div style="font-size:11px;color:var(--ink-3)">'+escapeHtml(p.name)+'</div>'+
-      '<div style="font-size:16px;font-weight:800;color:var(--accent-warm);margin:1px 0">'+escapeHtml(p.price)+'</div>'+
-      '<div style="font-size:10px;color:var(--ink-3)">元/升</div>'+
+    html+='<div class="ov-oil-item">'+
+      '<div class="ov-oil-name">'+escapeHtml(p.name)+'</div>'+
+      '<div class="ov-oil-price">'+escapeHtml(p.price)+'</div>'+
+      '<div class="ov-oil-unit">元/升</div>'+
       '</div>';
   });
   html+='</div>';
-  var dateStr=cityData.date||'';
-  html+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3);margin-top:6px">'+
+  html+='<div class="ov-oil-foot">'+
     '<span>📍 '+escapeHtml(cityName)+'</span>'+
     '<span>🔄 每5分钟刷新</span>'+
     '</div>';
@@ -5419,7 +5626,7 @@ function renderOvOilPriceData(box,cityData,cityName,updatedAt){
 }
 
 function renderOvOilPriceFallback(box,errMsg){
-  var html='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:2px">';
+  var html='<div class="ov-oil-list">';
   var defaults=[
     {name:'92号',price:'7.73'},
     {name:'95号',price:'8.22'},
@@ -5427,16 +5634,16 @@ function renderOvOilPriceFallback(box,errMsg){
     {name:'0号柴',price:'7.52'}
   ];
   defaults.forEach(function(p){
-    html+='<div style="flex:1;min-width:60px;background:#fff;border-radius:8px;padding:6px 4px;text-align:center;border:1px solid var(--line)">'+
-      '<div style="font-size:11px;color:var(--ink-3)">'+p.name+'</div>'+
-      '<div style="font-size:16px;font-weight:800;color:var(--ink);margin:1px 0">'+p.price+'</div>'+
-      '<div style="font-size:10px;color:var(--ink-3)">元/升</div>'+
+    html+='<div class="ov-oil-item ov-oil-item-dim">'+
+      '<div class="ov-oil-name">'+p.name+'</div>'+
+      '<div class="ov-oil-price ov-oil-price-gray">'+p.price+'</div>'+
+      '<div class="ov-oil-unit">元/升</div>'+
       '</div>';
   });
   html+='</div>';
-  html+='<div style="text-align:right;font-size:11px;color:var(--ink-3);margin-top:6px">长沙参考价</div>';
+  html+='<div class="ov-oil-foot ov-oil-foot-right">长沙参考价</div>';
   if(errMsg){
-    html+='<div style="font-size:10px;color:#e74c3c;margin-top:2px">⚠️ '+escapeHtml(errMsg)+'</div>';
+    html+='<div class="ov-oil-error">⚠️ '+escapeHtml(errMsg)+'</div>';
   }
   box.innerHTML=html;
 }
