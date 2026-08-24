@@ -5873,11 +5873,20 @@ function delInspo(i){ if(confirm('确定删除这条灵感？')){ DB.inspos.spli
 
 /* ========== 飞书漫剧库 ========== */
 var FEISHU_CFG_KEY='ajie_feishu_cfg';
+/* 飞书默认配置 */
+var FEISHU_DEFAULT={
+  appId:'cli_aa060bcde2781bb7',
+  appSecret:'oIh3HMl3YbpmUhBPy0caFdE0rAvbktdz',
+  baseToken:'JWCtb1kZMaGb7msavFNcMcTen9g',
+  tableId:'tblH1sYiTwVVGygZ'
+};
 /* 加载飞书配置 */
 function loadFeishuCfg(){
   try{
-    return JSON.parse(localStorage.getItem(FEISHU_CFG_KEY))||{};
-  }catch(e){ return {}; }
+    var local=JSON.parse(localStorage.getItem(FEISHU_CFG_KEY))||{};
+    /* 合并默认配置，本地配置优先 */
+    return Object.assign({},FEISHU_DEFAULT,local);
+  }catch(e){ return Object.assign({},FEISHU_DEFAULT); }
 }
 /* 保存飞书配置 */
 function saveFeishuCfg(cfg){
