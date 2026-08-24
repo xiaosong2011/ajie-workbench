@@ -1073,73 +1073,51 @@
     color:#e74c3c;
     margin-top:2px;
   }
-  /* 手机端：价格卡片单列堆叠，更舒展 */
+  /* 手机端：保持两列，调小字体更协调 */
   @media(max-width:768px){
-    .ov-price-grid{
-      grid-template-columns:1fr;
-      gap:10px;
-    }
     .ov-price-card .card-h{
-      font-size:15px;
-      padding:12px 14px;
-    }
-    .ov-price-content{
-      padding:4px 14px 14px;
+      font-size:14px;
     }
     .ov-refresh-btn{
-      font-size:18px;
-      padding:6px;
+      font-size:16px;
     }
     .ov-city-select{
-      font-size:13px;
-      padding:5px 10px;
+      font-size:12px;
+      padding:3px 6px;
     }
-    /* 手机端金价格式 */
-    .ov-gold-main{
-      padding:8px 0 12px;
-    }
+    /* 手机端金价格式：调小字体 */
     .ov-gold-price{
-      font-size:36px;
+      font-size:24px;
     }
     .ov-gold-unit{
-      font-size:14px;
-      padding-bottom:5px;
+      font-size:12px;
     }
     .ov-gold-change{
-      font-size:14px;
-      padding-bottom:5px;
-    }
-    .ov-gold-range{
-      font-size:13px;
-      gap:16px;
-    }
-    .ov-gold-foot{
-      font-size:12px;
-      margin-top:8px;
-    }
-    /* 手机端油价格式 */
-    .ov-oil-list{
-      gap:8px;
-      margin-top:4px;
-    }
-    .ov-oil-item{
-      min-width:65px;
-      padding:10px 6px;
-      border-radius:10px;
-    }
-    .ov-oil-name{
-      font-size:12px;
-    }
-    .ov-oil-price{
-      font-size:20px;
-      margin:2px 0;
-    }
-    .ov-oil-unit{
       font-size:11px;
     }
+    .ov-gold-range{
+      font-size:11px;
+      gap:10px;
+    }
+    .ov-gold-foot{
+      font-size:10px;
+    }
+    /* 手机端油价格式 */
+    .ov-oil-item{
+      min-width:50px;
+      padding:5px 3px;
+    }
+    .ov-oil-name{
+      font-size:10px;
+    }
+    .ov-oil-price{
+      font-size:14px;
+    }
+    .ov-oil-unit{
+      font-size:9px;
+    }
     .ov-oil-foot{
-      font-size:12px;
-      margin-top:8px;
+      font-size:10px;
     }
   }
 
@@ -3323,6 +3301,31 @@ let isRemoteUpdate=false;// 标记：当前更新是否来自远端（避免循�
 function initSupabase(){
   if(!CLOUD_CFG.url||!CLOUD_CFG.anonKey||!CLOUD_CFG.workspaceId){
     sbClient=null; updateSyncBadge('off','本地模式'); return false;
+  }
+  /* 检查 supabase 库是否已加载 */
+  if(typeof supabase==='undefined'||!supabase.createClient){
+    updateSyncBadge('syncing','连接中…');
+    /* 轮询等待库加载，最多等 5 秒 */
+    var waitCount=0;
+    var waitTimer=setInterval(function(){
+      waitCount++;
+      if(typeof supabase!=='undefined'&&supabase.createClient){
+        clearInterval(waitTimer);
+        try{
+          sbClient=supabase.createClient(CLOUD_CFG.url,CLOUD_CFG.anonKey);
+          updateSyncBadge('online','已连接');
+          /* 连接成功后启动同步（如果是初始化阶段） */
+          if(typeof _afterSupabaseReady==='function') _afterSupabaseReady();
+        }catch(e){
+          sbClient=null; updateSyncBadge('error','连接失败');
+        }
+      }else if(waitCount>=50){
+        clearInterval(waitTimer);
+        sbClient=null; updateSyncBadge('error','连接失败');
+        console.warn('[Sync] Supabase 库加载超时');
+      }
+    },100);
+    return false; /* 异步初始化中，返回 false 表示还没好 */
   }
   try{
     sbClient=supabase.createClient(CLOUD_CFG.url,CLOUD_CFG.anonKey);
@@ -8376,48 +8379,59 @@ function initialRender(sectionId){
   /* 先立即用本地数据渲染首屏，不让用户等 */
   initialRender('overview');
 
-  if(sbClient){
+  /* 云同步初始化函数：supabase 准备好后调用 */
+  function startCloudSync(){
+    if(!sbClient) return;
     /* 后台异步加载云端数据，加载完后静默更新 */
-    try{
-      var cloudData=await Promise.race([
-        loadFromCloud(),
-        new Promise(r=>setTimeout(()=>r(null),3000))
-      ]);
-      if(cloudData&&typeof cloudData==='object'){
-        isRemoteUpdate=true;
-        DB=cloudData;
-        ensureKeys();
-        /* 合并初始提示词，不删除用户自定义条目 */
-        mergePrompts('aitechPrompts',INITIAL.aitechPrompts);
-        mergePrompts('aiPrompts',INITIAL.aiPrompts);
-        mergePrompts('myPrompts',INITIAL.myPrompts);
-        /* 迁移旧分类名 */
-        migrateMyPrompts();
-        try{ localStorage.setItem(STORE_KEY,JSON.stringify(DB)); }catch(e){ console.warn('[Sync] localStorage保存失败:',e.name); }
-        /* 云端数据加载完成后，静默刷新当前页面（不闪屏） */
-        var cur=document.querySelector('.nav-item.active');
-        if(cur){
-          var curId=cur.dataset.id;
-          /* 用 requestAnimationFrame 让更新更平滑 */
-          requestAnimationFrame(function(){
-            switchSection(curId);
-            showToast('已同步云端数据','success');
-          });
+    (async function(){
+      try{
+        var cloudData=await Promise.race([
+          loadFromCloud(),
+          new Promise(r=>setTimeout(()=>r(null),3000))
+        ]);
+        if(cloudData&&typeof cloudData==='object'){
+          isRemoteUpdate=true;
+          DB=cloudData;
+          ensureKeys();
+          /* 合并初始提示词，不删除用户自定义条目 */
+          mergePrompts('aitechPrompts',INITIAL.aitechPrompts);
+          mergePrompts('aiPrompts',INITIAL.aiPrompts);
+          mergePrompts('myPrompts',INITIAL.myPrompts);
+          /* 迁移旧分类名 */
+          migrateMyPrompts();
+          try{ localStorage.setItem(STORE_KEY,JSON.stringify(DB)); }catch(e){ console.warn('[Sync] localStorage保存失败:',e.name); }
+          /* 云端数据加载完成后，静默刷新当前页面（不闪屏） */
+          var cur=document.querySelector('.nav-item.active');
+          if(cur){
+            var curId=cur.dataset.id;
+            requestAnimationFrame(function(){
+              switchSection(curId);
+              showToast('已同步云端数据','success');
+            });
+          }
+          saveData();
+          isRemoteUpdate=false;
         }
-        saveData();
-        isRemoteUpdate=false;
+      }catch(e){
+        console.error('[Sync] 初始加载异常:',e);
       }
-    }catch(e){
-      console.error('[Sync] 初始加载异常:',e);
-    }
-    subscribeCloud();
-    startPolling();
-    /* 1.5秒后解除初始化保护期，让实时订阅正常工作 */
-    setTimeout(function(){ _initGracePeriod=false; },1500);
-    /* 如果是通过分享链接打开的，显示连接成功提示 */
-    if(fromURL){
-      setTimeout(showConnectToast,800);
-    }
+      subscribeCloud();
+      startPolling();
+      /* 1.5秒后解除初始化保护期，让实时订阅正常工作 */
+      setTimeout(function(){ _initGracePeriod=false; },1500);
+      /* 如果是通过分享链接打开的，显示连接成功提示 */
+      if(fromURL){
+        setTimeout(showConnectToast,800);
+      }
+    })();
+  }
+
+  if(sbClient){
+    /* supabase 已就绪，直接启动同步 */
+    startCloudSync();
+  }else if(CLOUD_CFG.url&&CLOUD_CFG.anonKey&&CLOUD_CFG.workspaceId){
+    /* supabase 还在加载中，等准备好了再启动 */
+    window._afterSupabaseReady=startCloudSync;
   }
 })();
 
