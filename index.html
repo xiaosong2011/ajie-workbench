@@ -98,6 +98,23 @@
   .content::-webkit-scrollbar-thumb:hover{background:#9fb0c4}
   .content-inner{padding:20px 24px calc(80px + var(--safe-bottom));max-width:760px}
 
+  /* 全局下拉刷新 */
+  .global-pull-indicator{
+    position:absolute;left:0;right:0;top:0;
+    height:0;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    font-size:13px;color:var(--ink-3);
+    transition:height .25s ease;
+    z-index:10;
+  }
+  .global-pull-indicator .spinner{
+    width:18px;height:18px;
+    border:2px solid var(--line);
+    border-top-color:var(--accent);
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+  }
+
   .page-head{display:flex;align-items:flex-end;gap:8px;margin-bottom:18px;flex-wrap:wrap}
   .page-head .bow{font-size:20px}
   .page-head h1{font-size:24px;font-weight:800;color:var(--ink)}
@@ -1623,7 +1640,10 @@
       </div>
     </aside>
     <!-- 右侧内容 -->
-    <main class="content">
+    <main class="content" id="mainContent">
+      <div class="global-pull-indicator" id="globalPullIndicator">
+        <span id="globalPullText">下拉刷新</span>
+      </div>
       <div class="content-inner" id="content"></div>
     </main>
     <div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
@@ -2609,13 +2629,8 @@ inspo:`
         <button class="btn btn-accent" style="padding:6px 12px;font-size:12px" onclick="syncFeishuManju()">🔄 同步</button>
       </span>
     </div>
-    <div class="pull-refresh-wrap" id="feishuManjuWrap">
-      <div class="pull-refresh-indicator" id="feishuPullIndicator">
-        <span id="feishuPullText">下拉刷新</span>
-      </div>
-      <div id="feishuManjuList">
-        <div style="text-align:center;padding:20px 0;color:var(--ink-3);font-size:13px">点击「配置」填写飞书信息，再点「同步」拉取漫剧数据</div>
-      </div>
+    <div id="feishuManjuList">
+      <div style="text-align:center;padding:20px 0;color:var(--ink-3);font-size:13px">点击「配置」填写飞书信息，再点「同步」拉取漫剧数据</div>
     </div>
   </div>
   <div class="card tint-amber">
@@ -4128,6 +4143,7 @@ function toggleSidebar(state){
   ov.classList.toggle('show',open);
 }
 function switchSection(id){
+  currentSection=id;
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.id===id));
   const content=document.getElementById('content');
   let html;
@@ -4179,6 +4195,96 @@ function switchSection(id){
       if(card) card.querySelectorAll('.txt').forEach(function(t){
         if(!t.classList.contains('quote-text')&&!t.closest('.card-h')) t.classList.add('quote-text');
       });
+    }
+  });
+}
+
+/* ========== 全局下拉刷新 ========== */
+var currentSection='overview';
+var _globalPullInited=false;
+function initGlobalPullRefresh(){
+  if(_globalPullInited) return;
+  _globalPullInited=true;
+
+  var indicator=document.getElementById('globalPullIndicator');
+  var pullText=document.getElementById('globalPullText');
+  if(!indicator) return;
+
+  var startY=0;
+  var pulling=false;
+  var pullDist=0;
+  var threshold=70; /* 触发阈值 */
+  var isRefreshing=false;
+
+  document.addEventListener('touchstart',function(e){
+    if(isRefreshing) return;
+    /* 只有在页面顶部时才触发 */
+    if(window.scrollY>10) return;
+    startY=e.touches[0].clientY;
+    pulling=true;
+    pullDist=0;
+  },{passive:true});
+
+  document.addEventListener('touchmove',function(e){
+    if(!pulling||isRefreshing) return;
+    var currentY=e.touches[0].clientY;
+    var diff=currentY-startY;
+    if(diff<=0){ pullDist=0; indicator.style.height='0px'; return; }
+    /* 阻尼效果 */
+    pullDist=Math.min(diff*0.5,threshold*1.5);
+    indicator.style.height=pullDist+'px';
+
+    if(pullText){
+      if(pullDist>=threshold){
+        pullText.textContent='释放立即刷新';
+      }else{
+        pullText.textContent='下拉刷新';
+      }
+    }
+  },{passive:true});
+
+  document.addEventListener('touchend',function(){
+    if(!pulling||isRefreshing) return;
+    pulling=false;
+
+    if(pullDist>=threshold){
+      /* 触发刷新 */
+      isRefreshing=true;
+      indicator.style.height=threshold+'px';
+      if(pullText){
+        pullText.innerHTML='<span class="spinner"></span> 正在刷新…';
+      }
+      /* 执行当前页面刷新 */
+      doRefreshCurrentSection().then(function(){
+        setTimeout(function(){
+          indicator.style.height='0px';
+          isRefreshing=false;
+          if(pullText) pullText.textContent='下拉刷新';
+          showToast('刷新成功','success');
+        },600);
+      }).catch(function(){
+        setTimeout(function(){
+          indicator.style.height='0px';
+          isRefreshing=false;
+          if(pullText) pullText.textContent='下拉刷新';
+        },600);
+      });
+    }else{
+      indicator.style.height='0px';
+    }
+    pullDist=0;
+  });
+}
+
+/* 刷新当前页面 */
+function doRefreshCurrentSection(){
+  return new Promise(function(resolve,reject){
+    try{
+      switchSection(currentSection);
+      /* 给一点时间让页面渲染和数据加载 */
+      setTimeout(function(){ resolve(); },800);
+    }catch(e){
+      reject(e);
     }
   });
 }
@@ -6036,8 +6142,6 @@ function loadFeishuManjuFromLocal(){
   if(items.length>0){
     renderFeishuManju(items);
   }
-  /* 初始化下拉刷新 */
-  initPullRefresh();
 }
 
 /* 下拉刷新初始化 */
@@ -8679,6 +8783,9 @@ function initialRender(sectionId){
 (async function(){
   /* 先立即用本地数据渲染首屏，不让用户等 */
   initialRender('overview');
+
+  /* 初始化全局下拉刷新（移动端） */
+  setTimeout(function(){ initGlobalPullRefresh(); },200);
 
   /* 云同步初始化函数：supabase 准备好后调用 */
   function startCloudSync(){
