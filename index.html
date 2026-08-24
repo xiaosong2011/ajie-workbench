@@ -112,6 +112,20 @@
   .txt{font-size:13.5px;line-height:1.75;color:var(--ink-2)}
   .txt b{color:var(--ink);font-weight:600}
 
+  /* 飞书漫剧库 */
+  .fs-manju-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+  .fs-manju-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .2s}
+  .fs-manju-item:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .fs-manju-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fs-manju-book{font-size:11px;color:var(--ink-3)}
+  .fs-manju-copy{font-size:10px;color:var(--accent);margin-top:4px}
+
+  /* 下拉刷新 */
+  .pull-refresh-wrap{position:relative;overflow:hidden}
+  .pull-refresh-indicator{position:absolute;left:0;right:0;top:0;height:0;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--ink-3);transition:height .2s ease;overflow:hidden}
+  .pull-refresh-indicator .spinner{width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
   .pill{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:600}
   .btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:20px;font-size:12.5px;font-weight:700;cursor:pointer;border:none;transition:transform .15s,box-shadow .2s,filter .15s;font-family:inherit}
   .btn:active{transform:scale(.96)}
@@ -2595,8 +2609,13 @@ inspo:`
         <button class="btn btn-accent" style="padding:6px 12px;font-size:12px" onclick="syncFeishuManju()">🔄 同步</button>
       </span>
     </div>
-    <div id="feishuManjuList">
-      <div style="text-align:center;padding:20px 0;color:var(--ink-3);font-size:13px">点击「配置」填写飞书信息，再点「同步」拉取漫剧数据</div>
+    <div class="pull-refresh-wrap" id="feishuManjuWrap">
+      <div class="pull-refresh-indicator" id="feishuPullIndicator">
+        <span id="feishuPullText">下拉刷新</span>
+      </div>
+      <div id="feishuManjuList">
+        <div style="text-align:center;padding:20px 0;color:var(--ink-3);font-size:13px">点击「配置」填写飞书信息，再点「同步」拉取漫剧数据</div>
+      </div>
     </div>
   </div>
   <div class="card tint-amber">
@@ -5974,10 +5993,10 @@ function fetchFeishuManju(){
 /* 同步飞书漫剧数据 */
 function syncFeishuManju(){
   var listEl=document.getElementById('feishuManjuList');
-  if(!listEl) return;
+  if(!listEl) return Promise.reject(new Error('元素不存在'));
   listEl.innerHTML='<div style="text-align:center;padding:20px 0;color:var(--ink-3);font-size:13px">⏳ 正在从飞书同步…</div>';
 
-  fetchFeishuManju().then(function(items){
+  return fetchFeishuManju().then(function(items){
     /* 保存到本地 */
     localStorage.setItem('ajie_feishu_manju',JSON.stringify({
       data:items,
@@ -5985,6 +6004,7 @@ function syncFeishuManju(){
     }));
     renderFeishuManju(items);
     showToast('同步成功！共 '+items.length+' 条','success');
+    return items;
   }).catch(function(err){
     listEl.innerHTML='<div style="text-align:center;padding:20px 0;color:#e74c3c;font-size:13px">❌ 同步失败：'+escapeHtml(err.message)+'</div>';
     /* 如果有本地缓存，显示本地数据 */
@@ -5994,6 +6014,7 @@ function syncFeishuManju(){
         renderFeishuManju(local);
       },1500);
     }
+    throw err;
   });
 }
 
@@ -6015,6 +6036,83 @@ function loadFeishuManjuFromLocal(){
   if(items.length>0){
     renderFeishuManju(items);
   }
+  /* 初始化下拉刷新 */
+  initPullRefresh();
+}
+
+/* 下拉刷新初始化 */
+var _pullInited=false;
+function initPullRefresh(){
+  if(_pullInited) return;
+  var wrap=document.getElementById('feishuManjuWrap');
+  if(!wrap) return;
+  _pullInited=true;
+
+  var startY=0;
+  var pulling=false;
+  var pullDist=0;
+  var threshold=60; /* 触发刷新的阈值 */
+  var indicator=document.getElementById('feishuPullIndicator');
+  var pullText=document.getElementById('feishuPullText');
+  var isRefreshing=false;
+
+  wrap.addEventListener('touchstart',function(e){
+    if(isRefreshing) return;
+    /* 只有在页面顶部时才触发下拉刷新 */
+    if(window.scrollY>10) return;
+    startY=e.touches[0].clientY;
+    pulling=true;
+    pullDist=0;
+  },{passive:true});
+
+  wrap.addEventListener('touchmove',function(e){
+    if(!pulling||isRefreshing) return;
+    var currentY=e.touches[0].clientY;
+    var diff=currentY-startY;
+    if(diff<=0){ pullDist=0; indicator.style.height='0px'; return; }
+    /* 阻尼效果，越拉越难拉 */
+    pullDist=Math.min(diff*0.5,threshold*1.5);
+    indicator.style.height=pullDist+'px';
+
+    if(pullText){
+      if(pullDist>=threshold){
+        pullText.textContent='释放刷新';
+      }else{
+        pullText.textContent='下拉刷新';
+      }
+    }
+  },{passive:true});
+
+  wrap.addEventListener('touchend',function(){
+    if(!pulling||isRefreshing) return;
+    pulling=false;
+
+    if(pullDist>=threshold){
+      /* 触发刷新 */
+      isRefreshing=true;
+      indicator.style.height=threshold+'px';
+      if(pullText){
+        pullText.innerHTML='<span class="spinner"></span> 正在刷新…';
+      }
+      syncFeishuManju().then(function(){
+        setTimeout(function(){
+          indicator.style.height='0px';
+          isRefreshing=false;
+          if(pullText) pullText.textContent='下拉刷新';
+        },500);
+      }).catch(function(){
+        setTimeout(function(){
+          indicator.style.height='0px';
+          isRefreshing=false;
+          if(pullText) pullText.textContent='下拉刷新';
+        },500);
+      });
+    }else{
+      /* 回弹 */
+      indicator.style.height='0px';
+    }
+    pullDist=0;
+  });
 }
 
 /* 渲染飞书漫剧列表 */
@@ -6025,16 +6123,13 @@ function renderFeishuManju(items){
     listEl.innerHTML='<div style="text-align:center;padding:20px 0;color:var(--ink-3);font-size:13px">暂无数据，点击「同步」从飞书拉取</div>';
     return;
   }
-  var html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">';
+  var html='<div class="fs-manju-grid">';
   items.forEach(function(item,idx){
     var title=item.title||item.bookId||'未命名';
-    html+='<div style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .2s" '
-      +'onclick="copyFeishuManju('+idx+')" '
-      +'onmouseover="this.style.borderColor=\'var(--accent)\';this.style.transform=\'translateY(-2px)\'" '
-      +'onmouseout="this.style.borderColor=\'var(--line)\';this.style.transform=\'translateY(0)\'">'
-      +'<div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(title)+'</div>'
-      +(item.bookId?'<div style="font-size:11px;color:var(--ink-3)">📖 '+escapeHtml(item.bookId)+'</div>':'')
-      +'<div style="font-size:10px;color:var(--accent);margin-top:4px">点击复制</div>'
+    html+='<div class="fs-manju-item" onclick="copyFeishuManju('+idx+')">'
+      +'<div class="fs-manju-title">'+escapeHtml(title)+'</div>'
+      +(item.bookId?'<div class="fs-manju-book">📖 '+escapeHtml(item.bookId)+'</div>':'')
+      +'<div class="fs-manju-copy">点击复制</div>'
       +'</div>';
   });
   html+='</div>';
