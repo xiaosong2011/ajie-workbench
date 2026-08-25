@@ -4744,66 +4744,93 @@ async function loadFromCloud(){
   }
 }
 
-/* --- 保存到云端（防抖 + 自动重试） --- */
+/* --- 保存到云端（防抖 + 自动重试 + 失败冷却） --- */
 let saveRetryCount=0;
 let lastSaveTimestamp=null;  // 记录本次保存的时间戳，用于识别自己保存的回声
 let _showSyncSuccessToast=false;  // 是否在同步成功后显示提示
+let _cloudSaveCoolDown=false;  // 失败冷却：连续失败后暂停自动同步，避免刷屏
+let _lastErrorMsg='';  // 记录上次错误信息，避免重复弹toast
 function saveToCloud(showToast){
   if(!sbClient)return;
   if(showToast) _showSyncSuccessToast=true;
+  /* 失败冷却中：只更新最后一次数据到队列，不立即发起请求，避免刷屏 */
+  if(_cloudSaveCoolDown&&!showToast){
+    if(syncTimer)clearTimeout(syncTimer);
+    syncTimer=setTimeout(async()=>{
+      syncTimer=null;
+      /* 冷却期间只做一次静默尝试，失败就继续冷却 */
+      _doCloudSave(false);
+    },5000);
+    return;
+  }
   if(syncTimer)clearTimeout(syncTimer);
   syncTimer=setTimeout(async()=>{
-    syncTimer=null;  // 清空定时器引用，让订阅/轮询可以正常工作
-    _cloudSaveInProgress=true;  // 标记云端保存进行中
-    updateSyncBadge('syncing','同步中…');
-    const ts=new Date().toISOString();
-    try{
-      const {error}=await sbClient.from('workbench_data')
-        .upsert({
-          workspace_id:CLOUD_CFG.workspaceId,
-          data:DB,
-          updated_at:ts
-        });
-      if(error){
-        saveRetryCount++;
-        if(saveRetryCount<=3){
-          updateSyncBadge('error','重试中('+saveRetryCount+'/3)');
-          setTimeout(()=>saveToCloud(),2000*saveRetryCount);
+    syncTimer=null;
+    _doCloudSave(true);
+  },150);
+}
+function _doCloudSave(allowRetry){
+  if(!sbClient)return;
+  _cloudSaveInProgress=true;
+  updateSyncBadge('syncing','同步中…');
+  const ts=new Date().toISOString();
+  try{
+    sbClient.from('workbench_data')
+      .upsert({
+        workspace_id:CLOUD_CFG.workspaceId,
+        data:DB,
+        updated_at:ts
+      }).then(({error})=>{
+        if(error){
+          if(allowRetry&&saveRetryCount<3){
+            saveRetryCount++;
+            updateSyncBadge('error','重试中('+saveRetryCount+'/3)');
+            setTimeout(()=>_doCloudSave(true),2000*saveRetryCount);
+          }else{
+            saveRetryCount=0;
+            _cloudSaveCoolDown=true;
+            updateSyncBadge('error','同步异常');
+            const errMsg=error.message||'未知错误';
+            if(_showSyncSuccessToast&&errMsg!==_lastErrorMsg){
+              showToast('云同步失败：'+errMsg,'error');
+              _lastErrorMsg=errMsg;
+              _showSyncSuccessToast=false;
+            }
+            /* 30秒后自动解除冷却，再试一次 */
+            setTimeout(()=>{_cloudSaveCoolDown=false;},30000);
+          }
         }else{
-          updateSyncBadge('error','保存失败');
           saveRetryCount=0;
+          _cloudSaveCoolDown=false;
+          _lastErrorMsg='';
+          lastCloudSaveTime=Date.now();
+          lastSaveTimestamp=ts;
+          updateSyncBadge('online','已连接');
           if(_showSyncSuccessToast){
-            showToast('云同步失败：'+(error.message||'未知错误'),'error');
+            showToast('✅ 已同步到云端','success');
             _showSyncSuccessToast=false;
           }
         }
-      }else{
-        saveRetryCount=0;
-        lastCloudSaveTime=Date.now();
-        lastSaveTimestamp=ts;
-        updateSyncBadge('online','已连接');
-        if(_showSyncSuccessToast){
-          showToast('✅ 已同步到云端','success');
-          _showSyncSuccessToast=false;
-        }
-      }
-    }catch(e){
+        _cloudSaveInProgress=false;
+      });
+  }catch(e){
+    _cloudSaveInProgress=false;
+    if(allowRetry&&saveRetryCount<3){
       saveRetryCount++;
-      if(saveRetryCount<=3){
-        updateSyncBadge('error','重试中('+saveRetryCount+'/3)');
-        setTimeout(()=>saveToCloud(),2000*saveRetryCount);
-      }else{
-        updateSyncBadge('error','网络错误');
-        saveRetryCount=0;
-        if(_showSyncSuccessToast){
-          showToast('云同步失败：网络异常','error');
-          _showSyncSuccessToast=false;
-        }
+      updateSyncBadge('error','重试中('+saveRetryCount+'/3)');
+      setTimeout(()=>_doCloudSave(true),2000*saveRetryCount);
+    }else{
+      saveRetryCount=0;
+      _cloudSaveCoolDown=true;
+      updateSyncBadge('error','同步异常');
+      if(_showSyncSuccessToast&&'网络异常'!==_lastErrorMsg){
+        showToast('云同步失败：网络异常','error');
+        _lastErrorMsg='网络异常';
+        _showSyncSuccessToast=false;
       }
-    }finally{
-      _cloudSaveInProgress=false;
+      setTimeout(()=>{_cloudSaveCoolDown=false;},30000);
     }
-  },150);
+  }
 }
 
 /* --- 定期同步（每30秒检查一次云端是否有更新） --- */
