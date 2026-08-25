@@ -7461,7 +7461,7 @@ function callAgentLLM(systemPrompt, userMessage, isTest){
         {role:'user',content:userMessage}
       ],
       temperature:0.8,
-      max_tokens:8192,
+      max_tokens:16384,
       response_format:{type:'json_object'}
     })
   }).then(r=>{
@@ -9222,7 +9222,7 @@ function saCallLLM(systemPrompt,userMessage){
         {role:'user',content:userMessage}
       ],
       temperature:0.8,
-      max_tokens:8192
+      max_tokens:16384
     })
   }).then(function(r){
     if(!r.ok){
@@ -9384,7 +9384,7 @@ function wsGenerate(){
   /* 构建系统提示词 */
   var sysPrompt=wsBuildSystemPrompt(mode);
   /* 截取小说文本 */
-  var novelChunk=text.length>8000?text.substring(0,8000)+'\n...(内容过长已截断)':text;
+  var novelChunk=text.length>20000?text.substring(0,20000)+'\n...(内容过长已截断)':text;
   var userMsg='【画风】'+style+'\n【小说类型】'+novelType+'\n';
   if(extra) userMsg+='【补充要求】'+extra+'\n';
   userMsg+='\n请分析以下小说内容并返回JSON：\n\n'+novelChunk;
