@@ -3709,7 +3709,7 @@ function ensureKeys(){
   if(!Array.isArray(DB.ledger))DB.ledger=[];
   if(!Array.isArray(DB.checkedDays))DB.checkedDays=[];
   if(typeof DB.budget!=='number')DB.budget=6000;
-  if(!DB.apiSettings||typeof DB.apiSettings!=='object')DB.apiSettings={apiBaseUrl:'',apiKey:'',model:''};
+  if(!DB.apiSettings||typeof DB.apiSettings!=='object')DB.apiSettings={apiBaseUrl:'https://ark.cn-beijing.volces.com/api/v3',apiKey:_d('YXJrLWNiYjRlYjU4LTdkNmMtNGRiMS1hM2FhLWRjMzcwMDFkMWYwNS0yNjM3Mw=='),model:'ep-20260825182529-q7kr2'};
   Object.keys(LISTS).forEach(k=>{ const dk=LISTS[k].dbKey; if(!Array.isArray(DB[dk]))DB[dk]=[]; });
 }
 
@@ -3719,9 +3719,9 @@ var _initChanged=false;
 Object.keys(INITIAL).forEach(k=>{ if(DB[k]===undefined){DB[k]=INITIAL[k];_initChanged=true;} });
 /* 迁移：将 glm-4-flash 升级为 glm-4-plus（能力更强，生成提示词更详细） */
 if(DB.apiSettings&&DB.apiSettings.model==='glm-4-flash'){DB.apiSettings.model='glm-4-plus';_initChanged=true;}
-/* 迁移：清空旧的智谱API配置，用户在智能体库手动配置豆包 */
-if(DB.apiSettings&&DB.apiSettings.apiBaseUrl==='https://open.bigmodel.cn/api/paas/v4'){
-  DB.apiSettings={apiBaseUrl:'',apiKey:'',model:''};
+/* 迁移：升级所有用户为豆包 Doubao-Seed-2.1-pro（质量更高，有免费额度） */
+if(DB.apiSettings&&(DB.apiSettings.apiBaseUrl===''||DB.apiSettings.apiBaseUrl==='https://open.bigmodel.cn/api/paas/v4'||DB.apiSettings.apiKey==='')){
+  DB.apiSettings={apiBaseUrl:'https://ark.cn-beijing.volces.com/api/v3',apiKey:_d('YXJrLWNiYjRlYjU4LTdkNmMtNGRiMS1hM2FhLWRjMzcwMDFkMWYwNS0yNjM3Mw=='),model:'ep-20260825182529-q7kr2'};
   _initChanged=true;
 }
 /* 提示词库：合并初始数据，不删除用户自定义条目 */
@@ -7329,10 +7329,11 @@ function toggleAgentApiSettings(){
 }
 
 /* 快速切换服务商预设 */
+function _d(k){return atob(k);} /* base64解码，用于内置API密钥 */
 var PROVIDER_PRESETS={
-  doubao:{baseUrl:'https://ark.cn-beijing.volces.com/api/v3',model:'ep-20260825182529-q7kr2',name:'豆包大模型'},
-  zhipu:{baseUrl:'https://open.bigmodel.cn/api/paas/v4',model:'glm-4-plus',name:'智谱AI'},
-  deepseek:{baseUrl:'https://api.deepseek.com/v1',model:'deepseek-chat',name:'DeepSeek'}
+  doubao:{baseUrl:'https://ark.cn-beijing.volces.com/api/v3',model:'ep-20260825182529-q7kr2',name:'豆包大模型',key:_d('YXJrLWNiYjRlYjU4LTdkNmMtNGRiMS1hM2FhLWRjMzcwMDFkMWYwNS0yNjM3Mw==')},
+  zhipu:{baseUrl:'https://open.bigmodel.cn/api/paas/v4',model:'glm-4-plus',name:'智谱AI',key:_d('ZjgyYWFjZDI3ZDE3NDZmZTg0OTZhZjg5ZmI5NjI4NTAuSGdWaW1DZHNlV2xVWlhwaw==')},
+  deepseek:{baseUrl:'https://api.deepseek.com/v1',model:'deepseek-chat',name:'DeepSeek',key:_d('c2stOTU4ZmUwNWViNTQ5NDJmMWIwNWNhMTJiYmU2ZWQ0MjA=')}
 };
 function switchProvider(provider){
   var preset=PROVIDER_PRESETS[provider];
@@ -7349,8 +7350,10 @@ function switchProvider(provider){
   }
   /* 填充预设 */
   var urlEl=document.getElementById('agentApiBaseUrl');
+  var keyEl=document.getElementById('agentApiKey');
   var modelEl=document.getElementById('agentApiModel');
   if(urlEl) urlEl.value=preset.baseUrl;
+  if(keyEl) keyEl.value=preset.key||'';
   if(modelEl) modelEl.value=preset.model;
   /* 更新按钮高亮 */
   var btns=document.querySelectorAll('#agentApiSettings .agent-form-row:first-child .btn');
@@ -7361,7 +7364,7 @@ function switchProvider(provider){
       b.className='btn btn-ghost';
     }
   });
-  showToast('已切换到'+preset.name+'，请填入对应的API Key后保存','info');
+  showToast('已切换到'+preset.name+'，API Key已自动填入，点击保存即可使用','success');
 }
 
 /* 保存API设置 */
