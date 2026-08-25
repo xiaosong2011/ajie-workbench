@@ -711,6 +711,44 @@
   }
   .style-sub b{color:var(--ink-2);font-weight:600;}
 
+  .style-prompt{
+    margin-top:10px;padding:10px 12px;
+    background:rgba(46,134,222,.05);
+    border:1px solid rgba(46,134,222,.15);
+    border-radius:10px;
+  }
+  .sp-title{
+    font-size:13px;font-weight:600;color:var(--accent);
+    margin-bottom:8px;
+  }
+  .sp-lang{
+    font-size:11px;color:var(--ink-3);
+    margin:6px 0 3px;
+  }
+  .sp-text{
+    font-size:12px;color:var(--ink-2);
+    background:#fff;
+    padding:8px 10px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    line-height:1.6;
+    cursor:pointer;
+    transition:all .2s;
+    user-select:none;
+    position:relative;
+  }
+  .sp-text:hover{
+    border-color:var(--accent);
+    background:rgba(46,134,222,.03);
+  }
+  .sp-text::after{
+    content:'点击复制';
+    position:absolute;top:6px;right:8px;
+    font-size:10px;color:var(--accent);
+    opacity:0;transition:opacity .2s;
+  }
+  .sp-text:hover::after{opacity:1;}
+
   .ai-tool-tabs{
     display:flex;gap:8px;
   }
@@ -2331,6 +2369,13 @@ daily:`
       <div class="style-sub">
         <b>常见子类：</b>少年Jump风、少女漫风、京都动画风、新海诚风、吉卜力风
       </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">日系动漫风格，一位美少女站在樱花树下，长发飘逸，大眼睛，温暖的阳光透过树叶，色彩鲜艳，线条流畅，高清细节，京都动画风格</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Japanese anime style, a beautiful girl standing under cherry blossom tree, flowing long hair, big eyes, warm sunlight through leaves, vibrant colors, clean line art, high detail, Kyoto Animation style</div>
+      </div>
     </div>
 
     <div class="card tint-rose">
@@ -2344,6 +2389,13 @@ daily:`
       </div>
       <div class="style-sub">
         <b>常见子类：</b>水墨国风、3D国漫风、Q版古风、魔道祖师风、斗萝大陆风
+      </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">古风仙侠风格，一位白衣剑仙站在云雾缭绕的山巅，长发飘逸，手持长剑，仙风道骨，水墨韵味，山水意境，仙鹤飞舞，仙气飘飘，国漫风格</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Chinese ancient fairy style, a white-robed sword immortal standing on a misty mountain peak, flowing long hair, holding a sword, ethereal aura, ink wash painting aesthetic, mountain landscape, flying cranes, xianxia atmosphere, Chinese donghua style</div>
       </div>
     </div>
 
@@ -2359,6 +2411,13 @@ daily:`
       <div class="style-sub">
         <b>常见子类：</b>赛博朋克边缘行者风、攻壳机动队风、蒸汽朋克混合风
       </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">赛博朋克动漫风格，霓虹灯光映照下的未来都市，雨夜街道，全息广告投影，机械义体少女，高对比度色彩，紫粉色调，赛博朋克边缘行者风格，电影级光影</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Cyberpunk anime style, neon-lit futuristic city, rainy night street, holographic advertisements, cyborg girl with mechanical arms, high contrast colors, purple and pink tones, Cyberpunk Edgerunners style, cinematic lighting</div>
+      </div>
     </div>
 
     <div class="card tint-amber">
@@ -2372,6 +2431,13 @@ daily:`
       </div>
       <div class="style-sub">
         <b>常见子类：</b>海贼王风、火影忍者风、咒术回战风、鬼灭之刃风
+      </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">热血少年动漫风格，战斗场景，少年主角释放能量大招，速度线效果，夸张表情，肌肉感十足，张力满点，火焰特效，Jump风格，动态构图，高燃画面</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Shonen anime style, battle scene, young protagonist releasing power attack, speed lines, exaggerated expression, muscular build, dynamic tension, flame effects, Jump style, dynamic composition, epic action</div>
       </div>
     </div>
 
@@ -2387,6 +2453,13 @@ daily:`
       <div class="style-sub">
         <b>常见子类：</b>吉卜力风、新海诚日常风、京阿尼治愈风、宫崎骏童话风
       </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">治愈系动漫风格，温暖的午后阳光，女孩坐在窗边看书，柔和色调，细腻光影，绿植点缀，宁静日常，吉卜力风格，舒适氛围，温暖治愈，柔和水彩质感</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Healing anime style, warm afternoon sunlight, girl reading by the window, soft color palette, delicate lighting and shadow, green plants, peaceful daily life, Studio Ghibli style, cozy atmosphere, warm and comforting, soft watercolor texture</div>
+      </div>
     </div>
 
     <div class="card tint-violet">
@@ -2400,6 +2473,13 @@ daily:`
       </div>
       <div class="style-sub">
         <b>常见子类：</b>吸血鬼风格、黑执事风、潘多拉之心风、暗黑童话风
+      </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">暗黑哥特动漫风格，神秘古堡前的吸血鬼少女，黑色礼服，红色蔷薇，月光下的十字架，暗色调，华丽阴郁，氛围感拉满，黑执事风格，精致细节</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Dark gothic anime style, vampire girl in front of mysterious castle, black dress, red roses, cross under moonlight, dark color palette, ornate and melancholic, atmospheric, Black Butler style, exquisite details</div>
       </div>
     </div>
 
@@ -2415,6 +2495,13 @@ daily:`
       <div class="style-sub">
         <b>常见子类：</b>工业革命风、甲铁城风、蒸汽都市风、机械绅士风
       </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">蒸汽朋克动漫风格，维多利亚时代的机械都市，齿轮与铜管，蒸汽飞艇，黄铜质感，戴着护目镜的少女，复古与科幻融合，甲铁城风格，精密机械细节</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Steampunk anime style, Victorian-era mechanical city, gears and brass pipes, steam airship, brass texture, girl with goggles, retro and sci-fi fusion, Kabaneri style, intricate mechanical details</div>
+      </div>
     </div>
 
     <div class="card tint-orange">
@@ -2428,6 +2515,13 @@ daily:`
       </div>
       <div class="style-sub">
         <b>常见子类：</b>淡彩手绘风、厚涂油画风、铅笔素描风、马克笔手绘风
+      </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">水彩手绘风格，女孩站在花海中，柔和通透的色彩，明显的笔触感，水彩晕染效果，文艺气息，淡彩手绘，温暖阳光，梦幻氛围，插画风格</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Watercolor hand-painted style, girl standing in flower field, soft and transparent colors, visible brush strokes, watercolor bleeding effect, literary atmosphere, light watercolor painting, warm sunlight, dreamy atmosphere, illustration style</div>
       </div>
     </div>
 
@@ -2443,6 +2537,13 @@ daily:`
       <div class="style-sub">
         <b>常见子类：</b>SD/Q版、粘土人风、像素风Q版、chibi风格
       </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Q版萌系风格，二头身可爱小女孩，圆滚滚的脸，超大眼睛，软萌可爱，粉色系，表情开心，chibi风格，粘土人质感，简单背景，治愈系萌物</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Chibi cute style, 2-headed adorable little girl, round face, huge eyes, soft and cute, pink color scheme, happy expression, chibi style, nendoroid texture, simple background, healing kawaii</div>
+      </div>
     </div>
 
     <div class="card tint-blue">
@@ -2456,6 +2557,13 @@ daily:`
       </div>
       <div class="style-sub">
         <b>常见子类：</b>漫威风、DC风、DC动画电影风、蜘蛛侠平行宇宙风
+      </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">美漫超级英雄风格，英雄站在城市顶端，硬朗线条，肌肉夸张，浓烈色彩，力量感十足，漫画网点效果，漫威风格，动态姿势，披风飘扬，史诗感</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">American comic superhero style, hero standing on top of city, bold lines, exaggerated muscles, strong colors, powerful presence, comic halftone effect, Marvel style, dynamic pose, flowing cape, epic feel</div>
       </div>
     </div>
   </div>
@@ -2474,6 +2582,13 @@ daily:`
       <div class="style-sub">
         <b>常见子类：</b>好莱坞大片风、文艺片风、IMAX质感、王家卫风
       </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">电影感真人风格，一位男子站在落地窗前，侧光勾勒面部轮廓，浅景深虚化背景，胶片颗粒质感，暖色调，85mm镜头，f/1.4大光圈，宽画幅，院线电影质感，阿莱调色</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Cinematic real person style, a man standing by floor-to-ceiling window, side light outlining facial contours, shallow depth of field, film grain texture, warm tones, 85mm lens, f/1.4 aperture, widescreen, Hollywood film quality, ARRI color grading</div>
+      </div>
     </div>
 
     <div class="card tint-rose">
@@ -2487,6 +2602,13 @@ daily:`
       </div>
       <div class="style-sub">
         <b>常见子类：</b>富士胶片风、柯达Portra风、日系写真风、滨田英明风
+      </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">日系胶片风格，女孩在阳光下微笑，柔和色调，轻微过曝，温暖肤色，富士Provia 400H胶片质感，颗粒细腻，清新自然，日系写真，滨田英明风格，逆光人像</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Japanese film photography style, girl smiling in sunlight, soft tones, slight overexposure, warm skin tones, Fujifilm Provia 400H film texture, fine grain, fresh and natural, Japanese portrait, Hideaki Hamada style, backlit portrait</div>
       </div>
     </div>
 
@@ -2502,6 +2624,13 @@ daily:`
       <div class="style-sub">
         <b>常见子类：</b>王家卫电影风、港片黄金年代风、港式写真风、茶餐厅风
       </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">复古港风真人风格，90年代香港街头，霓虹灯牌下的女子，浓郁色彩，高对比度，柔光朦胧效果，怀旧胶片质感，王家卫电影风格，重庆森林感，暖绿调</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Retro Hong Kong style, 90s Hong Kong street, woman under neon signs, rich colors, high contrast, soft glow effect, nostalgic film texture, Wong Kar-wai film style, Chungking Express vibe, warm green tones</div>
+      </div>
     </div>
 
     <div class="card tint-indigo">
@@ -2515,6 +2644,13 @@ daily:`
       </div>
       <div class="style-sub">
         <b>常见子类：</b>银翼杀手风、攻壳机动队真人风、赛博朋克2077风、东京涩谷风
+      </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">赛博朋克真人风格，雨夜霓虹街道，湿润地面反射彩色灯光，机械义肢女子，全息广告牌，未来都市背景，紫蓝色调，银翼杀手2049质感，电影级光影，烟雾氛围</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Cyberpunk real person style, rainy neon street, wet ground reflecting colorful lights, woman with mechanical prosthetic limbs, holographic billboards, futuristic city background, purple and blue tones, Blade Runner 2049 quality, cinematic lighting, smoky atmosphere</div>
       </div>
     </div>
 
@@ -2530,6 +2666,13 @@ daily:`
       <div class="style-sub">
         <b>常见子类：</b>仙侠剧风、武侠电影风、汉服写真风、敦煌飞天风
       </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">古风真人风格，汉服女子站在竹林中，飘逸长裙，仙气妆容，山水意境背景，柔和晨雾，东方美学，85mm人像镜头，自然柔光，精致发饰，仙侠剧质感</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Chinese ancient style real person, Hanfu woman standing in bamboo forest, flowing dress, ethereal makeup, mountain landscape background, soft morning mist, oriental aesthetics, 85mm portrait lens, natural soft light, exquisite hair accessories, xianxia drama quality</div>
+      </div>
     </div>
 
     <div class="card tint-blue">
@@ -2543,6 +2686,13 @@ daily:`
       </div>
       <div class="style-sub">
         <b>常见子类：</b>漫威电影风、速度与激情风、变形金刚风、碟中谍风
+      </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">欧美大片风格，硬汉主角站在爆炸火光前，高饱和度色彩，强烈明暗对比，英雄式布光，IMAX宽画幅，漫威电影质感，动态模糊，史诗级场面，电影级特效</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Hollywood blockbuster style, tough guy protagonist standing in front of explosion fire, high saturation colors, strong light and shadow contrast, heroic lighting, IMAX widescreen, Marvel film quality, motion blur, epic scene, cinematic VFX</div>
       </div>
     </div>
 
@@ -2558,6 +2708,13 @@ daily:`
       <div class="style-sub">
         <b>常见子类：</b>韩剧女主风、韩系证件照风、梨泰院风、韩国胶片风
       </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">韩式清新风格，清纯女孩在樱花树下，干净清透的皮肤质感，柔和马卡龙色调，精致构图，韩剧女主感，初恋感，柔和自然光，韩国画报风格，甜美微笑</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Korean fresh style, pure girl under cherry blossom tree, clean and translucent skin texture, soft macaron tones, exquisite composition, K-drama heroine vibe, first love feeling, soft natural light, Korean pictorial style, sweet smile</div>
+      </div>
     </div>
 
     <div class="card tint-mint">
@@ -2571,6 +2728,13 @@ daily:`
       </div>
       <div class="style-sub">
         <b>常见子类：</b>街头纪实风、人物专访风、自然纪录片风、Vlog日常风
+      </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">写实纪录片风格，老人坐在巷口门口，自然光线，真实生活场景，无过度修饰，手持相机感，街头纪实，真实感和代入感强，纪录片质感，人文摄影，生活化构图</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Documentary realism style, elderly man sitting at alley entrance, natural lighting, real life scene, no over-editing, handheld camera feel, street photography, strong sense of authenticity and immersion, documentary quality, humanistic photography, candid composition</div>
       </div>
     </div>
 
@@ -2586,6 +2750,13 @@ daily:`
       <div class="style-sub">
         <b>常见子类：</b>Vogue封面风、商业人像风、棚拍硬照风、时尚街拍风
       </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">时尚杂志风格，高级感棚拍人像，模特穿设计师服装，三灯布光法，极简背景，Vogue封面质感，锐利画质，高级灰调，时尚大片，专业商业摄影，气场全开</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Fashion magazine style, high-end studio portrait, model in designer clothing, three-point lighting setup, minimalist background, Vogue cover quality, sharp image, high-end gray tones, fashion editorial, professional commercial photography, powerful presence</div>
+      </div>
     </div>
 
     <div class="card tint-sky">
@@ -2599,6 +2770,13 @@ daily:`
       </div>
       <div class="style-sub">
         <b>常见子类：</b>东京夜景风、上海陆家嘴风、香港夜景风、纽约时代广场风
+      </div>
+      <div class="style-prompt">
+        <div class="sp-title">💡 提示词模板</div>
+        <div class="sp-lang">🇨🇳 中文：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">夜景霓虹风格，都市天际线夜景，玻璃幕墙反射五彩灯光，车流光轨，繁华都市感，霓虹招牌，长曝光效果，上海陆家嘴风格，蓝调时刻，电影感夜景</div>
+        <div class="sp-lang">🇺🇸 English：</div>
+        <div class="sp-text" onclick="copyPrompt(this)">Night neon style, city skyline at night, glass curtain walls reflecting colorful lights, car light trails, bustling urban feeling, neon signs, long exposure effect, Shanghai Lujiazui style, blue hour, cinematic night scene</div>
       </div>
     </div>
   </div>
@@ -5234,6 +5412,36 @@ function showToast(msg,type){
   toast.innerHTML=(icons[t]?'<span style="font-size:15px;font-weight:700">'+icons[t]+'</span>':'')+escapeHtml(msg);
   container.appendChild(toast);
   setTimeout(()=>toast.remove(),2600);
+}
+
+/* 复制提示词 */
+function copyPrompt(el){
+  var text=el.textContent||el.innerText;
+  if(!text) return;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){
+      showToast('✅ 提示词已复制到剪贴板','success');
+    }).catch(function(){
+      fallbackCopy(text);
+    });
+  }else{
+    fallbackCopy(text);
+  }
+}
+function fallbackCopy(text){
+  var ta=document.createElement('textarea');
+  ta.value=text;
+  ta.style.position='fixed';
+  ta.style.left='-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try{
+    document.execCommand('copy');
+    showToast('✅ 提示词已复制到剪贴板','success');
+  }catch(e){
+    showToast('复制失败，请手动复制','error');
+  }
+  document.body.removeChild(ta);
 }
 
 /* ========== 主题切换系统（五套皮肤） ========== */
