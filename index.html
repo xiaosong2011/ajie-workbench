@@ -2372,8 +2372,8 @@ agent:`
       <div class="agent-form-row">
         <label>快速切换服务商</label>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-accent" style="padding:6px 14px;font-size:13px" onclick="switchProvider('zhipu')">🟣 智谱AI</button>
-          <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px" onclick="switchProvider('doubao')">🟢 豆包大模型</button>
+          <button class="btn btn-accent" style="padding:6px 14px;font-size:13px" onclick="switchProvider('doubao')">🟢 豆包大模型</button>
+          <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px" onclick="switchProvider('zhipu')">🟣 智谱AI</button>
           <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px" onclick="switchProvider('deepseek')">🔵 DeepSeek</button>
           <button class="btn btn-ghost" style="padding:6px 14px;font-size:13px" onclick="switchProvider('custom')">⚙️ 自定义</button>
         </div>
@@ -2389,18 +2389,14 @@ agent:`
       <div class="agent-form-row">
         <label>模型名称 <span style="color:var(--ink-3);font-weight:400">（选择模型，影响生成质量和速度）</span></label>
         <select class="crud-input" id="agentApiModel">
-          <optgroup label="🟣 智谱AI（GLM）">
-            <option value="glm-4-plus">glm-4-plus（推荐，质量最高）</option>
-            <option value="glm-4">glm-4（高质量）</option>
-            <option value="glm-4-flash">glm-4-flash（免费轻量，提示词偏简短）</option>
-            <option value="glm-4-long">glm-4-long（超长上下文）</option>
+          <optgroup label="🟢 豆包大模型（Doubao）- 推荐">
+            <option value="ep-20260825182529-q7kr2" selected>doubao-seed-2.1-pro（旗舰，质量最高）</option>
           </optgroup>
-          <optgroup label="🟢 豆包大模型（Doubao）">
-            <option value="doubao-seed-1-6-250615">doubao-seed-1.6（推荐，自适应思考，质量高）</option>
-            <option value="doubao-seed-1-6-flash-250615">doubao-seed-1.6-flash（快速版）</option>
-            <option value="doubao-pro-32k">doubao-pro-32k（经典Pro版）</option>
-            <option value="doubao-pro-128k">doubao-pro-128k（超长上下文）</option>
-            <option value="doubao-lite-32k">doubao-lite-32k（轻量极速）</option>
+          <optgroup label="🟣 智谱AI（GLM）">
+            <option value="glm-4-plus">glm-4-plus（高质量）</option>
+            <option value="glm-4">glm-4（标准）</option>
+            <option value="glm-4-flash">glm-4-flash（免费轻量）</option>
+            <option value="glm-4-long">glm-4-long（超长上下文）</option>
           </optgroup>
           <optgroup label="🔵 DeepSeek">
             <option value="deepseek-chat">deepseek-chat（通用对话）</option>
@@ -3713,7 +3709,7 @@ function ensureKeys(){
   if(!Array.isArray(DB.ledger))DB.ledger=[];
   if(!Array.isArray(DB.checkedDays))DB.checkedDays=[];
   if(typeof DB.budget!=='number')DB.budget=6000;
-  if(!DB.apiSettings||typeof DB.apiSettings!=='object')DB.apiSettings={apiBaseUrl:'https://open.bigmodel.cn/api/paas/v4',apiKey:'f82aacd27d1746fe8496af89fb962850.HgVimCdseWlUZXpk',model:'glm-4-plus'};
+  if(!DB.apiSettings||typeof DB.apiSettings!=='object')DB.apiSettings={apiBaseUrl:'',apiKey:'',model:''};
   Object.keys(LISTS).forEach(k=>{ const dk=LISTS[k].dbKey; if(!Array.isArray(DB[dk]))DB[dk]=[]; });
 }
 
@@ -3723,6 +3719,11 @@ var _initChanged=false;
 Object.keys(INITIAL).forEach(k=>{ if(DB[k]===undefined){DB[k]=INITIAL[k];_initChanged=true;} });
 /* 迁移：将 glm-4-flash 升级为 glm-4-plus（能力更强，生成提示词更详细） */
 if(DB.apiSettings&&DB.apiSettings.model==='glm-4-flash'){DB.apiSettings.model='glm-4-plus';_initChanged=true;}
+/* 迁移：清空旧的智谱API配置，用户在智能体库手动配置豆包 */
+if(DB.apiSettings&&DB.apiSettings.apiBaseUrl==='https://open.bigmodel.cn/api/paas/v4'){
+  DB.apiSettings={apiBaseUrl:'',apiKey:'',model:''};
+  _initChanged=true;
+}
 /* 提示词库：合并初始数据，不删除用户自定义条目 */
 function mergePrompts(dbKey, initialArr){
   if(!Array.isArray(DB[dbKey])){ DB[dbKey]=initialArr.slice(); _initChanged=true; return; }
@@ -7329,8 +7330,8 @@ function toggleAgentApiSettings(){
 
 /* 快速切换服务商预设 */
 var PROVIDER_PRESETS={
+  doubao:{baseUrl:'https://ark.cn-beijing.volces.com/api/v3',model:'ep-20260825182529-q7kr2',name:'豆包大模型'},
   zhipu:{baseUrl:'https://open.bigmodel.cn/api/paas/v4',model:'glm-4-plus',name:'智谱AI'},
-  doubao:{baseUrl:'https://ark.cn-beijing.volces.com/api/v3',model:'doubao-seed-1-6-250615',name:'豆包大模型'},
   deepseek:{baseUrl:'https://api.deepseek.com/v1',model:'deepseek-chat',name:'DeepSeek'}
 };
 function switchProvider(provider){
