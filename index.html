@@ -2128,6 +2128,12 @@ const LISTS={
     {key:'amount',label:'金额',type:'input',placeholder:'如：350',as:'field'},
     {key:'note',label:'里程/油量',type:'input',placeholder:'如：12800km / 42L',as:'desc'}
   ]},
+  carCharging:{title:'充电记录',icon:'🔌',dbKey:'carCharging',fields:[
+    {key:'date',label:'日期',type:'date',placeholder:'选择日期',as:'title'},
+    {key:'amount',label:'金额',type:'input',placeholder:'如：45.6',as:'field'},
+    {key:'kwh',label:'充电量(度)',type:'input',placeholder:'如：35.2',as:'meta'},
+    {key:'location',label:'充电地点',type:'input',placeholder:'如：家充 / 特来电XX站',as:'desc'}
+  ]},
   carDocs:{title:'保险年检',icon:'📄',dbKey:'carDocs',fields:[
     {key:'title',label:'类型',type:'input',placeholder:'如：交强险/商业险/年检',as:'title'},
     {key:'date',label:'到期日',type:'date',placeholder:'选择日期',as:'meta'},
@@ -2266,7 +2272,7 @@ const LISTS={
 /* 板块 -> 需要渲染的列表 */
 const SECTION_LISTS={
   fit:['fitVideos','fitRecords'],
-  car:['carInfo','carMaintenance','carFuel','carDocs'],
+  car:['carInfo','carMaintenance','carFuel','carCharging','carDocs'],
   groom:['groomRoutine','groomOutfit'],
   hustle:['hustleProjects'],
   ai:['aiPath','aiTools','aiPrompts'],
@@ -3114,14 +3120,43 @@ car:`
   <div class="page-head"><span class="bow">🚗</span><h1>爱车管理</h1><span class="sub">· 爱车如爱己 · 养护不遗忘</span></div>
   <div class="card tint-amber" id="oilPriceCard" style="overflow:hidden">
     <div class="card-h" style="display:flex;align-items:center">
-      ⛽ 今日油价
+      <span id="energyCardTitle">⛽ 今日油价</span>
       <span style="margin-left:auto;display:flex;align-items:center;gap:6px">
+        <select id="energyModeSelect" onchange="changeEnergyMode(this.value)" style="font-size:12px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink-2);cursor:pointer">
+          <option value="oil">⛽ 油车</option>
+          <option value="ev">🔌 电车</option>
+        </select>
         <select id="oilCitySelect" onchange="changeOilCity(this.value)" style="font-size:12px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink-2);cursor:pointer"></select>
-        <button onclick="renderOilPrice()" style="border:none;background:none;cursor:pointer;font-size:16px;padding:4px" title="刷新">🔄</button>
+        <button onclick="refreshEnergyData()" style="border:none;background:none;cursor:pointer;font-size:16px;padding:4px" title="刷新">🔄</button>
       </span>
     </div>
     <div id="oilPriceContent" style="padding:4px 0">
       <div style="text-align:center;padding:12px 0;color:var(--ink-3);font-size:13px">正在获取油价信息…</div>
+    </div>
+    <div id="evPriceContent" style="padding:12px 16px;display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:13px;color:var(--ink-2)">当前电价</span>
+        <button onclick="openEvPriceSetting()" style="border:none;background:none;cursor:pointer;font-size:12px;color:var(--accent)">⚙️ 设置</button>
+      </div>
+      <div id="evPriceDisplay" style="font-size:28px;font-weight:700;color:var(--accent);text-align:center;margin:8px 0">-- 元/度</div>
+      <div id="evPriceNote" style="font-size:12px;color:var(--ink-3);text-align:center">家充 · 峰谷电价</div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)">
+        <div style="font-size:12px;color:var(--ink-2);margin-bottom:6px">本月充电统计</div>
+        <div style="display:flex;justify-content:space-around">
+          <div style="text-align:center">
+            <div id="evMonthKwh" style="font-size:18px;font-weight:600;color:var(--ink-1)">--</div>
+            <div style="font-size:11px;color:var(--ink-3)">度</div>
+          </div>
+          <div style="text-align:center">
+            <div id="evMonthAmount" style="font-size:18px;font-weight:600;color:var(--ink-1)">--</div>
+            <div style="font-size:11px;color:var(--ink-3)">元</div>
+          </div>
+          <div style="text-align:center">
+            <div id="evMonthCount" style="font-size:18px;font-weight:600;color:var(--ink-1)">--</div>
+            <div style="font-size:11px;color:var(--ink-3)">次</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <div class="card tint-blue">
@@ -3138,6 +3173,10 @@ car:`
     <div id="lc_carFuel"></div>
   </div>
   <div class="card tint-mint">
+    <div class="card-h">🔌 充电记录 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('carCharging')">+ 记录</button></div>
+    <div id="lc_carCharging"></div>
+  </div>
+  <div class="card">
     <div class="card-h">📄 保险年检 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('carDocs')">+ 记录</button></div>
     <div id="lc_carDocs"></div>
   </div>
@@ -4432,6 +4471,9 @@ const INITIAL={
   carFuel:[
     {date:'2026年8月10日',amount:'350',note:'12800km / 42L 92号'},
   ],
+  carCharging:[
+    {date:'2026年8月20日',amount:'45.6',kwh:'35.2',location:'家充桩 · 1.3元/度'},
+  ],
   carDocs:[
     {title:'交强险',date:'2027年6月14日',amount:'950',status:'有效'},
     {title:'商业险',date:'2027年6月14日',amount:'3200',status:'有效'},
@@ -5593,7 +5635,7 @@ function switchSection(id){
   /* 后置渲染 */
   if(id==='daily') initStyleGuide();
   if(id==='overview') renderOverview();
-  if(id==='car') renderOilPrice();
+  if(id==='car') initEnergyMode();
   if(id==='inspo'){ renderInspos(); loadFeishuManjuFromLocal(); }
   if(id==='ledger') renderLedger();
   if(id==='agent') initAgentSection();
@@ -6659,6 +6701,117 @@ function renderOilPriceFallback(box,errMsg){
     html+='<div style="font-size:11px;color:#e74c3c;margin-top:2px">⚠️ '+escapeHtml(errMsg)+'</div>';
   }
   box.innerHTML=html;
+}
+
+/* ========== 油车/电车模式切换 ========== */
+var _energyMode='oil'; /* oil 油车 / ev 电车 */
+
+function changeEnergyMode(mode){
+  _energyMode=mode;
+  localStorage.setItem('energyMode',mode);
+  applyEnergyMode();
+}
+
+function applyEnergyMode(){
+  var oilContent=document.getElementById('oilPriceContent');
+  var evContent=document.getElementById('evPriceContent');
+  var titleEl=document.getElementById('energyCardTitle');
+  var citySel=document.getElementById('oilCitySelect');
+  var modeSel=document.getElementById('energyModeSelect');
+
+  if(modeSel) modeSel.value=_energyMode;
+
+  if(_energyMode==='oil'){
+    if(titleEl) titleEl.textContent='⛽ 今日油价';
+    if(oilContent) oilContent.style.display='';
+    if(evContent) evContent.style.display='none';
+    if(citySel) citySel.style.display='';
+    renderOilPrice();
+  }else{
+    if(titleEl) titleEl.textContent='🔌 今日充电';
+    if(oilContent) oilContent.style.display='none';
+    if(evContent) evContent.style.display='';
+    if(citySel) citySel.style.display='none';
+    renderEvPrice();
+  }
+}
+
+function refreshEnergyData(){
+  if(_energyMode==='oil'){
+    renderOilPrice();
+  }else{
+    renderEvPrice();
+  }
+}
+
+/* 电价设置 */
+function getEvPriceConfig(){
+  if(!DB.evPriceConfig){
+    DB.evPriceConfig={
+      price:'1.30',
+      note:'家充 · 峰谷电价'
+    };
+  }
+  return DB.evPriceConfig;
+}
+
+function openEvPriceSetting(){
+  var cfg=getEvPriceConfig();
+  var price=prompt('请输入电价（元/度）：',cfg.price);
+  if(price===null) return;
+  price=price.trim();
+  if(!price||isNaN(price)){
+    showToast('请输入有效的数字','error');
+    return;
+  }
+  var note=prompt('请输入备注（如：家充/快充/峰时）：',cfg.note);
+  if(note===null) note=cfg.note;
+
+  DB.evPriceConfig={price:price,note:note};
+  saveData();
+  renderEvPrice();
+  showToast('电价已更新','success');
+}
+
+/* 渲染电车电价信息 */
+function renderEvPrice(){
+  var cfg=getEvPriceConfig();
+  var priceEl=document.getElementById('evPriceDisplay');
+  var noteEl=document.getElementById('evPriceNote');
+  if(priceEl) priceEl.textContent=cfg.price+' 元/度';
+  if(noteEl) noteEl.textContent=cfg.note||'';
+
+  /* 计算本月充电统计 */
+  var now=new Date();
+  var curYear=now.getFullYear();
+  var curMonth=now.getMonth();
+  var totalKwh=0,totalAmount=0,count=0;
+
+  if(DB.carCharging&&DB.carCharging.length){
+    DB.carCharging.forEach(function(item){
+      if(!item.date) return;
+      var d=new Date(item.date.replace(/年|月/g,'-').replace(/日/g,''));
+      if(d.getFullYear()===curYear&&d.getMonth()===curMonth){
+        count++;
+        if(item.kwh) totalKwh+=parseFloat(item.kwh)||0;
+        if(item.amount) totalAmount+=parseFloat(item.amount)||0;
+      }
+    });
+  }
+
+  var kwhEl=document.getElementById('evMonthKwh');
+  var amtEl=document.getElementById('evMonthAmount');
+  var cntEl=document.getElementById('evMonthCount');
+  if(kwhEl) kwhEl.textContent=totalKwh.toFixed(1);
+  if(amtEl) amtEl.textContent=totalAmount.toFixed(2);
+  if(cntEl) cntEl.textContent=count;
+}
+
+/* 初始化能源模式 */
+function initEnergyMode(){
+  var saved=localStorage.getItem('energyMode');
+  if(saved) _energyMode=saved;
+  applyEnergyMode();
 }
 
 /* ========== 车辆品牌识别与图片加载 ========== */
