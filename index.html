@@ -130,12 +130,91 @@
   .txt b{color:var(--ink);font-weight:600}
 
   /* 飞书漫剧库 */
-  .fs-manju-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
-  .fs-manju-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .2s}
-  .fs-manju-item:hover{border-color:var(--accent);transform:translateY(-2px)}
-  .fs-manju-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .fs-manju-book{font-size:11px;color:var(--ink-3)}
-  .fs-manju-copy{font-size:10px;color:var(--accent);margin-top:4px}
+  .fs-manju-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+  .fs-manju-card{
+    background:linear-gradient(135deg,#fff 0%,#fafbff 100%);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:0;
+    cursor:pointer;
+    transition:all .25s ease;
+    overflow:hidden;
+    position:relative;
+  }
+  .fs-manju-card:hover{
+    border-color:var(--accent);
+    transform:translateY(-3px);
+    box-shadow:0 8px 24px rgba(99,102,241,.12);
+  }
+  .fs-manju-card-head{
+    background:linear-gradient(135deg,var(--accent) 0%,#8b5cf6 100%);
+    padding:14px 16px 12px;
+    color:#fff;
+    position:relative;
+  }
+  .fs-manju-card-head::after{
+    content:'';
+    position:absolute;
+    right:-20px;top:-20px;
+    width:60px;height:60px;
+    background:rgba(255,255,255,.1);
+    border-radius:50%;
+  }
+  .fs-manju-card-title{
+    font-size:15px;
+    font-weight:700;
+    margin-bottom:2px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    position:relative;
+    z-index:1;
+  }
+  .fs-manju-card-sub{
+    font-size:11px;
+    opacity:.85;
+    position:relative;
+    z-index:1;
+  }
+  .fs-manju-card-body{
+    padding:12px 14px;
+  }
+  .fs-manju-field{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    font-size:12px;
+    padding:6px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .fs-manju-field:last-child{border-bottom:none}
+  .fs-manju-field-label{
+    color:var(--ink-3);
+    flex-shrink:0;
+    min-width:50px;
+  }
+  .fs-manju-field-value{
+    color:var(--ink);
+    word-break:break-all;
+    flex:1;
+  }
+  .fs-manju-card-foot{
+    padding:8px 14px;
+    background:var(--bg-soft);
+    font-size:11px;
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    border-top:1px solid var(--line);
+  }
+  .fs-manju-empty{
+    text-align:center;
+    padding:30px 20px;
+    color:var(--ink-3);
+    font-size:13px;
+  }
 
   /* 下拉刷新 */
   .pull-refresh-wrap{position:relative;overflow:hidden}
@@ -6235,43 +6314,79 @@ function renderFeishuManju(items){
   var listEl=document.getElementById('feishuManjuList');
   if(!listEl) return;
   if(items.length===0){
-    listEl.innerHTML='<div style="text-align:center;padding:20px 0;color:var(--ink-3);font-size:13px">暂无数据，点击「刷新」重新加载</div>';
+    listEl.innerHTML='<div class="fs-manju-empty">📭 暂无数据，点击「刷新」重新加载</div>';
     return;
   }
+  /* 收集所有字段名（用于动态展示） */
+  var allFields=[];
+  items.forEach(function(item){
+    if(item.fields){
+      Object.keys(item.fields).forEach(function(key){
+        if(allFields.indexOf(key)===-1 && key!=='漫剧别名'){
+          allFields.push(key);
+        }
+      });
+    }
+  });
+  
   var html='<div class="fs-manju-grid">';
   items.forEach(function(item,idx){
-    var title=item.title||item.bookId||'未命名';
-    html+='<div class="fs-manju-item" onclick="copyFeishuManju('+idx+')">'
-      +'<div class="fs-manju-title">'+escapeHtml(title)+'</div>'
-      +(item.bookId?'<div class="fs-manju-book">📖 '+escapeHtml(item.bookId)+'</div>':'')
-      +'<div class="fs-manju-copy">点击复制</div>'
-      +'</div>';
+    var title=item.title||'未命名';
+    /* 卡片头部 */
+    html+='<div class="fs-manju-card" onclick="copyFeishuManju('+idx+')">';
+    html+='<div class="fs-manju-card-head">';
+    html+='<div class="fs-manju-card-title">'+escapeHtml(title)+'</div>';
+    html+='<div class="fs-manju-card-sub">🎬 漫剧</div>';
+    html+='</div>';
+    /* 卡片内容 - 动态显示所有字段 */
+    html+='<div class="fs-manju-card-body">';
+    allFields.forEach(function(fieldName){
+      var val=item.fields&&item.fields[fieldName];
+      if(val!==undefined&&val!==''&&val!==null){
+        html+='<div class="fs-manju-field">';
+        html+='<span class="fs-manju-field-label">'+escapeHtml(fieldName)+'</span>';
+        html+='<span class="fs-manju-field-value">'+escapeHtml(String(val))+'</span>';
+        html+='</div>';
+      }
+    });
+    html+='</div>';
+    /* 卡片底部 */
+    html+='<div class="fs-manju-card-foot">📋 点击复制全部信息</div>';
+    html+='</div>';
   });
   html+='</div>';
+  /* 更新时间 */
   var raw=localStorage.getItem('ajie_feishu_manju');
   var updateTime='';
   try{
     var d=JSON.parse(raw);
     if(d&&d.updateTime){
       var t=new Date(d.updateTime);
-      updateTime=t.getMonth()+1+'/'+t.getDate()+' '+String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0');
+      updateTime=t.getFullYear()+'/'+(t.getMonth()+1)+'/'+t.getDate()+' '+String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0');
     }
   }catch(e){}
   if(updateTime){
-    html+='<div style="text-align:right;font-size:11px;color:var(--ink-3);margin-top:8px">⏰ 上次更新: '+updateTime+'</div>';
+    html+='<div style="text-align:right;font-size:11px;color:var(--ink-3);margin-top:12px">⏰ 上次更新: '+updateTime+'</div>';
   }
   listEl.innerHTML=html;
   /* 存一下数据供复制用 */
   window._feishuManjuItems=items;
+  window._feishuManjuFields=allFields;
 }
 
 /* 复制漫剧信息 */
 function copyFeishuManju(idx){
   var items=window._feishuManjuItems||[];
+  var allFields=window._feishuManjuFields||[];
   var item=items[idx];
   if(!item) return;
-  var text=item.title||'';
-  if(item.bookId) text+='\n书名ID: '+item.bookId;
+  var text='【'+(item.title||'漫剧')+'】';
+  allFields.forEach(function(fieldName){
+    var val=item.fields&&item.fields[fieldName];
+    if(val!==undefined&&val!==''&&val!==null){
+      text+='\n'+fieldName+': '+val;
+    }
+  });
   copyToClipboard(text);
 }
 
