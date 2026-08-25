@@ -662,6 +662,263 @@
     .agent-shot-head .agent-copy-btn{margin-left:0;}
   }
 
+  /* ===== 风格图鉴 ===== */
+  .style-tabs{
+    display:flex;gap:8px;
+  }
+  .style-tab{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+    padding:14px 12px;border:1px solid var(--line);
+    border-radius:12px;background:var(--surface);
+    cursor:pointer;transition:all .2s ease;
+  }
+  .style-tab:hover{
+    border-color:var(--accent);background:rgba(46,134,222,.04);
+    transform:translateY(-1px);
+  }
+  .style-tab.active{
+    border-color:var(--accent);background:rgba(46,134,222,.08);
+    box-shadow:0 0 0 2px rgba(46,134,222,.15);
+  }
+  .style-tab-ico{font-size:24px;}
+  .style-tab-name{font-weight:700;color:var(--ink);font-size:14px;}
+  .style-tab-count{
+    font-size:11px;color:var(--ink-3);
+    background:var(--bg);padding:2px 8px;border-radius:10px;
+  }
+  .style-tab.active .style-tab-count{
+    background:var(--accent);color:#fff;
+  }
+
+  .style-desc{
+    font-size:13px;color:var(--ink-2);line-height:1.6;
+    margin:6px 0 10px;
+  }
+  .style-tags{
+    display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;
+  }
+  .style-tag{
+    font-size:11px;padding:3px 10px;border-radius:12px;
+    background:var(--bg);color:var(--ink-2);
+    border:1px solid var(--line);font-weight:500;
+  }
+  .style-sub{
+    font-size:12px;color:var(--ink-3);
+    padding-top:8px;border-top:1px dashed var(--line);
+    line-height:1.6;
+  }
+  .style-sub b{color:var(--ink-2);font-weight:600;}
+
+  .ai-tool-tabs{
+    display:flex;gap:8px;
+  }
+  .ai-tool-tab{
+    flex:1;padding:10px 12px;border:1px solid var(--line);
+    border-radius:10px;background:var(--surface);
+    cursor:pointer;font-size:13px;font-weight:600;
+    color:var(--ink-2);transition:all .2s ease;
+  }
+  .ai-tool-tab:hover{
+    border-color:var(--accent);color:var(--accent);
+  }
+  .ai-tool-tab.active{
+    border-color:var(--accent);background:rgba(46,134,222,.08);
+    color:var(--accent);
+  }
+
+  .tool-badge{
+    font-size:11px;padding:2px 8px;border-radius:10px;
+    font-weight:700;margin-left:8px;
+  }
+  .tool-best{background:#fff3e0;color:#ff9800;}
+  .tool-free{background:#e8f5e9;color:#4caf50;}
+  .tool-easy{background:#e3f2fd;color:#2196f3;}
+  .tool-cn{background:#fce4ec;color:#e91e63;}
+  .tool-fast{background:#f3e5f5;color:#9c27b0;}
+
+  .tool-specs{
+    margin:8px 0;
+    background:var(--bg);
+    border-radius:10px;
+    padding:8px 12px;
+  }
+  .tool-spec-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:4px 0;font-size:12px;
+    border-bottom:1px dashed var(--line);
+  }
+  .tool-spec-row:last-child{border-bottom:none;}
+  .tool-spec-row > span:first-child{
+    color:var(--ink-3);font-weight:500;
+  }
+  .tool-spec-row .rating{
+    color:var(--ink-2);font-weight:600;
+  }
+
+  .sub-tbl{
+    width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;
+  }
+  .sub-tbl th{
+    background:var(--bg);padding:8px 6px;text-align:center;
+    font-weight:700;color:var(--ink);border-bottom:2px solid var(--line);
+  }
+  .sub-tbl td{
+    padding:8px 6px;text-align:center;border-bottom:1px solid var(--line);
+    color:var(--ink-2);
+  }
+  .sub-tbl tr:last-child td{border-bottom:none;}
+  .sub-tbl tr:hover{background:rgba(46,134,222,.04);}
+
+  /* ===== 爆款剪辑 ===== */
+  .hc-steps{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:8px 4px;
+  }
+  .hc-step{
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    flex:1;text-align:center;cursor:pointer;
+    opacity:.4;transition:all .2s ease;
+  }
+  .hc-step.active{opacity:1;}
+  .hc-step.done{opacity:.7;}
+  .hc-step-ico{
+    width:40px;height:40px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;background:var(--surface);
+    border:2px solid var(--line);transition:all .2s ease;
+  }
+  .hc-step.active .hc-step-ico{
+    border-color:var(--accent);background:rgba(46,134,222,.1);
+    box-shadow:0 0 0 4px rgba(46,134,222,.1);
+  }
+  .hc-step-name{font-size:12px;font-weight:600;color:var(--ink-2);}
+  .hc-step.active .hc-step-name{color:var(--accent);}
+  .hc-step-line{
+    flex:0 0 24px;height:2px;background:var(--line);
+    margin:0 4px;align-self:flex-start;margin-top:19px;
+  }
+  .hc-step.active + .hc-step-line{background:var(--accent);}
+
+  .hc-content{
+    font-size:13px;line-height:1.7;color:var(--ink);
+  }
+  .hc-content h4{margin:12px 0 6px;font-size:14px;color:var(--ink);}
+  .hc-content p{margin:4px 0;}
+  .hc-content ul{margin:6px 0;padding-left:20px;}
+  .hc-content li{margin:3px 0;}
+
+  /* 爆款开头候选列表 */
+  .hc-hook-list{display:flex;flex-direction:column;gap:10px;}
+  .hc-hook-card{
+    border:1px solid var(--line);border-radius:10px;
+    padding:12px;cursor:pointer;transition:all .2s ease;
+    background:var(--surface);
+  }
+  .hc-hook-card:hover{
+    border-color:var(--accent);background:rgba(46,134,222,.04);
+    transform:translateY(-1px);
+  }
+  .hc-hook-card.selected{
+    border-color:var(--accent);background:rgba(46,134,222,.08);
+    box-shadow:0 0 0 2px rgba(46,134,222,.15);
+  }
+  .hc-hook-head{
+    display:flex;align-items:center;gap:8px;margin-bottom:6px;
+  }
+  .hc-hook-title{font-weight:700;color:var(--ink);font-size:14px;flex:1;}
+  .hc-hook-time{font-size:12px;color:var(--accent-warm);font-weight:600;}
+  .hc-hook-reason{font-size:12px;color:var(--ink-2);line-height:1.5;}
+
+  .hc-selected-hook{
+    padding:10px 12px;background:var(--surface);
+    border-radius:8px;font-size:13px;color:var(--ink-2);
+    border:1px dashed var(--line);
+  }
+  .hc-selected-hook.has-value{
+    color:var(--ink);border-color:var(--accent);
+    background:rgba(46,134,222,.05);font-weight:500;
+  }
+
+  /* 方案内容 */
+  .hc-plan-content{
+    font-size:13px;line-height:1.7;color:var(--ink);
+  }
+  .hc-plan-section{margin-bottom:12px;}
+  .hc-plan-section-title{
+    font-weight:700;color:var(--ink);font-size:13px;
+    margin-bottom:6px;display:flex;align-items:center;gap:6px;
+  }
+  .hc-plan-section-title::before{
+    content:'';width:3px;height:14px;border-radius:2px;
+    background:var(--accent);
+  }
+
+  /* 切片列表 */
+  .hc-slice-list{display:flex;flex-direction:column;gap:12px;}
+  .hc-slice-card{
+    border:1px solid var(--line);border-radius:10px;
+    padding:12px;background:var(--surface);
+  }
+  .hc-slice-head{
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;
+    padding-bottom:8px;border-bottom:1px dashed var(--line);
+  }
+  .hc-slice-num{
+    font-weight:800;color:var(--accent);font-size:14px;
+    min-width:28px;
+  }
+  .hc-slice-time{
+    font-size:12px;color:var(--accent-warm);font-weight:600;
+    background:rgba(230,126,34,.1);padding:2px 8px;border-radius:4px;
+  }
+  .hc-slice-note{
+    font-size:12px;color:var(--ink-3);margin-left:auto;
+    font-style:italic;
+  }
+  .hc-slice-row{
+    display:flex;padding:4px 0;font-size:13px;line-height:1.6;
+  }
+  .hc-slice-label{
+    font-weight:600;color:var(--ink-2);min-width:60px;flex-shrink:0;
+    font-size:12px;
+  }
+  .hc-slice-row > span:last-child{color:var(--ink);flex:1;}
+  .hc-slice-dialogue{color:var(--accent)!important;font-style:italic;}
+  .hc-slice-huazi{
+    color:var(--accent-2)!important;font-weight:500;
+    background:rgba(26,188,156,.08);padding:2px 8px;border-radius:4px;
+    display:inline-block;margin-top:2px;
+  }
+  .hc-slice-bridge{
+    margin-top:8px;padding:8px 10px;
+    background:rgba(139,92,246,.06);border-radius:6px;
+    font-size:12px;color:var(--ink-2);line-height:1.5;
+    border-left:3px solid #8b5cf6;
+  }
+  .hc-slice-bridge-title{font-weight:700;color:#8b5cf6;margin-bottom:2px;}
+
+  /* 时长复核 */
+  .hc-duration-review{
+    text-align:center;padding:16px 8px;
+  }
+  .hc-duration-stats{
+    display:flex;justify-content:center;gap:24px;flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+  .hc-duration-item{text-align:center;}
+  .hc-duration-value{
+    font-size:24px;font-weight:800;color:var(--accent-warm);
+  }
+  .hc-duration-label{font-size:12px;color:var(--ink-3);margin-top:2px;}
+  .hc-duration-percent{
+    font-size:32px;font-weight:800;color:var(--accent-2);
+  }
+  .hc-duration-pass{
+    font-size:14px;font-weight:700;color:var(--accent-2);
+    padding:6px 16px;background:rgba(26,188,156,.1);
+    border-radius:20px;display:inline-block;margin-top:8px;
+  }
+
   /* ===== 主题选择器 ===== */
   /* ===== 新版主题选择器 ===== */
   .theme-selector-wrap{
@@ -1673,7 +1930,7 @@
           <div class="avatar">🧑</div>
           <span class="theme-btn" onclick="openSearch()" title="搜索 (Ctrl+K)">🔍</span>
         </div>
-        <div class="ws-name">小松的工作台</div>
+        <div class="ws-name" id="wsName">小松的工作台</div>
         <div class="ws-sub">⚙️ 男生版 · 自我精进系统</div>
       </div>
       <nav class="nav-scroll" id="nav"></nav>
@@ -1781,10 +2038,11 @@
 /* ========== 导航数据 ========== */
 const NAV=[
   {id:'overview', ico:'🏠', name:'总览', group:'总览'},
-  {id:'daily',    ico:'📅', name:'每日计划', badge:6, group:'核心日常'},
+  {id:'daily',    ico:'🎨', name:'风格图鉴',            group:'核心日常'},
   {id:'inspo',    ico:'⭐', name:'灵感收藏',            group:'核心日常'},
   {id:'weather',  ico:'☀️', name:'天气',                group:'核心日常'},
   {id:'workshop', ico:'🎬', name:'AI漫剧工坊',          group:'核心日常'},
+  {id:'hotcut',   ico:'🔥', name:'爆款剪辑',            group:'核心日常'},
   {id:'salary',   ico:'💰', name:'工资储蓄',            group:'财务理财'},
   {id:'ledger',   ico:'📊', name:'小账本',              group:'财务理财'},
   {id:'repay',    ico:'🏦', name:'还款提醒',            group:'财务理财'},
@@ -1957,6 +2215,12 @@ const LISTS={
     {key:'tag',label:'题材',type:'input',placeholder:'如：古风爽剧',as:'tag'},
     {key:'desc',label:'一句话梗概',type:'textarea',placeholder:'故事核心梗概',as:'desc'}
   ]},
+  /* --- 爆款剪辑 --- */
+  hotcutProjects:{title:'剪辑项目',icon:'🔥',dbKey:'hotcutProjects',fields:[
+    {key:'title',label:'项目名称',type:'input',placeholder:'如：重生赘婿高燃剪辑',as:'title'},
+    {key:'tag',label:'题材',type:'input',placeholder:'如：都市爽文',as:'tag'},
+    {key:'desc',label:'备注',type:'textarea',placeholder:'项目说明',as:'desc'}
+  ]},
   /* --- AI技术学习 --- */
   aitechPrompts:{title:'提示词库',icon:'💬',dbKey:'aitechPrompts',copyField:'desc',clickCopy:true,fields:[
     {key:'title',label:'提示词名称',type:'input',placeholder:'如：人物一致性提示词',as:'title'},
@@ -2013,40 +2277,805 @@ const SECTION_LISTS={
   aitech:['aitechPrompts','aitechComfy','aitechModels','aitechNotes'],
   bills:['billsRent','billsUtility','billsFixed'],
   agent:['scriptProjects'],
+  hotcut:['hotcutProjects'],
 };
 
 /* ========== 各板块内容 ========== */
 const SECTIONS={
 
 daily:`
-  <div class="page-head"><span class="bow">⚡</span><h1>每日计划</h1><span class="sub">· 自律即自由 · 每天进步一点点</span></div>
-  <div class="card tint-amber" id="goalCarCard" style="text-align:center;padding:20px 16px;overflow:hidden;position:relative">
-    <div id="goalCarContent"></div>
-  </div>
-  <div class="card tint-amber">
-    <div class="card-h">💡 今日箴言</div>
-    <div class="txt" style="font-size:15px;font-weight:700;color:var(--ink)">「你的自律，终将自由。」</div>
-    <div class="txt" style="margin-top:4px">"Discipline equals freedom."</div>
-    <div class="txt" style="margin-top:8px;font-size:12px">🗓️ 2026年8月9日 · 星期日</div>
-  </div>
+  <div class="page-head"><span class="bow">🎨</span><h1>风格图鉴</h1><span class="sub">· 风格 · 运镜 · AI工具全攻略</span></div>
+
+  <!-- 分类切换 -->
   <div class="card">
-    <div class="card-h">📅 签到日历 <span class="right-ml">本月已签到 7 天</span></div>
-    <div class="cal-head">
-      <span class="nav-btn" onclick="calNav(-1)">‹</span>
-      <span class="mon" id="calMon">2026年8月</span>
-      <span class="nav-btn" onclick="calNav(1)">›</span>
+    <div class="style-tabs">
+      <button class="style-tab active" data-stylecat="anime" onclick="switchStyleCat('anime')">
+        <span class="style-tab-ico">🎌</span>
+        <span class="style-tab-name">动漫风格</span>
+      </button>
+      <button class="style-tab" data-stylecat="real" onclick="switchStyleCat('real')">
+        <span class="style-tab-ico">🎬</span>
+        <span class="style-tab-name">真人风格</span>
+      </button>
+      <button class="style-tab" data-stylecat="camera" onclick="switchStyleCat('camera')">
+        <span class="style-tab-ico">📹</span>
+        <span class="style-tab-name">运镜指南</span>
+      </button>
+      <button class="style-tab" data-stylecat="aitool" onclick="switchStyleCat('aitool')">
+        <span class="style-tab-ico">🛠️</span>
+        <span class="style-tab-name">AI工具</span>
+      </button>
     </div>
-    <div class="cal-grid" id="calGrid"></div>
-    <div class="cal-legend"><span>🟢 已签到</span><span>🔵 今天</span></div>
   </div>
-  <div class="card">
-    <div class="todo-bar">
-      <div class="card-h" style="margin:0">📋 今日待办</div>
-      <div class="progress"><i id="progBar" style="width:0%"></i></div>
-      <span id="progTxt" style="font-size:12px;font-weight:700;color:var(--ink-2)">0 / 6</span>
-      <button class="btn btn-accent" onclick="addTodo()">+ 新增</button>
+
+  <!-- 动漫风格 -->
+  <div id="styleCatAnime">
+    <div class="card tint-purple">
+      <div class="card-h">🎌 日系动漫</div>
+      <div class="style-desc">经典日本动画风格，线条流畅、色彩鲜明、人物美型，是最主流的动漫风格。</div>
+      <div class="style-tags">
+        <span class="style-tag">大眼萌系</span>
+        <span class="style-tag">色彩鲜艳</span>
+        <span class="style-tag">线条简洁</span>
+        <span class="style-tag">表情丰富</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>少年Jump风、少女漫风、京都动画风、新海诚风、吉卜力风
+      </div>
     </div>
-    <div id="todoList"></div>
+
+    <div class="card tint-rose">
+      <div class="card-h">🏮 古风仙侠</div>
+      <div class="style-desc">中国传统古风与仙侠元素结合，飘逸灵动、仙气飘飘，国漫代表性风格。</div>
+      <div class="style-tags">
+        <span class="style-tag">水墨韵味</span>
+        <span class="style-tag">飘逸长发</span>
+        <span class="style-tag">古装华服</span>
+        <span class="style-tag">仙风道骨</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>水墨国风、3D国漫风、Q版古风、魔道祖师风、斗萝大陆风
+      </div>
+    </div>
+
+    <div class="card tint-indigo">
+      <div class="card-h">🌆 赛博朋克</div>
+      <div class="style-desc">未来科技与霓虹灯光交织，高对比度色彩、机械义体、雨夜都市，氛围感极强。</div>
+      <div class="style-tags">
+        <span class="style-tag">霓虹灯光</span>
+        <span class="style-tag">机械义体</span>
+        <span class="style-tag">雨夜都市</span>
+        <span class="style-tag">高对比度</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>赛博朋克边缘行者风、攻壳机动队风、蒸汽朋克混合风
+      </div>
+    </div>
+
+    <div class="card tint-amber">
+      <div class="card-h">💥 热血少年</div>
+      <div class="style-desc">Jump系热血战斗风格，张力十足、速度线密集、人物肌肉感强，燃向首选。</div>
+      <div class="style-tags">
+        <span class="style-tag">张力十足</span>
+        <span class="style-tag">速度线</span>
+        <span class="style-tag">肌肉感</span>
+        <span class="style-tag">夸张表情</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>海贼王风、火影忍者风、咒术回战风、鬼灭之刃风
+      </div>
+    </div>
+
+    <div class="card tint-mint">
+      <div class="card-h">🌸 治愈系</div>
+      <div class="style-desc">温暖治愈的日常系画风，柔和的色彩、细腻的光影，给人安静舒适的感觉。</div>
+      <div class="style-tags">
+        <span class="style-tag">柔和色调</span>
+        <span class="style-tag">温暖光影</span>
+        <span class="style-tag">日常场景</span>
+        <span class="style-tag">细腻氛围</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>吉卜力风、新海诚日常风、京阿尼治愈风、宫崎骏童话风
+      </div>
+    </div>
+
+    <div class="card tint-violet">
+      <div class="card-h">🦇 暗黑哥特</div>
+      <div class="style-desc">黑暗神秘的哥特风格，十字架、古堡、蔷薇元素，华丽而阴郁，氛围感拉满。</div>
+      <div class="style-tags">
+        <span class="style-tag">暗色调</span>
+        <span class="style-tag">哥特建筑</span>
+        <span class="style-tag">蔷薇十字</span>
+        <span class="style-tag">神秘感</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>吸血鬼风格、黑执事风、潘多拉之心风、暗黑童话风
+      </div>
+    </div>
+
+    <div class="card tint-sky">
+      <div class="card-h">⚙️ 蒸汽朋克</div>
+      <div class="style-desc">维多利亚时代美学与蒸汽机械结合，齿轮、铜管、飞艇，复古与科幻的奇妙融合。</div>
+      <div class="style-tags">
+        <span class="style-tag">齿轮机械</span>
+        <span class="style-tag">黄铜质感</span>
+        <span class="style-tag">维多利亚风</span>
+        <span class="style-tag">飞艇城市</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>工业革命风、甲铁城风、蒸汽都市风、机械绅士风
+      </div>
+    </div>
+
+    <div class="card tint-orange">
+      <div class="card-h">🖌️ 水彩手绘</div>
+      <div class="style-desc">手绘水彩质感，色彩柔和通透、笔触感明显，文艺气息浓厚，适合抒情场景。</div>
+      <div class="style-tags">
+        <span class="style-tag">水彩质感</span>
+        <span class="style-tag">笔触明显</span>
+        <span class="style-tag">色彩通透</span>
+        <span class="style-tag">文艺气息</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>淡彩手绘风、厚涂油画风、铅笔素描风、马克笔手绘风
+      </div>
+    </div>
+
+    <div class="card tint-pink">
+      <div class="card-h">🧸 Q版萌系</div>
+      <div class="style-desc">二头身/三头身Q版风格，圆滚滚的造型、大大的眼睛，可爱到爆炸。</div>
+      <div class="style-tags">
+        <span class="style-tag">二头身</span>
+        <span class="style-tag">圆滚滚</span>
+        <span class="style-tag">大眼睛</span>
+        <span class="style-tag">软萌可爱</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>SD/Q版、粘土人风、像素风Q版、chibi风格
+      </div>
+    </div>
+
+    <div class="card tint-blue">
+      <div class="card-h">🦸 美漫超级英雄</div>
+      <div class="style-desc">美式漫画风格，硬朗线条、肌肉夸张、色彩浓烈，充满力量感和视觉冲击。</div>
+      <div class="style-tags">
+        <span class="style-tag">硬朗线条</span>
+        <span class="style-tag">肌肉夸张</span>
+        <span class="style-tag">浓烈色彩</span>
+        <span class="style-tag">力量感</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>漫威风、DC风、DC动画电影风、蜘蛛侠平行宇宙风
+      </div>
+    </div>
+  </div>
+
+  <!-- 真人风格 -->
+  <div id="styleCatReal" style="display:none">
+    <div class="card tint-amber">
+      <div class="card-h">🎞️ 电影感</div>
+      <div class="style-desc">院线级别的电影质感，浅景深、胶片颗粒感、精准布光，每一帧都是大片。</div>
+      <div class="style-tags">
+        <span class="style-tag">浅景深</span>
+        <span class="style-tag">胶片颗粒</span>
+        <span class="style-tag">电影布光</span>
+        <span class="style-tag">宽画幅</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>好莱坞大片风、文艺片风、IMAX质感、王家卫风
+      </div>
+    </div>
+
+    <div class="card tint-rose">
+      <div class="card-h">🌸 日系胶片</div>
+      <div class="style-desc">日本胶片摄影风格，柔和的色调、轻微过曝、温暖的肤色，清新自然有质感。</div>
+      <div class="style-tags">
+        <span class="style-tag">柔和色调</span>
+        <span class="style-tag">胶片颗粒</span>
+        <span class="style-tag">温暖肤色</span>
+        <span class="style-tag">清新自然</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>富士胶片风、柯达Portra风、日系写真风、滨田英明风
+      </div>
+    </div>
+
+    <div class="card tint-red">
+      <div class="card-h">🌃 复古港风</div>
+      <div class="style-desc">90年代香港电影/写真风格，浓郁色彩、高对比度、朦胧柔光，怀旧氛围感。</div>
+      <div class="style-tags">
+        <span class="style-tag">浓郁色彩</span>
+        <span class="style-tag">柔光朦胧</span>
+        <span class="style-tag">高对比</span>
+        <span class="style-tag">怀旧感</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>王家卫电影风、港片黄金年代风、港式写真风、茶餐厅风
+      </div>
+    </div>
+
+    <div class="card tint-indigo">
+      <div class="card-h">🌃 赛博朋克真人</div>
+      <div class="style-desc">真人版赛博朋克，霓虹灯光映射在湿润街道上，机械义肢、全息广告、未来都市。</div>
+      <div class="style-tags">
+        <span class="style-tag">霓虹反光</span>
+        <span class="style-tag">雨夜街道</span>
+        <span class="style-tag">全息投影</span>
+        <span class="style-tag">未来都市</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>银翼杀手风、攻壳机动队真人风、赛博朋克2077风、东京涩谷风
+      </div>
+    </div>
+
+    <div class="card tint-violet">
+      <div class="card-h">🏯 古风真人</div>
+      <div class="style-desc">古装仙侠/武侠真人风格，飘逸汉服、仙气妆容、山水意境，东方美学极致。</div>
+      <div class="style-tags">
+        <span class="style-tag">飘逸汉服</span>
+        <span class="style-tag">山水意境</span>
+        <span class="style-tag">仙气妆容</span>
+        <span class="style-tag">东方美学</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>仙侠剧风、武侠电影风、汉服写真风、敦煌飞天风
+      </div>
+    </div>
+
+    <div class="card tint-blue">
+      <div class="card-h">🎬 欧美大片</div>
+      <div class="style-desc">好莱坞商业大片风格，高饱和度、强烈明暗对比、英雄式布光，视觉冲击力强。</div>
+      <div class="style-tags">
+        <span class="style-tag">高饱和</span>
+        <span class="style-tag">强对比</span>
+        <span class="style-tag">英雄布光</span>
+        <span class="style-tag">IMAX质感</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>漫威电影风、速度与激情风、变形金刚风、碟中谍风
+      </div>
+    </div>
+
+    <div class="card tint-pink">
+      <div class="card-h">💫 韩式清新</div>
+      <div class="style-desc">韩剧/韩系写真风格，干净清透的皮肤、柔和的色彩、精致的构图，初恋感满满。</div>
+      <div class="style-tags">
+        <span class="style-tag">清透皮肤</span>
+        <span class="style-tag">柔和色彩</span>
+        <span class="style-tag">精致构图</span>
+        <span class="style-tag">初恋感</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>韩剧女主风、韩系证件照风、梨泰院风、韩国胶片风
+      </div>
+    </div>
+
+    <div class="card tint-mint">
+      <div class="card-h">📷 写实纪录片</div>
+      <div class="style-desc">真实记录风格，自然光线、真实场景、无过度修饰，真实感和代入感强。</div>
+      <div class="style-tags">
+        <span class="style-tag">自然光</span>
+        <span class="style-tag">真实场景</span>
+        <span class="style-tag">手持感</span>
+        <span class="style-tag">纪录片感</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>街头纪实风、人物专访风、自然纪录片风、Vlog日常风
+      </div>
+    </div>
+
+    <div class="card tint-gray">
+      <div class="card-h">👔 时尚杂志</div>
+      <div class="style-desc">Vogue/ELLE级别的时尚大片风格，高级感布光、精致造型、极简构图。</div>
+      <div class="style-tags">
+        <span class="style-tag">高级布光</span>
+        <span class="style-tag">极简构图</span>
+        <span class="style-tag">时尚造型</span>
+        <span class="style-tag">杂志质感</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>Vogue封面风、商业人像风、棚拍硬照风、时尚街拍风
+      </div>
+    </div>
+
+    <div class="card tint-sky">
+      <div class="card-h">🌃 夜景霓虹</div>
+      <div class="style-desc">都市夜景风格，霓虹灯光、玻璃幕墙反射、车流光轨，都市感和赛博感兼具。</div>
+      <div class="style-tags">
+        <span class="style-tag">霓虹灯光</span>
+        <span class="style-tag">玻璃反射</span>
+        <span class="style-tag">车流光轨</span>
+        <span class="style-tag">都市感</span>
+      </div>
+      <div class="style-sub">
+        <b>常见子类：</b>东京夜景风、上海陆家嘴风、香港夜景风、纽约时代广场风
+      </div>
+    </div>
+  </div>
+
+  <!-- 运镜指南 -->
+  <div id="styleCatCamera" style="display:none">
+    <div class="card tint-blue">
+      <div class="card-h">🎬 推镜（Push In）</div>
+      <div class="style-desc">镜头逐渐靠近被摄主体，营造压迫感、紧张感或突出人物情绪变化，是最常用的情绪强化手法。</div>
+      <div class="style-tags">
+        <span class="style-tag">强调情绪</span>
+        <span class="style-tag">营造压迫</span>
+        <span class="style-tag">聚焦重点</span>
+      </div>
+      <div class="style-sub">
+        <b>适用场景：</b>人物震惊/愤怒瞬间、揭示重要信息、从环境聚焦到人物表情<br>
+        <b>AI提示词写法：</b>slow push-in shot, close-up on face, dramatic reveal
+      </div>
+    </div>
+
+    <div class="card tint-amber">
+      <div class="card-h">🎬 拉镜（Pull Out）</div>
+      <div class="style-desc">镜头逐渐拉远，从特写扩展到广阔场景，揭示环境规模、展现孤独感或形成强烈反差。</div>
+      <div class="style-tags">
+        <span class="style-tag">揭示环境</span>
+        <span class="style-tag">孤独感</span>
+        <span class="style-tag">反差对比</span>
+      </div>
+      <div class="style-sub">
+        <b>适用场景：</b>人物身处宏大场景、揭示世界规模、结尾升华情绪<br>
+        <b>AI提示词写法：</b>slow pull-back shot, revealing vast landscape, epic scale
+      </div>
+    </div>
+
+    <div class="card tint-rose">
+      <div class="card-h">🎬 环绕镜头（Orbit / 360°）</div>
+      <div class="style-desc">镜头围绕主体旋转，极具视觉冲击力，常用于高光时刻、人物出场、战斗pose定格。</div>
+      <div class="style-tags">
+        <span class="style-tag">视觉冲击</span>
+        <span class="style-tag">高光时刻</span>
+        <span class="style-tag">360度</span>
+      </div>
+      <div class="style-sub">
+        <b>适用场景：</b>角色变身/觉醒、战斗高潮pose、人物气场展示、名场面定格<br>
+        <b>AI提示词写法：</b>360 degree orbit shot, spinning around character, dynamic action pose
+      </div>
+    </div>
+
+    <div class="card tint-purple">
+      <div class="card-h">🎬 跟拍/移动镜头（Tracking）</div>
+      <div class="style-desc">镜头跟随人物移动，保持画面稳定，营造代入感和沉浸感，适合奔跑、追逐、行走场景。</div>
+      <div class="style-tags">
+        <span class="style-tag">代入感</span>
+        <span class="style-tag">沉浸感</span>
+        <span class="style-tag">动态跟随</span>
+      </div>
+      <div class="style-sub">
+        <b>适用场景：</b>角色奔跑追逐、街头行走、第一人称跟随、并肩对话<br>
+        <b>AI提示词写法：</b>tracking shot, following from behind, side view walking, steady cam
+      </div>
+    </div>
+
+    <div class="card tint-mint">
+      <div class="card-h">🎬 仰拍/俯拍（Low Angle / High Angle）</div>
+      <div class="style-desc">仰拍凸显人物强大气场和压迫感，俯拍则营造渺小、脆弱、上帝视角感，对比强烈。</div>
+      <div class="style-tags">
+        <span class="style-tag">气场对比</span>
+        <span class="style-tag">权力感</span>
+        <span class="style-tag">渺小感</span>
+      </div>
+      <div class="style-sub">
+        <b>仰拍适用：</b>反派登场、强者威压、英雄觉醒、建筑宏伟感<br>
+        <b>俯拍适用：</b>人物孤独无助、宏大场景中的小人物、战斗场面全景<br>
+        <b>AI提示词写法：</b>low angle shot, looking up at powerful figure / bird's eye view, top-down shot
+      </div>
+    </div>
+
+    <div class="card tint-indigo">
+      <div class="card-h">🎬 慢动作（Slow Motion）</div>
+      <div class="style-desc">时间仿佛凝固，放大关键瞬间的情绪张力，用于高潮、转折、唯美画面，是燃向剪辑必备。</div>
+      <div class="style-tags">
+        <span class="style-tag">情绪放大</span>
+        <span class="style-tag">高潮瞬间</span>
+        <span class="style-tag">唯美画面</span>
+      </div>
+      <div class="style-sub">
+        <b>适用场景：</b>出拳/拔刀瞬间、眼泪滴落、唯美回眸、爆炸冲击、关键反转<br>
+        <b>AI提示词写法：</b>slow motion, cinematic slow-mo, 240fps, motion blur, dramatic moment
+      </div>
+    </div>
+
+    <div class="card tint-red">
+      <div class="card-h">🎬 快速切换/蒙太奇（Montage）</div>
+      <div class="style-desc">短镜头快速切换，节奏紧凑信息量大，用于表现时间流逝、训练成长、多线叙事并行。</div>
+      <div class="style-tags">
+        <span class="style-tag">节奏紧凑</span>
+        <span class="style-tag">信息量大</span>
+        <span class="style-tag">时间流逝</span>
+      </div>
+      <div class="style-sub">
+        <b>适用场景：</b>修炼成长蒙太奇、多人视角切换、时间飞逝表现、燃向卡点剪辑<br>
+        <b>剪辑要点：</b>每个镜头2-3秒，音乐卡点，动作衔接匹配
+      </div>
+    </div>
+
+    <div class="card tint-sky">
+      <div class="card-h">🎬 一镜到底（Long Take / One Shot）</div>
+      <div class="style-desc">单个连续长镜头，真实感和沉浸感极强，展示完整动作或空间关系，高级感拉满。</div>
+      <div class="style-tags">
+        <span class="style-tag">沉浸感</span>
+        <span class="style-tag">真实感</span>
+        <span class="style-tag">高级感</span>
+      </div>
+      <div class="style-sub">
+        <b>适用场景：</b>完整打斗动作、场景空间展示、对话跟拍、氛围感长镜头<br>
+        <b>AI提示词写法：</b>one continuous take, long tracking shot, seamless, no cuts
+      </div>
+    </div>
+
+    <div class="card tint-orange">
+      <div class="card-h">🎬 越肩镜头（Over the Shoulder）</div>
+      <div class="style-desc">从一人肩膀后拍另一人，对话场景最常用，既能看清对方表情又有第一人称代入感。</div>
+      <div class="style-tags">
+        <span class="style-tag">对话场景</span>
+        <span class="style-tag">代入感</span>
+        <span class="style-tag">经典构图</span>
+      </div>
+      <div class="style-sub">
+        <b>适用场景：</b>两人对话、对峙谈判、观察视角<br>
+        <b>AI提示词写法：</b>over the shoulder shot, OTS, two people talking, cinematic composition
+      </div>
+    </div>
+
+    <div class="card tint-violet">
+      <div class="card-h">🎬 变焦推拉（Dolly Zoom）</div>
+      <div class="style-desc">主体大小不变但背景空间感剧烈变化，制造不安、眩晕、惊悚感，希区柯克经典手法。</div>
+      <div class="style-tags">
+        <span class="style-tag">眩晕感</span>
+        <span class="style-tag">不安情绪</span>
+        <span class="style-tag">视觉奇观</span>
+      </div>
+      <div class="style-sub">
+        <b>适用场景：</b>人物震惊/恐惧瞬间、现实扭曲感、超自然现象揭示<br>
+        <b>AI提示词写法：</b>dolly zoom effect, vertigo shot, background warping, Hitchcock zoom
+      </div>
+    </div>
+  </div>
+
+  <!-- AI工具推荐 -->
+  <div id="styleCatAiTool" style="display:none">
+    <!-- 子分类切换 -->
+    <div class="card">
+      <div class="ai-tool-tabs">
+        <button class="ai-tool-tab active" onclick="switchAiToolTab('image')">🖼️ 生图工具</button>
+        <button class="ai-tool-tab" onclick="switchAiToolTab('video')">🎥 视频生成</button>
+        <button class="ai-tool-tab" onclick="switchAiToolTab('compare')">📊 对比速查</button>
+      </div>
+    </div>
+
+    <!-- 生图工具 -->
+    <div id="aiToolImage">
+      <div class="card tint-purple">
+        <div class="card-h">
+          ⭐ Midjourney
+          <span class="tool-badge tool-best">画质天花板</span>
+        </div>
+        <div class="style-desc">AI生图画质天花板，艺术感和细节碾压级，风格化表现最强，适合出高质量海报和概念图。</div>
+        <div class="style-tags">
+          <span class="style-tag">画质顶级</span>
+          <span class="style-tag">艺术感强</span>
+          <span class="style-tag">风格多样</span>
+          <span class="style-tag">需翻墙</span>
+        </div>
+        <div class="tool-specs">
+          <div class="tool-spec-row"><span>速度</span><span class="rating">⭐⭐⭐ 中等（约1分钟）</span></div>
+          <div class="tool-spec-row"><span>画质</span><span class="rating">⭐⭐⭐⭐⭐ 天花板</span></div>
+          <div class="tool-spec-row"><span>算力要求</span><span class="rating">⚡ 云端生成，本地无要求</span></div>
+          <div class="tool-spec-row"><span>价格</span><span>约$10/月起</span></div>
+        </div>
+        <div class="style-sub">
+          <b>适合：</b>高质量海报、概念设计、艺术创作、商业出图
+        </div>
+      </div>
+
+      <div class="card tint-blue">
+        <div class="card-h">
+          ⭐ Stable Diffusion / ComfyUI
+          <span class="tool-badge tool-free">开源免费</span>
+        </div>
+        <div class="style-desc">开源生图框架，自由度最高，可本地部署，模型选择多，支持ControlNet精确控制，是专业玩家首选。</div>
+        <div class="style-tags">
+          <span class="style-tag">开源免费</span>
+          <span class="style-tag">可控性强</span>
+          <span class="style-tag">本地部署</span>
+          <span class="style-tag">模型丰富</span>
+        </div>
+        <div class="tool-specs">
+          <div class="tool-spec-row"><span>速度</span><span class="rating">取决于显卡（4090约10秒/张）</span></div>
+          <div class="tool-spec-row"><span>画质</span><span class="rating">⭐⭐⭐⭐ 取决于模型</span></div>
+          <div class="tool-spec-row"><span>算力要求</span><span class="rating">💻 需8G+显存显卡</span></div>
+          <div class="tool-spec-row"><span>价格</span><span>免费（自购显卡）</span></div>
+        </div>
+        <div class="style-sub">
+          <b>推荐模型：</b>Realistic Vision（真人）、MeinaMix（动漫）、Counterfeit（二次元）、MajicMix（写实）<br>
+          <b>适合：</b>精细控制、批量出图、风格定制、工作流自动化
+        </div>
+      </div>
+
+      <div class="card tint-mint">
+        <div class="card-h">
+          ⭐ DALL·E 3 / Flux
+          <span class="tool-badge tool-easy">新手友好</span>
+        </div>
+        <div class="style-desc">OpenAI出品，文字理解能力最强，描述什么出什么，几乎不需要调参数，新手零门槛。</div>
+        <div class="style-tags">
+          <span class="style-tag">理解能力强</span>
+          <span class="style-tag">零门槛</span>
+          <span class="style-tag">ChatGPT集成</span>
+        </div>
+        <div class="tool-specs">
+          <div class="tool-spec-row"><span>速度</span><span class="rating">⭐⭐⭐⭐ 快（约30秒）</span></div>
+          <div class="tool-spec-row"><span>画质</span><span class="rating">⭐⭐⭐⭐ 优秀</span></div>
+          <div class="tool-spec-row"><span>算力要求</span><span class="rating">⚡ 云端生成，本地无要求</span></div>
+          <div class="tool-spec-row"><span>价格</span><span>ChatGPT Plus $20/月</span></div>
+        </div>
+        <div class="style-sub">
+          <b>适合：</b>新手入门、快速出图、文字要求精确的场景
+        </div>
+      </div>
+
+      <div class="card tint-rose">
+        <div class="card-h">
+          ⭐ 即梦 / 可灵（字节）
+          <span class="tool-badge tool-cn">国产推荐</span>
+        </div>
+        <div class="style-desc">字节跳动出品，国内直接可用，中文理解好，出图质量高，生成速度快，性价比之选。</div>
+        <div class="style-tags">
+          <span class="style-tag">国内可用</span>
+          <span class="style-tag">中文好</span>
+          <span class="style-tag">速度快</span>
+          <span class="style-tag">性价比高</span>
+        </div>
+        <div class="tool-specs">
+          <div class="tool-spec-row"><span>速度</span><span class="rating">⭐⭐⭐⭐⭐ 很快（约20秒）</span></div>
+          <div class="tool-spec-row"><span>画质</span><span class="rating">⭐⭐⭐⭐ 优秀</span></div>
+          <div class="tool-spec-row"><span>算力要求</span><span class="rating">⚡ 云端生成，本地无要求</span></div>
+          <div class="tool-spec-row"><span>价格</span><span>免费额度 + 会员约30元/月</span></div>
+        </div>
+        <div class="style-sub">
+          <b>适合：</b>国内用户、中文Prompt、日常出图、学生党
+        </div>
+      </div>
+    </div>
+
+    <!-- 视频生成工具 -->
+    <div id="aiToolVideo" style="display:none">
+      <div class="card tint-purple">
+        <div class="card-h">
+          ⭐ Kling 可灵
+          <span class="tool-badge tool-best">综合最佳</span>
+        </div>
+        <div class="style-desc">快手出品，目前AI视频生成第一梯队，画质高、动作自然、支持人物一致性，国内直接可用。</div>
+        <div class="style-tags">
+          <span class="style-tag">画质顶尖</span>
+          <span class="style-tag">动作自然</span>
+          <span class="style-tag">国内可用</span>
+          <span class="style-tag">人物一致</span>
+        </div>
+        <div class="tool-specs">
+          <div class="tool-spec-row"><span>生成速度</span><span class="rating">⭐⭐⭐ 约3-5分钟/5秒</span></div>
+          <div class="tool-spec-row"><span>画质</span><span class="rating">⭐⭐⭐⭐⭐ 第一梯队</span></div>
+          <div class="tool-spec-row"><span>算力要求</span><span class="rating">⚡ 云端生成，本地无要求</span></div>
+          <div class="tool-spec-row"><span>最长时长</span><span>10秒（可延长）</span></div>
+        </div>
+        <div class="style-sub">
+          <b>适合：</b>高质量AI视频、漫剧制作、人物一致性要求高的场景
+        </div>
+      </div>
+
+      <div class="card tint-blue">
+        <div class="card-h">
+          ⭐ Sora
+          <span class="tool-badge tool-best">画质天花板</span>
+        </div>
+        <div class="style-desc">OpenAI出品，视频生成画质天花板，电影级质感，物理模拟真实，但目前需邀请制且限制较多。</div>
+        <div class="style-tags">
+          <span class="style-tag">电影级画质</span>
+          <span class="style-tag">物理真实</span>
+          <span class="style-tag">需邀请</span>
+          <span class="style-tag">60秒</span>
+        </div>
+        <div class="tool-specs">
+          <div class="tool-spec-row"><span>生成速度</span><span class="rating">⭐⭐ 较慢（约10分钟+）</span></div>
+          <div class="tool-spec-row"><span>画质</span><span class="rating">⭐⭐⭐⭐⭐ 天花板</span></div>
+          <div class="tool-spec-row"><span>算力要求</span><span class="rating">⚡ 云端生成，本地无要求</span></div>
+          <div class="tool-spec-row"><span>最长时长</span><span>60秒</span></div>
+        </div>
+        <div class="style-sub">
+          <b>适合：</b>顶级画质要求、电影级概念短片、预算充足的项目
+        </div>
+      </div>
+
+      <div class="card tint-mint">
+        <div class="card-h">
+          ⭐ Runway Gen-3 / Pika
+          <span class="tool-badge tool-fast">老牌强者</span>
+        </div>
+        <div class="style-desc">海外老牌AI视频工具，功能完善，支持图生视频、视频转视频、运动笔刷控制，创意性强。</div>
+        <div class="style-tags">
+          <span class="style-tag">功能丰富</span>
+          <span class="style-tag">创意性强</span>
+          <span class="style-tag">控制度高</span>
+          <span class="style-tag">需翻墙</span>
+        </div>
+        <div class="tool-specs">
+          <div class="tool-spec-row"><span>生成速度</span><span class="rating">⭐⭐⭐ 约3-5分钟/4秒</span></div>
+          <div class="tool-spec-row"><span>画质</span><span class="rating">⭐⭐⭐⭐ 优秀</span></div>
+          <div class="tool-spec-row"><span>算力要求</span><span class="rating">⚡ 云端生成，本地无要求</span></div>
+          <div class="tool-spec-row"><span>最长时长</span><span>10秒（可延长）</span></div>
+        </div>
+        <div class="style-sub">
+          <b>适合：</b>创意视频、风格化视频、精细运动控制
+        </div>
+      </div>
+
+      <div class="card tint-amber">
+        <div class="card-h">
+          ⭐ 即梦 AI（字节）
+          <span class="tool-badge tool-cn">性价比高</span>
+        </div>
+        <div class="style-desc">字节跳动出品，国内直接用，生成速度快，价格便宜，适合日常快速出片和练手。</div>
+        <div class="style-tags">
+          <span class="style-tag">国内可用</span>
+          <span class="style-tag">速度快</span>
+          <span class="style-tag">便宜</span>
+          <span class="style-tag">中文好</span>
+        </div>
+        <div class="tool-specs">
+          <div class="tool-spec-row"><span>生成速度</span><span class="rating">⭐⭐⭐⭐⭐ 很快（约1-2分钟）</span></div>
+          <div class="tool-spec-row"><span>画质</span><span class="rating">⭐⭐⭐ 良好</span></div>
+          <div class="tool-spec-row"><span>算力要求</span><span class="rating">⚡ 云端生成，本地无要求</span></div>
+          <div class="tool-spec-row"><span>最长时长</span><span>5秒</span></div>
+        </div>
+        <div class="style-sub">
+          <b>适合：</b>快速出片、日常练手、预算有限、新手入门
+        </div>
+      </div>
+
+      <div class="card tint-rose">
+        <div class="card-h">
+          💻 本地部署方案（低算力）
+          <span class="tool-badge tool-free">免费离线</span>
+        </div>
+        <div class="style-desc">显卡不够也能玩！推荐几款轻量级本地视频生成模型，4G显存也能跑，适合学习和研究。</div>
+        <div class="style-tags">
+          <span class="style-tag">本地部署</span>
+          <span class="style-tag">低显存</span>
+          <span class="style-tag">免费</span>
+          <span class="style-tag">可离线</span>
+        </div>
+        <div class="tool-specs">
+          <div class="tool-spec-row"><span>Stable Video Diffusion</span><span class="rating">8G显存可跑，图生视频，2-4秒</span></div>
+          <div class="tool-spec-row"><span>AnimateDiff</span><span class="rating">6G显存可跑，动漫视频效果好</span></div>
+          <div class="tool-spec-row"><span>CogVideo</span><span class="rating">智源出品，中文支持好</span></div>
+          <div class="tool-spec-row"><span>MoonValley</span><span class="rating">文本生成视频，偏动漫风格</span></div>
+        </div>
+        <div class="style-sub">
+          <b>适合：</b>有一定动手能力、想省会员费、对画质要求不高、想深入研究
+        </div>
+      </div>
+    </div>
+
+    <!-- 对比速查 -->
+    <div id="aiToolCompare" style="display:none">
+      <div class="card">
+        <div class="card-h">📊 生图工具对比速查</div>
+        <table class="sub-tbl">
+          <tr>
+            <th>工具</th>
+            <th>画质</th>
+            <th>速度</th>
+            <th>价格</th>
+            <th>国内可用</th>
+            <th>推荐指数</th>
+          </tr>
+          <tr>
+            <td><b>Midjourney</b></td>
+            <td>⭐⭐⭐⭐⭐</td>
+            <td>⭐⭐⭐</td>
+            <td>$$$$</td>
+            <td>❌ 需翻墙</td>
+            <td>🔥🔥🔥🔥🔥</td>
+          </tr>
+          <tr>
+            <td><b>Stable Diffusion</b></td>
+            <td>⭐⭐⭐⭐</td>
+            <td>看显卡</td>
+            <td>免费</td>
+            <td>✅ 本地部署</td>
+            <td>🔥🔥🔥🔥</td>
+          </tr>
+          <tr>
+            <td><b>DALL·E 3</b></td>
+            <td>⭐⭐⭐⭐</td>
+            <td>⭐⭐⭐⭐</td>
+            <td>$$$</td>
+            <td>❌ 需翻墙</td>
+            <td>🔥🔥🔥🔥</td>
+          </tr>
+          <tr>
+            <td><b>即梦/可灵</b></td>
+            <td>⭐⭐⭐⭐</td>
+            <td>⭐⭐⭐⭐⭐</td>
+            <td>¥</td>
+            <td>✅ 直接用</td>
+            <td>🔥🔥🔥🔥</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-h">📊 视频生成工具对比速查</div>
+        <table class="sub-tbl">
+          <tr>
+            <th>工具</th>
+            <th>画质</th>
+            <th>速度</th>
+            <th>最长时长</th>
+            <th>国内可用</th>
+            <th>推荐指数</th>
+          </tr>
+          <tr>
+            <td><b>可灵 Kling</b></td>
+            <td>⭐⭐⭐⭐⭐</td>
+            <td>⭐⭐⭐</td>
+            <td>10秒</td>
+            <td>✅ 直接用</td>
+            <td>🔥🔥🔥🔥🔥</td>
+          </tr>
+          <tr>
+            <td><b>Sora</b></td>
+            <td>⭐⭐⭐⭐⭐</td>
+            <td>⭐⭐</td>
+            <td>60秒</td>
+            <td>❌ 需邀请</td>
+            <td>🔥🔥🔥🔥</td>
+          </tr>
+          <tr>
+            <td><b>Runway / Pika</b></td>
+            <td>⭐⭐⭐⭐</td>
+            <td>⭐⭐⭐</td>
+            <td>10秒+</td>
+            <td>❌ 需翻墙</td>
+            <td>🔥🔥🔥🔥</td>
+          </tr>
+          <tr>
+            <td><b>即梦</b></td>
+            <td>⭐⭐⭐</td>
+            <td>⭐⭐⭐⭐⭐</td>
+            <td>5秒</td>
+            <td>✅ 直接用</td>
+            <td>🔥🔥🔥</td>
+          </tr>
+          <tr>
+            <td><b>AnimateDiff</b></td>
+            <td>⭐⭐⭐</td>
+            <td>看显卡</td>
+            <td>2-4秒</td>
+            <td>✅ 本地</td>
+            <td>🔥🔥🔥</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card tint-amber">
+        <div class="card-h">💡 选型建议</div>
+        <div class="txt" style="line-height:1.8">
+          <b>新手入门首选：</b>即梦 / 可灵（国内直接用，便宜好用）<br>
+          <b>追求最高画质：</b>Midjourney（图）+ 可灵（视频）<br>
+          <b>想免费自己玩：</b>Stable Diffusion + AnimateDiff（有显卡就行）<br>
+          <b>低算力配置：</b>6G显存选 SD 1.5，8G显存选 SDXL，12G+ 随便玩<br>
+          <b>漫剧制作推荐：</b>可灵 Kling（人物一致性好，画质高）<br>
+          <b>批量工作流：</b>ComfyUI + 各种节点，自动化出图
+        </div>
+      </div>
+    </div>
   </div>
 `,
 
@@ -2354,6 +3383,224 @@ workshop:`
     <div class="card" style="border-left:4px solid var(--accent-2)">
       <div class="card-h">📋 完整提示词汇总 <button class="btn btn-mint btn-sm" style="margin-left:auto;padding:4px 10px;font-size:11px" onclick="wsCopyFullPrompt()">📋 复制</button></div>
       <div id="wsFullPrompt" style="background:var(--surface);border-radius:8px;padding:12px 14px;font-family:'Courier New',monospace;font-size:13px;line-height:1.8;color:var(--ink-2);max-height:300px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;margin-top:8px"></div>
+    </div>
+  </div>
+`,
+
+hotcut:`
+  <div class="page-head"><span class="bow">🔥</span><h1>爆款剪辑</h1><span class="sub">· 漫剧高燃纯享 · 像素级剪辑方案</span></div>
+
+  <!-- 项目列表 -->
+  <div class="card tint-orange">
+    <div class="card-h">📂 剪辑项目 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('hotcutProjects')">+ 新建项目</button></div>
+    <div id="lc_hotcutProjects"></div>
+  </div>
+
+  <!-- 四阶段工作流 -->
+  <div class="card">
+    <div class="card-h">
+      🚀 四阶段剪辑工作流
+      <span style="margin-left:auto;display:flex;gap:6px">
+        <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="hcReset()">🔄 重新开始</button>
+      </span>
+    </div>
+    <!-- 阶段指示器 -->
+    <div class="hc-steps" id="hcSteps">
+      <div class="hc-step active" data-stage="1">
+        <div class="hc-step-ico">📖</div>
+        <div class="hc-step-name">深度拆解</div>
+      </div>
+      <div class="hc-step-line"></div>
+      <div class="hc-step" data-stage="2">
+        <div class="hc-step-ico">⚡</div>
+        <div class="hc-step-name">爆款开头</div>
+      </div>
+      <div class="hc-step-line"></div>
+      <div class="hc-step" data-stage="3">
+        <div class="hc-step-ico">📐</div>
+        <div class="hc-step-name">结构规划</div>
+      </div>
+      <div class="hc-step-line"></div>
+      <div class="hc-step" data-stage="4">
+        <div class="hc-step-ico">🎬</div>
+        <div class="hc-step-name">精确切片</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第一阶段：漫剧吞吐与深度拆解 -->
+  <div id="hcStage1" class="hc-stage">
+    <div class="card tint-blue">
+      <div class="card-h">📖 第一阶段：漫剧素材输入与深度拆解</div>
+      <div class="txt" style="margin-bottom:12px">粘贴漫剧文案和 SRT 字幕，AI 将深度拆解故事节点、主线脉络和时间轴。</div>
+      <div class="agent-form-row">
+        <label>漫剧文案 / 剧情梗概</label>
+        <textarea class="crud-textarea" id="hcDramaText" rows="8" placeholder="粘贴漫剧的完整剧情文案、小说原文或分集梗概...&#10;&#10;可以分多次粘贴，每次追加后点击「继续解析」。"></textarea>
+      </div>
+      <div class="agent-form-row">
+        <label>SRT 字幕文件内容 <span style="color:var(--ink-3);font-weight:400">（可选）</span></label>
+        <textarea class="crud-textarea" id="hcSrtText" rows="6" placeholder="粘贴 SRT 字幕文件内容...&#10;&#10;1&#10;00:00:01,000 --> 00:00:03,000&#10;字幕内容..."></textarea>
+      </div>
+      <div class="agent-form-row">
+        <label>剧集信息 <span style="color:var(--ink-3);font-weight:400">（可选）</span></label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input class="crud-input" id="hcEpisodes" type="number" placeholder="总集数" style="flex:1;min-width:100px">
+          <input class="crud-input" id="hcDuration" type="text" placeholder="单集时长（如：10分钟）" style="flex:1;min-width:120px">
+          <input class="crud-input" id="hcDramaName" type="text" placeholder="剧名" style="flex:1;min-width:120px">
+        </div>
+      </div>
+      <div class="agent-btn-row">
+        <button class="btn btn-accent" id="hcBtnStage1" onclick="hcStage1Analyze()">🔍 开始深度拆解</button>
+      </div>
+      <!-- 加载状态 -->
+      <div id="hcLoading1" style="display:none;margin-top:12px;text-align:center;padding:20px">
+        <div class="agent-spinner"></div>
+        <div class="txt" style="margin-top:8px;color:var(--ink-2)">AI 正在深度解析漫剧内容，请稍候…</div>
+      </div>
+      <!-- 错误提示 -->
+      <div id="hcError1" style="display:none;margin-top:12px" class="agent-error-box">
+        <div class="agent-error-title">❌ 出错了</div>
+        <div class="agent-error-msg" id="hcErrorMsg1"></div>
+      </div>
+    </div>
+
+    <!-- 解析结果 -->
+    <div id="hcResult1" style="display:none">
+      <div class="card tint-violet">
+        <div class="card-h">📊 故事节点拆解</div>
+        <div id="hcStoryNodes" class="hc-content"></div>
+      </div>
+      <div class="card tint-mint">
+        <div class="card-h">🎯 核心故事线</div>
+        <div id="hcMainPlot" class="hc-content"></div>
+      </div>
+      <div class="card tint-amber">
+        <div class="card-h">⏱️ 字幕时间轴（关键事件）</div>
+        <div id="hcTimeline" class="hc-content"></div>
+      </div>
+      <div style="text-align:center;margin:16px 0">
+        <button class="btn btn-accent" onclick="hcGoToStage(2)">下一步：提取爆款开头 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第二阶段：爆款开头全量提取 -->
+  <div id="hcStage2" class="hc-stage" style="display:none">
+    <div class="card tint-rose">
+      <div class="card-h">⚡ 第二阶段：爆款开头全量提取</div>
+      <div class="txt" style="margin-bottom:12px">AI 将从全剧中提取所有具备爆款潜质的高燃/猎奇/大尺度/极致反差片段。</div>
+      <div class="agent-btn-row">
+        <button class="btn btn-accent" id="hcBtnStage2" onclick="hcStage2Extract()">🔥 提取所有爆款开头</button>
+      </div>
+      <div id="hcLoading2" style="display:none;margin-top:12px;text-align:center;padding:20px">
+        <div class="agent-spinner"></div>
+        <div class="txt" style="margin-top:8px;color:var(--ink-2)">AI 正在挖掘爆款片段，请稍候…</div>
+      </div>
+      <div id="hcError2" style="display:none;margin-top:12px" class="agent-error-box">
+        <div class="agent-error-title">❌ 出错了</div>
+        <div class="agent-error-msg" id="hcErrorMsg2"></div>
+      </div>
+    </div>
+    <div id="hcResult2" style="display:none">
+      <div class="card tint-orange">
+        <div class="card-h">💥 爆款开头候选 <span id="hcHookCount" style="margin-left:8px;color:var(--ink-3);font-weight:400;font-size:13px"></span></div>
+        <div id="hcHookList" class="hc-hook-list"></div>
+      </div>
+      <div style="text-align:center;margin:16px 0">
+        <button class="btn btn-accent" onclick="hcGoToStage(3)">下一步：结构规划 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第三阶段：双轨结构规划 -->
+  <div id="hcStage3" class="hc-stage" style="display:none">
+    <div class="card tint-sky">
+      <div class="card-h">📐 第三阶段：双轨结构规划</div>
+      <div class="txt" style="margin-bottom:12px">根据您选定的开头，AI 将生成两套不同的剪辑结构方案（方案A / 方案B）。</div>
+      <div class="agent-form-row">
+        <label>已选开头</label>
+        <div id="hcSelectedHook" class="hc-selected-hook">请先在第二阶段选择一个爆款开头</div>
+      </div>
+      <div class="agent-btn-row">
+        <button class="btn btn-accent" id="hcBtnStage3" onclick="hcStage3Plan()">📋 生成双轨结构方案</button>
+      </div>
+      <div id="hcLoading3" style="display:none;margin-top:12px;text-align:center;padding:20px">
+        <div class="agent-spinner"></div>
+        <div class="txt" style="margin-top:8px;color:var(--ink-2)">AI 正在规划剪辑结构，请稍候…</div>
+      </div>
+      <div id="hcError3" style="display:none;margin-top:12px" class="agent-error-box">
+        <div class="agent-error-title">❌ 出错了</div>
+        <div class="agent-error-msg" id="hcErrorMsg3"></div>
+      </div>
+    </div>
+    <div id="hcResult3" style="display:none">
+      <div class="card tint-purple">
+        <div class="card-h">
+          🅰️ 方案A
+          <button class="btn btn-accent btn-sm" style="margin-left:auto;padding:4px 10px;font-size:11px" onclick="hcSelectPlan('A')">选择方案A</button>
+        </div>
+        <div id="hcPlanA" class="hc-plan-content"></div>
+      </div>
+      <div class="card tint-indigo">
+        <div class="card-h">
+          🅱️ 方案B
+          <button class="btn btn-accent btn-sm" style="margin-left:auto;padding:4px 10px;font-size:11px" onclick="hcSelectPlan('B')">选择方案B</button>
+        </div>
+        <div id="hcPlanB" class="hc-plan-content"></div>
+      </div>
+      <div style="text-align:center;margin:16px 0">
+        <button class="btn btn-accent" onclick="hcGoToStage(4)">下一步：精确切片 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第四阶段：像素级精确切片方案 -->
+  <div id="hcStage4" class="hc-stage" style="display:none">
+    <div class="card tint-emerald">
+      <div class="card-h">🎬 第四阶段：像素级精确切片方案</div>
+      <div class="txt" style="margin-bottom:12px">根据选定的结构方案，生成像素级的详细剪辑方案，包含每一个画面和每一句台词。</div>
+      <div class="agent-form-row">
+        <label>已选方案</label>
+        <div id="hcSelectedPlan" class="hc-selected-hook">请先在第三阶段选择一个方案</div>
+      </div>
+      <div class="agent-btn-row">
+        <button class="btn btn-accent" id="hcBtnStage4" onclick="hcStage4Generate()">✂️ 生成精确切片方案</button>
+      </div>
+      <div id="hcLoading4" style="display:none;margin-top:12px;text-align:center;padding:20px">
+        <div class="agent-spinner"></div>
+        <div class="txt" style="margin-top:8px;color:var(--ink-2)">AI 正在生成像素级切片方案，请稍候…（这一步可能需要1-2分钟）</div>
+      </div>
+      <div id="hcError4" style="display:none;margin-top:12px" class="agent-error-box">
+        <div class="agent-error-title">❌ 出错了</div>
+        <div class="agent-error-msg" id="hcErrorMsg4"></div>
+      </div>
+    </div>
+    <div id="hcResult4" style="display:none">
+      <!-- 开头切片 -->
+      <div class="card tint-rose">
+        <div class="card-h">🎬 【开头】切片方案</div>
+        <div id="hcSlicesOpening" class="hc-slice-list"></div>
+      </div>
+      <!-- 正剧切片 -->
+      <div class="card tint-blue">
+        <div class="card-h">🎬 【正剧】切片方案</div>
+        <div id="hcSlicesMain" class="hc-slice-list"></div>
+      </div>
+      <!-- 结尾切片 -->
+      <div class="card tint-violet">
+        <div class="card-h">🎬 【结尾】切片方案</div>
+        <div id="hcSlicesEnding" class="hc-slice-list"></div>
+      </div>
+      <!-- 时长复核 -->
+      <div class="card" style="border-left:4px solid var(--accent-warm)">
+        <div class="card-h">⏱️ 全局时长复核</div>
+        <div id="hcDurationReview" class="hc-duration-review"></div>
+      </div>
+      <!-- 导出按钮 -->
+      <div style="text-align:center;margin:16px 0;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-mint" onclick="hcCopyAllSlices()">📋 复制全部方案</button>
+        <button class="btn btn-accent" onclick="hcExportSlices()">💾 导出为文本文件</button>
+      </div>
     </div>
   </div>
 `,
@@ -3497,8 +4744,10 @@ async function loadFromCloud(){
 /* --- 保存到云端（防抖 + 自动重试） --- */
 let saveRetryCount=0;
 let lastSaveTimestamp=null;  // 记录本次保存的时间戳，用于识别自己保存的回声
-function saveToCloud(){
+let _showSyncSuccessToast=false;  // 是否在同步成功后显示提示
+function saveToCloud(showToast){
   if(!sbClient)return;
+  if(showToast) _showSyncSuccessToast=true;
   if(syncTimer)clearTimeout(syncTimer);
   syncTimer=setTimeout(async()=>{
     syncTimer=null;  // 清空定时器引用，让订阅/轮询可以正常工作
@@ -3520,12 +4769,20 @@ function saveToCloud(){
         }else{
           updateSyncBadge('error','保存失败');
           saveRetryCount=0;
+          if(_showSyncSuccessToast){
+            showToast('云同步失败：'+(error.message||'未知错误'),'error');
+            _showSyncSuccessToast=false;
+          }
         }
       }else{
         saveRetryCount=0;
         lastCloudSaveTime=Date.now();
         lastSaveTimestamp=ts;
         updateSyncBadge('online','已连接');
+        if(_showSyncSuccessToast){
+          showToast('✅ 已同步到云端','success');
+          _showSyncSuccessToast=false;
+        }
       }
     }catch(e){
       saveRetryCount++;
@@ -3535,11 +4792,15 @@ function saveToCloud(){
       }else{
         updateSyncBadge('error','网络错误');
         saveRetryCount=0;
+        if(_showSyncSuccessToast){
+          showToast('云同步失败：网络异常','error');
+          _showSyncSuccessToast=false;
+        }
       }
     }finally{
       _cloudSaveInProgress=false;
     }
-  },500);
+  },150);
 }
 
 /* --- 定期同步（每30秒检查一次云端是否有更新） --- */
@@ -3636,12 +4897,67 @@ function subscribeCloud(){
 function loadData(){
   try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ return {}; }
 }
-function saveData(){
+/* --- 自定义名称 --- */
+function getAppName(){
+  if(DB.customNames&&DB.customNames.appName&&DB.customNames.appName.trim()){
+    return DB.customNames.appName.trim();
+  }
+  return '小松的工作台';
+}
+function getMenuName(id, defaultName){
+  if(DB.customNames&&DB.customNames.menuNames&&DB.customNames.menuNames[id]){
+    return DB.customNames.menuNames[id];
+  }
+  return defaultName;
+}
+function applyCustomNames(){
+  var appName=getAppName();
+  document.title=appName+' · 男生版';
+  var wsNameEl=document.getElementById('wsName');
+  if(wsNameEl) wsNameEl.textContent=appName;
+  /* 更新导航菜单名称 */
+  var navItems=document.querySelectorAll('.nav-item');
+  navItems.forEach(function(item){
+    var id=item.dataset.id;
+    var navItem=NAV.find(function(n){return n.id===id;});
+    if(navItem){
+      var lblEl=item.querySelector('.lbl');
+      if(lblEl) lblEl.textContent=getMenuName(id, navItem.name);
+    }
+  });
+}
+function saveCustomNames(){
+  var appNameInput=document.getElementById('customAppName');
+  if(appNameInput){
+    DB.customNames.appName=appNameInput.value.trim();
+  }
+  var menuInputs=document.querySelectorAll('#customMenuNames input[data-menuid]');
+  menuInputs.forEach(function(input){
+    var menuId=input.dataset.menuid;
+    var val=input.value.trim();
+    if(val){
+      DB.customNames.menuNames[menuId]=val;
+    }else{
+      delete DB.customNames.menuNames[menuId];
+    }
+  });
+  saveData(true);
+  applyCustomNames();
+  showToast('✅ 自定义名称已保存','success');
+}
+function resetCustomNames(){
+  if(!confirm('确定要恢复所有默认名称吗？'))return;
+  DB.customNames={appName:'',menuNames:{}};
+  saveData(true);
+  applyCustomNames();
+  switchSection('data');
+  showToast('✅ 已恢复默认名称','success');
+}
+
+function saveData(showSyncToast){
   try{
     var jsonStr=JSON.stringify(DB);
     localStorage.setItem(STORE_KEY,jsonStr);
-  }catch(e){
-    console.warn('[Storage] localStorage保存失败，可能超出容量限制:',e.name);
     /* 存储超限时，仅保存核心数据（不含大提示词条目） */
     try{
       var liteDB=JSON.parse(JSON.stringify(DB));
@@ -3658,8 +4974,10 @@ function saveData(){
     }catch(e2){
       console.error('[Storage] 降级保存也失败:',e2);
     }
+  }catch(e){
+    console.error('[Storage] 保存失败:',e);
   }
-  if(sbClient&&!isRemoteUpdate)saveToCloud();
+  if(sbClient&&!isRemoteUpdate)saveToCloud(showSyncToast);
 }
 
 /* --- 临时生成缓存（5分钟TTL，防止刷新/退出丢失生成结果） --- */
@@ -3710,6 +5028,7 @@ function ensureKeys(){
   if(!Array.isArray(DB.checkedDays))DB.checkedDays=[];
   if(typeof DB.budget!=='number')DB.budget=6000;
   if(!DB.apiSettings||typeof DB.apiSettings!=='object')DB.apiSettings={apiBaseUrl:'https://ark.cn-beijing.volces.com/api/v3',apiKey:_d('YXJrLWNiYjRlYjU4LTdkNmMtNGRiMS1hM2FhLWRjMzcwMDFkMWYwNS0yNjM3Mw=='),model:'ep-20260825182529-q7kr2'};
+  if(!DB.customNames||typeof DB.customNames!=='object')DB.customNames={appName:'',menuNames:{}};
   Object.keys(LISTS).forEach(k=>{ const dk=LISTS[k].dbKey; if(!Array.isArray(DB[dk]))DB[dk]=[]; });
 }
 
@@ -3753,6 +5072,9 @@ ensureKeys();
 if(_initChanged){
   setTimeout(function(){ saveData(); },1000);
 }
+
+/* 应用自定义名称 */
+setTimeout(function(){ applyCustomNames(); },50);
 
 /* ========== HTML 转义 ========== */
 function escapeHtml(s){
@@ -4162,7 +5484,8 @@ Object.keys(navByGroup).forEach(groupName=>{
     const d=document.createElement('div');
     d.className='nav-item'+(n.id==='overview'?' active':'');
     d.dataset.id=n.id;
-    d.innerHTML='<span class="ico">'+n.ico+'</span><span class="lbl">'+n.name+'</span>'+(n.badge?'<span class="badge">'+n.badge+'</span>':'');
+    const displayName=getMenuName(n.id, n.name);
+    d.innerHTML='<span class="ico">'+n.ico+'</span><span class="lbl">'+displayName+'</span>'+(n.badge?'<span class="badge">'+n.badge+'</span>':'');
     d.onclick=()=>switchSection(n.id);
     groupContainer.appendChild(d);
   });
@@ -4229,6 +5552,7 @@ function switchSection(id){
   else if(id==='agent'){ html=SECTIONS.agent; }
   else if(id==='skillagent'){ html=SECTIONS.skillagent; }
   else if(id==='workshop'){ html=SECTIONS.workshop; }
+  else if(id==='hotcut'){ html=SECTIONS.hotcut; }
   else { html=SECTIONS[id]||'<div class="empty"><div class="big">🚧</div>板块建设中…</div>'; }
   /* 面包屑导航 + 顶部随机激励语滚动条 */
   const breadcrumb=id==='overview'?'':getBreadcrumb(id);
@@ -4237,7 +5561,7 @@ function switchSection(id){
   /* 延迟加载激励语，避免阻塞首屏渲染 */
   setTimeout(function(){ loadRandomQuote(); },100);
   /* 后置渲染 */
-  if(id==='daily') initDaily();
+  if(id==='daily') initStyleGuide();
   if(id==='overview') renderOverview();
   if(id==='car') renderOilPrice();
   if(id==='inspo'){ renderInspos(); loadFeishuManjuFromLocal(); }
@@ -4245,6 +5569,7 @@ function switchSection(id){
   if(id==='agent') initAgentSection();
   if(id==='skillagent') saInit();
   if(id==='workshop') wsInitWorkshop();
+  if(id==='hotcut') hcInitHotcut();
   (SECTION_LISTS[id]||[]).forEach(k=>renderList(k));
   /* 初始化分类筛选器箭头状态 */
   setTimeout(function(){ initAllTagFilters(); },50);
@@ -4376,7 +5701,7 @@ function restorePrompts(){
       if(!existing[p.title]) merged.push(p);
     });
     DB.aitechPrompts=merged.concat(DB.aitechPrompts||[]);
-    saveData();
+    saveData(true);
     renderList('aitechPrompts');
     showToast('已恢复精选提示词！当前共 '+DB.aitechPrompts.length+' 条','success');
   }
@@ -4392,7 +5717,7 @@ function restoreAiPrompts(){
       if(!existing[p.title]) merged.push(p);
     });
     DB.aiPrompts=merged.concat(DB.aiPrompts||[]);
-    saveData();
+    saveData(true);
     renderList('aiPrompts');
     showToast('已恢复精选提示词！当前共 '+DB.aiPrompts.length+' 条','success');
   }
@@ -4748,7 +6073,7 @@ function openListModal(listKey,index){
     if(!hasContent){ alert('请至少填写一项内容'); return false; }
     if(editing){ DB[config.dbKey][index]=newItem; }
     else { DB[config.dbKey].push(newItem); }
-    saveData();
+    saveData(true);
     renderList(listKey);
     /* 刷新每日计划的目标跑车卡片 */
     if(config.dbKey==='salaryGoal') renderGoalCar();
@@ -4760,7 +6085,7 @@ function delListItem(listKey,index){
   const config=LISTS[listKey];
   if(confirm('确定删除这条「'+config.title+'」记录吗？')){
     DB[config.dbKey].splice(index,1);
-    saveData();
+    saveData(true);
     renderList(listKey);
   }
 }
@@ -4973,7 +6298,7 @@ function confirmBatchImport(listKey){
       added++;
     }
   });
-  saveData();
+  saveData(true);
   renderList(listKey);
   _fetchedPlaylistSongs=null;
   var mask=document.getElementById('batchModal');
@@ -5013,17 +6338,17 @@ function updateTodoProgress(){
   if(txt) txt.textContent=done+' / '+DB.todos.length;
 }
 function toggleTodo(i){ DB.todos[i].done=!DB.todos[i].done; saveData(); renderTodo(); }
-function delTodo(i){ if(confirm('确定删除这条待办？')){ DB.todos.splice(i,1); saveData(); renderTodo(); } }
+function delTodo(i){ if(confirm('确定删除这条待办？')){ DB.todos.splice(i,1); saveData(true); renderTodo(); } }
 function addTodo(){
   openModalInput('📋 新增待办',[{key:'t',label:'待办内容',type:'input',placeholder:'如：完成项目周报'}],(vals)=>{
     if(!vals.t) return false;
-    DB.todos.push({t:vals.t,done:false}); saveData(); renderTodo(); return true;
+    DB.todos.push({t:vals.t,done:false}); saveData(true); renderTodo(); return true;
   });
 }
 function editTodo(i){
   openModalInput('📋 编辑待办',[{key:'t',label:'待办内容',type:'input',placeholder:'',value:DB.todos[i].t}],(vals)=>{
     if(!vals.t) return false;
-    DB.todos[i].t=vals.t; saveData(); renderTodo(); return true;
+    DB.todos[i].t=vals.t; saveData(true); renderTodo(); return true;
   });
 }
 
@@ -5080,6 +6405,49 @@ function calNav(dir){
   renderCal();
 }
 function initDaily(){ renderTodo(); renderCal(); renderGoalCar(); }
+
+/* --- 风格图鉴 --- */
+var _styleCurrentCat='anime';
+function initStyleGuide(){
+  switchStyleCat(_styleCurrentCat);
+}
+function switchStyleCat(cat){
+  _styleCurrentCat=cat;
+  var animeEl=document.getElementById('styleCatAnime');
+  var realEl=document.getElementById('styleCatReal');
+  var camEl=document.getElementById('styleCatCamera');
+  var aiEl=document.getElementById('styleCatAiTool');
+  var tabs=document.querySelectorAll('.style-tab');
+  tabs.forEach(function(t){
+    if(t.dataset.stylecat===cat){
+      t.classList.add('active');
+    }else{
+      t.classList.remove('active');
+    }
+  });
+  if(animeEl) animeEl.style.display=(cat==='anime')?'block':'none';
+  if(realEl) realEl.style.display=(cat==='real')?'block':'none';
+  if(camEl) camEl.style.display=(cat==='camera')?'block':'none';
+  if(aiEl) aiEl.style.display=(cat==='aitool')?'block':'none';
+}
+
+/* --- AI工具子tab切换 --- */
+function switchAiToolTab(tab){
+  var tabs=document.querySelectorAll('.ai-tool-tab');
+  tabs.forEach(function(t,i){
+    t.classList.remove('active');
+  });
+  if(tabs[0]&&tab==='image') tabs[0].classList.add('active');
+  if(tabs[1]&&tab==='video') tabs[1].classList.add('active');
+  if(tabs[2]&&tab==='compare') tabs[2].classList.add('active');
+
+  var imgEl=document.getElementById('aiToolImage');
+  var vidEl=document.getElementById('aiToolVideo');
+  var cmpEl=document.getElementById('aiToolCompare');
+  if(imgEl) imgEl.style.display=(tab==='image')?'block':'none';
+  if(vidEl) vidEl.style.display=(tab==='video')?'block':'none';
+  if(cmpEl) cmpEl.style.display=(tab==='compare')?'block':'none';
+}
 
 /* 渲染目标跑车卡片 */
 function renderGoalCar(){
@@ -5459,7 +6827,7 @@ function uploadCarImage(i){
         if(!DB.carInfo)DB.carInfo=[];
         if(!DB.carInfo[i])DB.carInfo[i]={};
         DB.carInfo[i].customImg=dataUrl;
-        saveData();
+        saveData(true);
         
         toast.remove();
         renderList('carInfo');
@@ -5540,7 +6908,7 @@ function autoRemoveBg(ctx,w,h){
 function removeCarImage(i){
   if(!DB.carInfo||!DB.carInfo[i])return;
   delete DB.carInfo[i].customImg;
-  saveData();
+  saveData(true);
   renderList('carInfo');
 }
 
@@ -6066,12 +7434,12 @@ function openInspoModal(i){
         obj.time=Date.now();
         DB.inspos.push(obj);
       }
-      saveData(); renderInspos();
+      saveData(true); renderInspos();
       return true;
     });
 }
 function editInspo(i){ openInspoModal(i); }
-function delInspo(i){ if(confirm('确定删除这条灵感？')){ DB.inspos.splice(i,1); saveData(); renderInspos(); } }
+function delInspo(i){ if(confirm('确定删除这条灵感？')){ DB.inspos.splice(i,1); saveData(true); renderInspos(); } }
 
 /* ========== 飞书漫剧库 ========== */
 var FEISHU_CFG_KEY='ajie_feishu_cfg';
@@ -6544,11 +7912,11 @@ function openLedgerModal(){
       const note=document.getElementById('ldNote').value.trim();
       if(!amount||amount<=0){ alert('请输入有效金额'); return false; }
       DB.ledger.push({cat,amount,note,date:new Date().toLocaleDateString('zh-CN')});
-      saveData(); renderLedger();
+      saveData(true); renderLedger();
       return true;
     });
 }
-function delLedger(i){ if(confirm('确定删除这条记录？')){ DB.ledger.splice(i,1); saveData(); renderLedger(); } }
+function delLedger(i){ if(confirm('确定删除这条记录？')){ DB.ledger.splice(i,1); saveData(true); renderLedger(); } }
 
 /* ========== 数据管理 ========== */
 function renderDataMgr(){
@@ -6624,6 +7992,26 @@ function renderDataMgr(){
     '<div class="txt" style="margin-top:6px">👉 强烈建议：<b>定期导出备份</b>，或启用云同步功能。</div>'+
     '</div>'+
 
+    '<div class="card tint-violet">'+
+    '<div class="card-h">✏️ 自定义名称</div>'+
+    '<div class="txt">自定义平台名称和各菜单项名称，打造专属你的工作台。</div>'+
+    '<div class="cloud-config-row">'+
+    '<label>平台名称（默认：小松的工作台）</label>'+
+    '<input class="crud-input" id="customAppName" placeholder="输入平台名称" value="'+escapeHtml(DB.customNames.appName||'')+'">'+
+    '</div>'+
+    '<div class="txt" style="margin-top:12px;margin-bottom:8px"><b>菜单名称自定义：</b></div>'+
+    '<div id="customMenuNames" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'+
+    NAV.map(function(n){
+      return '<div class="cloud-config-row" style="margin-bottom:0"><label>'+n.ico+' '+n.name+'</label>'+
+        '<input class="crud-input" data-menuid="'+n.id+'" placeholder="默认：'+n.name+'" value="'+escapeHtml((DB.customNames.menuNames&&DB.customNames.menuNames[n.id])||'')+'">'+
+        '</div>';
+    }).join('')+
+    '</div>'+
+    '<div class="data-mgr">'+
+    '<button class="btn btn-accent" onclick="saveCustomNames()">💾 保存自定义名称</button>'+
+    '<button class="btn btn-ghost" onclick="resetCustomNames()">↩️ 恢复默认名称</button>'+
+    '</div></div>'+
+
     '<div class="card">'+
     '<div class="card-h">📦 本地备份与恢复</div>'+
     '<div class="txt">即使开启云同步，也建议定期导出本地备份。</div>'+
@@ -6689,15 +8077,19 @@ function disconnectCloud(){
   switchSection('data');
 }
 async function syncNow(){
-  if(!sbClient){alert('请先启用云同步');return;}
+  if(!sbClient){showToast('请先启用云同步','error');return;}
   updateSyncBadge('syncing','同步中…');
   const {error}=await sbClient.from('workbench_data')
     .upsert({workspace_id:CLOUD_CFG.workspaceId,data:DB,updated_at:new Date().toISOString()});
   if(error){
     updateSyncBadge('error','同步失败');
-    alert('同步失败: '+error.message+'\n\n常见原因:\n1. 表未创建或权限未设置\n2. URL或Key不正确\n3. 需要在Supabase运行GRANT语句');
+    showToast('同步失败：'+(error.message||'未知错误'),'error');
   }
-  else{updateSyncBadge('online','已连接');alert('同步成功！');}
+  else{
+    updateSyncBadge('online','已连接');
+    lastCloudSaveTime=Date.now();
+    showToast('✅ 已同步到云端','success');
+  }
 }
 function showShareModal(){
   const link=generateShareLink();
@@ -7373,7 +8765,7 @@ function saveAgentApiSettings(){
   const key=document.getElementById('agentApiKey').value.trim();
   const model=document.getElementById('agentApiModel').value.trim();
   DB.apiSettings={apiBaseUrl:url,apiKey:key,model:model};
-  saveData();
+  saveData(true);
   showToast('API 设置已保存','success');
 }
 
@@ -8542,7 +9934,7 @@ function saveScriptProject(){
     data:JSON.parse(JSON.stringify(data))
   };
   DB.scriptProjects.push(item);
-  saveData();
+  saveData(true);
   renderList('scriptProjects');
   showToast(toastMsg,'success');
 }
@@ -9866,6 +11258,577 @@ function wsCopyFullPrompt(){
   copyToClipboard(text);
   showToast('完整提示词已复制','success');
 }
+
+/* ============================================================
+   爆款剪辑 - 四阶段工作流
+   ============================================================ */
+
+/* --- 全局状态 --- */
+var hcState={
+  currentStage:1,
+  dramaText:'',
+  srtText:'',
+  dramaInfo:{name:'',episodes:'',duration:''},
+  stage1Result:null,
+  stage2Result:null,
+  selectedHookIndex:-1,
+  stage3Result:null,
+  selectedPlan:'',
+  stage4Result:null,
+};
+
+function hcInitHotcut(){
+  var dt=document.getElementById('hcDramaText');
+  var st=document.getElementById('hcSrtText');
+  var dn=document.getElementById('hcDramaName');
+  var ep=document.getElementById('hcEpisodes');
+  var dur=document.getElementById('hcDuration');
+  if(dt) dt.value=hcState.dramaText;
+  if(st) st.value=hcState.srtText;
+  if(dn) dn.value=hcState.dramaInfo.name;
+  if(ep) ep.value=hcState.dramaInfo.episodes;
+  if(dur) dur.value=hcState.dramaInfo.duration;
+  document.querySelectorAll('.hc-step').forEach(function(el){
+    el.addEventListener('click',function(){
+      var s=parseInt(el.dataset.stage);
+      if(s<=hcState.currentStage) hcGoToStage(s);
+    });
+  });
+  if(hcState.stage1Result) hcRenderStage1(hcState.stage1Result);
+  if(hcState.stage2Result) hcRenderStage2(hcState.stage2Result);
+  if(hcState.stage3Result) hcRenderStage3(hcState.stage3Result);
+  if(hcState.stage4Result) hcRenderStage4(hcState.stage4Result);
+  if(hcState.selectedHookIndex>=0) hcUpdateSelectedHook();
+  if(hcState.selectedPlan) hcUpdateSelectedPlan();
+}
+
+function hcGoToStage(stage){
+  hcState.currentStage=stage;
+  document.querySelectorAll('.hc-step').forEach(function(el){
+    var s=parseInt(el.dataset.stage);
+    el.classList.toggle('active',s===stage);
+    el.classList.toggle('done',s<stage);
+  });
+  for(var i=1;i<=4;i++){
+    var el=document.getElementById('hcStage'+i);
+    if(el) el.style.display=(i===stage)?'block':'none';
+  }
+  var content=document.querySelector('.content');
+  if(content) content.scrollTop=0;
+}
+
+function hcReset(){
+  if(!confirm('确定要重新开始吗？当前所有进度将被清空。')) return;
+  hcState={
+    currentStage:1,
+    dramaText:'',
+    srtText:'',
+    dramaInfo:{name:'',episodes:'',duration:''},
+    stage1Result:null,
+    stage2Result:null,
+    selectedHookIndex:-1,
+    stage3Result:null,
+    selectedPlan:'',
+    stage4Result:null,
+  };
+  var dt=document.getElementById('hcDramaText');
+  var st=document.getElementById('hcSrtText');
+  var dn=document.getElementById('hcDramaName');
+  var ep=document.getElementById('hcEpisodes');
+  var dur=document.getElementById('hcDuration');
+  if(dt) dt.value='';
+  if(st) st.value='';
+  if(dn) dn.value='';
+  if(ep) ep.value='';
+  if(dur) dur.value='';
+  for(var i=1;i<=4;i++){
+    var r=document.getElementById('hcResult'+i);
+    if(r) r.style.display='none';
+    var e=document.getElementById('hcError'+i);
+    if(e) e.style.display='none';
+  }
+  hcGoToStage(1);
+  showToast('已重置','success');
+}
+
+function hcSaveInputs(){
+  var dt=document.getElementById('hcDramaText');
+  var st=document.getElementById('hcSrtText');
+  var dn=document.getElementById('hcDramaName');
+  var ep=document.getElementById('hcEpisodes');
+  var dur=document.getElementById('hcDuration');
+  if(dt) hcState.dramaText=dt.value;
+  if(st) hcState.srtText=st.value;
+  if(dn) hcState.dramaInfo.name=dn.value;
+  if(ep) hcState.dramaInfo.episodes=ep.value;
+  if(dur) hcState.dramaInfo.duration=dur.value;
+}
+
+function hcBuildSystemPrompt(){
+  return '你是一位精通微短剧、漫剧的"爆款视频高燃纯享燃剪专家"。你的核心任务是将拖沓的漫剧素材重构为高燃纯享长视频，剔除废戏、放大拉扯感，确保剧情如丝般顺滑连贯，并完美规避平台的搬运查重机制。\n\n【核心红线与基本原则】\n1. 微删减与连贯保底（70%红线）：保留原视频总时长70%以上。删减时必须执行【前置条件审查】，若废戏中包含后续剧情爆发、反转的"潜置条件"（如关键道具交代、伏笔台词、核心动机），必须精准提取保留，绝对禁止因粗暴删减导致逻辑断层。\n2. 强制去重切片（防搬运红线）：严禁连续使用超过30秒的单一原片素材。必须通过跳剪气口、删减无意义停顿或切换镜头，将长镜头物理打碎，确保提取的每一个连续片段绝对时长 <30秒。\n3. 纯享无配音：绝不使用真人或AI配音（VO）。所有的"文字旁白"特指加在画面上的花字贴纸特效。\n4. 监控级客观：画面视觉描述像监控探头一样100%客观真实，严禁凭空脑补、主观篡改原剧动作与场景，严禁包含任何运镜描述。\n5. 错别字强制修正：必须强制对照原漫剧真实语境，将SRT字幕中的同音错别字、漏字进行100%精准修正，绝不照抄错误原文。\n6. 极简花字视角（花字规范）：文字旁白强制使用第三视角身份标识（如：男主、女主、反派、闺蜜、绿茶等）。绝对禁用角色人名，绝对禁用第一视角"我"。单条花字总字数绝对不超过20个字。';
+}
+
+/* 第一阶段：深度拆解 */
+function hcStage1Analyze(){
+  hcSaveInputs();
+  var drama=hcState.dramaText.trim();
+  if(!drama){showToast('请先输入漫剧文案','error');return;}
+  if(drama.length>20000){
+    drama=drama.substring(0,20000);
+    showToast('内容过长，已自动截断为前20000字','info');
+  }
+  var btn=document.getElementById('hcBtnStage1');
+  var loading=document.getElementById('hcLoading1');
+  var error=document.getElementById('hcError1');
+  var result=document.getElementById('hcResult1');
+  btn.disabled=true;btn.style.opacity='.5';
+  loading.style.display='block';
+  error.style.display='none';
+  result.style.display='none';
+
+  var srtContent=hcState.srtText?hcState.srtText.substring(0,5000):'无';
+  var systemPrompt=hcBuildSystemPrompt()+
+    '\n\n【第一阶段任务：漫剧吞吐与深度拆解】'+
+    '\n请深度解析以下漫剧素材，输出JSON格式，包含三个字段：'+
+    '\n- storyNodes: 字符串数组，按原剧顺序，详尽拆解并列出所有的关键故事节点（每个节点用一句话描述）'+
+    '\n- mainPlot: 字符串，提炼并梳理出该剧的核心主线（仅保留主线，剥离无效支线），200-300字'+
+    '\n- timeline: 对象数组，梳理对应核心事件的时间节点，每项包含{event:事件描述, time:时间位置如"第3集 05:20"}'+
+    '\n\n剧名：'+(hcState.dramaInfo.name||'未命名')+
+    '\n总集数：'+(hcState.dramaInfo.episodes||'未知')+
+    '\n单集时长：'+(hcState.dramaInfo.duration||'未知')+
+    '\n\nSRT字幕：\n'+srtContent+
+    '\n\n漫剧文案：\n'+drama;
+
+  callAgentLLM(systemPrompt,'请进行第一阶段深度拆解，输出JSON。',false).then(function(content){
+    var data=extractJsonFromText(content);
+    if(!data){throw new Error('AI返回格式异常，无法解析JSON');}
+    hcState.stage1Result=data;
+    hcRenderStage1(data);
+    result.style.display='block';
+    showToast('深度拆解完成','success');
+  }).catch(function(err){
+    document.getElementById('hcErrorMsg1').textContent=err.message;
+    error.style.display='block';
+  }).finally(function(){
+    btn.disabled=false;btn.style.opacity='1';
+    loading.style.display='none';
+  });
+}
+
+function hcRenderStage1(data){
+  var nodesEl=document.getElementById('hcStoryNodes');
+  if(nodesEl&&Array.isArray(data.storyNodes)){
+    var html='<ol style="margin:0;padding-left:22px">';
+    data.storyNodes.forEach(function(n){
+      html+='<li style="margin-bottom:4px">'+escapeHtml(n)+'</li>';
+    });
+    html+='</ol>';
+    nodesEl.innerHTML=html;
+  }
+  var plotEl=document.getElementById('hcMainPlot');
+  if(plotEl&&data.mainPlot){
+    plotEl.innerHTML='<p style="margin:0;line-height:1.8">'+escapeHtml(data.mainPlot)+'</p>';
+  }
+  var tlEl=document.getElementById('hcTimeline');
+  if(tlEl&&Array.isArray(data.timeline)){
+    var html='<table class="sub-tbl" style="margin:0"><tr><th style="width:120px">时间位置</th><th>核心事件</th></tr>';
+    data.timeline.forEach(function(t){
+      html+='<tr><td><span style="color:var(--accent-warm);font-weight:600">'+escapeHtml(t.time||'')+'</span></td><td>'+escapeHtml(t.event||'')+'</td></tr>';
+    });
+    html+='</table>';
+    tlEl.innerHTML=html;
+  }
+}
+
+/* 第二阶段：爆款开头提取 */
+function hcStage2Extract(){
+  if(!hcState.stage1Result){showToast('请先完成第一阶段拆解','error');return;}
+  var btn=document.getElementById('hcBtnStage2');
+  var loading=document.getElementById('hcLoading2');
+  var error=document.getElementById('hcError2');
+  var result=document.getElementById('hcResult2');
+  btn.disabled=true;btn.style.opacity='.5';
+  loading.style.display='block';
+  error.style.display='none';
+  result.style.display='none';
+
+  var nodes=(hcState.stage1Result.storyNodes||[]).map(function(n,i){return (i+1)+'. '+n;}).join('\n');
+  var timeline=(hcState.stage1Result.timeline||[]).map(function(t){return '- '+t.time+': '+t.event;}).join('\n');
+  var systemPrompt=hcBuildSystemPrompt()+
+    '\n\n【第二阶段任务：爆款开头全量提取】'+
+    '\n根据第一阶段的故事节点和主线，从全剧中提取所有可以当做爆款前置的"高燃/猎奇/大尺度/极致反差"片段。'+
+    '\n\n输出JSON格式，字段：'+
+    '\n- hooks: 对象数组，每项包含：'+
+    '\n  - title: 精简命名（如：车内强制爱极限推拉）'+
+    '\n  - time: 时间位置（如：第2集 03:15 - 05:30）'+
+    '\n  - reason: 推荐理由（详细说明该片段为何能死死抓住用户眼球，情绪痛点、强冲突、降维打击等，50-100字）'+
+    '\n\n至少提取5-8个爆款候选片段。'+
+    '\n\n【第一阶段结果】'+
+    '\n核心主线：'+(hcState.stage1Result.mainPlot||'')+
+    '\n\n故事节点：\n'+nodes+
+    '\n\n时间轴：\n'+timeline;
+
+  callAgentLLM(systemPrompt,'请进行第二阶段爆款开头提取，输出JSON。',false).then(function(content){
+    var data=extractJsonFromText(content);
+    if(!data||!Array.isArray(data.hooks)){throw new Error('AI返回格式异常');}
+    hcState.stage2Result=data;
+    hcRenderStage2(data);
+    result.style.display='block';
+    showToast('爆款开头提取完成','success');
+  }).catch(function(err){
+    document.getElementById('hcErrorMsg2').textContent=err.message;
+    error.style.display='block';
+  }).finally(function(){
+    btn.disabled=false;btn.style.opacity='1';
+    loading.style.display='none';
+  });
+}
+
+function hcRenderStage2(data){
+  var listEl=document.getElementById('hcHookList');
+  var countEl=document.getElementById('hcHookCount');
+  if(!listEl) return;
+  var hooks=data.hooks||[];
+  if(countEl) countEl.textContent='共 '+hooks.length+' 个';
+  var html='';
+  hooks.forEach(function(h,i){
+    var selected=hcState.selectedHookIndex===i?' selected':'';
+    html+='<div class="hc-hook-card'+selected+'" onclick="hcSelectHook('+i+')">'+
+      '<div class="hc-hook-head">'+
+        '<div class="hc-hook-title">'+escapeHtml(h.title||'')+'</div>'+
+        '<div class="hc-hook-time">'+escapeHtml(h.time||'')+'</div>'+
+      '</div>'+
+      '<div class="hc-hook-reason">'+escapeHtml(h.reason||'')+'</div>'+
+    '</div>';
+  });
+  listEl.innerHTML=html;
+}
+
+function hcSelectHook(index){
+  hcState.selectedHookIndex=index;
+  if(hcState.stage2Result) hcRenderStage2(hcState.stage2Result);
+  hcUpdateSelectedHook();
+  showToast('已选择开头','success');
+}
+
+function hcUpdateSelectedHook(){
+  var el=document.getElementById('hcSelectedHook');
+  if(!el) return;
+  if(hcState.selectedHookIndex>=0&&hcState.stage2Result&&hcState.stage2Result.hooks[hcState.selectedHookIndex]){
+    var h=hcState.stage2Result.hooks[hcState.selectedHookIndex];
+    el.innerHTML='<strong>'+escapeHtml(h.title)+'</strong>（'+escapeHtml(h.time)+'）';
+    el.classList.add('has-value');
+  }else{
+    el.textContent='请先在第二阶段选择一个爆款开头';
+    el.classList.remove('has-value');
+  }
+}
+
+/* 第三阶段：双轨结构规划 */
+function hcStage3Plan(){
+  if(!hcState.stage2Result||hcState.selectedHookIndex<0){
+    showToast('请先在第二阶段选择一个爆款开头','error');return;
+  }
+  var btn=document.getElementById('hcBtnStage3');
+  var loading=document.getElementById('hcLoading3');
+  var error=document.getElementById('hcError3');
+  var result=document.getElementById('hcResult3');
+  btn.disabled=true;btn.style.opacity='.5';
+  loading.style.display='block';
+  error.style.display='none';
+  result.style.display='none';
+
+  var hook=hcState.stage2Result.hooks[hcState.selectedHookIndex];
+  var nodes=(hcState.stage1Result.storyNodes||[]).map(function(n,i){return (i+1)+'. '+n;}).join('\n');
+  var systemPrompt=hcBuildSystemPrompt()+
+    '\n\n【第三阶段任务：双轨结构规划】'+
+    '\n根据用户选定的开头，梳理后续的内容安排，并围绕核心主线给出两套不同的结构方案（方案A / 方案B）。'+
+    '\n\n每套方案必须明确包含：'+
+    '\n1. transition: 衔接方式（倒叙的高能开头放完后，如何自然丝滑地切回正剧前史）'+
+    '\n2. keepContent: 正剧内容取舍 - 保留哪些主线内容与"前置条件"'+
+    '\n3. cutContent: 过滤/删减哪些不精彩、繁琐重复的支线废戏'+
+    '\n4. endingHook: 结尾钩子设计 - 在全剧的哪个高潮剧情点戛然而止，留下怎样的悬念'+
+    '\n5. structureDesc: 整体结构描述（300字左右）'+
+    '\n\n输出JSON格式，字段：'+
+    '\n- planA: {transition, keepContent, cutContent, endingHook, structureDesc}'+
+    '\n- planB: {transition, keepContent, cutContent, endingHook, structureDesc}'+
+    '\n\n【已选开头】'+
+    '\n标题：'+hook.title+
+    '\n时间：'+hook.time+
+    '\n理由：'+hook.reason+
+    '\n\n【核心主线】\n'+(hcState.stage1Result.mainPlot||'')+
+    '\n\n【故事节点】\n'+nodes;
+
+  callAgentLLM(systemPrompt,'请进行第三阶段双轨结构规划，输出JSON。',false).then(function(content){
+    var data=extractJsonFromText(content);
+    if(!data||!data.planA||!data.planB){throw new Error('AI返回格式异常');}
+    hcState.stage3Result=data;
+    hcRenderStage3(data);
+    result.style.display='block';
+    showToast('双轨结构方案生成完成','success');
+  }).catch(function(err){
+    document.getElementById('hcErrorMsg3').textContent=err.message;
+    error.style.display='block';
+  }).finally(function(){
+    btn.disabled=false;btn.style.opacity='1';
+    loading.style.display='none';
+  });
+}
+
+function hcRenderStage3(data){
+  hcRenderPlan('hcPlanA',data.planA);
+  hcRenderPlan('hcPlanB',data.planB);
+}
+
+function hcRenderPlan(elId, plan){
+  var el=document.getElementById(elId);
+  if(!el||!plan) return;
+  var html='';
+  if(plan.structureDesc){
+    html+='<div class="hc-plan-section">'+
+      '<div class="hc-plan-section-title">整体结构</div>'+
+      '<p style="margin:0;line-height:1.7">'+escapeHtml(plan.structureDesc)+'</p></div>';
+  }
+  if(plan.transition){
+    html+='<div class="hc-plan-section">'+
+      '<div class="hc-plan-section-title">衔接方式</div>'+
+      '<p style="margin:0;line-height:1.7">'+escapeHtml(plan.transition)+'</p></div>';
+  }
+  if(plan.keepContent){
+    html+='<div class="hc-plan-section">'+
+      '<div class="hc-plan-section-title">✓ 保留内容</div>'+
+      '<p style="margin:0;line-height:1.7;color:var(--accent-2)">'+escapeHtml(plan.keepContent)+'</p></div>';
+  }
+  if(plan.cutContent){
+    html+='<div class="hc-plan-section">'+
+      '<div class="hc-plan-section-title">✗ 删减内容</div>'+
+      '<p style="margin:0;line-height:1.7;color:#ef4444">'+escapeHtml(plan.cutContent)+'</p></div>';
+  }
+  if(plan.endingHook){
+    html+='<div class="hc-plan-section">'+
+      '<div class="hc-plan-section-title">结尾钩子</div>'+
+      '<p style="margin:0;line-height:1.7;color:var(--accent-warm);font-weight:500">'+escapeHtml(plan.endingHook)+'</p></div>';
+  }
+  el.innerHTML=html;
+}
+
+function hcSelectPlan(plan){
+  hcState.selectedPlan=plan;
+  hcUpdateSelectedPlan();
+  showToast('已选择方案'+plan,'success');
+}
+
+function hcUpdateSelectedPlan(){
+  var el=document.getElementById('hcSelectedPlan');
+  if(!el) return;
+  if(hcState.selectedPlan){
+    el.innerHTML='<strong>方案'+hcState.selectedPlan+'</strong>';
+    el.classList.add('has-value');
+  }else{
+    el.textContent='请先在第三阶段选择一个方案';
+    el.classList.remove('has-value');
+  }
+}
+
+/* 第四阶段：像素级精确切片 */
+function hcStage4Generate(){
+  if(!hcState.stage3Result||!hcState.selectedPlan){
+    showToast('请先在第三阶段选择一个方案','error');return;
+  }
+  var btn=document.getElementById('hcBtnStage4');
+  var loading=document.getElementById('hcLoading4');
+  var error=document.getElementById('hcError4');
+  var result=document.getElementById('hcResult4');
+  btn.disabled=true;btn.style.opacity='.5';
+  loading.style.display='block';
+  error.style.display='none';
+  result.style.display='none';
+
+  var hook=hcState.stage2Result.hooks[hcState.selectedHookIndex];
+  var plan=hcState.selectedPlan==='A'?hcState.stage3Result.planA:hcState.stage3Result.planB;
+  var nodes=(hcState.stage1Result.storyNodes||[]).map(function(n,i){return (i+1)+'. '+n;}).join('\n');
+  var srtContent=hcState.srtText?hcState.srtText.substring(0,8000):'无';
+
+  var systemPrompt=hcBuildSystemPrompt()+
+    '\n\n【第四阶段任务：像素级精确切片方案】'+
+    '\n根据选定的结构方案，强制分为【开头】、【正剧】、【结尾】三大板块，巨细无靡地罗列出需要使用的每一个画面和每一段台词。必须严格执行 <30秒 的去重防搬运标准。'+
+    '\n\n输出JSON格式，字段：'+
+    '\n- opening: 开头切片数组，每项{sliceTitle, timeRange, bridgeNote, shots:[{scene, dialogue, dialogueTime, huazi}]}'+
+    '\n- main: 正剧切片数组（格式同上）'+
+    '\n- ending: 结尾切片数组（格式同上）'+
+    '\n- durationReview: {extractedTotal, originalTotal, retentionRate, pass70}'+
+    '\n\n注意：每个shot的dialogueTime差值绝对不可超过30秒；花字强制使用第三人称身份标识，禁用角色人名和第一视角，单条不超20字；画面描述必须100%客观。'+
+    '\n\n【已选开头】'+hook.title+'（'+hook.time+'）'+
+    '\n【选定方案】方案'+hcState.selectedPlan+
+    '\n结构：'+(plan.structureDesc||'')+
+    '\n衔接：'+(plan.transition||'')+
+    '\n结尾钩子：'+(plan.endingHook||'')+
+    '\n\n【核心主线】\n'+(hcState.stage1Result.mainPlot||'')+
+    '\n\n【故事节点】\n'+nodes+
+    '\n\n【SRT字幕参考】\n'+srtContent;
+
+  callAgentLLM(systemPrompt,'请进行第四阶段像素级精确切片方案生成，输出JSON。',false).then(function(content){
+    var data=extractJsonFromText(content);
+    if(!data){throw new Error('AI返回格式异常，无法解析JSON');}
+    hcState.stage4Result=data;
+    hcRenderStage4(data);
+    result.style.display='block';
+    showToast('精确切片方案生成完成','success');
+  }).catch(function(err){
+    document.getElementById('hcErrorMsg4').textContent=err.message;
+    error.style.display='block';
+  }).finally(function(){
+    btn.disabled=false;btn.style.opacity='1';
+    loading.style.display='none';
+  });
+}
+
+function hcRenderStage4(data){
+  hcRenderSliceList('hcSlicesOpening',data.opening||[]);
+  hcRenderSliceList('hcSlicesMain',data.main||[]);
+  hcRenderSliceList('hcSlicesEnding',data.ending||[]);
+  hcRenderDurationReview(data.durationReview||{});
+}
+
+function hcRenderSliceList(elId,slices){
+  var el=document.getElementById(elId);
+  if(!el) return;
+  var html='';
+  slices.forEach(function(s,i){
+    html+='<div class="hc-slice-card">'+
+      '<div class="hc-slice-head">'+
+        '<span class="hc-slice-num">'+(i+1)+'</span>'+
+        '<span style="font-weight:600;color:var(--ink);font-size:13px">'+escapeHtml(s.sliceTitle||'')+'</span>'+
+        '<span class="hc-slice-time">'+escapeHtml(s.timeRange||'')+'</span>'+
+      '</div>';
+    if(s.bridgeNote){
+      html+='<div class="hc-slice-bridge">'+
+        '<div class="hc-slice-bridge-title">🔗 衔接说明</div>'+
+        '<div>'+escapeHtml(s.bridgeNote)+'</div></div>';
+    }
+    if(Array.isArray(s.shots)){
+      s.shots.forEach(function(shot,j){
+        html+='<div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)">'+
+          '<div style="font-size:11px;color:var(--ink-3);font-weight:600;margin-bottom:4px">画面 '+(j+1)+'</div>'+
+          '<div class="hc-slice-row">'+
+            '<span class="hc-slice-label">画面</span>'+
+            '<span>'+escapeHtml(shot.scene||'')+'</span></div>';
+        if(shot.dialogue){
+          html+='<div class="hc-slice-row">'+
+            '<span class="hc-slice-label">台词</span>'+
+            '<span class="hc-slice-dialogue">'+escapeHtml(shot.dialogue)+'</span></div>';
+        }
+        if(shot.dialogueTime){
+          html+='<div class="hc-slice-row">'+
+            '<span class="hc-slice-label">时长</span>'+
+            '<span style="color:var(--accent-warm);font-size:12px">'+escapeHtml(shot.dialogueTime)+'（<30秒去重）</span></div>';
+        }
+        if(shot.huazi){
+          html+='<div class="hc-slice-row">'+
+            '<span class="hc-slice-label">花字</span>'+
+            '<span class="hc-slice-huazi">'+escapeHtml(shot.huazi)+'</span></div>';
+        }
+        html+='</div>';
+      });
+    }
+    html+='</div>';
+  });
+  if(!slices.length){
+    html='<div style="text-align:center;padding:20px;color:var(--ink-3);font-size:13px">暂无切片</div>';
+  }
+  el.innerHTML=html;
+}
+
+function hcRenderDurationReview(review){
+  var el=document.getElementById('hcDurationReview');
+  if(!el) return;
+  var html='<div class="hc-duration-stats">'+
+    '<div class="hc-duration-item">'+
+      '<div class="hc-duration-value">'+escapeHtml(review.extractedTotal||'-')+'</div>'+
+      '<div class="hc-duration-label">提取总时长</div></div>'+
+    '<div class="hc-duration-item">'+
+      '<div class="hc-duration-value">'+escapeHtml(review.originalTotal||'-')+'</div>'+
+      '<div class="hc-duration-label">原片总时长</div></div>'+
+    '<div class="hc-duration-item">'+
+      '<div class="hc-duration-percent">'+escapeHtml(review.retentionRate||'-')+'</div>'+
+      '<div class="hc-duration-label">剧情保留率</div></div>'+
+  '</div>';
+  if(review.pass70){
+    html+='<div class="hc-duration-pass">✅ 已符合微删减保底 70% 要求</div>';
+  }else{
+    html+='<div style="font-size:14px;font-weight:700;color:#ef4444;padding:6px 16px;background:rgba(239,68,68,.1);border-radius:20px;display:inline-block;margin-top:8px">⚠️ 未达70%保底要求，请调整</div>';
+  }
+  el.innerHTML=html;
+}
+
+/* 导出功能 */
+function hcCopyAllSlices(){
+  if(!hcState.stage4Result){showToast('暂无切片方案','error');return;}
+  var text=hcGenerateExportText();
+  copyToClipboard(text);
+  showToast('全部方案已复制','success');
+}
+
+function hcExportSlices(){
+  if(!hcState.stage4Result){showToast('暂无切片方案','error');return;}
+  var text=hcGenerateExportText();
+  var name=(hcState.dramaInfo.name||'爆款剪辑方案')+'.txt';
+  var blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download=name;
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('已导出文件','success');
+}
+
+function hcGenerateExportText(){
+  var data=hcState.stage4Result;
+  var lines=[];
+  lines.push('==================================================');
+  lines.push('  爆款视频高燃纯享剪辑方案');
+  lines.push('  剧名：'+(hcState.dramaInfo.name||'未命名'));
+  lines.push('==================================================');
+  lines.push('');
+  var sections=[
+    {title:'【开头】',data:data.opening},
+    {title:'【正剧】',data:data.main},
+    {title:'【结尾】',data:data.ending},
+  ];
+  sections.forEach(function(sec){
+    lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    lines.push('  🎬 '+sec.title);
+    lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    lines.push('');
+    (sec.data||[]).forEach(function(s,i){
+      lines.push('─── 片段 '+(i+1)+'：'+s.sliceTitle+' ───');
+      lines.push('⏱️ 时间：'+s.timeRange);
+      if(s.bridgeNote){lines.push('🔗 衔接：'+s.bridgeNote);}
+      lines.push('');
+      (s.shots||[]).forEach(function(shot,j){
+        lines.push('  【画面'+(j+1)+'】');
+        lines.push('  画面：'+shot.scene);
+        if(shot.dialogue){lines.push('  台词："'+shot.dialogue+'"');}
+        if(shot.dialogueTime){lines.push('  时长：'+shot.dialogueTime);}
+        if(shot.huazi){lines.push('  花字：【'+shot.huazi+'】');}
+        lines.push('');
+      });
+      lines.push('');
+    });
+  });
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('  ⏱️ 全局时长复核');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  var dr=data.durationReview||{};
+  lines.push('  提取总时长：'+dr.extractedTotal);
+  lines.push('  原片总时长：'+dr.originalTotal);
+  lines.push('  剧情保留率：'+dr.retentionRate);
+  lines.push('  70%保底：'+(dr.pass70?'✅ 符合':'⚠️ 未达标'));
+  lines.push('');
+  return lines.join('\n');
+}
+
 </script>
 </body>
 </html>
