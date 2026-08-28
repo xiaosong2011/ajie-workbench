@@ -44,22 +44,48 @@
     display:flex; flex-direction:column; background:var(--content-bg);
     position:relative;
   }
-  /* ===== 顶部状态栏（适配全面屏安全区）===== */
+  /* ===== 顶部状态栏（动态增强版）===== */
   .statusbar{
     height:var(--statusbar-h); padding-top:var(--safe-top);
     flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
-    padding-left:18px; padding-right:18px;
+    padding-left:16px; padding-right:16px;
     font-size:14px; font-weight:600; color:#fff;
-    background:linear-gradient(90deg,var(--side-1),var(--side-2));
+    background:linear-gradient(90deg,var(--side-1),var(--side-2),var(--side-1));
+    background-size:200% 100%;
+    animation:barShimmer 8s ease-in-out infinite;
+    position:relative; z-index:50;
   }
-  .statusbar .left{display:flex;align-items:center;gap:8px}
-  .statusbar .center{width:120px;height:26px;background:#000;border-radius:14px}
-  .statusbar .right{display:flex;align-items:center;gap:6px;font-size:12px}
+  @keyframes barShimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  .statusbar .left{display:flex;align-items:center;gap:6px}
+  .statusbar .left .clock-time{font-size:15px;font-weight:700;letter-spacing:.5px;font-variant-numeric:tabular-nums}
+  .statusbar .left .clock-date{font-size:10px;color:rgba(255,255,255,.5);font-weight:500}
+  /* Dynamic Island */
+  .statusbar .center{
+    height:28px; min-width:120px; max-width:260px;
+    background:#000; border-radius:18px;
+    display:flex; align-items:center; justify-content:center;
+    padding:0 14px; gap:6px; overflow:hidden;
+    transition:all .4s cubic-bezier(.34,1.56,.64,1);
+    cursor:pointer; position:relative;
+  }
+  .statusbar .center:hover{min-width:200px;box-shadow:0 0 12px rgba(46,134,222,.4)}
+  .di-icon{font-size:14px;flex-shrink:0;animation:diPulse 2s ease-in-out infinite}
+  @keyframes diPulse{0%,100%{opacity:1}50%{opacity:.6}}
+  .di-text{font-size:11px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .di-text .di-sub{font-size:9px;color:rgba(255,255,255,.5);margin-left:4px}
+  .di-progress{width:40px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden;flex-shrink:0}
+  .di-progress i{display:block;height:100%;background:var(--accent-2);border-radius:2px;transition:width .5s ease}
+  /* 右侧 */
+  .statusbar .right{display:flex;align-items:center;gap:5px;font-size:12px}
   .statusbar .right svg{width:16px;height:11px}
+  .menu-btn{font-size:16px;cursor:pointer;opacity:.7;transition:opacity .2s;padding:2px 4px;border-radius:6px}
+  .menu-btn:hover{opacity:1;background:rgba(255,255,255,.1)}
   .bat{display:inline-flex;align-items:center;gap:2px}
   .bat-body{width:22px;height:11px;border:1.4px solid #fff;border-radius:3px;position:relative;padding:1.2px}
-  .bat-body i{display:block;height:100%;width:67%;background:#fff;border-radius:1px}
+  .bat-body i{display:block;height:100%;border-radius:1px;transition:width .5s ease,background .3s ease}
+  .bat-body.charging::after{content:'⚡';position:absolute;top:-6px;left:50%;transform:translateX(-50%);font-size:8px;color:#1abc9c}
   .bat-tip{width:2px;height:5px;background:#fff;border-radius:0 2px 2px 0}
+  .bat-pct{font-size:11px;font-weight:600;min-width:22px;text-align:right}
 
   /* ===== 主体分栏 ===== */
   .main{flex:1; display:flex; overflow:hidden; min-height:0}
@@ -1951,14 +1977,20 @@
   </div>
   <!-- 状态栏 -->
   <div class="statusbar">
-    <span class="left"><span>21:49</span></span>
-    <span class="center"></span>
+    <span class="left">
+      <span class="clock-time" id="clkTime">--:--</span>
+      <span class="clock-date" id="clkDate"></span>
+    </span>
+    <span class="center" id="dynIsland" onclick="cycleDynIsland()">
+      <span class="di-icon" id="diIcon">✨</span>
+      <span class="di-text" id="diText">欢迎回来</span>
+    </span>
     <span class="right">
       <span class="menu-btn" onclick="toggleSidebar()">☰</span>
       <svg viewBox="0 0 18 12" fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".4"/></svg>
       <span>5G</span>
-      <span class="bat"><span class="bat-body"><i></i></span><span class="bat-tip"></span></span>
-      <span style="font-size:11px">67</span>
+      <span class="bat"><span class="bat-body" id="batBody"><i id="batFill"></i></span><span class="bat-tip"></span></span>
+      <span class="bat-pct" id="batPct">--</span>
     </span>
   </div>
 
@@ -5812,6 +5844,137 @@ function loadRandomQuote(){
       el.innerHTML=html;
       if(bar) bar.classList.remove('loading');
     });
+}
+
+/* ========== 动态状态栏 ========== */
+var _diIndex=0;
+var _diTimer=null;
+var _diItems=[];
+
+function _buildDIItems(){
+  var now=new Date();
+  var h=now.getHours();
+  var greet=h<6?'夜深了':h<9?'早安':h<12?'上午好':h<14?'午安':h<18?'下午好':h<22?'晚上好':'夜深了';
+  var weekdays=['日','一','二','三','四','五','六'];
+  var w='周'+weekdays[now.getDay()];
+  var m=now.getMonth()+1;
+  var d=now.getDate();
+  var tips=[
+    '💡 好灵感来自记录，随手写下',
+    '🎬 拆解爆款=学最快的方式',
+    '🔥 选题对了，成功一半',
+    '📝 先完成再完美',
+    '⚡ 灵感不等待，立刻行动',
+    '🎯 聚焦一个垂直领域深耕'
+  ];
+  var tip=tips[now.getDate()%tips.length];
+  
+  return [
+    {icon:'👋',text:greet,sub:w+' '+m+'/'+d},
+    {icon:tip.split(' ')[0],text:tip.substring(tip.indexOf(' ')+1)},
+    {icon:'📊',text:'数据看板已更新',sub:'8月28日'},
+    {icon:'🔥',text:'红果Top1 好雨知时节',sub:'7813万热度'},
+    {icon:'🎬',text:'漫剧Top1 我年终奖',sub:'新增1.6亿'},
+    {icon:'⏰',text:'专注创作',sub:'保持节奏'}
+  ];
+}
+
+function _renderDI(){
+  if(!_diItems.length) _diItems=_buildDIItems();
+  if(_diIndex>=_diItems.length) _diIndex=0;
+  var item=_diItems[_diIndex];
+  var diIcon=document.getElementById('diIcon');
+  var diText=document.getElementById('diText');
+  if(!diIcon||!diText) return;
+  diIcon.textContent=item.icon;
+  var html=item.text;
+  if(item.sub) html+='<span class="di-sub">'+item.sub+'</span>';
+  diText.innerHTML=html;
+}
+
+function cycleDynIsland(){
+  _diIndex++;
+  _renderDI();
+}
+
+function _startDITimer(){
+  if(_diTimer) clearInterval(_diTimer);
+  _diTimer=setInterval(function(){
+    _diIndex++;
+    _renderDI();
+  },5000);
+}
+
+function _updateClock(){
+  var now=new Date();
+  var h=String(now.getHours()).padStart(2,'0');
+  var m=String(now.getMinutes()).padStart(2,'0');
+  var s=String(now.getSeconds()).padStart(2,'0');
+  var clkTime=document.getElementById('clkTime');
+  var clkDate=document.getElementById('clkDate');
+  if(clkTime) clkTime.textContent=h+':'+m;
+  if(clkDate){
+    var weekdays=['日','一','二','三','四','五','六'];
+    clkDate.textContent=weekdays[now.getDay()]+' '+(now.getMonth()+1)+'/'+now.getDate();
+  }
+  // Rebuild DI items every hour
+  if(now.getMinutes()===0 && now.getSeconds()<2){
+    _diItems=_buildDIItems();
+  }
+}
+
+function _updateBattery(){
+  var batFill=document.getElementById('batFill');
+  var batBody=document.getElementById('batBody');
+  var batPct=document.getElementById('batPct');
+  if(!batFill||!batBody||!batPct) return;
+  
+  if(navigator.getBattery){
+    navigator.getBattery().then(function(battery){
+      function update(){
+        var level=Math.round(battery.level*100);
+        batPct.textContent=level;
+        batFill.style.width=Math.max(4,level)+'%';
+        if(battery.charging){
+          batBody.classList.add('charging');
+          batFill.style.background='#1abc9c';
+        }else if(level<=20){
+          batBody.classList.remove('charging');
+          batFill.style.background='#e74c3c';
+        }else if(level<=40){
+          batBody.classList.remove('charging');
+          batFill.style.background='#e67e22';
+        }else{
+          batBody.classList.remove('charging');
+          batFill.style.background='#fff';
+        }
+      }
+      update();
+      battery.addEventListener('levelchange',update);
+      battery.addEventListener('chargingchange',update);
+    }).catch(function(){_fallbackBattery();});
+  }else{
+    _fallbackBattery();
+  }
+}
+
+function _fallbackBattery(){
+  var batFill=document.getElementById('batFill');
+  var batBody=document.getElementById('batBody');
+  var batPct=document.getElementById('batPct');
+  if(!batFill||!batBody||!batPct) return;
+  var level=67;
+  batPct.textContent=level;
+  batFill.style.width=level+'%';
+  batFill.style.background='#fff';
+}
+
+function initStatusBar(){
+  _updateClock();
+  _renderDI();
+  _updateBattery();
+  _startDITimer();
+  setInterval(_updateClock,1000);
 }
 
 /* ========== 切换板块 ========== */
@@ -12220,6 +12383,8 @@ function hcGenerateExportText(){
   return lines.join('\n');
 }
 
+/* 启动动态状态栏 */
+initStatusBar();
 </script>
 </body>
 </html>
