@@ -1980,6 +1980,62 @@
   .hw-empty .hw-empty-ico{font-size:48px;margin-bottom:8px;opacity:.5}
 
 
+
+  /* 硬件行情 - 增强样式 */
+  .hw-price-bar{height:6px;border-radius:3px;background:var(--tag-bg);position:relative;overflow:hidden;margin-top:8px}
+  .hw-price-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
+  .hw-price-bar-fill.low{background:linear-gradient(90deg,#27ae60,#2ecc71)}
+  .hw-price-bar-fill.mid{background:linear-gradient(90deg,#f39c12,#f1c40f)}
+  .hw-price-bar-fill.high{background:linear-gradient(90deg,#e67e22,#e74c3c)}
+  .hw-price-bar-markers{display:flex;justify-content:space-between;font-size:9px;color:var(--ink-3);margin-top:2px}
+  .hw-item-badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+  .hw-badge{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;white-space:nowrap}
+  .hw-badge.lowest{background:rgba(39,174,96,.12);color:#27ae60}
+  .hw-badge.nearlow{background:rgba(46,204,113,.12);color:#2ecc71}
+  .hw-badge.drop{background:rgba(231,76,60,.12);color:#e74c3c}
+  .hw-badge.rise{background:rgba(230,126,34,.12);color:#e67e22}
+  .hw-badge.hot{background:rgba(155,89,182,.12);color:#9b59b6}
+  .hw-price-amount{font-size:11px;color:var(--ink-3);margin-top:2px}
+  .hw-price-amount.up{color:#e74c3c}
+  .hw-price-amount.down{color:#27ae60}
+  .hw-item-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+  .hw-item-main{flex:1;min-width:0}
+  .hw-compare-bar{display:none;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(135deg,rgba(102,126,234,.08),rgba(118,75,162,.06));border:1px solid rgba(102,126,234,.2);border-radius:12px;margin-bottom:12px;flex-wrap:wrap}
+  .hw-compare-bar.show{display:flex}
+  .hw-compare-info{font-size:12px;font-weight:600;color:var(--ink-1)}
+  .hw-compare-count{font-size:11px;color:var(--ink-3)}
+  .hw-compare-btn{padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:12px;font-weight:600;color:var(--ink-2);transition:all .2s}
+  .hw-compare-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .hw-compare-btn.primary{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent}
+  .hw-compare-btn.primary:hover{opacity:.9}
+  .hw-compare-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+  .hw-compare-modal.show{display:flex}
+  .hw-compare-box{background:var(--bg);border-radius:16px;max-width:900px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .hw-compare-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:1}
+  .hw-compare-title{font-size:16px;font-weight:700;color:var(--ink-1)}
+  .hw-compare-close{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--tag-bg);font-size:16px}
+  .hw-compare-table{width:100%;border-collapse:collapse}
+  .hw-compare-table th,.hw-compare-table td{padding:12px 16px;text-align:left;font-size:13px;border-bottom:1px solid var(--line)}
+  .hw-compare-table th{background:var(--surface);font-weight:700;color:var(--ink-2);font-size:12px;position:sticky;top:57px}
+  .hw-compare-table .compare-row-label{color:var(--ink-3);font-size:12px;font-weight:600;width:100px;white-space:nowrap;background:var(--surface)}
+  .hw-compare-table .compare-price{font-size:18px;font-weight:800}
+  .hw-compare-table .compare-price.lowest{color:#27ae60}
+  .hw-compare-table .compare-change{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;display:inline-block}
+  .hw-compare-table .compare-change.up{background:rgba(231,76,60,.1);color:#e74c3c}
+  .hw-compare-table .compare-change.down{background:rgba(39,174,96,.1);color:#27ae60}
+  .hw-compare-table .compare-item-name{font-weight:700;color:var(--ink-1)}
+  .hw-compare-table .compare-item-model{font-size:11px;color:var(--ink-3);margin-top:2px}
+  .hw-compare-table .compare-best{background:rgba(39,174,96,.06)}
+  .hw-compare-table .compare-worst{background:rgba(231,76,60,.04)}
+  .hw-select-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:11px;font-weight:600;color:var(--ink-2);transition:all .2s;flex-shrink:0}
+  .hw-select-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .hw-select-btn.selected{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent}
+  @media(max-width:768px){
+    .hw-item{flex-wrap:wrap}
+    .hw-item-price{order:2;width:100%;text-align:left;padding-top:8px;border-top:1px solid var(--line)}
+    .hw-item-chart{display:none}
+  }
+
   @keyframes hwToastIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
   @keyframes hwToastOut{from{opacity:1;transform:translateX(-50%) translateY(0)}to{opacity:0;transform:translateX(-50%) translateY(-10px)}}
 
@@ -4505,8 +4561,31 @@ hwmarket:`
     </div>
   </div>
 
+  <!-- 对比栏 -->
+  <div class="hw-compare-bar" id="hwCompareBar">
+    <div>
+      <div class="hw-compare-info">⚖️ 配件对比</div>
+      <div class="hw-compare-count" id="hwCompareCount">已选 0 款（最多选 3 款对比）</div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <button class="hw-compare-btn" onclick="hwClearCompare()">清空</button>
+      <button class="hw-compare-btn primary" id="hwCompareBtn" onclick="hwShowCompare()" disabled>开始对比</button>
+    </div>
+  </div>
+
   <!-- 配件列表 -->
   <div id="hwItemList"></div>
+
+  <!-- 对比弹窗 -->
+  <div class="hw-compare-modal" id="hwCompareModal" onclick="if(event.target===this)hwCloseCompare()">
+    <div class="hw-compare-box">
+      <div class="hw-compare-head">
+        <div class="hw-compare-title">⚖️ 配件对比</div>
+        <div class="hw-compare-close" onclick="hwCloseCompare()">✕</div>
+      </div>
+      <div id="hwCompareTable"></div>
+    </div>
+  </div>
 `,
 
 };
@@ -6098,6 +6177,12 @@ function hwGetChange(id){
   return ((cur-prev)/prev)*100;
 }
 
+function hwGetHighest(id){
+  var data=HW_PRICE_DATA[id];
+  if(!data || data.history.length===0) return 0;
+  return Math.max.apply(null, data.history.map(function(h){return h.price}));
+}
+
 function hwGetLowest(id){
   var data=HW_PRICE_DATA[id];
   if(!data || data.history.length===0) return 0;
@@ -6134,6 +6219,7 @@ function hwSetFilter(f){
 function hwRenderAll(){
   hwRenderList();
   hwRenderAlerts();
+  hwUpdateCompareBar();
 }
 
 function hwRenderList(){
@@ -6153,23 +6239,57 @@ function hwRenderList(){
   var html='';
   items.forEach(function(item){
     var price=hwGetPrice(item.id);
+    var prev=hwGetPrevPrice(item.id);
+    var diff=price-prev;
     var change=hwGetChange(item.id);
     var changeClass=change>0.5?'up':change<-0.5?'down':'flat';
     var changeText=change>0?'+'+change.toFixed(1)+'%':change.toFixed(1)+'%';
+    var diffText=diff>0?'+¥'+diff.toLocaleString():'¥'+diff.toLocaleString();
     var isWatched=HW_WATCHLIST.indexOf(item.id)>-1;
+    var isSelected=HW_COMPARE_LIST.indexOf(item.id)>-1;
     var sparkline=hwGenerateSparkline(item.id);
+    var lowest=hwGetLowest(item.id);
+    var highest=hwGetHighest(item.id);
+    var range=highest-lowest||1;
+    var pct=Math.max(0,Math.min(100,((price-lowest)/range)*100));
+    var barClass=pct<30?'low':pct<70?'mid':'high';
+    // Badges
+    var badges=[];
+    if(price<=lowest*1.01) badges.push({t:'🔥 历史最低',c:'lowest'});
+    else if(price<=lowest*1.05) badges.push({t:'📉 接近低价',c:'nearlow'});
+    if(change<-3) badges.push({t:'💸 大降价',c:'drop'});
+    else if(change<-1) badges.push({t:'📉 降价中',c:'drop'});
+    else if(change>3) badges.push({t:'📈 大涨',c:'rise'});
+    else if(change>1) badges.push({t:'⬆️ 上涨中',c:'rise'});
+    // Check if it is a hot item (popular category)
+    if(item.cat==='gpu' && (item.name.indexOf('5090')>-1 || item.name.indexOf('5080')>-1)) badges.push({t:'⭐ 热门',c:'hot'});
+    
+    var badgesHtml='';
+    badges.forEach(function(b){
+      badgesHtml+='<span class="hw-badge '+b.c+'">'+b.t+'</span>';
+    });
+    
     html+='<div class="hw-item">';
+    html+='<div class="hw-item-left">';
     html+='<div class="hw-item-ico">'+item.ico+'</div>';
-    html+='<div class="hw-item-info">';
+    html+='<div class="hw-item-main">';
     html+='<div class="hw-item-name">'+item.name+'</div>';
     html+='<div class="hw-item-meta">'+item.brand+' · '+item.model+'</div>';
+    html+='<div class="hw-item-badges">'+badgesHtml+'</div>';
+    html+='<div class="hw-price-bar"><div class="hw-price-bar-fill '+barClass+'" style="width:'+pct.toFixed(0)+'%"></div></div>';
+    html+='<div class="hw-price-bar-markers"><span>历史最低 ¥'+lowest.toLocaleString()+'</span><span>历史最高 ¥'+highest.toLocaleString()+'</span></div>';
+    html+='</div>';
     html+='</div>';
     html+='<div class="hw-item-chart">'+sparkline+'</div>';
     html+='<div class="hw-item-price">';
     html+='<div class="hw-item-cur">¥'+price.toLocaleString()+'</div>';
     html+='<span class="hw-item-change '+changeClass+'">'+changeText+'</span>';
+    html+='<div class="hw-price-amount '+changeClass+'">'+diffText+'</div>';
     html+='</div>';
-    html+='<div class="hw-item-watch'+(isWatched?' active':'')+'" onclick="hwToggleWatch(\x27'+item.id+'\x27)" title="'+(isWatched?'取消关注':'添加关注')+'">'+(isWatched?'⭐':'☆')+'</div>';
+    html+='<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">';
+    html+='<div class="hw-item-watch'+(isWatched?' active':'')+'" onclick="hwToggleWatch(\''+item.id+'\')" title="'+(isWatched?'取消关注':'添加关注')+'">'+(isWatched?'⭐':'☆')+'</div>';
+    html+='<button class="hw-select-btn'+(isSelected?' selected':'')+'" onclick="hwToggleCompare(\''+item.id+'\')">'+(isSelected?'✓ 已选':'对比')+'</button>';
+    html+='</div>';
     html+='</div>';
   });
   listEl.innerHTML=html;
@@ -6254,6 +6374,190 @@ function hwUpdateTime(){
     }
   }
 }
+
+var HW_COMPARE_LIST=[];
+
+function hwToggleCompare(id){
+  var idx=HW_COMPARE_LIST.indexOf(id);
+  if(idx>-1){
+    HW_COMPARE_LIST.splice(idx,1);
+  } else {
+    if(HW_COMPARE_LIST.length>=3){
+      hwShowToast('最多只能对比 3 款配件哦');
+      return;
+    }
+    HW_COMPARE_LIST.push(id);
+  }
+  hwUpdateCompareBar();
+  hwRenderList();
+}
+
+function hwUpdateCompareBar(){
+  var bar=document.getElementById('hwCompareBar');
+  var countEl=document.getElementById('hwCompareCount');
+  var btn=document.getElementById('hwCompareBtn');
+  if(!bar || !countEl || !btn) return;
+  if(HW_COMPARE_LIST.length>0){
+    bar.classList.add('show');
+    countEl.textContent='已选 '+HW_COMPARE_LIST.length+' 款（最多选 3 款对比）';
+    btn.disabled=HW_COMPARE_LIST.length<2;
+  } else {
+    bar.classList.remove('show');
+  }
+}
+
+function hwClearCompare(){
+  HW_COMPARE_LIST=[];
+  hwUpdateCompareBar();
+  hwRenderList();
+}
+
+function hwShowCompare(){
+  if(HW_COMPARE_LIST.length<2){
+    hwShowToast('请至少选择 2 款配件对比');
+    return;
+  }
+  var modal=document.getElementById('hwCompareModal');
+  var tableEl=document.getElementById('hwCompareTable');
+  if(!modal || !tableEl) return;
+  
+  var items=HW_COMPARE_LIST.map(function(id){
+    return HARDWARE_DATA.find(function(it){return it.id===id});
+  }).filter(Boolean);
+  
+  // Find best price
+  var prices=items.map(function(it){return hwGetPrice(it.id)});
+  var minPrice=Math.min.apply(null,prices);
+  
+  var html='<table class="hw-compare-table">';
+  // Header row with item names
+  html+='<thead><tr><th class="compare-row-label">对比项</th>';
+  items.forEach(function(it){
+    html+='<th><div class="compare-item-name">'+it.name+'</div><div class="compare-item-model">'+it.brand+'</div></th>';
+  });
+  html+='</tr></thead><tbody>';
+  
+  // Price row
+  html+='<tr><td class="compare-row-label">💰 当前价格</td>';
+  items.forEach(function(it){
+    var p=hwGetPrice(it.id);
+    var isLowest=p===minPrice;
+    html+='<td'+(isLowest?' class="compare-best"':'')+'><div class="compare-price'+(isLowest?' lowest':'')+'">¥'+p.toLocaleString()+'</div>';
+    var change=hwGetChange(it.id);
+    var changeClass=change>0.5?'up':change<-0.5?'down':'';
+    var changeText=change>0?'+'+change.toFixed(1)+'%':change.toFixed(1)+'%';
+    html+='<span class="compare-change '+changeClass+'">'+changeText+'</span></td>';
+  });
+  html+='</tr>';
+  
+  // Model row
+  html+='<tr><td class="compare-row-label">📦 型号规格</td>';
+  items.forEach(function(it){
+    html+='<td>'+it.model+'</td>';
+  });
+  html+='</tr>';
+  
+  // Brand row
+  html+='<tr><td class="compare-row-label">🏷️ 品牌</td>';
+  items.forEach(function(it){
+    html+='<td>'+it.brand+'</td>';
+  });
+  html+='</tr>';
+  
+  // Historical low
+  html+='<tr><td class="compare-row-label">📉 历史最低</td>';
+  var lows=items.map(function(it){return hwGetLowest(it.id)});
+  var minLow=Math.min.apply(null,lows);
+  items.forEach(function(it){
+    var low=hwGetLowest(it.id);
+    html+='<td'+(low===minLow?' class="compare-best"':'')+'>¥'+low.toLocaleString()+'</td>';
+  });
+  html+='</tr>';
+  
+  // Historical high
+  html+='<tr><td class="compare-row-label">📈 历史最高</td>';
+  var highs=items.map(function(it){return hwGetHighest(it.id)});
+  var maxHigh=Math.max.apply(null,highs);
+  items.forEach(function(it){
+    var high=hwGetHighest(it.id);
+    html+='<td'+(high===maxHigh?' class="compare-worst"':'')+'>¥'+high.toLocaleString()+'</td>';
+  });
+  html+='</tr>';
+  
+  // Price range row
+  html+='<tr><td class="compare-row-label">📊 当前位置</td>';
+  items.forEach(function(it){
+    var price=hwGetPrice(it.id);
+    var low=hwGetLowest(it.id);
+    var high=hwGetHighest(it.id);
+    var range=high-low||1;
+    var pct=Math.max(0,Math.min(100,((price-low)/range)*100));
+    var barClass=pct<30?'low':pct<70?'mid':'high';
+    html+='<td>';
+    html+='<div class="hw-price-bar"><div class="hw-price-bar-fill '+barClass+'" style="width:'+pct.toFixed(0)+'%"></div></div>';
+    html+='<div class="hw-price-bar-markers"><span>¥'+low.toLocaleString()+'</span><span style="font-weight:700;color:var(--accent)">'+pct.toFixed(0)+'%</span><span>¥'+high.toLocaleString()+'</span></div>';
+    html+='</td>';
+  });
+  html+='</tr>';
+  
+  // 14-day trend
+  html+='<tr><td class="compare-row-label">📈 14天走势</td>';
+  items.forEach(function(it){
+    html+='<td style="height:50px">'+hwGenerateSparklineBig(it.id)+'</td>';
+  });
+  html+='</tr>';
+  
+  // Description
+  html+='<tr><td class="compare-row-label">📝 特点说明</td>';
+  items.forEach(function(it){
+    html+='<td style="font-size:12px;color:var(--ink-2)">'+it.desc+'</td>';
+  });
+  html+='</tr>';
+  
+  // Verdict
+  html+='<tr><td class="compare-row-label">✅ 推荐理由</td>';
+  items.forEach(function(it,i){
+    var p=hwGetPrice(it.id);
+    var change=hwGetChange(it.id);
+    var lowest=hwGetLowest(it.id);
+    var reasons=[];
+    if(p===minPrice) reasons.push('💰 价格最低');
+    if(change<-2) reasons.push('📉 近期降价多');
+    if(p<=lowest*1.05) reasons.push('🔥 接近历史低');
+    if(reasons.length===0) reasons.push('⭐ 均衡之选');
+    html+='<td style="font-size:12px">'+reasons.join('<br>')+'</td>';
+  });
+  html+='</tr>';
+  
+  html+='</tbody></table>';
+  tableEl.innerHTML=html;
+  modal.classList.add('show');
+}
+
+function hwCloseCompare(){
+  var modal=document.getElementById('hwCompareModal');
+  if(modal) modal.classList.remove('show');
+}
+
+function hwGenerateSparklineBig(id){
+  var data=HW_PRICE_DATA[id];
+  if(!data || data.history.length<2) return '<svg class="hw-sparkline" viewBox="0 0 200 60"></svg>';
+  var prices=data.history.map(function(h){return h.price});
+  var min=Math.min.apply(null,prices);
+  var max=Math.max.apply(null,prices);
+  var range=max-min||1;
+  var points=prices.map(function(p,i){
+    var x=(i/(prices.length-1))*200;
+    var y=55-((p-min)/range)*45-5;
+    return x.toFixed(1)+','+y.toFixed(1);
+  }).join(' ');
+  var lastChange=hwGetChange(id);
+  var color=lastChange>=0?'#e74c3c':'#27ae60';
+  // Area fill
+  var areaPoints='0,55 '+points+' 200,55';
+  return '<svg class="hw-sparkline" viewBox="0 0 200 60" style="height:50px"><defs><linearGradient id="grad'+id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+color+'" stop-opacity=".2"/><stop offset="100%" stop-color="'+color+'" stop-opacity="0"/></linearGradient></defs><polygon points="'+areaPoints+'" fill="url(#grad'+id+')"/><polyline points="'+points+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
 
 function hwToggleWatch(id){
   var idx=HW_WATCHLIST.indexOf(id);
