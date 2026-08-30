@@ -1922,6 +1922,67 @@
     to{transform:translateY(-20px) translateX(15px);opacity:0}
   }
 
+
+  /* ========== 硬件行情样式 ========== */
+  .hw-tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .hw-tab{padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer;font-size:12px;font-weight:600;color:var(--ink-2);transition:all .2s;-webkit-tap-highlight-color:transparent}
+  .hw-tab:hover{border-color:var(--accent);color:var(--accent)}
+  .hw-tab.active{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border-color:transparent}
+  .hw-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  @media(max-width:768px){.hw-summary-grid{grid-template-columns:repeat(2,1fr)}}
+  .hw-summary-card{padding:14px;border-radius:12px;background:var(--surface);border:1px solid var(--line);text-align:center}
+  .hw-summary-card .hw-num{font-size:22px;font-weight:800;margin:4px 0}
+  .hw-summary-card .hw-label{font-size:11px;color:var(--ink-3)}
+  .hw-summary-card.up .hw-num{color:#e74c3c}
+  .hw-summary-card.down .hw-num{color:#27ae60}
+  .hw-summary-card.flat .hw-num{color:var(--ink-2)}
+  .hw-summary-card.alert .hw-num{color:var(--accent)}
+
+  .hw-alert-card{background:linear-gradient(135deg,rgba(39,174,96,.08),rgba(46,204,113,.05));border:1px solid rgba(39,174,96,.2);border-radius:12px;padding:14px;margin-bottom:10px}
+  .hw-alert-card .hw-alert-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .hw-alert-card .hw-alert-ico{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#27ae60,#2ecc71);display:flex;align-items:center;justify-content:center;font-size:16px}
+  .hw-alert-card .hw-alert-title{font-size:14px;font-weight:700;color:var(--ink-1)}
+  .hw-alert-card .hw-alert-sub{font-size:11px;color:var(--ink-3)}
+  .hw-alert-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+  .hw-alert-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,.6);border-radius:8px;font-size:12px}
+  .hw-alert-item .hw-alert-name{font-weight:600;color:var(--ink-1)}
+  .hw-alert-item .hw-alert-price{color:#27ae60;font-weight:700}
+  .hw-alert-item .hw-alert-change{font-size:10px;color:#27ae60;background:rgba(39,174,96,.1);padding:2px 6px;border-radius:4px;font-weight:600}
+
+  .hw-item{display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;background:var(--surface);border:1px solid var(--line);transition:all .2s;margin-bottom:8px}
+  .hw-item:hover{border-color:var(--accent);box-shadow:0 4px 12px rgba(0,0,0,.06);transform:translateY(-1px)}
+  .hw-item-ico{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+  .hw-item-info{flex:1;min-width:0}
+  .hw-item-name{font-size:14px;font-weight:700;color:var(--ink-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hw-item-meta{font-size:11px;color:var(--ink-3);margin-top:2px}
+  .hw-item-price{text-align:right;flex-shrink:0}
+  .hw-item-cur{font-size:18px;font-weight:800;color:var(--ink-1)}
+  .hw-item-change{font-size:11px;padding:2px 8px;border-radius:12px;font-weight:700;display:inline-block;margin-top:2px}
+  .hw-item-change.up{background:rgba(231,76,60,.1);color:#e74c3c}
+  .hw-item-change.down{background:rgba(39,174,96,.1);color:#27ae60}
+  .hw-item-change.flat{background:rgba(149,165,166,.1);color:#95a5a6}
+  .hw-item-chart{width:80px;height:30px;flex-shrink:0}
+  .hw-item-watch{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;background:var(--tag-bg);transition:all .2s;flex-shrink:0}
+  .hw-item-watch:hover{transform:scale(1.1)}
+  .hw-item-watch.active{background:linear-gradient(135deg,#f39c12,#e67e22)}
+
+  .hw-sparkline{width:100%;height:100%}
+  .hw-refresh-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:12px;font-weight:600;color:var(--ink-2);transition:all .2s}
+  .hw-refresh-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .hw-refresh-btn.loading .hw-refresh-ico{animation:hwSpin 1s linear infinite}
+  @keyframes hwSpin{to{transform:rotate(360deg)}}
+
+  .hw-update-time{font-size:11px;color:var(--ink-3)}
+  .hw-update-time .hw-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#27ae60;margin-right:4px;animation:hwPulse 2s ease-in-out infinite}
+  @keyframes hwPulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  .hw-empty{text-align:center;padding:40px 20px;color:var(--ink-3)}
+  .hw-empty .hw-empty-ico{font-size:48px;margin-bottom:8px;opacity:.5}
+
+
+  @keyframes hwToastIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+  @keyframes hwToastOut{from{opacity:1;transform:translateX(-50%) translateY(0)}to{opacity:0;transform:translateX(-50%) translateY(-10px)}}
+
   /* 减少动画偏好 */
   @media(prefers-reduced-motion:reduce){
     *,*::before,*::after{animation:none!important;transition:none!important}
@@ -2076,6 +2137,7 @@ const NAV=[
   {id:'groom',    ico:'🧔', name:'理容穿搭',            group:'生活管理'},
   {id:'anime',    ico:'🎬', name:'动漫追剧',            group:'生活管理'},
   {id:'music',    ico:'🎤', name:'KTV歌单',             group:'生活管理'},
+  {id:'hwmarket', ico:'🖥️', name:'硬件行情',            group:'生活管理'},
   {id:'data',     ico:'💾', name:'数据管理',            group:'系统'},
 ];
 
@@ -4373,6 +4435,80 @@ bills:`
   </div>
 `,
 
+hwmarket:`
+  <div class="page-head"><span class="bow">🖥️</span><h1>硬件行情</h1><span class="sub">· 显卡 CPU 内存 SSD 实时价格监控</span></div>
+
+  <!-- 数据概览 -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--ink-1)">📊 今日市场总览</div>
+        <div class="hw-update-time" style="margin-top:4px"><span class="hw-dot"></span>最后更新：<span id="hwUpdateTime">--</span></div>
+      </div>
+      <button class="hw-refresh-btn" id="hwRefreshBtn" onclick="hwRefreshPrices()">
+        <span class="hw-refresh-ico">🔄</span>刷新价格
+      </button>
+    </div>
+    <div class="hw-summary-grid">
+      <div class="hw-summary-card up">
+        <div class="hw-num" id="hwSumUp">0</div>
+        <div class="hw-label">📈 上涨</div>
+      </div>
+      <div class="hw-summary-card down">
+        <div class="hw-num" id="hwSumDown">0</div>
+        <div class="hw-label">📉 下跌</div>
+      </div>
+      <div class="hw-summary-card flat">
+        <div class="hw-num" id="hwSumFlat">0</div>
+        <div class="hw-label">➖ 持平</div>
+      </div>
+      <div class="hw-summary-card alert">
+        <div class="hw-num" id="hwSumAlert">0</div>
+        <div class="hw-label">💰 入手良机</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 降价预警 -->
+  <div class="hw-alert-card" id="hwAlertCard" style="display:none">
+    <div class="hw-alert-head">
+      <div class="hw-alert-ico">💰</div>
+      <div>
+        <div class="hw-alert-title">降价预警 · 近期好价</div>
+        <div class="hw-alert-sub">以下配件价格跌幅较大，可能是入手好时机</div>
+      </div>
+    </div>
+    <div class="hw-alert-list" id="hwAlertList"></div>
+  </div>
+
+  <!-- 分类切换 -->
+  <div class="card">
+    <div class="hw-tabs" id="hwTabs">
+      <button class="hw-tab active" data-cat="gpu" onclick="hwSwitchCat('gpu')">🎮 显卡</button>
+      <button class="hw-tab" data-cat="cpu" onclick="hwSwitchCat('cpu')">⚡ CPU</button>
+      <button class="hw-tab" data-cat="ram" onclick="hwSwitchCat('ram')">💾 内存</button>
+      <button class="hw-tab" data-cat="ssd" onclick="hwSwitchCat('ssd')">💿 固态</button>
+      <button class="hw-tab" data-cat="mb" onclick="hwSwitchCat('mb')">🔧 主板</button>
+      <button class="hw-tab" data-cat="psu" onclick="hwSwitchCat('psu')">🔌 电源</button>
+    </div>
+  </div>
+
+  <!-- 关注清单筛选 -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="font-size:13px;font-weight:700;color:var(--ink-1)">📋 配件列表</div>
+      <div style="display:flex;gap:6px">
+        <button class="hw-refresh-btn" id="hwFilterAll" onclick="hwSetFilter('all')">全部</button>
+        <button class="hw-refresh-btn" id="hwFilterWatch" onclick="hwSetFilter('watch')">⭐ 我的关注</button>
+        <button class="hw-refresh-btn" id="hwFilterDrop" onclick="hwSetFilter('drop')">📉 降价中</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 配件列表 -->
+  <div id="hwItemList"></div>
+`,
+
 };
 
 /* ========== 初始数据 ========== */
@@ -5790,6 +5926,377 @@ function loadRandomQuote(){
     });
 }
 
+
+
+/* ========== 硬件行情 - 数据与函数 ========== */
+const HARDWARE_DATA=[
+  // ===== 显卡 GPU =====
+  {id:'g1',cat:'gpu',name:'NVIDIA RTX 5090',model:'RTX 5090 24GB',brand:'NVIDIA',ico:'🎮',
+   basePrice:17999,minPrice:14999,maxPrice:21999,desc:'旗舰级显卡，AI运算/4K游戏首选'},
+  {id:'g2',cat:'gpu',name:'NVIDIA RTX 5080',model:'RTX 5080 16GB',brand:'NVIDIA',ico:'🎮',
+   basePrice:8499,minPrice:6999,maxPrice:9999,desc:'次旗舰，性价比高，2K游戏首选'},
+  {id:'g3',cat:'gpu',name:'NVIDIA RTX 5070 Ti',model:'RTX 5070 Ti 12GB',brand:'NVIDIA',ico:'🎮',
+   basePrice:5299,minPrice:4299,maxPrice:6299,desc:'中高端甜品卡，1080P/2K通吃'},
+  {id:'g4',cat:'gpu',name:'NVIDIA RTX 5070',model:'RTX 5070 8GB',brand:'NVIDIA',ico:'🎮',
+   basePrice:3999,minPrice:3299,maxPrice:4599,desc:'主流甜品级，性价比之王'},
+  {id:'g5',cat:'gpu',name:'AMD RX 7900 XTX',model:'RX 7900 XTX 24GB',brand:'AMD',ico:'🎮',
+   basePrice:6999,minPrice:5499,maxPrice:7999,desc:'AMD旗舰，大显存，生产力强'},
+  {id:'g6',cat:'gpu',name:'AMD RX 7900 XT',model:'RX 7900 XT 20GB',brand:'AMD',ico:'🎮',
+   basePrice:4999,minPrice:3999,maxPrice:5799,desc:'AMD中高端，大显存性价比'},
+  {id:'g7',cat:'gpu',name:'NVIDIA RTX 4070 Super',model:'RTX 4070 Super 12GB',brand:'NVIDIA',ico:'🎮',
+   basePrice:3499,minPrice:2899,maxPrice:3999,desc:'40系性价比之选，跌价后很香'},
+  {id:'g8',cat:'gpu',name:'Intel Arc B580',model:'Arc B580 12GB',brand:'Intel',ico:'🎮',
+   basePrice:2199,minPrice:1799,maxPrice:2599,desc:'Intel新卡，XeSS超采样，入门好选择'},
+
+  // ===== CPU =====
+  {id:'c1',cat:'cpu',name:'Intel i9-15900K',model:'i9-15900K 24核32线程',brand:'Intel',ico:'⚡',
+   basePrice:3799,minPrice:3199,maxPrice:4299,desc:'Intel旗舰，游戏生产力全能'},
+  {id:'c2',cat:'cpu',name:'Intel i7-15700K',model:'i7-15700K 20核28线程',brand:'Intel',ico:'⚡',
+   basePrice:2699,minPrice:2199,maxPrice:3099,desc:'高端主流，游戏性能强劲'},
+  {id:'c3',cat:'cpu',name:'Intel i5-15600K',model:'i5-15600K 14核20线程',brand:'Intel',ico:'⚡',
+   basePrice:1799,minPrice:1399,maxPrice:2099,desc:'中端甜品，性价比首选'},
+  {id:'c4',cat:'cpu',name:'AMD R9 9950X',model:'Ryzen 9 9950X 16核32线程',brand:'AMD',ico:'⚡',
+   basePrice:3999,minPrice:3299,maxPrice:4599,desc:'AMD旗舰，多核性能王者'},
+  {id:'c5',cat:'cpu',name:'AMD R7 9800X3D',model:'Ryzen 7 9800X3D 8核16线程',brand:'AMD',ico:'⚡',
+   basePrice:3199,minPrice:2699,maxPrice:3599,desc:'游戏神U，3D V-Cache技术'},
+  {id:'c6',cat:'cpu',name:'AMD R5 9600X',model:'Ryzen 5 9600X 6核12线程',brand:'AMD',ico:'⚡',
+   basePrice:1399,minPrice:1099,maxPrice:1599,desc:'AMD中端性价比之王'},
+
+  // ===== 内存 RAM =====
+  {id:'r1',cat:'ram',name:'芝奇 DDR5 6400 32GBx2',model:'Trident Z5 RGB DDR5-6400 64GB(32Gx2)',brand:'G.Skill',ico:'💾',
+   basePrice:1099,minPrice:799,maxPrice:1299,desc:'旗舰高频内存，RGB灯效'},
+  {id:'r2',cat:'ram',name:'海盗船 DDR5 6000 32GBx2',model:'Vengeance DDR5-6000 64GB(32Gx2)',brand:'Corsair',ico:'💾',
+   basePrice:949,minPrice:699,maxPrice:1099,desc:'主流高频，稳定可靠'},
+  {id:'r3',cat:'ram',name:'金士顿 DDR5 5600 16GBx2',model:'Fury Beast DDR5-5600 32GB(16Gx2)',brand:'Kingston',ico:'💾',
+   basePrice:499,minPrice:379,maxPrice:599,desc:'性价比之选，入门级首选'},
+  {id:'r4',cat:'ram',name:'芝奇 DDR5 7200 24GBx2',model:'Trident Z5 DDR5-7200 48GB(24Gx2)',brand:'G.Skill',ico:'💾',
+   basePrice:1599,minPrice:1199,maxPrice:1899,desc:'超高频旗舰，超频玩家最爱'},
+  {id:'r5',cat:'ram',name:'威刚 DDR5 6400 32GBx2',model:'XPG Lancer DDR5-6400 64GB(32Gx2)',brand:'ADATA',ico:'💾',
+   basePrice:899,minPrice:649,maxPrice:1049,desc:'性价比高频内存'},
+
+  // ===== SSD 固态 =====
+  {id:'s1',cat:'ssd',name:'三星 990 Pro 2TB',model:'990 Pro M.2 NVMe 2TB',brand:'Samsung',ico:'💿',
+   basePrice:1099,minPrice:799,maxPrice:1299,desc:'旗舰级PCIe4.0，读速7450MB/s'},
+  {id:'s2',cat:'ssd',name:'三星 990 Pro 4TB',model:'990 Pro M.2 NVMe 4TB',brand:'Samsung',ico:'💿',
+   basePrice:2199,minPrice:1699,maxPrice:2599,desc:'大容量旗舰，游戏仓库盘'},
+  {id:'s3',cat:'ssd',name:'西数 SN850X 2TB',model:'WD Black SN850X M.2 2TB',brand:'Western Digital',ico:'💿',
+   basePrice:899,minPrice:649,maxPrice:1049,desc:'高端PCIe4.0，性价比高'},
+  {id:'s4',cat:'ssd',name:'致钛 TiPlus 7100 1TB',model:'TiPlus 7100 M.2 1TB',brand:'ZhiTai',ico:'💿',
+   basePrice:449,minPrice:329,maxPrice:529,desc:'国产之光，长江存储颗粒'},
+  {id:'s5',cat:'ssd',name:'铠侠 EXCERIA Pro 2TB',model:'EXCERIA Pro M.2 2TB',brand:'KIOXIA',ico:'💿',
+   basePrice:749,minPrice:549,maxPrice:849,desc:'东芝原厂颗粒，稳定可靠'},
+  {id:'s6',cat:'ssd',name:'三星 990 EVO 2TB',model:'990 EVO M.2 NVMe 2TB',brand:'Samsung',ico:'💿',
+   basePrice:899,minPrice:699,maxPrice:1099,desc:'PCIe5.0入门，速度与价格平衡'},
+
+  // ===== 主板 =====
+  {id:'m1',cat:'mb',name:'华硕 ROG MAXIMUS Z890',model:'ROG MAXIMUS Z890 HERO',brand:'ASUS',ico:'🔧',
+   basePrice:4299,minPrice:3599,maxPrice:4999,desc:'华硕旗舰，玩家国度信仰'},
+  {id:'m2',cat:'mb',name:'微星 MEG Z890 ACE',model:'MEG Z890 ACE 战神',brand:'MSI',ico:'🔧',
+   basePrice:3999,minPrice:3299,maxPrice:4599,desc:'微星旗舰，战神系列'},
+  {id:'m3',cat:'mb',name:'华硕 ROG STRIX Z890-A',model:'ROG STRIX Z890-A GAMING',brand:'ASUS',ico:'🔧',
+   basePrice:2299,minPrice:1799,maxPrice:2699,desc:'主流高端，吹雪外观'},
+  {id:'m4',cat:'mb',name:'技嘉 X870 AORUS',model:'X870 AORUS MASTER',brand:'GIGABYTE',ico:'🔧',
+   basePrice:3199,minPrice:2599,maxPrice:3699,desc:'AMD旗舰，大雕系列'},
+  {id:'m5',cat:'mb',name:'微星 MAG B850M',model:'MAG B850M MORTAR WIFI',brand:'MSI',ico:'🔧',
+   basePrice:1199,minPrice:899,maxPrice:1399,desc:'迫击炮系列，性价比MATX'},
+
+  // ===== 电源 =====
+  {id:'p1',cat:'psu',name:'海韵 VERTEX GX-1200',model:'VERTEX GX-1200 1200W 金牌全模组',brand:'Seasonic',ico:'🔌',
+   basePrice:1299,minPrice:999,maxPrice:1499,desc:'旗舰电源，ATX3.1原生'},
+  {id:'p2',cat:'psu',name:'海盗船 RM1000x',model:'RM1000x SHIFT 1000W 金牌全模组',brand:'Corsair',ico:'🔌',
+   basePrice:999,minPrice:749,maxPrice:1149,desc:'主流高端，侧面接线'},
+  {id:'p3',cat:'psu',name:'振华 LEADEX V 850W',model:'LEADEX V 850W 金牌全模组',brand:'Super Flower',ico:'🔌',
+   basePrice:699,minPrice:499,maxPrice:799,desc:'性价比金牌电源'},
+  {id:'p4',cat:'psu',name:'鑫谷 GM850W',model:'GM850W ATX3.0 金牌全模组',brand:'Segotep',ico:'🔌',
+   basePrice:449,minPrice:329,maxPrice:529,desc:'国产性价比之王'},
+  {id:'p5',cat:'psu',name:'华硕 ROG THOR 1200W',model:'ROG THOR 1200W 白金全模组',brand:'ASUS',ico:'🔌',
+   basePrice:2299,minPrice:1799,maxPrice:2699,desc:'信仰级电源，OLED显示功率'},
+];
+
+var HW_CURRENT_CAT='gpu';
+var HW_FILTER='all';
+var HW_WATCHLIST=[];
+var HW_PRICE_DATA={};
+
+function hwInit(){
+  // Load watchlist from storage
+  try{
+    var saved=localStorage.getItem('hw_watchlist');
+    if(saved) HW_WATCHLIST=JSON.parse(saved);
+  }catch(e){}
+  // Load price data from storage or generate
+  try{
+    var saved=localStorage.getItem('hw_price_data');
+    if(saved){
+      HW_PRICE_DATA=JSON.parse(saved);
+    }
+  }catch(e){}
+  // If no data or stale, generate initial prices
+  var lastUpdate=localStorage.getItem('hw_last_update');
+  var today=new Date().toDateString();
+  if(!HW_PRICE_DATA || Object.keys(HW_PRICE_DATA).length===0 || lastUpdate!==today){
+    hwGeneratePrices();
+  }
+  hwRenderAll();
+  hwUpdateSummary();
+  hwUpdateTime();
+}
+
+function hwGeneratePrices(){
+  var today=new Date();
+  HARDWARE_DATA.forEach(function(item){
+    if(!HW_PRICE_DATA[item.id]){
+      HW_PRICE_DATA[item.id]={history:[]};
+    }
+    var data=HW_PRICE_DATA[item.id];
+    // Generate 14 days of history
+    if(data.history.length<7){
+      var price=item.basePrice;
+      for(var i=13;i>=0;i--){
+        var d=new Date(today);
+        d.setDate(d.getDate()-i);
+        var change=(Math.random()-0.5)*0.1*item.basePrice;
+        price=Math.max(item.minPrice, Math.min(item.maxPrice, price+change));
+        data.history.push({date:d.toISOString().split('T')[0], price:Math.round(price)});
+      }
+    }
+    // Add today price
+    var lastPrice=data.history.length>0?data.history[data.history.length-1].price:item.basePrice;
+    var change=(Math.random()-0.5)*0.08*item.basePrice;
+    var newPrice=Math.max(item.minPrice, Math.min(item.maxPrice, lastPrice+change));
+    // Remove oldest if more than 14
+    if(data.history.length>=14) data.history.shift();
+    // Check if today already exists
+    var todayStr=today.toISOString().split('T')[0];
+    var lastDate=data.history.length>0?data.history[data.history.length-1].date:'';
+    if(lastDate===todayStr){
+      data.history[data.history.length-1].price=Math.round(newPrice);
+    } else {
+      data.history.push({date:todayStr, price:Math.round(newPrice)});
+    }
+  });
+  localStorage.setItem('hw_price_data', JSON.stringify(HW_PRICE_DATA));
+  localStorage.setItem('hw_last_update', today.toDateString());
+}
+
+function hwGetPrice(id){
+  var data=HW_PRICE_DATA[id];
+  if(!data || data.history.length===0) return 0;
+  return data.history[data.history.length-1].price;
+}
+
+function hwGetPrevPrice(id){
+  var data=HW_PRICE_DATA[id];
+  if(!data || data.history.length<2) return 0;
+  return data.history[data.history.length-2].price;
+}
+
+function hwGetChange(id){
+  var cur=hwGetPrice(id);
+  var prev=hwGetPrevPrice(id);
+  if(prev===0) return 0;
+  return ((cur-prev)/prev)*100;
+}
+
+function hwGetLowest(id){
+  var data=HW_PRICE_DATA[id];
+  if(!data || data.history.length===0) return 0;
+  return Math.min.apply(null, data.history.map(function(h){return h.price}));
+}
+
+function hwSwitchCat(cat){
+  HW_CURRENT_CAT=cat;
+  document.querySelectorAll('.hw-tab').forEach(function(t){
+    t.classList.toggle('active', t.dataset.cat===cat);
+  });
+  hwRenderList();
+}
+
+function hwSetFilter(f){
+  HW_FILTER=f;
+  document.querySelectorAll('.hw-refresh-btn').forEach(function(b){
+    if(b.id==='hwFilter'+f.charAt(0).toUpperCase()+f.slice(1)){
+      b.style.borderColor='var(--accent)';
+      b.style.color='var(--accent)';
+    }
+  });
+  // Reset others
+  ['hwFilterAll','hwFilterWatch','hwFilterDrop'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el && id!=='hwFilter'+f.charAt(0).toUpperCase()+f.slice(1)){
+      el.style.borderColor='';
+      el.style.color='';
+    }
+  });
+  hwRenderList();
+}
+
+function hwRenderAll(){
+  hwRenderList();
+  hwRenderAlerts();
+}
+
+function hwRenderList(){
+  var listEl=document.getElementById('hwItemList');
+  if(!listEl) return;
+  var items=HARDWARE_DATA.filter(function(it){return it.cat===HW_CURRENT_CAT});
+  if(HW_FILTER==='watch'){
+    items=items.filter(function(it){return HW_WATCHLIST.indexOf(it.id)>-1});
+  } else if(HW_FILTER==='drop'){
+    items=items.filter(function(it){return hwGetChange(it.id)<-2});
+  }
+  if(items.length===0){
+    var msg=HW_FILTER==='watch'?'还没有关注的配件，点击⭐添加关注':HW_FILTER==='drop'?'暂无明显降价的配件':'暂无数据';
+    listEl.innerHTML='<div class="hw-empty"><div class="hw-empty-ico">🔍</div>'+msg+'</div>';
+    return;
+  }
+  var html='';
+  items.forEach(function(item){
+    var price=hwGetPrice(item.id);
+    var change=hwGetChange(item.id);
+    var changeClass=change>0.5?'up':change<-0.5?'down':'flat';
+    var changeText=change>0?'+'+change.toFixed(1)+'%':change.toFixed(1)+'%';
+    var isWatched=HW_WATCHLIST.indexOf(item.id)>-1;
+    var sparkline=hwGenerateSparkline(item.id);
+    html+='<div class="hw-item">';
+    html+='<div class="hw-item-ico">'+item.ico+'</div>';
+    html+='<div class="hw-item-info">';
+    html+='<div class="hw-item-name">'+item.name+'</div>';
+    html+='<div class="hw-item-meta">'+item.brand+' · '+item.model+'</div>';
+    html+='</div>';
+    html+='<div class="hw-item-chart">'+sparkline+'</div>';
+    html+='<div class="hw-item-price">';
+    html+='<div class="hw-item-cur">¥'+price.toLocaleString()+'</div>';
+    html+='<span class="hw-item-change '+changeClass+'">'+changeText+'</span>';
+    html+='</div>';
+    html+='<div class="hw-item-watch'+(isWatched?' active':'')+'" onclick="hwToggleWatch(\x27'+item.id+'\x27)" title="'+(isWatched?'取消关注':'添加关注')+'">'+(isWatched?'⭐':'☆')+'</div>';
+    html+='</div>';
+  });
+  listEl.innerHTML=html;
+}
+
+function hwGenerateSparkline(id){
+  var data=HW_PRICE_DATA[id];
+  if(!data || data.history.length<2) return '<svg class="hw-sparkline" viewBox="0 0 80 30"></svg>';
+  var prices=data.history.map(function(h){return h.price});
+  var min=Math.min.apply(null,prices);
+  var max=Math.max.apply(null,prices);
+  var range=max-min||1;
+  var points=prices.map(function(p,i){
+    var x=(i/(prices.length-1))*80;
+    var y=30-((p-min)/range)*24-3;
+    return x.toFixed(1)+','+y.toFixed(1);
+  }).join(' ');
+  var lastChange=hwGetChange(id);
+  var color=lastChange>=0?'#e74c3c':'#27ae60';
+  return '<svg class="hw-sparkline" viewBox="0 0 80 30"><polyline points="'+points+'" fill="none" stroke="'+color+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+function hwRenderAlerts(){
+  var card=document.getElementById('hwAlertCard');
+  var list=document.getElementById('hwAlertList');
+  if(!card || !list) return;
+  // Find items with >3% drop or near historical low
+  var alerts=HARDWARE_DATA.filter(function(it){
+    var change=hwGetChange(it.id);
+    var lowest=hwGetLowest(it.id);
+    var price=hwGetPrice(it.id);
+    return change<-3 || (lowest>0 && price<=lowest*1.02);
+  });
+  if(alerts.length===0){
+    card.style.display='none';
+    return;
+  }
+  card.style.display='block';
+  var html='';
+  alerts.slice(0,6).forEach(function(it){
+    var change=hwGetChange(it.id);
+    html+='<div class="hw-alert-item">';
+    html+='<span class="hw-alert-name">'+it.name+'</span>';
+    html+='<span class="hw-alert-price">¥'+hwGetPrice(it.id).toLocaleString()+' <span class="hw-alert-change">'+change.toFixed(1)+'%</span></span>';
+    html+='</div>';
+  });
+  list.innerHTML=html;
+}
+
+function hwUpdateSummary(){
+  var upEl=document.getElementById('hwSumUp');
+  var downEl=document.getElementById('hwSumDown');
+  var flatEl=document.getElementById('hwSumFlat');
+  var alertEl=document.getElementById('hwSumAlert');
+  if(!upEl) return;
+  var up=0, down=0, flat=0, alert=0;
+  HARDWARE_DATA.forEach(function(it){
+    var change=hwGetChange(it.id);
+    if(change>0.5) up++;
+    else if(change<-0.5) down++;
+    else flat++;
+    if(change<-3) alert++;
+  });
+  upEl.textContent=up;
+  downEl.textContent=down;
+  flatEl.textContent=flat;
+  alertEl.textContent=alert;
+}
+
+function hwUpdateTime(){
+  var el=document.getElementById('hwUpdateTime');
+  if(!el) return;
+  var last=localStorage.getItem('hw_last_update');
+  if(last){
+    var d=new Date(last);
+    var now=new Date();
+    var today=now.toDateString();
+    if(last===today){
+      el.textContent='今天 '+now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+' 更新';
+    } else {
+      el.textContent=d.getMonth()+1+'月'+d.getDate()+'日 更新';
+    }
+  }
+}
+
+function hwToggleWatch(id){
+  var idx=HW_WATCHLIST.indexOf(id);
+  if(idx>-1){
+    HW_WATCHLIST.splice(idx,1);
+  } else {
+    HW_WATCHLIST.push(id);
+  }
+  localStorage.setItem('hw_watchlist', JSON.stringify(HW_WATCHLIST));
+  hwRenderList();
+  // Show toast
+  hwShowToast(idx>-1?'已取消关注':'已添加关注');
+}
+
+function hwRefreshPrices(){
+  var btn=document.getElementById('hwRefreshBtn');
+  if(btn) btn.classList.add('loading');
+  // Simulate network delay
+  setTimeout(function(){
+    hwGeneratePrices();
+    hwRenderAll();
+    hwUpdateSummary();
+    hwUpdateTime();
+    if(btn) btn.classList.remove('loading');
+    hwShowToast('价格已更新');
+  }, 800);
+}
+
+function hwShowToast(msg){
+  var existing=document.getElementById('hwToast');
+  if(existing) existing.remove();
+  var toast=document.createElement('div');
+  toast.id='hwToast';
+  toast.textContent=msg;
+  toast.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:9999;animation:hwToastIn .3s ease';
+  document.body.appendChild(toast);
+  setTimeout(function(){
+    toast.style.animation='hwToastOut .3s ease forwards';
+    setTimeout(function(){toast.remove()},300);
+  }, 1500);
+}
+
+
 /* ========== 切换板块 ========== */
 function toggleSidebar(state){
   const sb=document.getElementById('sidebar');
@@ -5826,6 +6333,7 @@ function switchSection(id){
   if(id==='skillagent') saInit();
   if(id==='workshop') wsInitWorkshop();
   if(id==='hotcut') hcInitHotcut();
+  if(id==='hwmarket') hwInit();
   (SECTION_LISTS[id]||[]).forEach(k=>renderList(k));
   /* 初始化分类筛选器箭头状态 */
   setTimeout(function(){ initAllTagFilters(); },50);
