@@ -2046,6 +2046,37 @@
   .hw-advice.neutral .hw-advice-icon{color:var(--ink-3)}
   .hw-advice-big{margin:0 0 10px 0;padding:12px 16px;border-radius:12px;font-size:14px}
   .hw-advice-big .hw-advice-title{font-size:16px}
+
+  /* ========== 配机清单样式 ========== */
+  .pb-build-tabs{display:flex;gap:10px;flex-wrap:wrap}
+  .pb-build-tab{flex:1;min-width:120px;padding:14px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface);cursor:pointer;font-size:13px;font-weight:700;color:var(--ink-2);transition:all .2s;text-align:center;line-height:1.5}
+  .pb-build-tab span{font-size:11px;font-weight:400;color:var(--ink-3)}
+  .pb-build-tab:hover{border-color:var(--accent);color:var(--accent)}
+  .pb-build-tab.active{border-color:var(--accent);background:linear-gradient(135deg,rgba(102,126,234,.08),rgba(118,75,162,.05));color:var(--accent)}
+  .pb-build-tab.active span{color:var(--accent);opacity:.7}
+  .pb-item{display:flex;align-items:flex-start;gap:14px;padding:16px;border-radius:14px;background:var(--surface);border:1px solid var(--line);margin-bottom:12px;position:relative;overflow:hidden}
+  .pb-item.on-sale{border-color:rgba(102,126,234,.35);background:linear-gradient(135deg,rgba(102,126,234,.04),var(--surface))}
+  .pb-item.on-sale::before{content:'🔥 降价好价';position:absolute;top:0;right:0;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:0 0 0 10px}
+  .pb-item-left{flex:1;min-width:0}
+  .pb-item-cat{font-size:10px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+  .pb-item-name{font-size:14px;font-weight:700;color:var(--ink-1);margin-top:2px}
+  .pb-item-model{font-size:11px;color:var(--ink-3);margin-top:2px}
+  .pb-item-price-box{text-align:right;flex-shrink:0;min-width:100px}
+  .pb-item-price{font-size:18px;font-weight:800;color:var(--ink-1)}
+  .pb-item-change{font-size:11px;font-weight:600;margin-top:2px}
+  .pb-item-change.up{color:#e74c3c}
+  .pb-item-change.down{color:#27ae60}
+  .pb-stat{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 14px;border-radius:10px;background:var(--tag-bg)}
+  .pb-stat-num{font-size:20px;font-weight:800}
+  .pb-stat-label{font-size:10px;font-weight:600}
+  .pb-step{display:flex;align-items:flex-start;gap:8px;padding:6px 0}
+  .pb-step-num{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .pb-step-text{font-size:12px;line-height:1.6;color:var(--ink-2)}
+  @media(max-width:768px){
+    .pb-item{flex-wrap:wrap}
+    .pb-item-price-box{width:100%;text-align:left}
+    .pb-build-tab{min-width:100%}
+  }
   @media(max-width:768px){
     .hw-item{flex-wrap:wrap}
     .hw-item-price{order:2;width:100%;text-align:left;padding-top:8px;border-top:1px solid var(--line)}
@@ -2210,6 +2241,7 @@ const NAV=[
   {id:'anime',    ico:'🎬', name:'动漫追剧',            group:'生活管理'},
   {id:'music',    ico:'🎤', name:'KTV歌单',             group:'生活管理'},
   {id:'hwmarket', ico:'🖥️', name:'硬件行情',            group:'生活管理'},
+  {id:'pcbuild',  ico:'🛠️', name:'配机清单',            group:'生活管理'},
   {id:'data',     ico:'💾', name:'数据管理',            group:'系统'},
 ];
 
@@ -4605,6 +4637,52 @@ hwmarket:`
   </div>
 `,
 
+pcbuild:`
+  <div class="page-head"><span class="bow">🛠️</span><h1>配机清单</h1><span class="sub">· 一键生成装机方案 · 自动标注降价好价配件</span></div>
+
+  <!-- 方案选择 -->
+  <div class="card">
+    <div style="font-size:13px;font-weight:700;color:var(--ink-1);margin-bottom:12px">📋 选择你的装机方案</div>
+    <div class="pb-build-tabs" id="pbBuildTabs">
+      <button class="pb-build-tab active" data-build="budget" onclick="pbSwitchBuild('budget')">💰 性价比入门<br><span>约 5-7K</span></button>
+      <button class="pb-build-tab" data-build="mainstream" onclick="pbSwitchBuild('mainstream')">🎮 主流游戏<br><span>约 10-13K</span></button>
+      <button class="pb-build-tab" data-build="highend" onclick="pbSwitchBuild('highend')">🏆 高端4K<br><span>约 18-25K</span></button>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--ink-3);line-height:1.6">
+      💡 <b>怎么用：</b>选择一个方案 → 看每个配件下方的<b style="color:#27ae60">绿色"现在就买"</b>或<b style="color:#e74c3c">红色"先别买"</b>建议 → 按<b style="color:#667eea">"降价好价"</b>标注的配件优先入手
+    </div>
+  </div>
+
+  <!-- 总价概览 -->
+  <div class="card" id="pbSummaryCard" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--ink-1)" id="pbBuildName"></div>
+        <div style="font-size:11px;color:var(--ink-3);margin-top:4px" id="pbBuildDesc"></div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;color:var(--ink-3)">预计总价</div>
+        <div style="font-size:24px;font-weight:800;color:var(--accent)" id="pbTotalPrice">¥0</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+      <div class="pb-stat"><span class="pb-stat-num" id="pbBuyNow">0</span><span class="pb-stat-label" style="color:#27ae60">✅ 现在就买</span></div>
+      <div class="pb-stat"><span class="pb-stat-num" id="pbWait">0</span><span class="pb-stat-label" style="color:#f39c12">⏳ 再等等</span></div>
+      <div class="pb-stat"><span class="pb-stat-num" id="pbAvoid">0</span><span class="pb-stat-label" style="color:#e74c3c">❌ 先别买</span></div>
+      <div class="pb-stat"><span class="pb-stat-num" id="pbOnSale">0</span><span class="pb-stat-label" style="color:#667eea">🔥 降价好价</span></div>
+    </div>
+  </div>
+
+  <!-- 配件列表 -->
+  <div id="pbBuildList"></div>
+
+  <!-- 购买顺序建议 -->
+  <div class="card" id="pbOrderCard" style="display:none">
+    <div style="font-size:13px;font-weight:700;color:var(--ink-1);margin-bottom:10px">🛒 建议购买顺序</div>
+    <div id="pbOrderList" style="font-size:12px;line-height:1.8;color:var(--ink-2)"></div>
+  </div>
+`,
+
 };
 
 /* ========== 初始数据 ========== */
@@ -6667,6 +6745,166 @@ function hwShowToast(msg){
 }
 
 
+/* ========== 配机清单 - 数据与函数 ========== */
+var PB_CURRENT_BUILD='budget';
+
+var PB_BUILDS={
+  budget:{
+    name:'💰 性价比入门配置',
+    desc:'能流畅玩主流网游（LOL/CS2/原神1080P），兼顾日常办公和轻度剪辑',
+    parts:[
+      {cat:'cpu',hwId:'c6',catLabel:'处理器 CPU',note:'性价比神U，6核12线程通吃主流游戏'},
+      {cat:'gpu',hwId:'g7',catLabel:'显卡 GPU',note:'4070 Super 性价比之选，2K游戏无压力'},
+      {cat:'mb',hwId:'m5',catLabel:'主板',note:'B850M迫击炮，MATX小板性价比高，带WiFi'},
+      {cat:'ram',hwId:'r3',catLabel:'内存 RAM',note:'DDR5 5600 32GB，入门够用且便宜'},
+      {cat:'ssd',hwId:'s4',catLabel:'固态硬盘',note:'致钛国产之光，1TB够装系统和游戏'},
+      {cat:'psu',hwId:'p3',catLabel:'电源',note:'850W金牌，留足升级空间'}
+    ]
+  },
+  mainstream:{
+    name:'🎮 主流游戏配置',
+    desc:'能流畅玩3A大作（黑神话悟空/赛博朋克2077 2K高画质），AI画图/渲染也行',
+    parts:[
+      {cat:'cpu',hwId:'c5',catLabel:'处理器 CPU',note:'9800X3D 游戏神U，3D V-Cache技术，游戏帧数拉满'},
+      {cat:'gpu',hwId:'g4',catLabel:'显卡 GPU',note:'RTX 5070 甜品卡，2K高画质通吃3A大作'},
+      {cat:'mb',hwId:'m5',catLabel:'主板',note:'B850M迫击炮，稳定可靠带WiFi'},
+      {cat:'ram',hwId:'r2',catLabel:'内存 RAM',note:'DDR5 6000 64GB，大内存玩游戏和渲染都够'},
+      {cat:'ssd',hwId:'s1',catLabel:'固态硬盘',note:'三星990 Pro 2TB旗舰，读写7450MB/s'},
+      {cat:'psu',hwId:'p3',catLabel:'电源',note:'振华850W金牌全模组，够用且稳定'}
+    ]
+  },
+  highend:{
+    name:'🏆 高端4K配置',
+    desc:'4K画质畅玩所有3A大作 + AI炼丹/视频剪辑/3D渲染 全能主机',
+    parts:[
+      {cat:'cpu',hwId:'c1',catLabel:'处理器 CPU',note:'i9-15900K 24核32线程，游戏生产力全能旗舰'},
+      {cat:'gpu',hwId:'g2',catLabel:'显卡 GPU',note:'RTX 5080 次旗舰，4K高画质通吃，AI算力强'},
+      {cat:'mb',hwId:'m3',catLabel:'主板',note:'华硕ROG STRIX Z890-A，高端吹雪，供电强悍'},
+      {cat:'ram',hwId:'r2',catLabel:'内存 RAM',note:'海盗船DDR5 6000 64GB，高端稳定可靠'},
+      {cat:'ssd',hwId:'s2',catLabel:'固态硬盘',note:'三星990 Pro 4TB大容量，游戏仓库盘'},
+      {cat:'psu',hwId:'p1',catLabel:'电源',note:'海韵1200W旗舰，ATX3.1原生，留足超频空间'}
+    ]
+  }
+};
+
+function pbInit(){
+  // Ensure price data exists
+  if(!HW_PRICE_DATA || Object.keys(HW_PRICE_DATA).length===0){
+    try{
+      var saved=localStorage.getItem('hw_price_data');
+      if(saved) HW_PRICE_DATA=JSON.parse(saved);
+    }catch(e){}
+  }
+  var lastUpdate=localStorage.getItem('hw_last_update');
+  var today=new Date().toDateString();
+  if(!HW_PRICE_DATA || Object.keys(HW_PRICE_DATA).length===0 || lastUpdate!==today){
+    hwGeneratePrices();
+  }
+  pbSwitchBuild(PB_CURRENT_BUILD);
+}
+
+function pbSwitchBuild(build){
+  PB_CURRENT_BUILD=build;
+  document.querySelectorAll('.pb-build-tab').forEach(function(t){
+    t.classList.toggle('active',t.dataset.build===build);
+  });
+  pbRenderBuild();
+}
+
+function pbRenderBuild(){
+  var build=PB_BUILDS[PB_CURRENT_BUILD];
+  if(!build) return;
+
+  var summaryCard=document.getElementById('pbSummaryCard');
+  var buildList=document.getElementById('pbBuildList');
+  var orderCard=document.getElementById('pbOrderCard');
+  if(!summaryCard||!buildList) return;
+
+  var nameEl=document.getElementById('pbBuildName');
+  var descEl=document.getElementById('pbBuildDesc');
+  var totalEl=document.getElementById('pbTotalPrice');
+  if(nameEl) nameEl.textContent=build.name;
+  if(descEl) descEl.textContent=build.desc;
+  summaryCard.style.display='block';
+
+  var totalPrice=0;
+  var buyNow=0,wait=0,avoid=0,onSale=0;
+  var buyItems=[],waitItems=[],avoidItems=[];
+
+  var html='';
+  build.parts.forEach(function(part){
+    var hwItem=HARDWARE_DATA.find(function(it){return it.id===part.hwId});
+    if(!hwItem) return;
+
+    var price=hwGetPrice(part.hwId);
+    var change=hwGetChange(part.hwId);
+    var lowest=hwGetLowest(part.hwId);
+    var advice=hwGetAdvice(part.hwId);
+    var isOnSale=change<-1 || price<=lowest*1.05;
+    var changeClass=change>0.5?'up':change<-0.5?'down':'';
+    var changeText=change>0?'+'+change.toFixed(1)+'%':change.toFixed(1)+'%';
+
+    totalPrice+=price;
+    if(advice.level==='buy'){buyNow++;buyItems.push(hwItem.name);}
+    else if(advice.level==='wait'){wait++;waitItems.push(hwItem.name);}
+    else if(advice.level==='avoid'){avoid++;avoidItems.push(hwItem.name);}
+    if(isOnSale) onSale++;
+
+    html+='<div class="pb-item'+(isOnSale?' on-sale':'')+'">';
+    html+='<div class="pb-item-left">';
+    html+='<div class="pb-item-cat">'+part.catLabel+'</div>';
+    html+='<div class="pb-item-name">'+hwItem.ico+' '+hwItem.name+'</div>';
+    html+='<div class="pb-item-model">'+hwItem.model+'</div>';
+    html+='<div style="font-size:11px;color:var(--ink-3);margin-top:4px;line-height:1.5">'+part.note+'</div>';
+    html+='<div class="hw-advice '+advice.level+'" style="margin-top:8px"><div class="hw-advice-icon">'+advice.icon+'</div><div><div class="hw-advice-title">'+advice.title+'</div><div class="hw-advice-desc">'+advice.desc+'</div></div></div>';
+    html+='</div>';
+    html+='<div class="pb-item-price-box">';
+    html+='<div class="pb-item-price">¥'+price.toLocaleString()+'</div>';
+    html+='<div class="pb-item-change '+changeClass+'">'+changeText+'</div>';
+    html+='<div style="font-size:10px;color:var(--ink-3);margin-top:4px">最低 ¥'+lowest.toLocaleString()+'</div>';
+    html+='</div>';
+    html+='</div>';
+  });
+  buildList.innerHTML=html;
+
+  if(totalEl) totalEl.textContent='¥'+totalPrice.toLocaleString();
+  var buyNowEl=document.getElementById('pbBuyNow');
+  var waitEl=document.getElementById('pbWait');
+  var avoidEl=document.getElementById('pbAvoid');
+  var onSaleEl=document.getElementById('pbOnSale');
+  if(buyNowEl) buyNowEl.textContent=buyNow;
+  if(waitEl) waitEl.textContent=wait;
+  if(avoidEl) avoidEl.textContent=avoid;
+  if(onSaleEl) onSaleEl.textContent=onSale;
+
+  // 购买顺序建议
+  if(orderCard){
+    var orderHtml='';
+    var step=1;
+    if(buyItems.length>0){
+      orderHtml+='<div class="pb-step"><div class="pb-step-num">'+step+'</div><div class="pb-step-text"><b style="color:#27ae60">现在就入手：</b>'+buyItems.join('、')+'<br>这些配件现在价格在低位，建议直接下单，别犹豫。</div></div>';
+      step++;
+    }
+    if(onSale>0){
+      orderHtml+='<div class="pb-step"><div class="pb-step-num">'+step+'</div><div class="pb-step-text"><b style="color:#667eea">降价好价优先：</b>带"🔥 降价好价"标注的配件，当前在降价或接近最低价，优先入手。<br>电源、内存、固态这类配件价格波动小，什么时候买都行，可以趁降价一起下单。</div></div>';
+      step++;
+    }
+    if(waitItems.length>0){
+      orderHtml+='<div class="pb-step"><div class="pb-step-num">'+step+'</div><div class="pb-step-text"><b style="color:#f39c12">再等等的：</b>'+waitItems.join('、')+'<br>这些还在降价，建议观望1-2周，等价格更低再入手。可以先买其他配件。</div></div>';
+      step++;
+    }
+    if(avoidItems.length>0){
+      orderHtml+='<div class="pb-step"><div class="pb-step-num">'+step+'</div><div class="pb-step-text"><b style="color:#e74c3c">先别买的：</b>'+avoidItems.join('、')+'<br>这些现在价格偏高或在涨，千万别现在买！等降价了再说。</div></div>';
+      step++;
+    }
+    orderHtml+='<div class="pb-step"><div class="pb-step-num">'+step+'</div><div class="pb-step-text"><b>装机小贴士：</b>建议先买CPU+主板+内存+固态（核心平台），再买显卡和电源。<br>显卡最贵也最容易降价，可以最后入手。电源不急的话等大促更划算。</div></div>';
+    var orderList=document.getElementById('pbOrderList');
+    if(orderList) orderList.innerHTML=orderHtml;
+    orderCard.style.display='block';
+  }
+}
+
+
 /* ========== 切换板块 ========== */
 function toggleSidebar(state){
   const sb=document.getElementById('sidebar');
@@ -6704,6 +6942,7 @@ function switchSection(id){
   if(id==='workshop') wsInitWorkshop();
   if(id==='hotcut') hcInitHotcut();
   if(id==='hwmarket') hwInit();
+  if(id==='pcbuild') pbInit();
   (SECTION_LISTS[id]||[]).forEach(k=>renderList(k));
   /* 初始化分类筛选器箭头状态 */
   setTimeout(function(){ initAllTagFilters(); },50);
