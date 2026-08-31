@@ -2072,6 +2072,23 @@
   .pb-step{display:flex;align-items:flex-start;gap:8px;padding:6px 0}
   .pb-step-num{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .pb-step-text{font-size:12px;line-height:1.6;color:var(--ink-2)}
+
+  /* 兼容性检查样式 */
+  .pb-compat{margin-bottom:12px;padding:14px 16px;border-radius:14px;border:2px solid rgba(39,174,96,.3);background:linear-gradient(135deg,rgba(39,174,96,.06),var(--surface))}
+  .pb-compat.warn{border-color:rgba(231,76,60,.3);background:linear-gradient(135deg,rgba(231,76,60,.06),var(--surface))}
+  .pb-compat-head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink-1);margin-bottom:10px}
+  .pb-compat-head .pb-compat-icon{font-size:20px}
+  .pb-compat-head.pb-ok{color:#27ae60}
+  .pb-compat-head.pb-bad{color:#e74c3c}
+  .pb-compat-list{display:flex;flex-direction:column;gap:6px}
+  .pb-compat-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.5}
+  .pb-compat-row .pb-c-icon{font-size:14px;flex-shrink:0;width:18px;text-align:center}
+  .pb-compat-row.ok .pb-c-text{color:var(--ink-2)}
+  .pb-compat-row.bad .pb-c-text{color:#c0392b}
+  .pb-spec-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+  .pb-spec-tag{font-size:10px;padding:2px 8px;border-radius:6px;background:var(--tag-bg);color:var(--ink-2);font-weight:600;white-space:nowrap}
+  .pb-spec-tag.match{background:rgba(39,174,96,.12);color:#27ae60}
+  .pb-spec-tag.mismatch{background:rgba(231,76,60,.12);color:#e74c3c}
   @media(max-width:768px){
     .pb-item{flex-wrap:wrap}
     .pb-item-price-box{width:100%;text-align:left}
@@ -6787,6 +6804,143 @@ var PB_BUILDS={
   }
 };
 
+/* 配件兼容性数据 */
+var PB_COMPAT={
+  // CPU: 接口、内存类型、TDP
+  c1:{socket:'LGA1851',ramType:'DDR5',tdp:250,platform:'Intel 15代 Arrow Lake'},
+  c5:{socket:'AM5',ramType:'DDR5',tdp:120,platform:'AMD Ryzen 9000系'},
+  c6:{socket:'AM5',ramType:'DDR5',tdp:95,platform:'AMD Ryzen 9000系'},
+  // 主板: 接口、芯片组、内存类型、最高内存频率、PCIe版本、M.2数量
+  m3:{socket:'LGA1851',chipset:'Z890',ramType:'DDR5',ramMax:8400,pcie:'5.0',m2Slots:3,formFactor:'ATX'},
+  m5:{socket:'AM5',chipset:'B850',ramType:'DDR5',ramMax:7200,pcie:'5.0',m2Slots:2,formFactor:'MATX'},
+  // 显卡: PCIe版本、推荐电源功率、供电接口
+  g2:{pcie:'5.0',recPSU:850,powerConn:'12V-2x6',tdp:360},
+  g4:{pcie:'5.0',recPSU:650,powerConn:'12V-2x6',tdp:200},
+  g7:{pcie:'4.0',recPSU:650,powerConn:'8pin×2',tdp:220},
+  // 内存: 类型、频率
+  r2:{type:'DDR5',speed:6000},
+  r3:{type:'DDR5',speed:5600},
+  // 固态: 接口、PCIe版本
+  s1:{interface:'M.2 NVMe',pcie:'4.0'},
+  s2:{interface:'M.2 NVMe',pcie:'4.0'},
+  s4:{interface:'M.2 NVMe',pcie:'4.0'},
+  // 电源: 功率、显卡供电接口
+  p1:{wattage:1200,gpuPower:'12V-2x6'},
+  p3:{wattage:850,gpuPower:'8pin×2+12V-2x6'}
+};
+
+function pbGetSpec(hwId){
+  return PB_COMPAT[hwId]||{};
+}
+
+function pbCheckCompat(buildId){
+  var build=PB_BUILDS[buildId];
+  if(!build) return {allOk:false,checks:[]};
+  var parts={};
+  build.parts.forEach(function(p){parts[p.cat]=p.hwId;});
+  var checks=[];
+  var allOk=true;
+  var cpu=parts.cpu?PB_COMPAT[parts.cpu]:null;
+  var mb=parts.mb?PB_COMPAT[parts.mb]:null;
+  var ram=parts.ram?PB_COMPAT[parts.ram]:null;
+  var gpu=parts.gpu?PB_COMPAT[parts.gpu]:null;
+  var ssd=parts.ssd?PB_COMPAT[parts.ssd]:null;
+  var psu=parts.psu?PB_COMPAT[parts.psu]:null;
+  var cpuItem=parts.cpu?HARDWARE_DATA.find(function(it){return it.id===parts.cpu}):null;
+  var mbItem=parts.mb?HARDWARE_DATA.find(function(it){return it.id===parts.mb}):null;
+  var ramItem=parts.ram?HARDWARE_DATA.find(function(it){return it.id===parts.ram}):null;
+  var gpuItem=parts.gpu?HARDWARE_DATA.find(function(it){return it.id===parts.gpu}):null;
+  var ssdItem=parts.ssd?HARDWARE_DATA.find(function(it){return it.id===parts.ssd}):null;
+  var psuItem=parts.psu?HARDWARE_DATA.find(function(it){return it.id===parts.psu}):null;
+
+  // 1. CPU接口 ↔ 主板接口
+  if(cpu&&mb){
+    var ok=cpu.socket===mb.socket;
+    if(!ok) allOk=false;
+    checks.push({ok:ok,icon:ok?'✅':'❌',text:'CPU接口 '+cpu.socket+' ↔ 主板接口 '+mb.socket+(ok?' → 完美匹配！':(mb.socket==='AM5'?' → 不兼容！AMD的CPU只能配AMD主板（AM5接口）':' → 不兼容！Intel的CPU只能配Intel主板（LGA1851接口）'))});
+  }
+
+  // 2. 内存类型 ↔ 主板内存类型
+  if(ram&&mb){
+    var ok=ram.type===mb.ramType;
+    if(!ok) allOk=false;
+    checks.push({ok:ok,icon:ok?'✅':'❌',text:ram.type+' 内存 ↔ 主板支持 '+mb.ramType+(ok?' → 兼容':' → 不兼容！主板不支持这种内存')});
+  }
+
+  // 3. 内存频率 ↔ 主板最高频率
+  if(ram&&mb){
+    var ok=ram.speed<=mb.ramMax;
+    if(!ok) allOk=false;
+    checks.push({ok:ok,icon:ok?'✅':'⚠️',text:'内存频率 '+ram.speed+'MHz ↔ 主板最高 '+mb.ramMax+'MHz'+(ok?' → 兼容，能跑满':' → 频率超了！装上去会自动降速到主板支持的最高频率')});
+  }
+
+  // 4. 显卡PCIe ↔ 主板PCIe
+  if(gpu&&mb){
+    var ok=parseFloat(gpu.pcie)<=parseFloat(mb.pcie);
+    if(!ok) allOk=false;
+    checks.push({ok:ok,icon:ok?'✅':'⚠️',text:'显卡 PCIe '+gpu.pcie+' x16 ↔ 主板 PCIe '+mb.pcie+' x16'+(ok?' → 兼容，插得上':' → 接口版本不同！能插但会降速，建议换新主板')});
+  }
+
+  // 5. 固态M.2 ↔ 主板M.2插槽
+  if(ssd&&mb){
+    var ok=ssd.interface.indexOf('M.2')>-1 && mb.m2Slots>0;
+    if(!ok) allOk=false;
+    checks.push({ok:ok,icon:ok?'✅':'❌',text:ssd.interface+' 固态 ↔ 主板 '+mb.m2Slots+'个M.2插槽'+(ok?' → 插得上，有位置装':' → 主板没有M.2接口！固态装不上')});
+  }
+
+  // 6. 电源功率 ≥ CPU+GPU+100W(系统其他)
+  if(psu&&cpu&&gpu){
+    var need=cpu.tdp+gpu.tdp+100;
+    var ok=psu.wattage>=need;
+    if(!ok) allOk=false;
+    checks.push({ok:ok,icon:ok?'✅':'❌',text:'电源 '+psu.wattage+'W ↔ 系统需要约 '+need+'W (CPU '+cpu.tdp+'W + GPU '+gpu.tdp+'W + 其他100W)'+(ok?' → 功率够，放心用':' → 功率不够！至少需要'+need+'W的电源，否则会自动关机或烧电源')});
+  }
+
+  // 7. 电源显卡供电接口
+  if(psu&&gpu){
+    var ok=psu.gpuPower.indexOf(gpu.powerConn)>-1 || gpu.powerConn.indexOf('8pin')>-1 && psu.gpuPower.indexOf('8pin')>-1;
+    if(!ok) allOk=false;
+    checks.push({ok:ok,icon:ok?'✅':'⚠️',text:'显卡需 '+gpu.powerConn+' 供电 ↔ 电源提供 '+psu.gpuPower+(ok?' → 接口匹配':' → 接口不匹配！可能需要转接线')});
+  }
+
+  return {allOk:allOk,checks:checks,parts:{cpu:cpuItem,mb:mbItem,ram:ramItem,gpu:gpuItem,ssd:ssdItem,psu:psuItem}};
+}
+
+function pbGetSpecTags(hwId,cat){
+  var s=PB_COMPAT[hwId];
+  if(!s) return [];
+  var tags=[];
+  if(cat==='cpu'){
+    if(s.socket) tags.push({t:'接口 '+s.socket,c:'match'});
+    if(s.ramType) tags.push({t:s.ramType+'内存',c:'match'});
+    if(s.tdp) tags.push({t:'TDP '+s.tdp+'W',c:''});
+    if(s.platform) tags.push({t:s.platform,c:''});
+  }else if(cat==='mb'){
+    if(s.socket) tags.push({t:'接口 '+s.socket,c:'match'});
+    if(s.chipset) tags.push({t:s.chipset+'芯片组',c:''});
+    if(s.ramType) tags.push({t:'支持'+s.ramType,c:'match'});
+    if(s.ramMax) tags.push({t:'最高'+s.ramMax+'MHz',c:''});
+    if(s.pcie) tags.push({t:'PCIe '+s.pcie,c:''});
+    if(s.m2Slots) tags.push({t:s.m2Slots+'个M.2槽',c:''});
+    if(s.formFactor) tags.push({t:s.formFactor,c:''});
+  }else if(cat==='gpu'){
+    if(s.pcie) tags.push({t:'PCIe '+s.pcie+' x16',c:'match'});
+    if(s.tdp) tags.push({t:'TDP '+s.tdp+'W',c:''});
+    if(s.powerConn) tags.push({t:'供电 '+s.powerConn,c:''});
+    if(s.recPSU) tags.push({t:'建议'+s.recPSU+'W电源',c:''});
+  }else if(cat==='ram'){
+    if(s.type) tags.push({t:s.type,c:'match'});
+    if(s.speed) tags.push({t:s.speed+'MHz',c:''});
+  }else if(cat==='ssd'){
+    if(s.interface) tags.push({t:s.interface,c:'match'});
+    if(s.pcie) tags.push({t:'PCIe '+s.pcie,c:''});
+  }else if(cat==='psu'){
+    if(s.wattage) tags.push({t:s.wattage+'W',c:''});
+    if(s.gpuPower) tags.push({t:'显卡供电 '+s.gpuPower,c:'match'});
+  }
+  return tags;
+}
+
 function pbInit(){
   // Ensure price data exists
   if(!HW_PRICE_DATA || Object.keys(HW_PRICE_DATA).length===0){
@@ -6831,7 +6985,17 @@ function pbRenderBuild(){
   var buyNow=0,wait=0,avoid=0,onSale=0;
   var buyItems=[],waitItems=[],avoidItems=[];
 
-  var html='';
+  // 兼容性检查
+  var compat=pbCheckCompat(PB_CURRENT_BUILD);
+  var compatHtml='<div class="pb-compat'+(compat.allOk?'':' warn')+'">';
+  compatHtml+='<div class="pb-compat-head '+(compat.allOk?'pb-ok':'pb-bad')+'"><span class="pb-compat-icon">'+(compat.allOk?'✅':'⚠️')+'</span>'+(compat.allOk?'全部配件兼容，放心购买！':'有兼容性问题，请仔细看下方说明')+'</div>';
+  compatHtml+='<div class="pb-compat-list">';
+  compat.checks.forEach(function(c){
+    compatHtml+='<div class="pb-compat-row '+(c.ok?'ok':'bad')+'"><span class="pb-c-icon">'+c.icon+'</span><span class="pb-c-text">'+c.text+'</span></div>';
+  });
+  compatHtml+='</div></div>';
+
+  var html=compatHtml;
   build.parts.forEach(function(part){
     var hwItem=HARDWARE_DATA.find(function(it){return it.id===part.hwId});
     if(!hwItem) return;
@@ -6856,6 +7020,14 @@ function pbRenderBuild(){
     html+='<div class="pb-item-name">'+hwItem.ico+' '+hwItem.name+'</div>';
     html+='<div class="pb-item-model">'+hwItem.model+'</div>';
     html+='<div style="font-size:11px;color:var(--ink-3);margin-top:4px;line-height:1.5">'+part.note+'</div>';
+    var specTags=pbGetSpecTags(part.hwId,part.cat);
+    if(specTags.length>0){
+      html+='<div class="pb-spec-tags">';
+      specTags.forEach(function(st){
+        html+='<span class="pb-spec-tag '+st.c+'">'+st.t+'</span>';
+      });
+      html+='</div>';
+    }
     html+='<div class="hw-advice '+advice.level+'" style="margin-top:8px"><div class="hw-advice-icon">'+advice.icon+'</div><div><div class="hw-advice-title">'+advice.title+'</div><div class="hw-advice-desc">'+advice.desc+'</div></div></div>';
     html+='</div>';
     html+='<div class="pb-item-price-box">';
