@@ -5187,6 +5187,7 @@ let sbChannel=null;      // 实时订阅通道
 let syncTimer=null;      // 防抖定时器
 let _cloudSaveInProgress=false;  // 云端保存进行中标志
 let isRemoteUpdate=false;// 标记：当前更新是否来自远端（避免循环同步）
+let _cloudFirstSyncDone=false;   // 首次云同步是否完成（防止初始数据覆盖云端）
 
 /* --- 初始化 Supabase 客户端 --- */
 function initSupabase(){
@@ -5275,6 +5276,8 @@ let _cloudSaveCoolDown=false;  // 失败冷却：连续失败后暂停自动同�
 let _lastErrorMsg='';  // 记录上次错误信息，避免重复弹toast
 function saveToCloud(showToast){
   if(!sbClient)return;
+  /* 首次云同步完成前，禁止自动上传，防止初始空数据覆盖云端真实数据 */
+  if(!_cloudFirstSyncDone&&!showToast)return;
   if(showToast) _showSyncSuccessToast=true;
   /* 失败冷却中：只更新最后一次数据到队列，不立即发起请求，避免刷屏 */
   if(_cloudSaveCoolDown&&!showToast){
@@ -9701,20 +9704,31 @@ function saveCloudCfg(){
   }
   CLOUD_CFG={url,anonKey,workspaceId};
   saveCloudConfig(CLOUD_CFG);
+  _cloudFirstSyncDone=false; /* 重置首次同步标志，重新走加载流程 */
   if(initSupabase()){
     alert('云同步配置已保存！正在测试连接…');
     (async()=>{
       const d=await loadFromCloud();
       if(d){
-        DB=d;ensureKeys();saveData();switchSection('data');
+        isRemoteUpdate=true;
+        DB=d;ensureKeys();
+        mergePrompts('aitechPrompts',INITIAL.aitechPrompts);
+        mergePrompts('aiPrompts',INITIAL.aiPrompts);
+        mergePrompts('myPrompts',INITIAL.myPrompts);
+        migrateMyPrompts();
+        saveData();
+        isRemoteUpdate=false;
+        switchSection('data');
         subscribeCloud();
         startPolling();
+        _cloudFirstSyncDone=true;
         alert('✅ 连接成功！数据已从云端加载。\n工作区: '+workspaceId+'\n\n数据会自动同步，无需手动操作。');
       }else if(lastSyncError){
         alert('❌ 连接失败：'+lastSyncError+'\n\n请检查：\n1. 是否已在Supabase运行建表SQL\n2. 是否运行了GRANT权限语句\n3. URL和Key是否正确');
       }else{
         subscribeCloud();
         startPolling();
+        _cloudFirstSyncDone=true;
         alert('✅ 已连接！工作区为空，数据将在保存时自动上传。\n工作区: '+workspaceId+'\n\n数据会自动同步，无需手动操作。');
       }
     })();
@@ -9727,6 +9741,7 @@ function disconnectCloud(){
   if(sbChannel){sbClient.removeChannel(sbChannel);sbChannel=null;}
   sbClient=null;
   CLOUD_CFG={};
+  _cloudFirstSyncDone=false;
   saveCloudConfig({});
   updateSyncBadge('off','本地模式');
   alert('已断开云同步，回到本地模式。');
@@ -9735,6 +9750,8 @@ function disconnectCloud(){
 async function syncNow(){
   if(!sbClient){showToast('请先启用云同步','error');return;}
   updateSyncBadge('syncing','同步中…');
+  /* 手动同步视为首次同步完成，允许上传 */
+  _cloudFirstSyncDone=true;
   const {error}=await sbClient.from('workbench_data')
     .upsert({workspace_id:CLOUD_CFG.workspaceId,data:DB,updated_at:new Date().toISOString()});
   if(error){
@@ -11970,6 +11987,7 @@ function initialRender(sectionId){
     if(!sbClient) return;
     /* 后台异步加载云端数据，加载完后静默更新 */
     (async function(){
+      var syncedOK=false;
       try{
         var cloudData=await Promise.race([
           loadFromCloud(),
@@ -11997,10 +12015,16 @@ function initialRender(sectionId){
           }
           saveData();
           isRemoteUpdate=false;
+          syncedOK=true;
+        }else{
+          /* 云端没有数据或加载失败，标记为已同步（允许本地上传） */
+          syncedOK=true;
         }
       }catch(e){
         console.error('[Sync] 初始加载异常:',e);
+        syncedOK=true; /* 出错也放行，避免一直卡着 */
       }
+      _cloudFirstSyncDone=syncedOK;
       subscribeCloud();
       startPolling();
       /* 1.5秒后解除初始化保护期，让实时订阅正常工作 */
