@@ -77,9 +77,8 @@ def parse_prices(html):
     return prices
 
 def extract_date(html):
-    """提取更新日期"""
-    m = re.search(r'(\d{4}[-年]\d{1,2}[-月]\d{1,2})', html)
-    return m.group(1) if m else ""
+    """提取更新日期（网站无明确日期，使用当天日期）"""
+    return datetime.now().strftime("%Y年%m月%d日")
 
 def extract_next_adjust(html):
     """提取下次调价信息"""

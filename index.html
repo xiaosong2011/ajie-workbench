@@ -8147,8 +8147,19 @@ function renderOilPriceData(box,cityData,cityName,updatedAt){
   if(nextStr){
     html2+='<div style="font-size:11px;color:var(--accent);margin-top:2px">'+escapeHtml(nextStr)+'</div>';
   }
+  /* 判断数据是否过期（超过2天） */
+  var stale=false;
   if(updatedAt){
-    html2+='<div style="text-align:right;font-size:11px;color:var(--ink-3);margin-top:2px">🔄 数据更新: '+escapeHtml(updatedAt)+' · 每5分钟自动刷新</div>';
+    var upTime=new Date(updatedAt.replace(/-/g,'/')).getTime();
+    if(!isNaN(upTime)&&(Date.now()-upTime)>2*24*60*60*1000){
+      stale=true;
+    }
+  }
+  if(updatedAt){
+    var warnColor=stale?'color:#e74c3c;font-weight:600':'color:var(--ink-3)';
+    var warnIcon=stale?'⚠️ 数据已过期(':'';
+    var warnEnd=stale?') · 请点击🔄刷新':'';
+    html2+='<div style="text-align:right;font-size:11px;'+warnColor+';margin-top:2px">🔄 数据更新: '+escapeHtml(updatedAt)+warnIcon+warnEnd+'</div>';
   }else{
     html2+='<div style="text-align:right;font-size:11px;color:var(--ink-3);margin-top:2px">⏱ 每5分钟自动刷新</div>';
   }
