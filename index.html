@@ -4947,10 +4947,18 @@ const INITIAL={
     {title:'宝马3系 2024款',meta:'粤B·88888',desc:'白色 / 购于2024年6月'},
   ],
   carMaintenance:[
-    {title:'首保-换机油机滤',date:'2026年6月15日',amount:'0',note:'5000km 首保免费'},
+    {title:'换机油',date:'2026年',amount:'806',note:'80000公里 / 机油可换2次，已用1次，还可1次'},
   ],
   carFuel:[
-    {date:'2026年8月10日',amount:'350',note:'12800km / 42L 92号'},
+    {date:'早期记录',amount:'800',note:'买车后加油'},
+    {date:'早期记录',amount:'400',note:''},
+    {date:'早期记录',amount:'368',note:''},
+    {date:'2026年5月23日',amount:'432',note:''},
+    {date:'2026年6月16日',amount:'364',note:''},
+    {date:'2026年7月17日',amount:'300',note:''},
+    {date:'2026年8月15日',amount:'120',note:''},
+    {date:'2026年8月16日',amount:'300',note:''},
+    {date:'2026年9月7日',amount:'400',note:'8.54元/升'},
   ],
   carCharging:[
     {date:'2026年8月20日',amount:'45.6',kwh:'35.2',location:'家充桩 · 1.3元/度'},
@@ -5623,6 +5631,14 @@ function migrateMyPrompts(){
   return migrated;
 }
 if(migrateMyPrompts()) _initChanged=true;
+
+/* 迁移：替换加油记录为真实数据（2026-09-03） */
+if(!DB._carFuelMigrated){
+  DB.carFuel=INITIAL.carFuel.slice();
+  DB.carMaintenance=INITIAL.carMaintenance.slice();
+  DB._carFuelMigrated=true;
+  _initChanged=true;
+}
 ensureKeys();
 /* 仅在数据有变化时才保存，避免首屏不必要的性能损耗 */
 if(_initChanged){
