@@ -14,12 +14,18 @@ on:
       - 'scripts/fetch_oil_prices.py'
       - '.github/workflows/update-oil-prices.yml'
 
+# 关键：必须授予 contents 写权限，否则 git push 会静默失败
+permissions:
+  contents: write
+
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -31,6 +37,7 @@ jobs:
 
       - name: 提交并推送更新
         run: |
+          set -e  # 任何步骤失败立即终止
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add oil-data.json
@@ -39,5 +46,6 @@ jobs:
             echo "油价数据无变化，跳过提交"
           else
             git commit -m "自动更新：全国油价数据 $(date '+%Y-%m-%d %H:%M')"
-            git push
+            git push origin main
+            echo "✅ 油价数据已成功推送"
           fi
