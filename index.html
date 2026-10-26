@@ -1324,7 +1324,7 @@
   .ov-nav-btn .ov-nav-name{font-size:11.5px;color:var(--ink-2);font-weight:600}
   .ov-nav-btn .ov-nav-count{font-size:10px;color:var(--ink-3)}
 
-  /* ===== 卓依楠专属励志横幅 ===== */
+  /* ===== 松哥哥专属励志横幅 ===== */
   .zyn-banner{
     position:relative;
     margin-bottom:14px;
@@ -1420,7 +1420,7 @@
     .zyn-quote{font-size:13px}
   }
 
-  /* ===== 卓依楠启动弹窗 ===== */
+  /* ===== 松哥哥启动弹窗 ===== */
   .zyn-modal-mask{
     position:fixed;inset:0;z-index:9999;
     background:radial-gradient(circle at 50% 30%,rgba(102,126,234,.35),rgba(0,0,0,.65));
@@ -2281,12 +2281,12 @@
 </style>
 </head>
 <body>
-<!-- 卓依楠专属启动弹窗 -->
+<!-- 松哥哥专属启动弹窗 -->
 <div class="zyn-modal-mask" id="zynModalMask" onclick="zynCloseModal(event)">
   <div class="zyn-modal" onclick="event.stopPropagation()">
     <div class="zyn-modal-ico" id="zynModalIco">🌸</div>
     <div class="zyn-modal-greeting"><span class="dot"></span><span id="zynModalGreeting">早安</span>，今天也要元气满满哦 ✨</div>
-    <div class="zyn-modal-name"><span class="hi">Hi,</span>卓依楠</div>
+    <div class="zyn-modal-name"><span class="hi">Hi,</span>松哥哥</div>
     <div class="zyn-modal-quote"><span class="qmark">"</span><span id="zynModalQuoteText">你比自己想象中更强大</span></div>
     <div class="zyn-modal-footer">
       <span>— 写给独一无二的你</span>
@@ -8784,7 +8784,7 @@ function removeCarImage(i){
   renderList('carInfo');
 }
 
-/* ========== 卓依楠专属励志横幅 ========== */
+/* ========== 松哥哥专属励志横幅 ========== */
 var ZYN_QUOTES=[
   '你比自己想象中更强大，那些打不倒你的，终将使你更坚强。',
   '慢慢来，比较快。每一步都算数，你已经很棒了。',
@@ -8838,7 +8838,7 @@ function getZynBannerHTML(){
   return ''
   +'<div class="zyn-banner">'
     +'<div class="zyn-greeting"><span class="dot"></span>'+greeting+'，今天也要元气满满哦 ✨</div>'
-    +'<div class="zyn-name"><span class="hi">Hi,</span>卓依楠</div>'
+    +'<div class="zyn-name"><span class="hi">Hi,</span>松哥哥</div>'
     +'<div class="zyn-quote"><span class="qmark">"</span><span id="zynQuoteText">'+quote+'</span></div>'
     +'<div class="zyn-footer">'
       +'<span>— 写给独一无二的你</span>'
@@ -8847,7 +8847,7 @@ function getZynBannerHTML(){
   +'</div>';
 }
 
-/* ===== 卓依楠启动弹窗 ===== */
+/* ===== 松哥哥启动弹窗 ===== */
 function zynGetIcon(){
   var h=new Date().getHours();
   if(h>=5&&h<11) return '🌅';
@@ -8892,7 +8892,7 @@ function zynModalChangeQuote(){
 function renderOverviewHTML(){
   return ''
   +'<div class="page-head"><span class="bow">🏠</span><h1>总览</h1><span class="sub">· 一目了然 · 全局掌握</span></div>'
-  /* 卓依楠专属励志横幅 */
+  /* 松哥哥专属励志横幅 */
   +getZynBannerHTML()
   /* 今日金价 + 今日油价 */
   +'<div class="ov-price-grid">'
@@ -12298,7 +12298,7 @@ function initialRender(sectionId){
   /* 先立即用本地数据渲染首屏，不让用户等 */
   initialRender('overview');
 
-  /* 卓依楠专属启动弹窗：每次打开都弹出 */
+  /* 松哥哥专属启动弹窗：每次打开都弹出 */
   setTimeout(function(){ zynShowModal(); },500);
 
   /* 初始化全局下拉刷新（移动端） */
