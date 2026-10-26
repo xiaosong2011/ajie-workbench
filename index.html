@@ -1420,6 +1420,81 @@
     .zyn-quote{font-size:13px}
   }
 
+  /* ===== 卓依楠启动弹窗 ===== */
+  .zyn-modal-mask{
+    position:fixed;inset:0;z-index:9999;
+    background:radial-gradient(circle at 50% 30%,rgba(102,126,234,.35),rgba(0,0,0,.65));
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    display:none;align-items:center;justify-content:center;padding:24px;
+  }
+  .zyn-modal-mask.show{display:flex;animation:zyn-fadein .5s ease}
+  @keyframes zyn-fadein{from{opacity:0}to{opacity:1}}
+  .zyn-modal{
+    width:100%;max-width:380px;
+    background:linear-gradient(160deg,#667eea 0%,#764ba2 50%,#f093fb 100%);
+    border-radius:28px;
+    padding:34px 28px 28px;
+    color:#fff;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 25px 60px rgba(102,126,234,.5);
+    animation:zyn-pop .55s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes zyn-pop{from{transform:scale(.7) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+  .zyn-modal::before{
+    content:'';position:absolute;top:-50px;right:-40px;
+    width:160px;height:160px;border-radius:50%;
+    background:rgba(255,255,255,.12);
+  }
+  .zyn-modal::after{
+    content:'';position:absolute;bottom:-60px;left:-30px;
+    width:140px;height:140px;border-radius:50%;
+    background:rgba(255,255,255,.08);
+  }
+  .zyn-modal-ico{
+    position:relative;text-align:center;font-size:48px;margin-bottom:14px;
+    animation:zyn-float 3s ease-in-out infinite;
+  }
+  @keyframes zyn-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .zyn-modal-greeting{
+    position:relative;text-align:center;font-size:14px;font-weight:600;opacity:.92;margin-bottom:6px;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .zyn-modal-greeting .dot{
+    width:8px;height:8px;background:#ffd700;border-radius:50%;
+    box-shadow:0 0 10px #ffd700;animation:zyn-pulse 1.8s ease-in-out infinite;
+  }
+  .zyn-modal-name{
+    position:relative;text-align:center;font-size:36px;font-weight:900;
+    letter-spacing:3px;margin-bottom:18px;text-shadow:0 3px 16px rgba(0,0,0,.25);
+  }
+  .zyn-modal-name .hi{font-size:18px;font-weight:600;opacity:.9;margin-right:8px}
+  .zyn-modal-quote{
+    position:relative;font-size:15px;font-weight:500;line-height:1.8;
+    text-align:center;padding:14px 16px;
+    background:rgba(255,255,255,.14);border-radius:16px;
+    backdrop-filter:blur(8px);margin-bottom:8px;
+  }
+  .zyn-modal-quote .qmark{font-size:20px;opacity:.6}
+  .zyn-modal-footer{
+    position:relative;display:flex;align-items:center;justify-content:space-between;
+    margin-top:16px;font-size:11px;opacity:.8;
+  }
+  .zyn-modal-close{
+    width:100%;margin-top:18px;padding:14px;border-radius:16px;
+    border:none;background:rgba(255,255,255,.25);color:#fff;
+    font-size:15px;font-weight:700;cursor:pointer;
+    backdrop-filter:blur(8px);transition:all .2s;
+  }
+  .zyn-modal-close:hover{background:rgba(255,255,255,.38);transform:translateY(-2px)}
+  .zyn-modal-close:active{transform:scale(.97)}
+  .zyn-modal-change{
+    background:rgba(255,255,255,.18);border:none;color:#fff;
+    padding:5px 12px;border-radius:16px;font-size:11px;cursor:pointer;
+    transition:all .2s;
+  }
+  .zyn-modal-change:hover{background:rgba(255,255,255,.3)}
+
   /* ===== 总览价格卡片（金价+油价） ===== */
   .ov-price-grid{
     display:grid;
@@ -2206,6 +2281,21 @@
 </style>
 </head>
 <body>
+<!-- 卓依楠专属启动弹窗 -->
+<div class="zyn-modal-mask" id="zynModalMask" onclick="zynCloseModal(event)">
+  <div class="zyn-modal" onclick="event.stopPropagation()">
+    <div class="zyn-modal-ico" id="zynModalIco">🌸</div>
+    <div class="zyn-modal-greeting"><span class="dot"></span><span id="zynModalGreeting">早安</span>，今天也要元气满满哦 ✨</div>
+    <div class="zyn-modal-name"><span class="hi">Hi,</span>卓依楠</div>
+    <div class="zyn-modal-quote"><span class="qmark">"</span><span id="zynModalQuoteText">你比自己想象中更强大</span></div>
+    <div class="zyn-modal-footer">
+      <span>— 写给独一无二的你</span>
+      <button class="zyn-modal-change" onclick="zynModalChangeQuote()">🔄 换一句</button>
+    </div>
+    <button class="zyn-modal-close" onclick="zynCloseModal()">进入工作台 →</button>
+  </div>
+</div>
+
 <div class="device">
   <!-- 云同步状态徽章 -->
   <div class="sync-badge off" id="syncBadge" onclick="switchSection('data')">
@@ -8757,6 +8847,47 @@ function getZynBannerHTML(){
   +'</div>';
 }
 
+/* ===== 卓依楠启动弹窗 ===== */
+function zynGetIcon(){
+  var h=new Date().getHours();
+  if(h>=5&&h<11) return '🌅';
+  if(h>=11&&h<14) return '☀️';
+  if(h>=14&&h<18) return '🌤️';
+  if(h>=18&&h<23) return '🌙';
+  return '⭐';
+}
+function zynShowModal(){
+  var mask=document.getElementById('zynModalMask');
+  if(!mask) return;
+  var greeting=getZynGreeting();
+  var quote=getZynQuote();
+  var icoEl=document.getElementById('zynModalIco');
+  var gEl=document.getElementById('zynModalGreeting');
+  var qEl=document.getElementById('zynModalQuoteText');
+  if(icoEl) icoEl.textContent=zynGetIcon();
+  if(gEl) gEl.textContent=greeting;
+  if(qEl) qEl.textContent=quote;
+  mask.classList.add('show');
+}
+function zynCloseModal(e){
+  /* 如果是点击遮罩层才关闭；点击弹窗内部不关闭 */
+  if(e&&e.target!==e.currentTarget) return;
+  var mask=document.getElementById('zynModalMask');
+  if(mask) mask.classList.remove('show');
+}
+function zynModalChangeQuote(){
+  _zynQuoteIdx=Math.floor(Math.random()*ZYN_QUOTES.length);
+  var qEl=document.getElementById('zynModalQuoteText');
+  if(qEl){
+    qEl.style.opacity='0';
+    setTimeout(function(){
+      qEl.textContent=getZynQuote();
+      qEl.style.transition='opacity .4s';
+      qEl.style.opacity='1';
+    },250);
+  }
+}
+
 /* ========== 总览仪表盘 ========== */
 function renderOverviewHTML(){
   return ''
@@ -12166,6 +12297,9 @@ function initialRender(sectionId){
 (async function(){
   /* 先立即用本地数据渲染首屏，不让用户等 */
   initialRender('overview');
+
+  /* 卓依楠专属启动弹窗：每次打开都弹出 */
+  setTimeout(function(){ zynShowModal(); },500);
 
   /* 初始化全局下拉刷新（移动端） */
   setTimeout(function(){ initGlobalPullRefresh(); },200);
