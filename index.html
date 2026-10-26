@@ -1324,6 +1324,102 @@
   .ov-nav-btn .ov-nav-name{font-size:11.5px;color:var(--ink-2);font-weight:600}
   .ov-nav-btn .ov-nav-count{font-size:10px;color:var(--ink-3)}
 
+  /* ===== 卓依楠专属励志横幅 ===== */
+  .zyn-banner{
+    position:relative;
+    margin-bottom:14px;
+    border-radius:18px;
+    padding:24px 22px;
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 45%,#f093fb 100%);
+    box-shadow:0 10px 30px rgba(102,126,234,.35);
+    overflow:hidden;
+    color:#fff;
+  }
+  .zyn-banner::before{
+    content:'';
+    position:absolute;
+    top:-30px;right:-30px;
+    width:140px;height:140px;
+    background:rgba(255,255,255,.12);
+    border-radius:50%;
+  }
+  .zyn-banner::after{
+    content:'';
+    position:absolute;
+    bottom:-40px;left:-20px;
+    width:120px;height:120px;
+    background:rgba(255,255,255,.08);
+    border-radius:50%;
+  }
+  .zyn-greeting{
+    position:relative;
+    font-size:13px;
+    font-weight:600;
+    opacity:.92;
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .zyn-greeting .dot{
+    width:8px;height:8px;
+    background:#ffd700;
+    border-radius:50%;
+    box-shadow:0 0 10px #ffd700;
+    animation:zyn-pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes zyn-pulse{
+    0%,100%{transform:scale(1);opacity:1}
+    50%{transform:scale(1.4);opacity:.6}
+  }
+  .zyn-name{
+    position:relative;
+    font-size:30px;
+    font-weight:900;
+    letter-spacing:2px;
+    margin-bottom:10px;
+    text-shadow:0 2px 12px rgba(0,0,0,.2);
+  }
+  .zyn-name .hi{font-size:16px;font-weight:600;opacity:.9;margin-right:6px}
+  .zyn-quote{
+    position:relative;
+    font-size:15px;
+    font-weight:500;
+    line-height:1.7;
+    opacity:.96;
+    padding-left:14px;
+    border-left:3px solid rgba(255,255,255,.55);
+    margin-top:6px;
+    max-width:520px;
+  }
+  .zyn-quote .qmark{font-size:22px;line-height:0;vertical-align:-6px;margin-right:2px;opacity:.7}
+  .zyn-footer{
+    position:relative;
+    margin-top:12px;
+    font-size:11px;
+    opacity:.75;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .zyn-refresh{
+    background:rgba(255,255,255,.2);
+    border:none;
+    color:#fff;
+    padding:4px 12px;
+    border-radius:20px;
+    font-size:11px;
+    cursor:pointer;
+    transition:all .2s;
+    backdrop-filter:blur(4px);
+  }
+  .zyn-refresh:hover{background:rgba(255,255,255,.35)}
+  @media(max-width:480px){
+    .zyn-banner{padding:18px 16px}
+    .zyn-name{font-size:24px;letter-spacing:1px}
+    .zyn-quote{font-size:13px}
+  }
+
   /* ===== 总览价格卡片（金价+油价） ===== */
   .ov-price-grid{
     display:grid;
@@ -8598,10 +8694,75 @@ function removeCarImage(i){
   renderList('carInfo');
 }
 
+/* ========== 卓依楠专属励志横幅 ========== */
+var ZYN_QUOTES=[
+  '你比自己想象中更强大，那些打不倒你的，终将使你更坚强。',
+  '慢慢来，比较快。每一步都算数，你已经很棒了。',
+  '不是因为看到希望才坚持，是因为坚持才看到希望。',
+  '你眼中有光，心中有梦，脚下有路，前方一定有光。',
+  '今天的努力，是明天的底气。你值得拥有所有美好。',
+  '别着急，花开有时。你的花期，也正在到来。',
+  '你是独一无二的存在，不要为任何人活成他们想要的样子。',
+  '愿你眼里有星辰大海，心中有诗和远方，所行皆坦途。',
+  '所有的运气，都是努力埋下的伏笔。你正在变好。',
+  '你不必完美，只需勇敢做自己。这个世界因为有你而不同。',
+  '熬过无人问津的日子，才有诗和远方。你一定可以。',
+  '你的善良里藏着你的运气，你的坚持里藏着你的光芒。',
+  '日子一天天过，你一点点变厉害。未来可期，加油！',
+  '请相信，你正在被这个世界温柔以待，好运正在路上。',
+  '你不需要和任何人比，你只需要比昨天的自己更好一点。'
+];
+var _zynQuoteIdx=null;
+function getZynGreeting(){
+  var h=new Date().getHours();
+  if(h>=5&&h<11) return '早安';
+  if(h>=11&&h<14) return '午安';
+  if(h>=14&&h<18) return '下午好';
+  if(h>=18&&h<23) return '晚上好';
+  return '夜深了';
+}
+function getZynQuote(){
+  /* 按日期选一条，同一天打开都是同一句；手动点刷新才换 */
+  if(_zynQuoteIdx===null){
+    var today=new Date();
+    var seed=today.getFullYear()*10000+(today.getMonth()+1)*100+today.getDate();
+    _zynQuoteIdx=seed%ZYN_QUOTES.length;
+  }
+  return ZYN_QUOTES[_zynQuoteIdx];
+}
+function zynRefreshQuote(){
+  _zynQuoteIdx=Math.floor(Math.random()*ZYN_QUOTES.length);
+  var qEl=document.getElementById('zynQuoteText');
+  if(qEl){
+    qEl.style.opacity='0';
+    setTimeout(function(){
+      qEl.textContent=getZynQuote();
+      qEl.style.transition='opacity .4s';
+      qEl.style.opacity='1';
+    },250);
+  }
+}
+function getZynBannerHTML(){
+  var greeting=getZynGreeting();
+  var quote=getZynQuote();
+  return ''
+  +'<div class="zyn-banner">'
+    +'<div class="zyn-greeting"><span class="dot"></span>'+greeting+'，今天也要元气满满哦 ✨</div>'
+    +'<div class="zyn-name"><span class="hi">Hi,</span>卓依楠</div>'
+    +'<div class="zyn-quote"><span class="qmark">"</span><span id="zynQuoteText">'+quote+'</span></div>'
+    +'<div class="zyn-footer">'
+      +'<span>— 写给独一无二的你</span>'
+      +'<button class="zyn-refresh" onclick="zynRefreshQuote()">🔄 换一句</button>'
+    +'</div>'
+  +'</div>';
+}
+
 /* ========== 总览仪表盘 ========== */
 function renderOverviewHTML(){
   return ''
   +'<div class="page-head"><span class="bow">🏠</span><h1>总览</h1><span class="sub">· 一目了然 · 全局掌握</span></div>'
+  /* 卓依楠专属励志横幅 */
+  +getZynBannerHTML()
   /* 今日金价 + 今日油价 */
   +'<div class="ov-price-grid">'
     +'<div class="card tint-amber ov-price-card" id="ovGoldCard" style="overflow:hidden;margin:0">'
