@@ -8800,7 +8800,30 @@ var ZYN_QUOTES=[
   '你的善良里藏着你的运气，你的坚持里藏着你的光芒。',
   '日子一天天过，你一点点变厉害。未来可期，加油！',
   '请相信，你正在被这个世界温柔以待，好运正在路上。',
-  '你不需要和任何人比，你只需要比昨天的自己更好一点。'
+  '你不需要和任何人比，你只需要比昨天的自己更好一点。',
+  '星光不问赶路人，时光不负有心人，松哥哥加油！',
+  '今天也要好好吃饭、好好睡觉、好好爱自己哦。',
+  '生活不会亏待每一个认真努力的人，你正在被奖励。',
+  '别人看到的是一夜成名，只有你知道那是日复一日。',
+  '把日子过成自己喜欢的样子，就是最大的成功。',
+  '你走过的每一步，都在悄悄把你带向更好的地方。',
+  '遇到难题别慌，你解决问题的能力比想象中强多了。',
+  '允许自己慢一点，但不要允许自己停下来。',
+  '所有的难熬，都是在为你积攒反弹的力量。',
+  '你已经做得很好了，别忘了给自己一个大大的拥抱。',
+  '愿你所求皆如愿，所行化坦途，所遇皆温柔。',
+  '努力的人运气都不会差，而你就是那个人。',
+  '今天的心情由你决定，选一个开心的版本吧。',
+  '不要用别人的尺子，来量自己的人生。',
+  '种一棵树最好的时间是十年前，其次是现在。',
+  '你现在的坚持，是未来某天感谢自己的理由。',
+  '生活总会奖励那些不放弃、不抱怨、往前走的人。',
+  '别怕起点低，怕的是你从来不敢开始。',
+  '你身上有别人学不来的东西，那就是你自己。',
+  '把复杂的事拆成小事，你就会发现没那么难。',
+  '今天也是值得被认真对待的一天，冲鸭！',
+  '你的努力可能暂时没人看见，但时间一定看得见。',
+  '心若向阳，何惧忧伤。你一直都是发光的那一个。'
 ];
 var _zynQuoteIdx=null;
 function getZynGreeting(){
@@ -8811,17 +8834,33 @@ function getZynGreeting(){
   if(h>=18&&h<23) return '晚上好';
   return '夜深了';
 }
-function getZynQuote(){
-  /* 按日期选一条，同一天打开都是同一句；手动点刷新才换 */
-  if(_zynQuoteIdx===null){
-    var today=new Date();
-    var seed=today.getFullYear()*10000+(today.getMonth()+1)*100+today.getDate();
-    _zynQuoteIdx=seed%ZYN_QUOTES.length;
+function zynPickQuote(){
+  /* 每次打开随机一句，并避开最近用过的几句，保证"次次都新鲜" */
+  var hist=[];
+  try{
+    var raw=localStorage.getItem('zyn_quote_hist');
+    if(raw) hist=JSON.parse(raw);
+    if(!Array.isArray(hist)) hist=[];
+  }catch(e){ hist=[]; }
+  var total=ZYN_QUOTES.length;
+  var cands=[];
+  for(var i=0;i<total;i++){
+    if(hist.indexOf(i)<0) cands.push(i);
   }
+  if(!cands.length){ cands=[]; for(var j=0;j<total;j++) cands.push(j); hist=[]; }
+  var idx=cands[Math.floor(Math.random()*cands.length)];
+  hist.push(idx);
+  if(hist.length>Math.min(6,total-1)) hist=hist.slice(-Math.min(6,total-1));
+  _zynQuoteIdx=idx;
+  try{ localStorage.setItem('zyn_quote_hist',JSON.stringify(hist)); }catch(e){}
+  return idx;
+}
+function getZynQuote(){
+  if(_zynQuoteIdx===null) zynPickQuote();
   return ZYN_QUOTES[_zynQuoteIdx];
 }
 function zynRefreshQuote(){
-  _zynQuoteIdx=Math.floor(Math.random()*ZYN_QUOTES.length);
+  zynPickQuote();
   var qEl=document.getElementById('zynQuoteText');
   if(qEl){
     qEl.style.opacity='0';
@@ -8876,7 +8915,7 @@ function zynCloseModal(e){
   if(mask) mask.classList.remove('show');
 }
 function zynModalChangeQuote(){
-  _zynQuoteIdx=Math.floor(Math.random()*ZYN_QUOTES.length);
+  zynPickQuote();
   var qEl=document.getElementById('zynModalQuoteText');
   if(qEl){
     qEl.style.opacity='0';
