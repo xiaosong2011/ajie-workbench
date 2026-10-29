@@ -3654,7 +3654,7 @@ car:`
       </span>
     </div>
     <div id="oilPriceContent" style="padding:4px 0">
-      <div style="text-align:center;padding:12px 0;color:var(--ink-3);font-size:13px">正在获取油价信息…</div>
+      <div style="text-align:center;padding:12px 0;color:var(--ink-3);font-size:13px">🔄 正在获取最新油价…</div>
     </div>
     <div id="evPriceContent" style="padding:12px 16px;display:none">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -8303,11 +8303,11 @@ function renderOilPrice(){
   var cityInfo=OIL_CITIES.find(function(c){return c.slug===_oilCitySlug;});
   var cityName=cityInfo?cityInfo.name:'湖南';
 
-  box.innerHTML='<div style="text-align:center;padding:12px 0;color:var(--ink-3);font-size:13px">正在获取'+escapeHtml(cityName)+'油价…</div>';
+  box.innerHTML='<div style="text-align:center;padding:12px 0;color:var(--ink-3);font-size:13px"><span class="spinner" style="display:inline-block;width:14px;height:14px;border:2px solid var(--ink-3);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px"></span>正在获取'+escapeHtml(cityName)+'最新油价…</div>';
 
   /* 读取本地 oil-data.json（由 GitHub Actions 每小时更新） */
   var jsonUrl='oil-data.json?t='+Date.now();
-  fetch(jsonUrl)
+  fetch(jsonUrl,{cache:'no-store'})
     .then(function(r){return r.json();})
     .then(function(data){
       var cityData=data.cities&&data.cities[_oilCitySlug];
@@ -8361,9 +8361,9 @@ function renderOilPriceData(box,cityData,cityName,updatedAt){
     var warnColor=stale?'color:#e74c3c;font-weight:600':'color:var(--ink-3)';
     var warnIcon=stale?'⚠️ 数据已过期(':'';
     var warnEnd=stale?') · 请点击🔄刷新':'';
-    html2+='<div style="text-align:right;font-size:11px;'+warnColor+';margin-top:2px">🔄 数据更新: '+escapeHtml(updatedAt)+warnIcon+warnEnd+'</div>';
+    html2+='<div style="text-align:right;font-size:11px;'+warnColor+';margin-top:2px">🕐 数据更新于: '+escapeHtml(updatedAt)+warnIcon+warnEnd+'</div>';
   }else{
-    html2+='<div style="text-align:right;font-size:11px;color:var(--ink-3);margin-top:2px">⏱ 每5分钟自动刷新</div>';
+    html2+='<div style="text-align:right;font-size:11px;color:var(--ink-3);margin-top:2px">🔄 正在获取最新油价…</div>';
   }
   box.innerHTML=html2;
 }
@@ -8941,7 +8941,7 @@ function renderOverviewHTML(){
         +'<button onclick="refreshGoldPrice()" class="ov-refresh-btn" title="刷新">🔄</button>'
       +'</div>'
       +'<div id="ovGoldContent" class="ov-price-content">'
-        +'<div class="ov-price-loading">正在获取金价…</div>'
+        +'<div class="ov-price-loading">🔄 正在获取最新金价…</div>'
       +'</div>'
     +'</div>'
     +'<div class="card tint-amber ov-price-card" id="ovOilCard" style="overflow:hidden;margin:0">'
@@ -8953,7 +8953,7 @@ function renderOverviewHTML(){
         +'</span>'
       +'</div>'
       +'<div id="ovOilContent" class="ov-price-content">'
-        +'<div class="ov-price-loading">正在获取油价…</div>'
+        +'<div class="ov-price-loading">🔄 正在获取最新油价…</div>'
       +'</div>'
     +'</div>'
   +'</div>'
@@ -9080,11 +9080,11 @@ var _goldRefreshTimer=null;
 function refreshGoldPrice(){
   var box=document.getElementById('ovGoldContent');
   if(!box) return;
-  box.innerHTML='<div style="text-align:center;padding:12px 0;color:var(--ink-3);font-size:13px">正在获取金价…</div>';
+  box.innerHTML='<div style="text-align:center;padding:12px 0;color:var(--ink-3);font-size:13px">🔄 正在获取最新金价…</div>';
 
   /* 尝试从本地 gold-data.json 读取（由 GitHub Actions 每小时更新） */
   var jsonUrl='gold-data.json?t='+Date.now();
-  fetch(jsonUrl)
+  fetch(jsonUrl,{cache:'no-store'})
     .then(function(r){
       if(!r.ok) throw new Error('no file');
       return r.json();
@@ -9146,8 +9146,8 @@ function renderGoldPriceData(box,data){
       +'<span>📉 最低 '+escapeHtml(low)+'</span>'
     +'</div>'
     +'<div class="ov-gold-foot">'
-      +(dateStr?'<span>📅 '+escapeHtml(dateStr)+'</span>':'')
-      +'<span>🔄 每5分钟自动刷新</span>'
+      +(dateStr?'<span>🕐 '+escapeHtml(dateStr)+'</span>':'')
+      +'<span>🔄 自动刷新中</span>'
     +'</div>'
     +(source?'<div class="ov-gold-source">数据来源：'+escapeHtml(source)+'</div>':'');
   box.innerHTML=html;
@@ -9177,11 +9177,11 @@ function renderOvOilPrice(){
   var cityInfo=OIL_CITIES.find(function(c){return c.slug===_oilCitySlug;});
   var cityName=cityInfo?cityInfo.name:'湖南';
 
-  box.innerHTML='<div style="text-align:center;padding:12px 0;color:var(--ink-3);font-size:13px">正在获取'+escapeHtml(cityName)+'油价…</div>';
+  box.innerHTML='<div style="text-align:center;padding:12px 0;color:var(--ink-3);font-size:13px"><span class="spinner" style="display:inline-block;width:14px;height:14px;border:2px solid var(--ink-3);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px"></span>正在获取'+escapeHtml(cityName)+'最新油价…</div>';
 
   /* 读取本地 oil-data.json（由 GitHub Actions 每小时更新） */
   var jsonUrl='oil-data.json?t='+Date.now();
-  fetch(jsonUrl)
+  fetch(jsonUrl,{cache:'no-store'})
     .then(function(r){return r.json();})
     .then(function(data){
       var cityData=data.cities&&data.cities[_oilCitySlug];
@@ -9220,9 +9220,16 @@ function renderOvOilPriceData(box,cityData,cityName,updatedAt){
       '</div>';
   });
   html+='</div>';
+  /* 更新时间显示 */
+  var updateText='';
+  if(updatedAt){
+    updateText='🕐 更新于 '+escapeHtml(updatedAt);
+  }else{
+    updateText='🕐 数据更新中…';
+  }
   html+='<div class="ov-oil-foot">'+
     '<span>📍 '+escapeHtml(cityName)+'</span>'+
-    '<span>🔄 每5分钟刷新</span>'+
+    '<span style="font-size:11px">'+updateText+'</span>'+
     '</div>';
   box.innerHTML=html;
 }
