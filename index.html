@@ -2427,6 +2427,7 @@ const NAV=[
   {id:'weather',  ico:'☀️', name:'天气',                group:'核心日常'},
   {id:'workshop', ico:'🎬', name:'AI漫剧工坊',          group:'核心日常'},
   {id:'hotcut',   ico:'🔥', name:'爆款剪辑',            group:'核心日常'},
+  {id:'food',     ico:'🍜', name:'美食探店',            group:'核心日常'},
   {id:'salary',   ico:'💰', name:'工资储蓄',            group:'财务理财'},
   {id:'ledger',   ico:'📊', name:'小账本',              group:'财务理财'},
   {id:'repay',    ico:'🏦', name:'还款提醒',            group:'财务理财'},
@@ -2537,6 +2538,26 @@ const LISTS={
     {key:'title',label:'作品名',type:'input',placeholder:'如：进击的巨人',as:'title'},
     {key:'meta',label:'类型/年份',type:'input',placeholder:'如：热血 / 2013',as:'meta'},
     {key:'desc',label:'推荐理由',type:'textarea',placeholder:'一句话评价',as:'desc'}
+  ]},
+  /* --- 美食探店 --- */
+  foodShops:{title:'探店记录',icon:'🏪',dbKey:'foodShops',fields:[
+    {key:'title',label:'店名',type:'input',placeholder:'如：老王烧烤',as:'title'},
+    {key:'meta',label:'位置',type:'input',placeholder:'如：长沙市天心区XX路',as:'meta'},
+    {key:'field',label:'人均消费',type:'input',placeholder:'如：80元',as:'field'},
+    {key:'tag',label:'评分',type:'select',options:['⭐⭐⭐⭐⭐ 极力推荐','⭐⭐⭐⭐ 值得一去','⭐⭐⭐ 还行','⭐⭐ 一般','⭐ 不推荐'],placeholder:'选择评分',as:'tag'},
+    {key:'desc',label:'特色菜 / 评价',type:'textarea',placeholder:'必点菜：烤五花肉、烤茄子。环境一般但味道绝了！',as:'desc'}
+  ]},
+  foodDishes:{title:'必吃菜品',icon:'🍽️',dbKey:'foodDishes',fields:[
+    {key:'title',label:'菜名',type:'input',placeholder:'如：招牌烤鱼',as:'title'},
+    {key:'meta',label:'所属店铺',type:'input',placeholder:'如：老王烧烤',as:'meta'},
+    {key:'tag',label:'推荐度',type:'select',options:['🔥 必点','👍 推荐','😋 不错','🤔 一般'],placeholder:'选择推荐度',as:'tag'},
+    {key:'desc',label:'口味 / 评价',type:'textarea',placeholder:'外焦里嫩，麻辣鲜香，每次去都点两份',as:'desc'}
+  ]},
+  foodWishlist:{title:'种草清单',icon:'🌱',dbKey:'foodWishlist',fields:[
+    {key:'title',label:'店名',type:'input',placeholder:'如：某网红火锅店',as:'title'},
+    {key:'meta',label:'位置',type:'input',placeholder:'如：五一广场附近',as:'meta'},
+    {key:'tag',label:'种草来源',type:'select',options:['朋友推荐','小红书','抖音','大众点评','路过看到'],placeholder:'选择来源',as:'tag'},
+    {key:'desc',label:'种草原因',type:'textarea',placeholder:'听说毛肚很脆，鸭血很新鲜，排队要2小时',as:'desc'}
   ]},
   /* --- 工资储蓄规划 --- */
   salaryIncome:{title:'每月收入记录',icon:'💸',dbKey:'salaryIncome',fields:[
@@ -2662,6 +2683,7 @@ const SECTION_LISTS={
   myprompts:['myPrompts'],
   weather:['weatherNotes'],
   anime:['animeTracking','animeWatchlist','animeFav'],
+  food:['foodShops','foodDishes','foodWishlist'],
   salary:['salaryIncome','salaryGoal','salaryAlloc'],
   repay:['repayList','repayLog'],
   music:['ktvSongs','musicPlaylist','musicNew'],
@@ -4595,6 +4617,26 @@ anime:`
   </div>
 `,
 
+food:`
+  <div class="page-head"><span class="bow">🍜</span><h1>美食探店</h1><span class="sub">· 吃货地图 · 好吃不踩雷</span></div>
+  <div class="card tint-orange">
+    <div class="card-h">💡 探店原则</div>
+    <div class="txt">好吃的店要记下来，不好吃的也要避坑。记录店名、位置、特色菜，下次想吃直接翻出来。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">🏪 探店记录 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('foodShops')">+ 记一家</button></div>
+    <div id="lc_foodShops"></div>
+  </div>
+  <div class="card tint-rose">
+    <div class="card-h">🍽️ 必吃菜品 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('foodDishes')">+ 加一道</button></div>
+    <div id="lc_foodDishes"></div>
+  </div>
+  <div class="card tint-amber">
+    <div class="card-h">🌱 种草清单 <button class="btn btn-accent" style="margin-left:auto" onclick="openListModal('foodWishlist')">+ 种个草</button></div>
+    <div id="lc_foodWishlist"></div>
+  </div>
+`,
+
 salary:`
   <div class="page-head"><span class="bow">💰</span><h1>工资储蓄规划</h1><span class="sub">· 收入有数 · 储蓄有目标</span></div>
   <div class="card tint-mint">
@@ -5165,6 +5207,18 @@ const INITIAL={
   animeFav:[
     {title:'进击的巨人',meta:'热血 / 2013',desc:'神作，结尾有争议但整体震撼。'},
     {title:'钢之炼金术师 FA',meta:'冒险 / 2009',desc:'剧情完整，节奏完美，零烂尾。'},
+  ],
+  /* --- 美食探店 --- */
+  foodShops:[
+    {title:'老王烧烤',meta:'长沙市天心区坡子街',field:'人均 85元',tag:'⭐⭐⭐⭐⭐ 极力推荐',desc:'必点：烤五花肉、烤茄子、烤牛油。环境一般但味道绝了，夜宵首选！'},
+    {title:'一盏灯',meta:'长沙市芙蓉区五一大道',field:'人均 120元',tag:'⭐⭐⭐⭐ 值得一去',desc:'湘菜代表，鸭掌筋和酸萝卜炒肚丝必点，辣得过瘾。'},
+  ],
+  foodDishes:[
+    {title:'烤五花肉',meta:'老王烧烤',tag:'🔥 必点',desc:'外焦里嫩，肥瘦相间，撒上孜然辣椒，一口下去满嘴留香。'},
+    {title:'鸭掌筋',meta:'一盏灯',tag:'🔥 必点',desc:'Q弹有嚼劲，酸辣开胃，越嚼越香。'},
+  ],
+  foodWishlist:[
+    {title:'某网红火锅店',meta:'五一广场附近',tag:'朋友推荐',desc:'听说毛肚很脆，鸭血很新鲜，就是排队要2小时，下次早点去。'},
   ],
   /* --- 工资储蓄规划 --- */
   salaryIncome:[
@@ -8998,6 +9052,7 @@ function renderOverview(){
       {id:'inspo',ico:'⭐',name:'灵感收藏',count:(DB.inspos||[]).length},
       {id:'weather',ico:'☀️',name:'天气',count:(DB.weatherNotes||[]).length},
       {id:'workshop',ico:'🎬',name:'AI漫剧工坊',count:0},
+      {id:'food',ico:'🍜',name:'美食探店',count:countSection('food')},
     ]},
     {name:'财务理财',color:'#f59e0b',sections:[
       {id:'salary',ico:'💰',name:'工资储蓄',count:countSection('salary')},
