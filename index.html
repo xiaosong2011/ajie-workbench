@@ -2422,12 +2422,12 @@
 /* ========== 导航数据 ========== */
 const NAV=[
   {id:'overview', ico:'🏠', name:'总览', group:'总览'},
-  {id:'daily',    ico:'🎨', name:'风格图鉴',            group:'核心日常'},
-  {id:'inspo',    ico:'⭐', name:'灵感收藏',            group:'核心日常'},
   {id:'weather',  ico:'☀️', name:'天气',                group:'核心日常'},
-  {id:'workshop', ico:'🎬', name:'AI漫剧工坊',          group:'核心日常'},
-  {id:'hotcut',   ico:'🔥', name:'爆款剪辑',            group:'核心日常'},
   {id:'food',     ico:'🍜', name:'美食探店',            group:'核心日常'},
+  {id:'daily',    ico:'🎨', name:'风格图鉴',            group:'内容创作'},
+  {id:'inspo',    ico:'⭐', name:'灵感收藏',            group:'内容创作'},
+  {id:'workshop', ico:'🎬', name:'AI漫剧工坊',          group:'内容创作'},
+  {id:'hotcut',   ico:'🔥', name:'爆款剪辑',            group:'内容创作'},
   {id:'salary',   ico:'💰', name:'工资储蓄',            group:'财务理财'},
   {id:'ledger',   ico:'📊', name:'小账本',              group:'财务理财'},
   {id:'repay',    ico:'🏦', name:'还款提醒',            group:'财务理财'},
@@ -9048,11 +9048,14 @@ function renderOverview(){
   /* 统计所有模块数据 */
   var groups=[
     {name:'核心日常',color:'#3b82f6',sections:[
-      {id:'daily',ico:'📅',name:'每日计划',count:countTodos()},
-      {id:'inspo',ico:'⭐',name:'灵感收藏',count:(DB.inspos||[]).length},
       {id:'weather',ico:'☀️',name:'天气',count:(DB.weatherNotes||[]).length},
-      {id:'workshop',ico:'🎬',name:'AI漫剧工坊',count:0},
       {id:'food',ico:'🍜',name:'美食探店',count:countSection('food')},
+    ]},
+    {name:'内容创作',color:'#ec4899',sections:[
+      {id:'daily',ico:'🎨',name:'风格图鉴',count:0},
+      {id:'inspo',ico:'⭐',name:'灵感收藏',count:(DB.inspos||[]).length},
+      {id:'workshop',ico:'🎬',name:'AI漫剧工坊',count:0},
+      {id:'hotcut',ico:'🔥',name:'爆款剪辑',count:0},
     ]},
     {name:'财务理财',color:'#f59e0b',sections:[
       {id:'salary',ico:'💰',name:'工资储蓄',count:countSection('salary')},
