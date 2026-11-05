@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-05 01:21:38",
+  "updatedAt": "2026-11-05 09:09:10",
   "cities": {
     "hunan": {
       "name": "长沙(湖南)",
@@ -555,26 +555,10 @@
     },
     "gansu": {
       "name": "兰州(甘肃)",
-      "prices": [
-        {
-          "name": "92号汽油",
-          "price": "8.89"
-        },
-        {
-          "name": "95号汽油",
-          "price": "9.49"
-        },
-        {
-          "name": "98号汽油",
-          "price": "10.06"
-        },
-        {
-          "name": "0号柴油",
-          "price": "8.48"
-        }
-      ],
-      "date": "2026年11月05日",
-      "nextAdjust": "下次油价11月12日24时调整"
+      "prices": [],
+      "date": "",
+      "nextAdjust": "",
+      "error": "[Errno 104] Connection reset by peer"
     },
     "qinghai": {
       "name": "西宁(青海)",
