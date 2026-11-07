@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-07 00:41:59",
+  "updatedAt": "2026-11-07 06:53:06",
   "cities": {
     "hunan": {
       "name": "长沙(湖南)",
@@ -371,26 +371,10 @@
     },
     "guizhou": {
       "name": "贵阳(贵州)",
-      "prices": [
-        {
-          "name": "92号汽油",
-          "price": "9.02"
-        },
-        {
-          "name": "95号汽油",
-          "price": "9.53"
-        },
-        {
-          "name": "98号汽油",
-          "price": "10.53"
-        },
-        {
-          "name": "0号柴油",
-          "price": "8.69"
-        }
-      ],
-      "date": "2026年11月07日",
-      "nextAdjust": "下次油价11月12日24时调整"
+      "prices": [],
+      "date": "",
+      "nextAdjust": "",
+      "error": "timed out"
     },
     "anhui": {
       "name": "合肥(安徽)",
