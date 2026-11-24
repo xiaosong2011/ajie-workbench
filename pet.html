@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>宠物店经营测算 · 员工录入 / 老板总览</title>
+<title>阿杰宠物店 · 完整经营工作台</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -105,6 +105,24 @@
   @keyframes blink{50%{opacity:.25}}
   @media(max-width:900px){.header-pets{display:none}.header-actions{margin-left:auto}.paw-decor{display:none}}
   @media(max-width:640px){.kpi .v{font-size:20px}.big-num{font-size:32px}.logo{width:46px;height:46px}.logo svg{width:38px;height:38px}.hero-pets{display:none}.header-card{padding:11px 12px}}
+  .biz-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .biz-item{padding:15px;border:1px solid var(--line);border-radius:15px;background:#fff;transition:all .2s}
+  .biz-item:hover{border-color:#b8ddd6;box-shadow:var(--shadow);transform:translateY(-2px)}
+  .toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .field{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--ink-2)}
+  .field>span{font-weight:600}.field .cell{border:1px solid var(--line);background:#fff;text-align:left;padding:9px 10px;min-height:38px}
+  textarea.cell{resize:vertical;min-height:70px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .form-grid .wide{grid-column:1/-1}.subtle{background:#f6faf9;border:1px solid var(--line);border-radius:13px;padding:12px}
+  .money{font-variant-numeric:tabular-nums;font-weight:750}.positive{color:var(--good)}.negative{color:var(--bad)}
+  .status{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;background:#eef5f4;color:var(--ink-2);font-size:11px;font-weight:700;white-space:nowrap}
+  .status.warn{background:#fff4df;color:#a56a05}.status.ok{background:var(--good-soft);color:var(--good)}.status.bad{background:var(--bad-soft);color:var(--bad)}
+  .search{max-width:250px;min-width:180px;border:1px solid var(--line)!important;background:#fff!important;text-align:left!important;padding:9px 12px!important}
+  .btn.sm{padding:6px 10px;font-size:12px;border-radius:9px}.btn.danger{color:var(--bad);border-color:#f1cccc}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  .empty{padding:30px 15px;text-align:center;color:var(--ink-3);font-size:13px}.link{color:var(--brand1);cursor:pointer;font-weight:650;background:none;border:0;padding:0}
+  .timeline{border-left:2px solid #d7eae5;margin-left:7px;padding-left:17px}.timeline>div{position:relative;margin-bottom:13px}.timeline>div::before{content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:var(--brand1);left:-22px;top:5px}
+  .biz-modal{max-height:88vh;overflow:auto;max-width:680px}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#18343c;color:#fff;padding:11px 18px;border-radius:12px;z-index:100;box-shadow:var(--shadow-lg);animation:fadeUp .25s;font-size:13px;max-width:90vw}
+  .mobile-list{display:none}.desktop-list{display:block}.metric-line{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13px}
+  @media(max-width:640px){.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.desktop-list{display:none}.mobile-list{display:grid;gap:10px}.toolbar .search{max-width:none;width:100%}.biz-grid{grid-template-columns:1fr}.modal-mask{padding:10px}.biz-modal{max-height:94vh}.tab{padding:9px 13px;font-size:13px}}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.anim{opacity:1}}
 </style>
 </head>
@@ -154,8 +172,8 @@
     <div class="flex items-center gap-3 flex-wrap">
       <div class="logo" aria-hidden="true"><svg viewBox="0 0 120 120"><use href="#pet-dog"/></svg></div>
       <div class="min-w-0">
-        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight grad-text">宠物店经营测算</h1>
-        <p class="text-xs" style="color:var(--ink-3)" id="roleLine">员工录入 · 打开即填，自动同步</p>
+        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight grad-text">阿杰宠物店 · 经营工作台</h1>
+        <p class="text-xs" style="color:var(--ink-3)" id="roleLine">员工工作台 · 客户、预约、开单一站式处理</p>
       </div>
       <div class="header-pets" aria-hidden="true">
         <div class="pet-mini"><svg viewBox="0 0 120 120"><use href="#pet-dog"/></svg></div>
@@ -171,6 +189,13 @@
   <nav class="flex gap-2 mb-5 overflow-auto pb-1 anim" id="tabs" style="animation-delay:.05s"></nav>
 
   <section id="sec-overview" class="hidden"><div id="ovBody"></div></section>
+  <section id="sec-today" class="hidden"><div id="todayBody"></div></section>
+  <section id="sec-customers" class="hidden"><div id="customersBody"></div></section>
+  <section id="sec-appointments" class="hidden"><div id="appointmentsBody"></div></section>
+  <section id="sec-pos" class="hidden"><div id="posBody"></div></section>
+  <section id="sec-members" class="hidden"><div id="membersBody"></div></section>
+  <section id="sec-inventory" class="hidden"><div id="inventoryBody"></div></section>
+  <section id="sec-commissions" class="hidden"><div id="commissionsBody"></div></section>
 
   <section id="sec-flow" class="hidden">
     <div class="card p-4 sm:p-5 anim">
@@ -183,7 +208,7 @@
         <thead><tr>
           <th style="min-width:118px">日期</th><th class="boss" style="min-width:72px">月份</th>
           <th class="l" style="min-width:100px">客户/宠物</th><th class="l" style="min-width:96px">服务项目</th>
-          <th style="min-width:80px">洗护收入</th><th style="min-width:80px">用品收入</th>
+          <th style="min-width:80px">洗护收入</th><th style="min-width:80px">寄养收入</th><th style="min-width:80px">用品收入</th>
           <th style="min-width:86px">收款方式</th><th class="boss" style="min-width:80px">耗材支出</th>
           <th style="min-width:82px">记录人</th><th class="l" style="min-width:90px">备注</th>
           <th class="boss" style="min-width:80px">当日合计</th><th style="width:42px"></th>
@@ -196,10 +221,10 @@
   <section id="sec-ledger" class="hidden">
     <div class="card p-4 sm:p-5 anim">
       <div class="font-bold text-base mb-1">📅 月度经营台账</div>
-      <div class="note mb-3">黄底格填寄养营收 / 耗材；<span style="color:var(--auto)">蓝字</span> 列自动算；洗护、用品营收自动取自「每日流水」。</div>
+      <div class="note mb-3">洗护、寄养、用品营收自动取自流水；黄底格只补录未在订单中记录的寄养营收和成本，避免重复。</div>
       <div class="tbl-scroll" style="max-height:75vh"><table>
         <thead><tr>
-          <th style="min-width:78px">月份</th><th>洗护营收</th><th>寄养营收</th><th>用品营收</th><th class="calc">总营收</th>
+          <th style="min-width:78px">月份</th><th>洗护营收</th><th>寄养营收</th><th>寄养补录</th><th>用品营收</th><th class="calc">总营收</th>
           <th>洗护耗材</th><th>寄养耗材</th><th>其他直接成本</th><th class="calc">直接成本</th>
           <th class="calc">毛利</th><th class="calc">毛利率</th><th class="calc">固定成本</th><th class="calc">净利润</th>
           <th class="calc">保本营收</th><th class="calc">保本差额</th><th class="calc">盈亏</th>
@@ -262,7 +287,7 @@
         </div>
         <div class="card p-4 sm:p-5 anim" style="animation-delay:.2s">
           <div class="font-bold mb-2">🔒 老板密码</div>
-          <div class="note mb-2">员工打开只能填流水；输入密码才能看总览、台账、毛利等经营数据。</div>
+          <div class="note mb-2">员工可处理客户、预约和收银；输入密码才能查看会员总账、库存、提成与利润。</div>
           <div class="flex gap-2 items-center flex-wrap">
             <input id="pwdChange" class="cell" style="max-width:160px;border:1px solid var(--line);background:#fff" placeholder="输入新密码">
             <button class="btn" onclick="changePwd()">修改密码</button>
@@ -270,9 +295,10 @@
         </div>
       </div>
     </div>
+    <div class="card p-4 sm:p-5 mt-4 anim"><div class="font-bold mb-2">数据备份与导出</div><div class="note mb-3">完整 JSON 用于备份全部业务数据；CSV 采用 UTF-8 BOM，可直接用 Excel 打开。</div><div class="flex gap-2 flex-wrap"><button class="btn btn-accent" onclick="exportBackup()">完整 JSON 备份</button><button class="btn" onclick="exportCSV('orders')">订单 CSV</button><button class="btn" onclick="exportCSV('flows')">流水 CSV</button><button class="btn" onclick="exportCSV('members')">会员账务 CSV</button><button class="btn" onclick="exportCSV('inventory')">库存 CSV</button><button class="btn" onclick="exportCSV('commissions')">提成 CSV</button></div><div class="note mt-4" style="color:var(--bad)">安全提示：老板密码目前仅用于网页界面隔离，并非数据库权限。正式收集大量客户敏感信息前，应升级 Supabase Auth 与行级安全策略。</div></div>
   </section>
 
-  <footer class="text-center mt-10 note">🐾 宠物店经营测算 · 数据云端同步 · 员工免密录入，老板密码查看</footer>
+  <footer class="text-center mt-10 note"><svg aria-hidden="true" viewBox="0 0 64 64" style="width:15px;height:15px;vertical-align:-3px;margin-right:6px;color:var(--brand1)"><use href="#pet-paw"/></svg>阿杰宠物店经营工作台 · 客户、预约、收银、会员、库存与报表云端同步</footer>
 </div>
 
 <div class="modal-mask hidden" id="pwdModal">
@@ -288,26 +314,48 @@
   </div>
 </div>
 
+<div class="modal-mask hidden" id="bizModal" onclick="if(event.target===this)closeBizModal()">
+  <div class="card modal-card biz-modal p-5 w-full" id="bizModalCard"></div>
+</div>
+<div id="toastBox"></div>
+
 <script>
 /* ===== Supabase（复用小松工作台，独立工作区 ajie-pet） ===== */
 const SB_URL='https://aofcpsdmdzvzsfdvisxu.supabase.co';
 const SB_KEY='sb_publishable_fPeWq7ZPmMAGhNtEIgKqAg_l4oiZK7Y';
-const WS='ajie-pet',TABLE='workbench_data',LKEY='pet_calc_v2';
-let sb=null,sbChannel=null,lastCloudTime=0,lastSaveTs=null,isRemote=false,saveTimer=null,saving=false,firstSync=false;
+const WS='ajie-pet',TABLE='workbench_data',LKEY='pet_calc_v2',SCHEMA_VERSION=2;
+let sb=null,sbChannel=null,lastCloudTime=0,lastCloudVersion=null,lastSaveTs=null,isRemote=false,saveTimer=null,saving=false,firstSync=false,saveRevision=0;
 
-/* ===== 默认数据 ===== */
+/* ===== 默认数据与幂等迁移 ===== */
 const BASE_MONTHS=['2026-12','2027-01','2027-02','2027-03','2027-04','2027-05','2027-06','2027-07','2027-08','2027-09','2027-10','2027-11'];
 const DEFAULT_STAFF=['妹妹','洗护师'];
 const PAY_METHODS=['微信','支付宝','现金','银行卡','美团/团购','其他'];
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-function defaultLedger(){const o={};BASE_MONTHS.forEach(m=>o[m]={board:0,matWash:0,matBoard:0,matOther:0});return o;}
-function defaultState(){return{
-  params:{rent:1800,water:1200,salaryMM:4000,salaryStaff:4000,otherFixed:300,priceSmall:55,priceLarge:95,priceBoard:80,priceGoods:60,ratioWash:0.85,ratioBoard:0,ratioGoods:0.15,days:30},
-  flows:[],
-  ledger:defaultLedger(),manualMargin:'',staffList:DEFAULT_STAFF.slice()};}
+const ENTITY_KEYS=['flows','customers','pets','careEvents','appointments','serviceCatalog','orders','products','stockMoves','memberTxns','memberCards','cardTxns','commissions'];
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,9);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const nowTs=()=>Date.now();
+function makeRec(o={}){return Object.assign({id:uid(),_ts:nowTs(),_del:false},o);}
+function blankLedger(){return{board:0,matWash:0,matBoard:0,matOther:0};}
+function defaultLedger(){const o={};BASE_MONTHS.forEach(m=>o[m]=blankLedger());return o;}
+function defaultParams(){return{rent:1800,water:1200,salaryMM:4000,salaryStaff:4000,otherFixed:300,priceSmall:55,priceLarge:95,priceBoard:80,priceGoods:60,ratioWash:.85,ratioBoard:0,ratioGoods:.15,days:30};}
+function defaultServices(){return[
+  makeRec({_ts:0,id:'svc-wash-small',name:'小/中型犬洗护',category:'洗护',price:55,cost:5,commissionRate:.1}),
+  makeRec({_ts:0,id:'svc-wash-large',name:'大型犬/精洗',category:'洗护',price:95,cost:10,commissionRate:.1}),
+  makeRec({_ts:0,id:'svc-board',name:'宠物寄养（每天）',category:'寄养',price:80,cost:8,commissionRate:.05})];}
+function defaultState(){return{schemaVersion:SCHEMA_VERSION,params:defaultParams(),flows:[],customers:[],pets:[],careEvents:[],appointments:[],serviceCatalog:defaultServices(),orders:[],products:[],stockMoves:[],memberTxns:[],memberCards:[],cardTxns:[],commissions:[],ledger:defaultLedger(),manualMargin:'',staffList:DEFAULT_STAFF.slice(),_fieldTs:{params:{},ledger:{},manualMargin:0,staffList:0}};}
+function migrateState(raw){
+  const d=defaultState(),r=raw&&typeof raw==='object'?raw:{};
+  Object.assign(d,r);d.schemaVersion=SCHEMA_VERSION;d.params=Object.assign(defaultParams(),r.params||{});
+  ENTITY_KEYS.forEach(k=>{d[k]=(Array.isArray(r[k])?r[k]:(k==='serviceCatalog'?defaultServices():[])).map(x=>makeRec(Object.assign({_ts:0},x||{})));});
+  d.ledger=Object.assign(defaultLedger(),r.ledger||{});Object.keys(d.ledger).forEach(m=>d.ledger[m]=Object.assign(blankLedger(),d.ledger[m]||{}));
+  d.staffList=Array.isArray(r.staffList)?r.staffList.slice():DEFAULT_STAFF.slice();d.manualMargin=r.manualMargin==null?'':r.manualMargin;
+  d._fieldTs=Object.assign({params:{},ledger:{},manualMargin:0,staffList:0},r._fieldTs||{});d._fieldTs.params=Object.assign({},r._fieldTs&&r._fieldTs.params);d._fieldTs.ledger=Object.assign({},r._fieldTs&&r._fieldTs.ledger);
+  return d;
+}
 let S=loadLocal();
-function loadLocal(){try{const d=JSON.parse(localStorage.getItem(LKEY));if(d&&d.params&&d.flows){if(!d.staffList)d.staffList=DEFAULT_STAFF.slice();return d;}}catch(e){}return defaultState();}
+function loadLocal(){try{const d=JSON.parse(localStorage.getItem(LKEY));if(d&&d.params&&Array.isArray(d.flows))return migrateState(d);}catch(e){}return defaultState();}
 function saveLocal(){try{localStorage.setItem(LKEY,JSON.stringify(S));}catch(e){}}
+function changed(){saveRevision++;saveLocal();queueSave();}
 
 /* ===== 工具 ===== */
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -315,42 +363,73 @@ const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n;};
 const fmt=n=>(n===''||n==null||isNaN(n))?'—':Math.round(n).toLocaleString('zh-CN');
 const fmt1=n=>(n===''||n==null||isNaN(n))?'—':(Math.round(n*10)/10).toLocaleString('zh-CN');
 const pct=n=>(n===''||n==null||isNaN(n))?'—':(n*100).toFixed(1)+'%';
+const money=v=>Math.round((num(v)+Number.EPSILON)*100)/100;
 function monthOf(d){if(!d)return '';const t=new Date(d);if(isNaN(t))return '';const m=t.getMonth()+1;return t.getFullYear()+'-'+(m<10?'0':'')+m;}
+function localDate(input){const d=input===undefined?new Date():(input instanceof Date?input:new Date(input));const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`;}
+function localDateTime(d=new Date()){return localDate(d)+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function dateTimeText(v){if(!v)return '—';const d=new Date(v);return isNaN(d)?esc(v):d.toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});}
 function liveFlows(){return S.flows.filter(f=>!f._del);}
-function allMonths(){const s=new Set(BASE_MONTHS);liveFlows().forEach(f=>{const m=monthOf(f.date);if(m)s.add(m);});Object.keys(S.ledger||{}).forEach(m=>s.add(m));return [...s].sort();}
+function active(k){return(S[k]||[]).filter(x=>!x._del);}
+function byId(k,id){return active(k).find(x=>x.id===id);}
+function allMonths(){const s=new Set(BASE_MONTHS);liveFlows().forEach(f=>{const m=monthOf(f.date);if(m)s.add(m);});Object.keys(S.ledger||{}).forEach(m=>s.add(m));active('orders').forEach(o=>{const m=monthOf(o.date);if(m)s.add(m);});return [...s].sort();}
+function emptyBox(text){return `<div class="empty"><div class="empty-pets" aria-hidden="true"><svg class="dog" viewBox="0 0 120 120"><use href="#pet-dog"/></svg><svg class="cat" viewBox="0 0 120 120"><use href="#pet-cat"/></svg></div>${esc(text)}</div>`;}
+function toast(msg){const box=document.getElementById('toastBox');box.innerHTML=`<div class="toast">${esc(msg)}</div>`;setTimeout(()=>box.innerHTML='',2800);}
+function openBizModal(title,body,wide=false){const c=document.getElementById('bizModalCard');c.style.maxWidth=wide?'860px':'680px';c.innerHTML=`<div class="flex items-center gap-3 mb-4"><div class="text-lg font-bold flex-1">${esc(title)}</div><button class="del" onclick="closeBizModal()" aria-label="关闭">✕</button></div>${body}`;document.getElementById('bizModal').classList.remove('hidden');}
+function closeBizModal(){document.getElementById('bizModal').classList.add('hidden');document.getElementById('bizModalCard').innerHTML='';posDraft=null;}
+function fd(name){const f=document.getElementById('bizForm');return f?String(new FormData(f).get(name)||'').trim():'';}
+function modalFooter(ok='保存',fn=''){return `<div class="flex gap-2 mt-5"><button type="button" class="btn btn-accent flex-1 justify-center" ${fn?`onclick="${fn}"`:''}>${esc(ok)}</button><button type="button" class="btn" onclick="closeBizModal()">取消</button></div>`;}
+function opts(list,cur,ph){const all=[...new Set([...(list||[]),...(cur&&!(list||[]).includes(cur)?[cur]:[])])];return (ph?`<option value="">${ph}</option>`:'')+all.map(o=>`<option value="${esc(o)}" ${o===cur?'selected':''}>${esc(o)}</option>`).join('');}
+function customerName(id){const c=byId('customers',id);return c?c.name:'散客';}
+function petName(id){const p=byId('pets',id);return p?p.name:'未指定宠物';}
+function sumBy(arr,fn){return money(arr.reduce((a,x)=>a+num(fn(x)),0));}
+function kpiCard(label,value,cf='money',color='var(--ink-1)',icon='◆'){return `<div class="kpi"><div class="ic">${icon}</div><div class="v" style="color:${color}"><span data-cu="${value===''||value==null?'NaN':value}" data-cf="${cf}"></span></div><div class="l">${esc(label)}</div></div>`;}
 /* 数字滚动动画 */
 function fmtCf(v,cf){if(cf==='money')return '¥'+fmt(v);if(cf==='signed')return (v<0?'−':'+')+'¥'+fmt(Math.abs(v));if(cf==='pct')return pct(v);if(cf==='num1')return fmt1(v);return fmt(v);}
 function animateCu(root){if(!root)return;if(matchMedia('(prefers-reduced-motion: reduce)').matches){root.querySelectorAll('[data-cu]').forEach(el=>{el.textContent=fmtCf(parseFloat(el.dataset.cu)||0,el.dataset.cf);});return;}
   root.querySelectorAll('[data-cu]').forEach(el=>{const to=parseFloat(el.dataset.cu);if(isNaN(to)){el.textContent='—';return;}const cf=el.dataset.cf,st=performance.now(),dur=750;
     (function step(t){const p=Math.min(1,(t-st)/dur),e=1-Math.pow(1-p,3);el.textContent=fmtCf(to*e,cf);if(p<1)requestAnimationFrame(step);else el.textContent=fmtCf(to,cf);})(st);});}
 
-/* ===== 计算引擎 ===== */
+/* ===== 账务、库存与经营计算引擎 ===== */
 function fixedTotal(){const p=S.params;return num(p.rent)+num(p.water)+num(p.salaryMM)+num(p.salaryStaff)+num(p.otherFixed);}
+function stockQty(productId){return sumBy(active('stockMoves').filter(x=>x.productId===productId),x=>x.delta);}
+function memberBalance(customerId){return sumBy(active('memberTxns').filter(x=>x.customerId===customerId),x=>x.balanceDelta||0);}
+function memberPoints(customerId){return sumBy(active('memberTxns').filter(x=>x.customerId===customerId),x=>x.points||0);}
+function cardRemaining(cardId){return sumBy(active('cardTxns').filter(x=>x.cardId===cardId),x=>x.uses||0);}
+function cardUnit(card){return num(card.totalUses)?money(num(card.amount)/num(card.totalUses)):0;}
+function orderGross(o){return sumBy(o.items||[],x=>num(x.qty)*num(x.price));}
+function orderLineNet(o,item){const g=orderGross(o),sign=o.kind==='refund'?-1:1;return item.netAmount!=null?money(sign*num(item.netAmount)):money(sign*num(item.qty)*num(item.price)*(g?Math.abs(num(o.total))/g:0));}
+function orderAmounts(o){
+  const out={wash:0,board:0,goods:0,material:0,productCost:0,commission:0};
+  (o.items||[]).forEach(it=>{const net=orderLineNet(o,it),sign=o.kind==='refund'?-1:1,qty=num(it.qty);
+    if(it.kind==='product'){out.goods=money(out.goods+net);out.productCost=money(out.productCost+sign*qty*num(it.cost));}
+    else if(it.category==='寄养'){out.board=money(out.board+net);out.material=money(out.material+sign*qty*num(it.cost));}
+    else{out.wash=money(out.wash+net);out.material=money(out.material+sign*qty*num(it.cost));}
+  });return out;
+}
+function orderCommissions(o){return active('commissions').filter(c=>c.orderId===o.id);}
+function appointmentConflict(a,list=active('appointments')){
+  const st=new Date(a.start).getTime(),en=new Date(a.end).getTime();if(!a.start||!a.end||isNaN(st)||isNaN(en)||st>=en)return '开始时间必须早于结束时间';
+  const hit=list.find(x=>x.id!==a.id&&!x._del&&!['已取消','已完成'].includes(x.status)&&((a.staff&&x.staff===a.staff)||(a.petId&&x.petId===a.petId))&&st<new Date(x.end).getTime()&&en>new Date(x.start).getTime());
+  return hit?`时间冲突：${hit.staff||'该宠物'}在 ${dateTimeText(hit.start)} 已有预约`:'';
+}
 function ledgerRow(m){
-  let wash=0,goods=0;
-  liveFlows().forEach(f=>{if(monthOf(f.date)===m){wash+=num(f.wash);goods+=num(f.goods);}});
-  const L=S.ledger[m]||{board:0,matWash:0,matBoard:0,matOther:0};
-  const board=num(L.board),total=wash+board+goods;
-  const matWash=num(L.matWash),matBoard=num(L.matBoard),matOther=num(L.matOther);
-  const direct=matWash+matBoard+matOther,gross=total-direct;
-  const margin=total===0?'':gross/total,ft=fixedTotal(),net=gross-ft;
-  const be=(margin===''||margin<=0)?'':ft/margin,gap=be===''?'':total-be;
+  let wash=0,goods=0,flowBoard=0,flowMaterial=0;
+  liveFlows().forEach(f=>{if(monthOf(f.date)===m){wash=money(wash+num(f.wash));goods=money(goods+num(f.goods));flowBoard=money(flowBoard+num(f.board));flowMaterial=money(flowMaterial+num(f.material));}});
+  let productCost=0;active('orders').forEach(o=>{if(monthOf(o.date)===m)productCost=money(productCost+orderAmounts(o).productCost);});
+  const commission=sumBy(active('commissions').filter(c=>monthOf(c.date)===m),c=>c.amount);
+  const L=S.ledger[m]||blankLedger(),board=money(flowBoard+num(L.board)),total=money(wash+board+goods);
+  const matWash=num(L.matWash),matBoard=num(L.matBoard),matOther=num(L.matOther),direct=money(flowMaterial+productCost+commission+matWash+matBoard+matOther),gross=money(total-direct);
+  const margin=total===0?'':gross/total,ft=fixedTotal(),net=money(gross-ft),be=(margin===''||margin<=0)?'':ft/margin,gap=be===''?'':money(total-be);
   const result=be===''?'':(total>=be?'盈利':'亏损');
-  return {m,wash,board,goods,total,matWash,matBoard,matOther,direct,gross,margin,ft,net,be,gap,result,active:total>0||direct>0};
+  return{m,wash,board,goods,total,matWash,matBoard,matOther,flowMaterial,productCost,commission,direct,gross,margin,ft,net,be,gap,result,active:total!==0||direct!==0};
 }
-function avgMargin(){
-  if(S.manualMargin!==''&&!isNaN(parseFloat(S.manualMargin)))return num(S.manualMargin)/100;
-  const ms=allMonths().map(m=>ledgerRow(m).margin).filter(x=>x!==''&&!isNaN(x));
-  return ms.length?ms.reduce((a,b)=>a+b,0)/ms.length:'';
-}
-function breakeven(){
-  const p=S.params,ft=fixedTotal(),am=avgMargin();
-  const beMonth=(am===''||am<=0)?'':ft/am,days=num(p.days)||30;
-  return {ft,am,beMonth,daily:beMonth===''?'':beMonth/days,
-    wash:beMonth===''?'':beMonth*num(p.ratioWash)/(num(p.priceSmall)||1)/days,
-    board:beMonth===''?'':beMonth*num(p.ratioBoard)/(num(p.priceBoard)||1)/days,
-    goods:beMonth===''?'':beMonth*num(p.ratioGoods)/(num(p.priceGoods)||1)/days};
-}
+function weightedMargin(rows){const revenue=sumBy(rows,r=>r.total),gross=sumBy(rows,r=>r.gross);return revenue?gross/revenue:'';}
+function avgMargin(){if(S.manualMargin!==''&&!isNaN(parseFloat(S.manualMargin)))return num(S.manualMargin)/100;return weightedMargin(allMonths().map(ledgerRow).filter(r=>r.total!==0));}
+function breakeven(){const p=S.params,ft=fixedTotal(),am=avgMargin(),beMonth=(am===''||am<=0)?'':ft/am,days=num(p.days)||30;return{ft,am,beMonth,daily:beMonth===''?'':beMonth/days,wash:beMonth===''?'':beMonth*num(p.ratioWash)/(num(p.priceSmall)||1)/days,board:beMonth===''?'':beMonth*num(p.ratioBoard)/(num(p.priceBoard)||1)/days,goods:beMonth===''?'':beMonth*num(p.ratioGoods)/(num(p.priceGoods)||1)/days};}
+function revenueOn(date){return sumBy(liveFlows().filter(f=>f.date===date),f=>num(f.wash)+num(f.goods)+num(f.board));}
+function prepaidOn(date){return sumBy(active('memberTxns').filter(x=>x.date===date&&['recharge','recharge_reverse','card_sale','card_sale_reverse'].includes(x.type)),x=>x.amount);}
+function lowStock(){return active('products').filter(p=>stockQty(p.id)<=num(p.minStock));}
+function dueCare(){const end=localDate(new Date(Date.now()+30*86400000));return active('careEvents').filter(e=>e.nextDate&&e.nextDate<=end&&byId('pets',e.petId)).sort((a,b)=>a.nextDate.localeCompare(b.nextDate));}
 
 /* ===== 角色 / 密码 ===== */
 let boss=localStorage.getItem('pet_boss')==='1';
@@ -359,39 +438,217 @@ function onRoleBtn(){boss?logout():openPwd();}
 function openPwd(){document.getElementById('pwdModal').classList.remove('hidden');document.getElementById('pwdErr').textContent='';const i=document.getElementById('pwdInput');i.value='';setTimeout(()=>i.focus(),60);}
 function closePwd(){document.getElementById('pwdModal').classList.add('hidden');}
 function tryLogin(){if(document.getElementById('pwdInput').value===getPwd()){boss=true;localStorage.setItem('pet_boss','1');closePwd();cur='overview';applyRole();}else document.getElementById('pwdErr').textContent='密码错误，请重试';}
-function logout(){boss=false;localStorage.removeItem('pet_boss');cur='flow';applyRole();}
-function changePwd(){const v=document.getElementById('pwdChange').value.trim();if(!v){alert('请输入新密码');return;}localStorage.setItem('pet_boss_pwd',v);document.getElementById('pwdChange').value='';alert('✅ 密码已修改为：'+v);}
-const TABS=[['overview','📈 总览',1],['flow','📋 每日流水',0],['ledger','📅 月度台账',1],['breakeven','📊 保本测算',1],['params','⚙️ 参数设置',1]];
+function logout(){boss=false;localStorage.removeItem('pet_boss');cur='today';applyRole();}
+function changePwd(){const v=document.getElementById('pwdChange').value.trim();if(!v){toast('请输入新密码');return;}localStorage.setItem('pet_boss_pwd',v);document.getElementById('pwdChange').value='';toast('老板密码已修改');}
+const TABS=[['overview','经营总览',1],['today','今日工作',0],['customers','客户宠物',0],['appointments','预约排班',0],['pos','开单收银',0],['flow','每日流水',0],['members','会员账务',1],['inventory','采购库存',1],['commissions','提成报表',1],['ledger','月度台账',1],['breakeven','保本测算',1],['params','参数与备份',1]];
+const SECTIONS=TABS.map(t=>t[0]);
 function applyRole(){
   document.getElementById('tabs').innerHTML=TABS.filter(t=>boss||!t[2]).map(t=>`<div class="tab ${cur===t[0]?'active':''}" data-t="${t[0]}" onclick="go('${t[0]}')">${t[1]}</div>`).join('');
-  document.getElementById('roleBtn').textContent=boss?'🚪 退出老板':'🔒 老板登录';
-  document.getElementById('roleLine').textContent=boss?'老板模式 · 全店经营数据一览':'员工录入 · 打开即填，自动同步给老板';
-  document.getElementById('flowBossHint').textContent=boss?'':'（毛利、利润等经营数据需老板密码查看）';
-  if(!boss&&cur!=='flow')cur='flow';
+  document.getElementById('roleBtn').textContent=boss?'退出老板':'老板登录';
+  document.getElementById('roleLine').textContent=boss?'老板模式 · 全店客户、账务、库存与利润一览':'员工工作台 · 客户、预约、开单自动同步';
+  document.getElementById('flowBossHint').textContent=boss?'':'（利润等经营数据需老板密码查看）';
+  if(!boss&&TABS.find(t=>t[0]===cur&&t[2]))cur='today';
   go(cur);
 }
 
 /* ===== 路由 ===== */
-let cur=boss?'overview':'flow';
-function go(t){cur=t;
-  document.querySelectorAll('#tabs .tab').forEach(e=>e.classList.toggle('active',e.dataset.t===t));
-  ['overview','flow','ledger','breakeven','params'].forEach(x=>document.getElementById('sec-'+x).classList.toggle('hidden',x!==t));
-  render();
+let cur=boss?'overview':'today';
+const view={customerQuery:'',appointmentStatus:'全部',memberQuery:'',commissionMonth:monthOf(localDate()),orderQuery:''};
+function go(t){if(!SECTIONS.includes(t))return;cur=t;document.querySelectorAll('#tabs .tab').forEach(e=>e.classList.toggle('active',e.dataset.t===t));SECTIONS.forEach(x=>{const el=document.getElementById('sec-'+x);if(el)el.classList.toggle('hidden',x!==t);});render();}
+function render(){const fn={overview:renderOverview,today:renderToday,customers:renderCustomers,appointments:renderAppointments,pos:renderPos,flow:renderFlow,members:renderMembers,inventory:renderInventory,commissions:renderCommissions,ledger:renderLedger,breakeven:renderBreakeven,params:renderParams}[cur];if(fn)fn();}
+
+/* ===== 提成报表与数据导出 ===== */
+function renderCommissions(){
+  const month=view.commissionMonth,list=active('commissions').filter(c=>monthOf(c.date)===month).sort((a,b)=>(b._ts||0)-(a._ts||0)),staffs=[...new Set(list.map(c=>c.staff))];
+  document.getElementById('commissionsBody').innerHTML=`<div class="card p-4 sm:p-5 mb-4 anim"><div class="toolbar"><div class="flex-1"><div class="font-bold">员工提成报表</div><div class="note">按订单行折后实收 × 下单时提成率计算；退款自动产生负冲记录</div></div><select class="cell" style="width:auto;border:1px solid var(--line);background:#fff" onchange="view.commissionMonth=this.value;renderCommissions()">${allMonths().reverse().map(m=>`<option value="${m}" ${m===month?'selected':''}>${m}</option>`).join('')}</select><button class="btn" onclick="exportCSV('commissions')">导出本月 CSV</button></div><div class="biz-grid">${staffs.map(staff=>{const rows=list.filter(c=>c.staff===staff),positive=sumBy(rows.filter(c=>c.amount>0),c=>c.amount),negative=sumBy(rows.filter(c=>c.amount<0),c=>c.amount);return `<div class="biz-item"><div class="flex items-center"><b class="flex-1 text-base">${esc(staff)}</b><b class="money">¥${fmt(sumBy(rows,c=>c.amount))}</b></div><div class="note mt-2">${rows.length} 笔订单行 · 正提成 ¥${fmt(positive)} · 退款冲回 ${fmt(negative)}</div></div>`;}).join('')||emptyBox('本月暂无提成记录')}</div></div>
+  <div class="card p-4 sm:p-5 anim"><div class="font-bold mb-3">提成明细</div><div class="tbl-scroll"><table><thead><tr><th>日期</th><th>员工</th><th class="l">来源项目</th><th>订单号</th><th>提成率</th><th>提成金额</th></tr></thead><tbody>${list.map(c=>{const o=S.orders.find(x=>x.id===c.orderId)||{};return `<tr><td>${esc(c.date)}</td><td>${esc(c.staff)}</td><td class="l">${esc(c.source)}</td><td>${esc(o.orderNo||c.orderId)}</td><td>${fmt1(num(c.rate)*100)}%</td><td class="money ${c.amount<0?'negative':'positive'}">${c.amount>0?'+':''}${fmt(c.amount)}</td></tr>`;}).join('')||'<tr><td colspan="6" class="note">暂无记录</td></tr>'}</tbody></table></div></div>`;
 }
-function render(){
-  if(cur==='overview')renderOverview();
-  else if(cur==='flow')renderFlow();
-  else if(cur==='ledger')renderLedger();
-  else if(cur==='breakeven')renderBreakeven();
-  else if(cur==='params')renderParams();
+function downloadFile(name,content,mime){const blob=new Blob([content],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function csvText(rows){return '\ufeff'+rows.map(r=>r.map(v=>'"'+String(v==null?'':v).replaceAll('"','""')+'"').join(',')).join('\r\n');}
+function exportCSV(type){
+  let rows=[],name=type;
+  if(type==='orders'){rows=[['订单号','日期','类型','状态','客户','宠物','项目','数量','单价','成本','员工','订单实收','优惠','支付方式']];active('orders').forEach(o=>(o.items||[]).forEach(i=>rows.push([o.orderNo,o.date,o.kind==='refund'?'退款':'销售',o.status,customerName(o.customerId),petName(o.petId),i.name,i.qty,i.price,i.cost,i.staff,o.total,o.discount,o.payments.map(p=>p.method+':'+p.amount).join('+')])));}
+  else if(type==='flows'){rows=[['日期','客户/宠物','项目','洗护收入','寄养收入','用品收入','耗材','收款方式','记录人','关联订单ID','备注']];liveFlows().forEach(f=>rows.push([f.date,f.customer,f.service,f.wash,f.board||0,f.goods,f.material,f.pay,f.recorder,f.sourceOrderId||'',f.note]));}
+  else if(type==='members'){rows=[['日期','客户','业务','收款/确认额','余额变动','积分变动','说明','命令ID']];memberEntries().forEach(e=>rows.push([e.date,customerName(e.customerId),e.label,e.amount,e.balanceDelta,e.points,e.detail,e.source.commandId||'']));}
+  else if(type==='inventory'){rows=[['日期','商品','业务','数量变动','变动后库存（按流水顺序）','说明','关联ID']];const moves=active('stockMoves').slice().sort((a,b)=>(a._ts||0)-(b._ts||0)),balances={};moves.forEach(m=>{const p=S.products.find(x=>x.id===m.productId)||{};balances[m.productId]=money((balances[m.productId]||0)+num(m.delta));rows.push([m.date,p.name||'已删除商品',m.type,m.delta,balances[m.productId],m.note,m.refId||'']);});}
+  else if(type==='commissions'){rows=[['日期','员工','来源项目','订单号','提成率','提成金额','关联ID']];active('commissions').filter(c=>monthOf(c.date)===view.commissionMonth).forEach(c=>{const o=S.orders.find(x=>x.id===c.orderId)||{};rows.push([c.date,c.staff,c.source,o.orderNo||c.orderId,c.rate,c.amount,c.refId]);});}
+  else return;downloadFile(`阿杰宠物店-${name}-${localDate()}.csv`,csvText(rows),'text/csv;charset=utf-8');toast('CSV 已导出');
 }
+function exportBackup(){downloadFile(`阿杰宠物店-完整备份-${localDate()}.json`,JSON.stringify(S,null,2),'application/json;charset=utf-8');toast('完整 JSON 备份已导出');}
+
+/* ===== 商品、采购与库存 ===== */
+function renderInventory(){
+  const products=active('products'),moves=active('stockMoves').slice().sort((a,b)=>(b._ts||0)-(a._ts||0)),low=lowStock();
+  const rows=products.map(p=>{const qty=stockQty(p.id);return `<tr><td class="l"><b>${esc(p.name)}</b><small class="note block">${esc(p.sku||'无货号')}</small></td><td>¥${fmt(p.price)}</td><td>¥${fmt(p.cost)}</td><td class="money" style="color:${qty<=num(p.minStock)?'var(--bad)':'var(--ink-1)'}">${fmt1(qty)}</td><td>${fmt1(p.minStock)}</td><td>${fmt1(num(p.commissionRate)*100)}%</td><td><div class="flex gap-1 justify-center flex-wrap"><button class="btn sm" onclick="openStockForm('${p.id}','purchase')">入库</button><button class="btn sm" onclick="openStockForm('${p.id}','adjust')">盘点</button><button class="btn sm" onclick="openProductForm('${p.id}')">编辑</button></div></td></tr>`;}).join('');
+  const cards=products.map(p=>{const qty=stockQty(p.id);return `<div class="biz-item"><div class="flex"><b class="flex-1">${esc(p.name)}</b><span class="status ${qty<=num(p.minStock)?'bad':'ok'}">库存 ${fmt1(qty)}</span></div><div class="note mt-2">售价 ¥${fmt(p.price)} · 成本 ¥${fmt(p.cost)} · 下限 ${fmt1(p.minStock)}</div><div class="flex gap-2 mt-3"><button class="btn sm" onclick="openStockForm('${p.id}','purchase')">入库</button><button class="btn sm" onclick="openStockForm('${p.id}','adjust')">盘点</button><button class="btn sm" onclick="openProductForm('${p.id}')">编辑</button></div></div>`;}).join('');
+  document.getElementById('inventoryBody').innerHTML=`<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">${kpiCard('在售商品',products.length,'int','var(--brand2)','▣')}${kpiCard('低库存预警',low.length,'int',low.length?'var(--bad)':'var(--good)','!')}${kpiCard('库存成本金额',sumBy(products,p=>stockQty(p.id)*num(p.cost)),'money','var(--auto)','¥')}${kpiCard('今日入库',sumBy(moves.filter(m=>m.date===localDate()&&m.delta>0),m=>m.delta),'num1','var(--brand1)','＋')}</div>
+  <div class="card p-4 sm:p-5 mb-4 anim"><div class="toolbar"><div class="flex-1"><div class="font-bold">商品与实时库存</div><div class="note">采购、销售、退款和盘点全部形成库存流水；库存不足会拒绝结算</div></div><button class="btn btn-accent" onclick="openProductForm()">新增商品</button></div><div class="desktop-list tbl-scroll"><table><thead><tr><th class="l">商品</th><th>售价</th><th>成本</th><th>实时库存</th><th>预警下限</th><th>商品提成</th><th>操作</th></tr></thead><tbody>${rows||'<tr><td colspan="7" class="note">暂无商品</td></tr>'}</tbody></table></div><div class="mobile-list">${cards||emptyBox('暂无商品')}</div></div>
+  <div class="card p-4 sm:p-5 anim"><div class="font-bold mb-3">最近库存流水</div><div class="tbl-scroll" style="max-height:45vh"><table><thead><tr><th>日期</th><th class="l">商品</th><th>业务</th><th>数量变动</th><th class="l">说明</th></tr></thead><tbody>${moves.slice(0,150).map(m=>`<tr><td>${esc(m.date)}</td><td class="l">${esc((S.products.find(p=>p.id===m.productId)||{}).name||'已删除商品')}</td><td>${esc(m.type)}</td><td class="money ${m.delta<0?'negative':'positive'}">${m.delta>0?'+':''}${fmt1(m.delta)}</td><td class="l note">${esc(m.note||'')}</td></tr>`).join('')||'<tr><td colspan="5" class="note">暂无库存流水</td></tr>'}</tbody></table></div></div>`;
+  animateCu(document.getElementById('inventoryBody'));
+}
+function openProductForm(id){if(!boss)return;const p=id?byId('products',id):{};openBizModal(id?'编辑商品':'新增商品',`<form id="bizForm" onsubmit="event.preventDefault();saveProduct('${id||''}')"><div class="form-grid"><label class="field"><span>商品名称 *</span><input class="cell" name="name" required value="${esc(p.name||'')}"></label><label class="field"><span>货号 / 条码</span><input class="cell" name="sku" value="${esc(p.sku||'')}"></label><label class="field"><span>售价（元）</span><input class="cell" name="price" type="number" min="0" step="0.01" value="${esc(p.price||'')}"></label><label class="field"><span>单位成本（元）</span><input class="cell" name="cost" type="number" min="0" step="0.01" value="${esc(p.cost||0)}"></label><label class="field"><span>低库存下限</span><input class="cell" name="minStock" type="number" min="0" step="0.01" value="${esc(p.minStock||0)}"></label><label class="field"><span>商品提成比例（%）</span><input class="cell" name="commissionRate" type="number" min="0" max="100" step="0.1" value="${esc(num(p.commissionRate)*100)}"></label></div>${modalFooter('保存商品','document.getElementById(\'bizForm\').requestSubmit()')}</form>`);}
+function saveProduct(id){if(!boss||!fd('name'))return;const old=id?byId('products',id):null,rec=Object.assign(old?clone(old):makeRec(),{name:fd('name'),sku:fd('sku'),price:num(fd('price')),cost:num(fd('cost')),minStock:num(fd('minStock')),commissionRate:num(fd('commissionRate'))/100,_ts:nowTs()});if(old)Object.assign(old,rec);else S.products.push(rec);changed();closeBizModal();renderInventory();toast('商品资料已保存');}
+function openStockForm(id,type){if(!boss)return;const p=byId('products',id);if(!p)return;const adjust=type==='adjust';openBizModal(adjust?'库存盘点 · '+p.name:'采购 / 入库 · '+p.name,`<form id="bizForm" onsubmit="event.preventDefault();submitStock('${id}','${type}')"><div class="subtle mb-3">当前库存 <b>${fmt1(stockQty(id))}</b>；当前单位成本 ¥${fmt(p.cost)}</div><div class="form-grid"><label class="field"><span>${adjust?'盘点后的实际库存':'入库数量'} *</span><input class="cell" name="qty" type="number" min="0" step="0.01" required></label>${adjust?'':`<label class="field"><span>本次单位成本（选填）</span><input class="cell" name="cost" type="number" min="0" step="0.01" placeholder="不改则留空"></label>`}<label class="field wide"><span>说明</span><input class="cell" name="note" placeholder="供应商、单据号或盘点原因"></label></div><div class="note mt-3">该操作需联网，并生成不可重复提交的库存流水。</div>${modalFooter(adjust?'确认盘点':'确认入库','document.getElementById(\'bizForm\').requestSubmit()')}</form>`);}
+async function submitStock(id,type){const qty=num(fd('qty')),note=fd('note'),cost=fd('cost');if(qty<0)return toast('数量不能小于0');const commandId='stock-manual:'+uid();try{await transact(()=>{const p=byId('products',id);if(!p)throw new Error('商品不存在');const delta=type==='adjust'?money(qty-stockQty(id)):qty;if(!delta)throw new Error('库存没有变化');if(stockQty(id)+delta<0)throw new Error('库存不能为负数');if(type==='purchase'&&cost!==''){p.cost=num(cost);p._ts=nowTs();}addUnique('stockMoves',makeRec({commandId,refId:commandId,productId:id,delta,type:type==='adjust'?'人工盘点':'采购入库',date:localDate(),note}));});closeBizModal();renderInventory();toast('库存已更新');}catch(e){toast(e.message||'操作失败');}}
+
+/* ===== 会员储值、积分与次卡 ===== */
+const TXN_LABELS={recharge:'余额充值',recharge_reverse:'充值冲正',balance_pay:'余额消费',refund_balance:'退款返余额',points_earn:'消费积分',points_reverse:'退款冲回积分',points_adjust:'积分调整',card_sale:'次卡售卖',card_sale_reverse:'售卡冲正'};
+function memberEntries(){const tx=active('memberTxns').map(x=>({id:x.id,date:x.date||localDate(x.createdAt),createdAt:x.createdAt||'',customerId:x.customerId,label:TXN_LABELS[x.type]||x.type,amount:num(x.amount),balanceDelta:num(x.balanceDelta),points:num(x.points),detail:x.note||'',source:x,type:'member'}));const cards=active('cardTxns').filter(x=>['redeem','redeem_reverse'].includes(x.type)).map(x=>({id:x.id,date:x.date,createdAt:x.createdAt||'',customerId:x.customerId,label:x.type==='redeem'?'次卡核销':'核销冲回',amount:0,balanceDelta:0,points:0,detail:`${(byId('memberCards',x.cardId)||{}).name||'次卡'} ${x.uses>0?'+':''}${fmt1(x.uses)}次 · ${x.note||''}`,source:x,type:'card'}));return tx.concat(cards).sort((a,b)=>(b.createdAt||b.date).localeCompare(a.createdAt||a.date)||(b.source._ts||0)-(a.source._ts||0));}
+function renderMembers(){
+  const q=view.memberQuery.toLowerCase(),customers=active('customers').filter(c=>!q||[c.name,c.phone].some(v=>String(v||'').toLowerCase().includes(q))),entries=memberEntries().filter(e=>!q||customerName(e.customerId).toLowerCase().includes(q));
+  document.getElementById('membersBody').innerHTML=`<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">${kpiCard('会员储值余额',sumBy(active('customers'),c=>memberBalance(c.id)),'money','var(--brand1)','¥')}${kpiCard('会员总积分',sumBy(active('customers'),c=>memberPoints(c.id)),'int','var(--brand2)','★')}${kpiCard('有效次卡',active('memberCards').filter(c=>c.status!=='已冲正'&&cardRemaining(c.id)>0).length,'int','var(--auto)','▣')}${kpiCard('今日会员预收',prepaidOn(localDate()),'money','var(--good)','＋')}</div>
+  <div class="card p-4 sm:p-5 mb-4 anim"><div class="toolbar"><div class="flex-1"><b>会员账户</b><div class="note">余额、积分、卡次均由明细流水汇总，不能直接手改</div></div><input class="cell search" placeholder="客户姓名 / 手机号" value="${esc(view.memberQuery)}" oninput="view.memberQuery=this.value" onkeydown="if(event.key==='Enter')renderMembers()"><button class="btn" onclick="renderMembers()">查询</button></div><div class="biz-grid">${customers.map(c=>`<div class="biz-item"><button class="link text-base" onclick="openCustomer('${c.id}')">${esc(c.name)}</button><div class="note">${esc(c.phone||'')}</div><div class="grid grid-cols-2 gap-2 mt-3"><div>余额 <b>¥${fmt(memberBalance(c.id))}</b></div><div>积分 <b>${fmt(memberPoints(c.id))}</b></div></div><div class="flex gap-2 flex-wrap mt-3"><button class="btn sm" onclick="openRecharge('${c.id}')">充值</button><button class="btn sm" onclick="openSellCard('${c.id}')">售卡</button><button class="btn sm" onclick="openPointsForm('${c.id}')">调积分</button></div></div>`).join('')||emptyBox('暂无会员账户')}</div></div>
+  <div class="card p-4 sm:p-5 anim"><div class="font-bold mb-3">完整会员账务明细</div><div class="tbl-scroll" style="max-height:55vh"><table><thead><tr><th>日期</th><th class="l">客户</th><th>业务</th><th>收款/确认额</th><th>余额变动</th><th>积分变动</th><th class="l">说明</th><th></th></tr></thead><tbody>${entries.slice(0,300).map(e=>`<tr><td>${esc(e.date)}</td><td class="l">${esc(customerName(e.customerId))}</td><td>${esc(e.label)}</td><td class="money">${e.amount?fmt(e.amount):'—'}</td><td class="money ${e.balanceDelta<0?'negative':'positive'}">${e.balanceDelta?(e.balanceDelta>0?'+':'')+fmt(e.balanceDelta):'—'}</td><td>${e.points?(e.points>0?'+':'')+fmt(e.points):'—'}</td><td class="l note">${esc(e.detail)}</td><td>${e.type==='member'&&['recharge','card_sale'].includes(e.source.type)&&!active('memberTxns').some(x=>x.refId===e.id&&x.type.endsWith('_reverse'))?`<button class="btn sm danger" onclick="reverseMemberTxn('${e.id}')">冲正</button>`:''}</td></tr>`).join('')||'<tr><td colspan="8" class="note">暂无账务记录</td></tr>'}</tbody></table></div></div>`;
+  animateCu(document.getElementById('membersBody'));
+}
+function openRecharge(customerId){const c=byId('customers',customerId);if(!c)return;openBizModal('会员余额充值 · '+c.name,`<form id="bizForm" onsubmit="event.preventDefault();submitRecharge('${customerId}')"><div class="form-grid"><label class="field"><span>充值金额（元）*</span><input class="cell" name="amount" type="number" min="0.01" step="0.01" required></label><label class="field"><span>收款方式</span><select class="cell" name="method">${opts(PAY_METHODS,'微信','')}</select></label><label class="field wide"><span>备注</span><input class="cell" name="note" placeholder="店内收款记录，不接真实支付"></label></div><div class="note mt-3">充值属于会员预收，不重复计入经营营收；后续余额消费随订单确认营收。</div>${modalFooter('确认充值','document.getElementById(\'bizForm\').requestSubmit()')}</form>`);}
+async function submitRecharge(customerId){const amount=money(num(fd('amount'))),method=fd('method'),note=fd('note');if(amount<=0)return toast('充值金额必须大于0');const commandId='recharge:'+uid();try{await transact(()=>{if(!byId('customers',customerId))throw new Error('客户不存在');addUnique('memberTxns',makeRec({commandId,refId:commandId,customerId,type:'recharge',date:localDate(),createdAt:new Date().toISOString(),amount,balanceDelta:amount,points:0,method,operator:boss?'老板':'员工',note}));});closeBizModal();render();toast('充值已入账');}catch(e){toast(e.message||'充值失败');}}
+function openSellCard(customerId){const c=byId('customers',customerId);if(!c)return;openBizModal('售卖次卡 / 套餐 · '+c.name,`<form id="bizForm" onsubmit="event.preventDefault();submitSellCard('${customerId}')"><div class="form-grid"><label class="field wide"><span>卡名 *</span><input class="cell" name="name" required placeholder="如：精洗10次卡"></label><label class="field"><span>总次数 *</span><input class="cell" name="totalUses" type="number" min="1" step="1" value="10" required></label><label class="field"><span>实收金额（元）*</span><input class="cell" name="amount" type="number" min="0.01" step="0.01" required></label><label class="field"><span>有效期至</span><input class="cell" name="expiresAt" type="date"></label><label class="field"><span>收款方式</span><select class="cell" name="method">${opts(PAY_METHODS,'微信','')}</select></label><label class="field wide"><span>备注</span><input class="cell" name="note"></label></div><div class="note mt-3">售卡先记预收；每次核销按“实收金额 ÷ 总次数 × 核销次数”确认订单营收。</div>${modalFooter('确认售卡','document.getElementById(\'bizForm\').requestSubmit()')}</form>`);}
+async function submitSellCard(customerId){const totalUses=num(fd('totalUses')),amount=money(num(fd('amount'))),name=fd('name');if(!name||!Number.isInteger(totalUses)||totalUses<=0||amount<=0)return toast('请正确填写卡名、整数次数和实收金额');const commandId='card-sale:'+uid(),cardId=uid(),createdAt=new Date().toISOString(),date=localDate(),method=fd('method'),note=fd('note'),expiresAt=fd('expiresAt');try{await transact(()=>{if(!byId('customers',customerId))throw new Error('客户不存在');const card=makeRec({id:cardId,customerId,name,totalUses,amount,expiresAt,status:'有效',createdAt,note});if(!byId('memberCards',cardId))S.memberCards.push(card);addUnique('cardTxns',makeRec({commandId:'uses:'+commandId,refId:commandId,cardId,customerId,type:'sale',uses:totalUses,amount,date,createdAt,note}));addUnique('memberTxns',makeRec({commandId,refId:commandId,cardId,customerId,type:'card_sale',date,createdAt,amount,balanceDelta:0,points:0,method,operator:boss?'老板':'员工',note}));});closeBizModal();render();toast('次卡已售出并记录预收');}catch(e){toast(e.message||'售卡失败');}}
+function openPointsForm(customerId){if(!boss)return;openBizModal('调整会员积分',`<form id="bizForm" onsubmit="event.preventDefault();submitPoints('${customerId}')"><label class="field"><span>调整积分（可填负数）</span><input class="cell" type="number" step="1" name="points" required></label><label class="field mt-3"><span>调整原因</span><input class="cell" name="note" required></label>${modalFooter('确认调整','document.getElementById(\'bizForm\').requestSubmit()')}</form>`);}
+async function submitPoints(customerId){const points=num(fd('points')),note=fd('note'),commandId='points-adjust:'+uid();if(!Number.isInteger(points)||!points||!note)return toast('请填写非零整数积分和原因');try{await transact(()=>{if(memberPoints(customerId)+points<0)throw new Error('调整后积分不能小于0');addUnique('memberTxns',makeRec({commandId,refId:commandId,customerId,type:'points_adjust',date:localDate(),createdAt:new Date().toISOString(),amount:0,balanceDelta:0,points,operator:'老板',note}));});closeBizModal();render();toast('积分已调整');}catch(e){toast(e.message||'调整失败');}}
+async function reverseMemberTxn(id){if(!boss||!confirm('确认冲正这条充值/售卡记录？系统会新增反向记录，不删除原账。'))return;try{await transact(()=>{const t=byId('memberTxns',id);if(!t||!['recharge','card_sale'].includes(t.type))throw new Error('该记录不能冲正');if(active('memberTxns').some(x=>x.refId===id&&x.type.endsWith('_reverse')))return;if(t.type==='recharge'&&memberBalance(t.customerId)<num(t.amount))throw new Error('余额已被消费，不能直接冲正，请先核对账务');
+    S.memberTxns.push(makeRec({commandId:'reverse:'+t.commandId,refId:t.id,customerId:t.customerId,cardId:t.cardId||'',type:t.type==='recharge'?'recharge_reverse':'card_sale_reverse',date:localDate(),createdAt:new Date().toISOString(),amount:-num(t.amount),balanceDelta:t.type==='recharge'?-num(t.amount):0,points:0,method:t.method,operator:'老板',note:'冲正 '+t.commandId}));
+    if(t.type==='card_sale'){const card=byId('memberCards',t.cardId);if(!card||cardRemaining(card.id)!==num(card.totalUses))throw new Error('次卡已有核销或余额异常，不能整卡冲正');S.cardTxns.push(makeRec({commandId:'reverse-uses:'+t.commandId,refId:t.id,cardId:card.id,customerId:t.customerId,type:'sale_reverse',uses:-num(card.totalUses),amount:-num(t.amount),date:localDate(),note:'售卡冲正'}));card.status='已冲正';card._ts=nowTs();}});render();toast('冲正完成');}catch(e){toast(e.message||'冲正失败');}}
+
+/* ===== 开单收银 ===== */
+let posDraft=null,orderSubmitting=false;
+function addUnique(key,rec,uniqueKey='commandId'){if(uniqueKey&&S[key].some(x=>x[uniqueKey]&&x[uniqueKey]===rec[uniqueKey]))return false;S[key].push(rec);return true;}
+function validateAndBuildSale(d){
+  if(S.orders.some(o=>o.id===d.id&&!o._del))return S.orders.find(o=>o.id===d.id);
+  if(!d.items.length)throw new Error('请至少添加一项服务或商品');
+  const gross=orderGross({items:d.items}),discount=money(num(d.discount)),total=money(gross-discount);
+  if(gross<=0||total<=0||discount<0||discount>=gross)throw new Error('订单金额或优惠不正确');
+  d.items.forEach(it=>{if(num(it.qty)<=0||num(it.price)<0)throw new Error('订单明细数量或单价不正确');});
+  if(d.petId&&(byId('pets',d.petId)||{}).customerId!==d.customerId)throw new Error('宠物不属于所选客户');
+  if(d.appointmentId){const a=byId('appointments',d.appointmentId);if(!a||a.status==='已取消')throw new Error('预约不存在或已取消');if(active('orders').some(o=>o.kind!=='refund'&&o.status==='已完成'&&o.appointmentId===d.appointmentId))throw new Error('该预约已有有效订单，不能重复开单');}
+  const needed={};d.items.filter(i=>i.kind==='product').forEach(i=>needed[i.refId]=money((needed[i.refId]||0)+num(i.qty)));
+  Object.keys(needed).forEach(id=>{if(stockQty(id)<needed[id])throw new Error(`${(byId('products',id)||{}).name||'商品'} 库存不足：需 ${fmt1(needed[id])}，现有 ${fmt1(stockQty(id))}`);});
+  if(!d.payments.length)throw new Error('请添加收款方式');
+  const payments=d.payments.map(p=>Object.assign({},p,{amount:paymentValue(p),uses:num(p.uses)||1}));
+  const paid=sumBy(payments,p=>p.amount);if(Math.abs(paid-total)>.009)throw new Error(`组合支付合计 ¥${fmt(paid)}，必须等于应付 ¥${fmt(total)}`);
+  const balance=sumBy(payments.filter(p=>p.method==='余额'),p=>p.amount);if(balance){if(!d.customerId)throw new Error('散客不能使用会员余额');if(balance>memberBalance(d.customerId)+.009)throw new Error('会员余额不足，整笔订单未保存');}
+  payments.filter(p=>p.method==='次卡').forEach(p=>{const c=byId('memberCards',p.cardId);if(!d.customerId||!c||c.customerId!==d.customerId)throw new Error('请选择该客户名下的次卡');if(c.expiresAt&&c.expiresAt<localDate())throw new Error('次卡已过期，整笔订单未保存');if(!Number.isInteger(p.uses)||p.uses<=0||cardRemaining(c.id)<p.uses)throw new Error('次卡剩余次数不足或核销次数不正确');if(!d.items.some(i=>i.kind!=='product'))throw new Error('次卡只能用于服务订单');});
+  let allocated=0;d.items.forEach((it,i)=>{it.netAmount=i===d.items.length-1?money(total-allocated):money(total*num(it.qty)*num(it.price)/gross);allocated=money(allocated+it.netAmount);});
+  const order=makeRec({id:d.id,orderNo:'A'+localDate().replaceAll('-','')+'-'+d.id.slice(-4).toUpperCase(),kind:'sale',status:'已完成',date:localDate(),createdAt:new Date().toISOString(),customerId:d.customerId||'',petId:d.petId||'',appointmentId:d.appointmentId||'',items:clone(d.items),discount,total,payments:payments.map(p=>({method:p.method,amount:p.amount,cardId:p.cardId||'',uses:p.uses||1})),recorder:d.recorder||'',note:d.note||''});
+  return order;
+}
+function postOrderArtifacts(o){
+  const a=orderAmounts(o),sign=o.kind==='refund'?-1:1;
+  addUnique('flows',makeRec({sourceOrderId:o.id,date:o.date,customer:customerName(o.customerId)+(o.petId?' / '+petName(o.petId):''),service:(o.items||[]).map(i=>i.name).join('、'),wash:a.wash,board:a.board,goods:a.goods,pay:(o.payments||[]).map(p=>p.method).join('+'),material:a.material,recorder:o.recorder,note:(o.kind==='refund'?'退款冲正 ':'订单 ')+o.orderNo}), 'sourceOrderId');
+  (o.items||[]).forEach(it=>{if(it.kind==='product')addUnique('stockMoves',makeRec({commandId:'stock:'+o.id+':'+it.lineId,refId:o.id,productId:it.refId,delta:-sign*num(it.qty),type:o.kind==='refund'?'退款回库':'销售出库',date:o.date,note:o.orderNo}));
+    if(it.staff&&num(it.commissionRate)>0){const amount=money(orderLineNet(o,it)*num(it.commissionRate));if(amount)addUnique('commissions',makeRec({commandId:'commission:'+o.id+':'+it.lineId+':'+it.staff,refId:o.id+':'+it.lineId+':'+it.staff,orderId:o.id,lineId:it.lineId,staff:it.staff,amount,rate:num(it.commissionRate),date:o.date,source:it.name}));}});
+  (o.payments||[]).filter(p=>p.method==='余额'&&o.customerId).forEach((p,i)=>addUnique('memberTxns',makeRec({commandId:'balance:'+o.id+':'+i,refId:o.id,orderId:o.id,customerId:o.customerId,type:o.kind==='refund'?'refund_balance':'balance_pay',date:o.date,createdAt:o.createdAt,amount:-paymentSigned(p,o.kind),balanceDelta:-paymentSigned(p,o.kind),points:0,operator:o.recorder,note:o.orderNo})));
+  (o.payments||[]).filter(p=>p.method==='次卡'&&o.customerId).forEach((p,i)=>addUnique('cardTxns',makeRec({commandId:'card:'+o.id+':'+i,refId:o.id,orderId:o.id,customerId:o.customerId,cardId:p.cardId,type:o.kind==='refund'?'redeem_reverse':'redeem',date:o.date,uses:-sign*num(p.uses),amount:paymentSigned(p,o.kind),operator:o.recorder,note:o.orderNo})));
+  let points=0,type='points_earn';if(o.kind==='refund'){points=-sumBy(active('memberTxns').filter(x=>x.orderId===o.refundOf&&x.type==='points_earn'),x=>x.points);type='points_reverse';}else points=Math.floor(num(o.total));
+  if(o.customerId&&points)addUnique('memberTxns',makeRec({commandId:'points:'+o.id,refId:o.id,orderId:o.id,customerId:o.customerId,type,date:o.date,createdAt:o.createdAt,amount:0,balanceDelta:0,points,operator:o.recorder,note:o.orderNo}));
+  if(o.appointmentId&&o.kind!=='refund'){const ap=byId('appointments',o.appointmentId);if(ap){ap.status='已完成';ap.orderId=o.id;ap._ts=nowTs();}}
+}
+async function submitOrder(){
+  if(orderSubmitting||!posDraft)return;orderSubmitting=true;const draft=clone(posDraft);updatePosTotals();
+  try{const order=await transact(()=>{const o=validateAndBuildSale(draft);if(!byId('orders',o.id)){S.orders.push(o);postOrderArtifacts(o);}return o;});closeBizModal();cur='pos';applyRole();toast('订单已完成，流水、库存和提成已同步');return order;}catch(e){toast(e.message||'结算失败');}finally{orderSubmitting=false;}
+}
+function reverseOrder(id){
+  const original=byId('orders',id);if(!original||original.kind==='refund')throw new Error('原订单不存在');
+  const existing=active('orders').find(o=>o.kind==='refund'&&o.refundOf===id);if(existing)return existing;
+  if(original.status!=='已完成')throw new Error('该订单已经退款');
+  const refund=makeRec(Object.assign({},clone(original),{id:uid(),_ts:nowTs(),orderNo:'R'+original.orderNo,kind:'refund',status:'已完成',refundOf:original.id,date:localDate(),createdAt:new Date().toISOString(),total:-Math.abs(num(original.total)),payments:original.payments.map(p=>Object.assign({},p,{amount:-Math.abs(num(p.amount))})),note:'整单退款，原单 '+original.orderNo}));
+  S.orders.push(refund);original.status='已退款';original._ts=nowTs();postOrderArtifacts(refund);return refund;
+}
+async function refundOrder(id){if(!confirm('确认整单退款？将生成反向流水、回库、余额/卡次/积分与提成冲正记录，历史原单会保留。'))return;try{await transact(()=>reverseOrder(id));closeBizModal();render();toast('退款冲正已完成');}catch(e){toast(e.message||'退款失败');}}
+function openServiceManager(){if(!boss)return;const list=active('serviceCatalog');openBizModal('服务价目与提成比例',`<div class="toolbar"><span class="note flex-1">订单保存价格、成本和提成率快照，后续改价不影响历史。</span><button class="btn btn-accent sm" onclick="openServiceForm()">新增服务</button></div>${list.map(s=>`<div class="metric-line"><span><b>${esc(s.name)}</b><small class="note block">${esc(s.category)} · 成本 ¥${fmt(s.cost)} · 提成 ${fmt1(num(s.commissionRate)*100)}%</small></span><span class="flex gap-2 items-center"><b>¥${fmt(s.price)}</b><button class="btn sm" onclick="openServiceForm('${s.id}')">编辑</button><button class="del" onclick="deleteService('${s.id}')">✕</button></span></div>`).join('')||'<div class="note">暂无服务</div>'}`);}
+function openServiceForm(id){if(!boss)return;const s=id?byId('serviceCatalog',id):{};openBizModal(id?'编辑服务':'新增服务',`<form id="bizForm" onsubmit="event.preventDefault();saveService('${id||''}')"><div class="form-grid"><label class="field"><span>服务名称 *</span><input class="cell" name="name" required value="${esc(s.name||'')}"></label><label class="field"><span>类别</span><select class="cell" name="category">${opts(['洗护','寄养','美容','其他服务'],s.category||'洗护','')}</select></label><label class="field"><span>售价（元）</span><input class="cell" name="price" type="number" min="0" step="0.01" value="${esc(s.price||'')}"></label><label class="field"><span>单次耗材成本（元）</span><input class="cell" name="cost" type="number" min="0" step="0.01" value="${esc(s.cost||0)}"></label><label class="field"><span>服务提成比例（%）</span><input class="cell" name="commissionRate" type="number" min="0" max="100" step="0.1" value="${esc(num(s.commissionRate)*100||10)}"></label></div>${modalFooter('保存服务','document.getElementById(\'bizForm\').requestSubmit()')}</form>`);}
+function saveService(id){if(!boss||!fd('name'))return;const old=id?byId('serviceCatalog',id):null,rec=Object.assign(old?clone(old):makeRec(),{name:fd('name'),category:fd('category'),price:num(fd('price')),cost:num(fd('cost')),commissionRate:num(fd('commissionRate'))/100,_ts:nowTs()});if(old)Object.assign(old,rec);else S.serviceCatalog.push(rec);changed();openServiceManager();toast('服务价目已保存');}
+function deleteService(id){if(!boss||!confirm('确认下架该服务？历史订单不受影响。'))return;const s=byId('serviceCatalog',id);if(s){s._del=true;s._ts=nowTs();changed();openServiceManager();}}
+
+function renderPos(){
+  const q=view.orderQuery.toLowerCase(),list=active('orders').filter(o=>!q||[o.orderNo,customerName(o.customerId),petName(o.petId)].some(v=>String(v||'').toLowerCase().includes(q))).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  const cards=list.map(o=>{const amounts=orderAmounts(o);return `<div class="biz-item"><div class="flex items-start gap-2"><div class="flex-1"><b>${esc(o.orderNo)}</b><div class="note mt-1">${esc(o.date)} · ${esc(customerName(o.customerId))} / ${esc(petName(o.petId))}</div><div class="note">${(o.items||[]).map(i=>esc(i.name)+'×'+fmt1(i.qty)).join('、')}</div><div class="note mt-1">收款：${(o.payments||[]).map(p=>esc(p.method)+' ¥'+fmt(Math.abs(paymentValue(p)))).join(' + ')||'—'}</div></div><div class="text-right"><b class="money ${o.kind==='refund'?'negative':''}">${o.kind==='refund'?'-':''}¥${fmt(Math.abs(o.total))}</b><div class="status ${o.status==='已退款'||o.kind==='refund'?'bad':'ok'} mt-2">${o.kind==='refund'?'退款单':esc(o.status)}</div></div></div>${o.kind!=='refund'&&o.status==='已完成'?`<div class="flex gap-2 mt-3"><button class="btn sm danger" onclick="refundOrder('${o.id}')">整单退款</button><button class="btn sm" onclick="printOrder('${o.id}')">订单详情</button></div>`:''}${amounts.commission?`<div class="note mt-2">提成 ¥${fmt(amounts.commission)}</div>`:''}</div>`;}).join('');
+  document.getElementById('posBody').innerHTML=`<div class="card p-4 sm:p-5 anim"><div class="toolbar"><div class="flex-1"><div class="font-bold text-base">开单收银</div><div class="note">服务和商品可混合开单；余额、次卡与其他方式可组合支付</div></div><input class="cell search" placeholder="订单号 / 客户 / 宠物" value="${esc(view.orderQuery)}" oninput="view.orderQuery=this.value" onkeydown="if(event.key==='Enter')renderPos()"><button class="btn" onclick="renderPos()">查询</button>${boss?'<button class="btn" onclick="openServiceManager()">服务价目</button>':''}<button class="btn btn-accent" onclick="newOrder()">新开订单</button></div>${list.length?`<div class="biz-grid">${cards}</div>`:emptyBox('暂无订单，点击“新开订单”开始收银')}</div>`;
+}
+function newOrder(appointmentId,customerId){const a=appointmentId?byId('appointments',appointmentId):null;posDraft={id:uid(),appointmentId:appointmentId||'',customerId:(a&&a.customerId)||customerId||'',petId:(a&&a.petId)||'',items:[],discount:0,payments:[{method:'微信',amount:0,cardId:'',uses:1}],note:'',recorder:S.staffList[0]||''};renderPosModal();}
+function posTotal(){return posDraft?money(Math.max(0,orderGross({items:posDraft.items})-num(posDraft.discount))):0;}
+function paymentValue(p){if(p.method==='次卡'){const c=byId('memberCards',p.cardId);return c?money(cardUnit(c)*num(p.uses)):0;}return money(Math.abs(num(p.amount)));}
+function paymentSigned(p,kind){const v=paymentValue(p);return kind==='refund'?-v:v;}
+function renderPosModal(){
+  if(!posDraft)return;const d=posDraft,pets=active('pets').filter(p=>!d.customerId||p.customerId===d.customerId),total=posTotal();
+  const items=d.items.map((it,i)=>`<tr><td class="l"><b>${esc(it.name)}</b><small class="note block">${it.kind==='product'?'商品':esc(it.category||'服务')}</small></td><td><input class="cell num" type="number" min="0.01" step="0.01" value="${esc(it.qty)}" oninput="updatePosItem(${i},'qty',this.value)"></td><td><input class="cell num" type="number" min="0" step="0.01" value="${esc(it.price)}" oninput="updatePosItem(${i},'price',this.value);updatePosTotals()"></td><td><select class="cell" onchange="updatePosItem(${i},'staff',this.value)">${opts(S.staffList,it.staff,'选员工')}</select></td><td class="money">${fmt(money(num(it.qty)*num(it.price)))}</td><td><button type="button" class="del" onclick="removePosItem(${i})">✕</button></td></tr>`).join('');
+  const pays=d.payments.map((p,i)=>{const cards=active('memberCards').filter(c=>c.customerId===d.customerId);return `<div class="subtle mb-2"><div class="flex gap-2 flex-wrap items-end"><label class="field" style="min-width:120px"><span>方式</span><select class="cell" onchange="updatePosPayment(${i},'method',this.value);renderPosModal()">${opts(PAY_METHODS.concat(['余额','次卡']),p.method,'请选择')}</select></label>${p.method==='次卡'?`<label class="field flex-1" style="min-width:170px"><span>选择次卡</span><select class="cell" onchange="updatePosPayment(${i},'cardId',this.value);renderPosModal()"><option value="">请选择</option>${cards.map(c=>`<option value="${c.id}" ${c.id===p.cardId?'selected':''}>${esc(c.name)}（余${fmt1(cardRemaining(c.id))}次）</option>`).join('')}</select></label><label class="field"><span>核销次数</span><input class="cell num" type="number" min="1" step="1" value="${esc(p.uses||1)}" oninput="updatePosPayment(${i},'uses',this.value);updatePosTotals()"></label>`:`<label class="field flex-1"><span>金额${p.method==='余额'?'（可用 ¥'+fmt(memberBalance(d.customerId))+'）':''}</span><input class="cell num" type="number" min="0" step="0.01" value="${esc(p.amount)}" oninput="updatePosPayment(${i},'amount',this.value);updatePosTotals()"></label>`}<button type="button" class="del" onclick="removePosPayment(${i})">✕</button></div>${p.method==='次卡'?`<div class="note mt-1">本次抵扣 ¥${fmt(paymentValue(p))}，按售卡实收单价确认营收</div>`:''}</div>`;}).join('');
+  openBizModal(d.appointmentId?'预约转订单':'新开订单',`<form id="bizForm" onsubmit="event.preventDefault();submitOrder()"><div class="form-grid"><label class="field"><span>客户</span><select class="cell" onchange="changePosCustomer(this.value)"><option value="">散客</option>${active('customers').map(c=>`<option value="${c.id}" ${c.id===d.customerId?'selected':''}>${esc(c.name)} ${esc(c.phone||'')}</option>`).join('')}</select></label><label class="field"><span>宠物</span><select class="cell" onchange="posDraft.petId=this.value"><option value="">不指定</option>${pets.map(p=>`<option value="${p.id}" ${p.id===d.petId?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label><label class="field"><span>开单员工</span><select class="cell" onchange="posDraft.recorder=this.value">${opts(S.staffList,d.recorder,'选员工')}</select></label><label class="field"><span>整单优惠（元）</span><input class="cell num" type="number" min="0" step="0.01" value="${esc(d.discount)}" oninput="posDraft.discount=this.value;updatePosTotals()"></label></div>
+    <div class="subtle mt-4"><b>添加服务 / 商品</b><div class="flex gap-2 mt-2 flex-wrap items-end"><label class="field"><span>类型</span><select class="cell" id="posPickerKind" onchange="changePosPickerOptions()"><option value="service">服务</option><option value="product">商品</option></select></label><label class="field flex-1" style="min-width:170px"><span>项目</span><select class="cell" id="posPickerRef"></select></label><label class="field"><span>数量</span><input class="cell num" id="posPickerQty" type="number" min="0.01" step="0.01" value="1"></label><button type="button" class="btn" onclick="addPosItem()">添加明细</button></div><div class="note mt-2" id="posStockHint"></div></div>
+    <div class="tbl-scroll mt-3"><table><thead><tr><th class="l">明细</th><th>数量</th><th>单价</th><th>提成员工</th><th>小计</th><th></th></tr></thead><tbody>${items||'<tr><td colspan="6" class="note">请添加至少一项服务或商品</td></tr>'}</tbody></table></div>
+    <div class="flex items-center gap-3 mt-4 mb-2"><b>组合支付</b><button type="button" class="link" onclick="addPosPayment()">＋ 添加支付方式</button><span class="note ml-auto">应付 <b id="posTotal">¥${fmt(total)}</b> · 已填 <b id="posPaid">¥${fmt(sumBy(d.payments,paymentValue))}</b></span></div>${pays}
+    <label class="field mt-3"><span>订单备注</span><textarea class="cell" oninput="posDraft.note=this.value">${esc(d.note)}</textarea></label><div class="note mt-2">完成订单需联网。系统会再次核验余额、卡次、有效期和库存，成功后自动生成流水、出库与提成。</div>${modalFooter(orderSubmitting?'正在结算…':'确认收款并完成','document.getElementById(\'bizForm\').requestSubmit()')}</form>`,true);
+  changePosPickerOptions();
+}
+function changePosCustomer(id){posDraft.customerId=id;posDraft.petId='';posDraft.payments.forEach(p=>{if(p.method==='次卡')p.cardId='';});renderPosModal();}
+function changePosPickerOptions(){const sel=document.getElementById('posPickerRef');if(!sel)return;const kind=document.getElementById('posPickerKind').value,list=kind==='service'?active('serviceCatalog'):active('products');sel.innerHTML=list.length?list.map(x=>`<option value="${x.id}">${esc(x.name)} · ¥${fmt(x.price)}${kind==='product'?'（余'+fmt1(stockQty(x.id))+'）':''}</option>`).join(''):'<option value="">暂无可用项目</option>';}
+function addPosItem(){const kind=document.getElementById('posPickerKind').value,ref=document.getElementById('posPickerRef').value,qty=num(document.getElementById('posPickerQty').value),src=byId(kind==='service'?'serviceCatalog':'products',ref);if(!src||qty<=0)return toast('请选择项目并填写正确数量');posDraft.items.push({lineId:uid(),kind,refId:src.id,name:src.name,category:src.category||'商品',qty,price:num(src.price),cost:num(src.cost),commissionRate:num(src.commissionRate),staff:posDraft.recorder||S.staffList[0]||''});renderPosModal();}
+function updatePosItem(i,k,v){if(!posDraft||!posDraft.items[i])return;posDraft.items[i][k]=(k==='qty'||k==='price')?num(v):v;updatePosTotals();}
+function removePosItem(i){posDraft.items.splice(i,1);renderPosModal();}
+function addPosPayment(){posDraft.payments.push({method:'现金',amount:0,cardId:'',uses:1});renderPosModal();}
+function updatePosPayment(i,k,v){if(posDraft&&posDraft.payments[i])posDraft.payments[i][k]=(k==='amount')?num(v):v;}
+function removePosPayment(i){posDraft.payments.splice(i,1);renderPosModal();}
+function updatePosTotals(){const total=document.getElementById('posTotal'),paid=document.getElementById('posPaid');if(total)total.textContent='¥'+fmt(posTotal());if(paid)paid.textContent='¥'+fmt(sumBy(posDraft.payments,paymentValue));}
+function printOrder(id){const o=byId('orders',id);if(!o)return;openBizModal('订单详情',`<div class="subtle"><div class="metric-line"><span>订单号</span><b>${esc(o.orderNo)}</b></div><div class="metric-line"><span>客户 / 宠物</span><b>${esc(customerName(o.customerId))} / ${esc(petName(o.petId))}</b></div><div class="metric-line"><span>日期 / 状态</span><b>${esc(o.date)} · ${o.kind==='refund'?'退款单':esc(o.status)}</b></div></div><div class="tbl-scroll mt-3"><table><thead><tr><th class="l">明细</th><th>数量</th><th>单价</th><th>员工</th></tr></thead><tbody>${o.items.map(i=>`<tr><td class="l">${esc(i.name)}</td><td>${fmt1(i.qty)}</td><td>¥${fmt(i.price)}</td><td>${esc(i.staff||'—')}</td></tr>`).join('')}</tbody></table></div><div class="text-right mt-4 text-xl font-bold">实收 ${o.kind==='refund'?'-':''}¥${fmt(Math.abs(o.total))}</div><div class="note mt-2">${(o.payments||[]).map(p=>esc(p.method)+' ¥'+fmt(Math.abs(paymentValue(p)))).join(' + ')}</div>`);}
+
+/* ===== 预约排班 ===== */
+function renderAppointments(){
+  const list=active('appointments').filter(a=>view.appointmentStatus==='全部'||a.status===view.appointmentStatus).sort((a,b)=>(b.start||'').localeCompare(a.start||''));
+  const cards=list.map(a=>`<div class="biz-item"><div class="flex items-start gap-2"><div class="flex-1"><b>${esc(customerName(a.customerId))} / ${esc(petName(a.petId))}</b><div class="note mt-1">${dateTimeText(a.start)} — ${dateTimeText(a.end)}</div><div class="note mt-1">${esc(a.service||'到店服务')} · ${esc(a.staff||'未分配员工')}</div>${a.note?`<div class="note mt-1">备注：${esc(a.note)}</div>`:''}</div><span class="status ${a.status==='已完成'?'ok':a.status==='已取消'?'bad':'warn'}">${esc(a.status)}</span></div>${appointmentActions(a)}</div>`).join('');
+  document.getElementById('appointmentsBody').innerHTML=`<div class="card p-4 sm:p-5 anim"><div class="toolbar"><div class="flex-1"><div class="font-bold text-base">预约排班</div><div class="note">同一员工或同一宠物时间重叠时会阻止保存</div></div><select class="cell" style="width:auto;min-width:110px;border:1px solid var(--line);background:#fff" onchange="view.appointmentStatus=this.value;renderAppointments()">${opts(['全部','待到店','已完成','已取消'],view.appointmentStatus,'')}</select><button class="btn btn-accent" onclick="openAppointmentForm()">新建预约</button></div>${list.length?`<div class="biz-grid">${cards}</div>`:emptyBox('该状态下暂无预约')}</div>`;
+}
+function refreshAppointmentPets(){const customerId=fd('customerId'),sel=document.querySelector('[name="petId"]');if(!sel)return;const current=sel.value;sel.innerHTML='<option value="">不指定</option>'+active('pets').filter(p=>!customerId||p.customerId===customerId).map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');if([...sel.options].some(o=>o.value===current))sel.value=current;}
+function openAppointmentForm(id,customerId){const a=id?byId('appointments',id):{customerId:customerId||'',start:localDate()+'T09:00',end:localDate()+'T10:00',status:'待到店'},customers=active('customers'),pets=active('pets').filter(p=>!a.customerId||p.customerId===a.customerId);openBizModal(id?'编辑 / 改约':'新建预约',`<form id="bizForm" onsubmit="event.preventDefault();saveAppointment('${id||''}')"><div class="form-grid"><label class="field"><span>客户 *</span><select class="cell" name="customerId" required onchange="refreshAppointmentPets()"><option value="">请选择</option>${customers.map(c=>`<option value="${c.id}" ${c.id===a.customerId?'selected':''}>${esc(c.name)} ${esc(c.phone||'')}</option>`).join('')}</select></label><label class="field"><span>宠物</span><select class="cell" name="petId"><option value="">不指定</option>${pets.map(p=>`<option value="${p.id}" ${p.id===a.petId?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label><label class="field"><span>开始时间 *</span><input class="cell" type="datetime-local" name="start" required value="${esc(a.start||'')}"></label><label class="field"><span>结束时间 *</span><input class="cell" type="datetime-local" name="end" required value="${esc(a.end||'')}"></label><label class="field"><span>员工</span><select class="cell" name="staff">${opts(S.staffList,a.staff,'未分配')}</select></label><label class="field"><span>服务内容</span><input class="cell" name="service" value="${esc(a.service||'')}" placeholder="洗护 / 寄养 / 美容"></label><label class="field wide"><span>备注</span><textarea class="cell" name="note">${esc(a.note||'')}</textarea></label></div>${modalFooter('保存预约','document.getElementById(\'bizForm\').requestSubmit()')}</form>`);}
+function saveAppointment(id){const old=id?byId('appointments',id):null,a=Object.assign(old?clone(old):makeRec(),{customerId:fd('customerId'),petId:fd('petId'),staff:fd('staff'),start:fd('start'),end:fd('end'),service:fd('service'),note:fd('note'),status:old?old.status:'待到店',_ts:nowTs()});if(!a.customerId)return toast('请选择客户');if(a.petId&&(byId('pets',a.petId)||{}).customerId!==a.customerId)return toast('宠物不属于所选客户');const err=appointmentConflict(a);if(err)return toast(err);if(old)Object.assign(old,a);else S.appointments.push(a);changed();closeBizModal();render();toast('预约已保存');}
+function cancelAppointment(id){const a=byId('appointments',id);if(!a||!confirm('确认取消这条预约？取消不会影响任何财务记录。'))return;a.status='已取消';a._ts=nowTs();changed();render();toast('预约已取消');}
+
+/* ===== 今日工作 ===== */
+function appointmentActions(a){
+  const order=active('orders').find(o=>o.kind!=='refund'&&o.status==='已完成'&&o.appointmentId===a.id);
+  return `<div class="flex gap-2 flex-wrap mt-3">${!order&&a.status!=='已取消'?`<button class="btn btn-accent sm" onclick="newOrder('${a.id}')">转为订单</button>`:''}${a.status!=='已取消'&&!order?`<button class="btn sm" onclick="openAppointmentForm('${a.id}')">改约</button><button class="btn sm danger" onclick="cancelAppointment('${a.id}')">取消预约</button>`:''}${order?`<span class="status ok">已结算 ${esc(order.orderNo)}</span>`:''}</div>`;
+}
+function renderToday(){
+  const today=localDate(),aps=active('appointments').filter(a=>(a.start||'').slice(0,10)===today).sort((a,b)=>a.start.localeCompare(b.start));
+  const done=aps.filter(a=>a.status==='已完成').length,relevant=aps.filter(a=>a.status!=='已取消').length,care=dueCare(),low=lowStock();
+  const apHtml=aps.length?aps.map(a=>`<div class="biz-item"><div class="flex gap-2 items-start"><div class="flex-1"><b>${esc(a.service||'到店服务')}</b><div class="note mt-1">${dateTimeText(a.start)}–${dateTimeText(a.end).slice(-5)} · ${esc(customerName(a.customerId))} / ${esc(petName(a.petId))}</div><div class="note">员工：${esc(a.staff||'未分配')}</div></div><span class="status ${a.status==='已完成'?'ok':a.status==='已取消'?'bad':'warn'}">${esc(a.status)}</span></div>${appointmentActions(a)}</div>`).join(''):emptyBox('今天还没有预约，可从“预约排班”新建');
+  document.getElementById('todayBody').innerHTML=`
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">${kpiCard('今日营收',revenueOn(today),'money','var(--brand1)','¥')}${kpiCard('今日预约',aps.length,'int','var(--brand2)','约')}${kpiCard('预约完成率',relevant?done/relevant:'','pct','var(--auto)','✓')}${kpiCard('30天内护理提醒',care.length,'int',care.length?'var(--amber)':'var(--good)','♡')}</div>
+    <div class="card p-4 mb-4 anim"><div class="toolbar mb-0"><div class="font-bold flex-1">快速开始</div><button class="btn btn-accent" onclick="newOrder()">开单收银</button><button class="btn" onclick="openAppointmentForm()">新建预约</button><button class="btn" onclick="openCustomerForm()">新增客户</button><button class="btn" onclick="addFlow()">快速记一笔</button></div></div>
+    <div class="grid lg:grid-cols-2 gap-4"><div class="card p-4 anim"><div class="font-bold mb-3">今日预约与待完成服务</div><div class="space-y-3">${apHtml}</div></div>
+    <div class="space-y-4"><div class="card p-4 anim"><div class="font-bold mb-2">疫苗 / 驱虫 / 洗护提醒</div>${care.length?care.slice(0,8).map(e=>`<div class="metric-line"><span>${esc(petName(e.petId))} · ${esc(e.type)}<small class="note block">客户：${esc(customerName((byId('pets',e.petId)||{}).customerId))}</small></span><b style="color:${e.nextDate<today?'var(--bad)':'var(--ink-2)'}">${esc(e.nextDate)}${e.nextDate<today?'（已逾期）':''}</b></div>`).join(''):'<div class="note">近30天暂无到期护理</div>'}</div>
+    <div class="card p-4 anim"><div class="font-bold mb-2">库存预警</div>${low.length?low.map(p=>`<div class="metric-line"><span>${esc(p.name)}</span><b style="color:var(--bad)">余 ${fmt1(stockQty(p.id))} / 下限 ${fmt1(p.minStock)}</b></div>`).join(''):'<div class="note">暂无低库存商品</div>'}</div></div></div>`;
+  animateCu(document.getElementById('todayBody'));
+}
+
+/* ===== 客户、宠物与护理记录 ===== */
+function renderCustomers(){
+  const q=view.customerQuery.toLowerCase(),list=active('customers').filter(c=>!q||[c.name,c.phone,c.note].some(v=>String(v||'').toLowerCase().includes(q))).sort((a,b)=>(b._ts||0)-(a._ts||0));
+  const cards=list.map(c=>{const pets=active('pets').filter(p=>p.customerId===c.id),spent=sumBy(active('orders').filter(o=>o.customerId===c.id&&o.kind!=='refund'),o=>Math.abs(num(o.total)))-sumBy(active('orders').filter(o=>o.customerId===c.id&&o.kind==='refund'),o=>Math.abs(num(o.total)));
+    return `<div class="biz-item"><div class="flex items-start gap-3"><div class="pet-mini" style="width:44px;height:44px"><svg viewBox="0 0 120 120"><use href="#pet-dog"/></svg></div><div class="flex-1 min-w-0"><button class="link text-base" onclick="openCustomer('${c.id}')">${esc(c.name)}</button><div class="note">${esc(c.phone||'未填手机号')}</div></div><button class="btn sm" onclick="openCustomerForm('${c.id}')">编辑</button></div>
+      <div class="note mt-3">${pets.length?pets.map(p=>`<span class="status">${esc(p.name)} · ${esc(p.species||'宠物')}</span>`).join(' '):'尚未添加宠物'}</div>
+      <div class="grid grid-cols-3 gap-2 mt-3 text-center"><div><b class="money">¥${fmt(memberBalance(c.id))}</b><div class="note">余额</div></div><div><b>${fmt(memberPoints(c.id))}</b><div class="note">积分</div></div><div><b>¥${fmt(spent)}</b><div class="note">累计消费</div></div></div>
+      <div class="flex gap-2 mt-3 flex-wrap"><button class="btn sm" onclick="openCustomer('${c.id}')">详情</button><button class="btn sm" onclick="openPetForm('${c.id}')">添加宠物</button><button class="btn sm" onclick="openAppointmentForm(null,'${c.id}')">预约</button></div></div>`;}).join('');
+  document.getElementById('customersBody').innerHTML=`<div class="card p-4 sm:p-5 anim"><div class="toolbar"><div class="flex-1"><div class="font-bold text-base">客户与宠物档案</div><div class="note">客户和宠物分开管理，消费、护理与会员账务自动汇总</div></div><input id="customerSearch" class="cell search" value="${esc(view.customerQuery)}" placeholder="姓名 / 手机号" oninput="view.customerQuery=this.value" onkeydown="if(event.key==='Enter')renderCustomers()"><button class="btn" onclick="renderCustomers()">搜索</button><button class="btn btn-accent" onclick="openCustomerForm()">新增客户</button></div>${list.length?`<div class="biz-grid">${cards}</div>`:emptyBox(q?'没有匹配的客户':'先新增客户，再添加名下宠物')}</div>`;
+}
+function openCustomerForm(id){const c=id?byId('customers',id):{};openBizModal(id?'编辑客户':'新增客户',`<form id="bizForm" onsubmit="event.preventDefault();saveCustomer('${id||''}')"><div class="form-grid"><label class="field"><span>客户姓名 *</span><input class="cell" name="name" required value="${esc(c.name||'')}" placeholder="如：小松"></label><label class="field"><span>手机号</span><input class="cell" name="phone" value="${esc(c.phone||'')}" placeholder="用于店内查找"></label><label class="field wide"><span>备注 / 偏好</span><textarea class="cell" name="note">${esc(c.note||'')}</textarea></label></div>${modalFooter('保存客户','document.getElementById(\'bizForm\').requestSubmit()')}</form>`);}
+function saveCustomer(id){const name=fd('name');if(!name)return toast('请填写客户姓名');const old=id?byId('customers',id):null,rec=Object.assign(old?clone(old):makeRec(),{name,phone:fd('phone'),note:fd('note'),_ts:nowTs()});if(!old)S.customers.push(rec);else Object.assign(old,rec);changed();closeBizModal();renderCustomers();toast('客户档案已保存');}
+function openPetForm(customerId,petId){const p=petId?byId('pets',petId):{customerId};openBizModal(petId?'编辑宠物':'添加宠物',`<form id="bizForm" onsubmit="event.preventDefault();savePet('${petId||''}')"><input type="hidden" name="customerId" value="${esc(p.customerId||'')}"><div class="form-grid"><label class="field"><span>宠物名字 *</span><input class="cell" name="name" required value="${esc(p.name||'')}"></label><label class="field"><span>物种</span><select class="cell" name="species">${opts(['狗狗','猫咪','其他'],p.species||'狗狗','请选择')}</select></label><label class="field"><span>品种</span><input class="cell" name="breed" value="${esc(p.breed||'')}" placeholder="如：泰迪"></label><label class="field"><span>生日</span><input class="cell" type="date" name="birth" value="${esc(p.birth||'')}"></label><label class="field"><span>体重（kg）</span><input class="cell" type="number" step="0.1" min="0" name="weight" value="${esc(p.weight||'')}"></label><label class="field wide"><span>性格 / 过敏 / 注意事项</span><textarea class="cell" name="note">${esc(p.note||'')}</textarea></label></div>${modalFooter('保存宠物','document.getElementById(\'bizForm\').requestSubmit()')}</form>`);}
+function savePet(id){if(!fd('name'))return toast('请填写宠物名字');const old=id?byId('pets',id):null,rec=Object.assign(old?clone(old):makeRec(),{customerId:fd('customerId'),name:fd('name'),species:fd('species'),breed:fd('breed'),birth:fd('birth'),weight:fd('weight'),note:fd('note'),_ts:nowTs()});if(old)Object.assign(old,rec);else S.pets.push(rec);changed();closeBizModal();render();toast('宠物档案已保存');}
+function openCareForm(petId){const pets=active('pets');openBizModal('新增护理 / 疫苗记录',`<form id="bizForm" onsubmit="event.preventDefault();saveCare()"><div class="form-grid"><label class="field wide"><span>宠物 *</span><select class="cell" name="petId" required>${pets.map(p=>`<option value="${p.id}" ${p.id===petId?'selected':''}>${esc(p.name)}（${esc(customerName(p.customerId))}）</option>`).join('')}</select></label><label class="field"><span>类型</span><select class="cell" name="type"><option>疫苗</option><option>驱虫</option><option>洗护</option><option>其他</option></select></label><label class="field"><span>本次日期 *</span><input class="cell" type="date" name="careDate" required value="${localDate()}"></label><label class="field"><span>下次提醒日期</span><input class="cell" type="date" name="nextDate"></label><label class="field wide"><span>记录说明</span><textarea class="cell" name="note" placeholder="疫苗名称、驱虫药或护理情况"></textarea></label></div>${modalFooter('保存记录','document.getElementById(\'bizForm\').requestSubmit()')}</form>`);}
+function saveCare(){if(!fd('petId')||!fd('careDate'))return toast('请选择宠物并填写日期');if(fd('nextDate')&&fd('nextDate')<fd('careDate'))return toast('下次提醒不能早于本次日期');S.careEvents.push(makeRec({petId:fd('petId'),type:fd('type'),careDate:fd('careDate'),nextDate:fd('nextDate'),note:fd('note')}));changed();closeBizModal();render();toast('护理记录已保存');}
+function openCustomer(id){const c=byId('customers',id);if(!c)return;const pets=active('pets').filter(p=>p.customerId===id),orders=active('orders').filter(o=>o.customerId===id).sort((a,b)=>b.date.localeCompare(a.date)),cards=active('memberCards').filter(x=>x.customerId===id),petIds=pets.map(p=>p.id),care=active('careEvents').filter(e=>petIds.includes(e.petId)).sort((a,b)=>(b.careDate||'').localeCompare(a.careDate||''));
+  openBizModal(c.name+' · 客户详情',`<div class="grid grid-cols-3 gap-2 mb-4 text-center"><div class="subtle"><b>¥${fmt(memberBalance(id))}</b><div class="note">会员余额</div></div><div class="subtle"><b>${fmt(memberPoints(id))}</b><div class="note">当前积分</div></div><div class="subtle"><b>${orders.filter(o=>o.kind!=='refund').length}</b><div class="note">消费订单</div></div></div><div class="toolbar"><button class="btn btn-accent sm" onclick="newOrder(null,'${id}')">开单</button><button class="btn sm" onclick="openRecharge('${id}')">余额充值</button><button class="btn sm" onclick="openSellCard('${id}')">售次卡</button><button class="btn sm" onclick="openPetForm('${id}')">加宠物</button><button class="btn sm" onclick="openAppointmentForm(null,'${id}')">预约</button></div>
+  <div class="subtle mb-3"><b>名下宠物</b>${pets.length?pets.map(p=>`<div class="metric-line"><span><button class="link" onclick="openPetForm('${id}','${p.id}')">${esc(p.name)}</button> · ${esc(p.species||'')} ${esc(p.breed||'')} ${p.weight?'· '+esc(p.weight)+'kg':''}<small class="note block">${esc(p.note||'')}</small></span><button class="btn sm" onclick="openCareForm('${p.id}')">护理记录</button></div>`).join(''):'<div class="note mt-2">尚未添加宠物</div>'}</div>
+  <div class="subtle mb-3"><b>卡包</b>${cards.length?cards.map(x=>`<div class="metric-line"><span>${esc(x.name)}<small class="note block">有效期至 ${esc(x.expiresAt||'不限')}</small></span><b>余 ${fmt1(cardRemaining(x.id))} / ${fmt1(x.totalUses)} 次</b></div>`).join(''):'<div class="note mt-2">暂无效次卡</div>'}</div>
+  <div class="grid md:grid-cols-2 gap-3"><div><b>近期护理</b><div class="timeline mt-3">${care.slice(0,8).map(e=>`<div><b>${esc(e.type)} · ${esc(petName(e.petId))}</b><div class="note">${esc(e.careDate)}${e.nextDate?' · 下次 '+esc(e.nextDate):''}<br>${esc(e.note||'')}</div></div>`).join('')||'<div class="note">暂无记录</div>'}</div></div><div><b>近期订单</b>${orders.slice(0,8).map(o=>`<div class="metric-line"><span>${esc(o.orderNo)}<small class="note block">${esc(o.date)}</small></span><b class="${o.kind==='refund'?'negative':''}">${o.kind==='refund'?'-':''}¥${fmt(Math.abs(o.total))}</b></div>`).join('')||'<div class="note mt-2">暂无订单</div>'}</div></div>`,true);}
 
 /* ===== 总览 ===== */
 function renderOverview(){
   const rows=allMonths().map(ledgerRow),act=rows.filter(r=>r.active);
   const sum=(k,arr)=>arr.reduce((a,r)=>a+(num(r[k])||0),0);
   const totRev=sum('total',act),totDirect=sum('direct',act),totGross=sum('gross',act),totFixed=sum('ft',act),totNet=sum('net',act);
-  const ms=act.map(r=>r.margin).filter(x=>x!==''&&!isNaN(x)),avgM=ms.length?ms.reduce((a,b)=>a+b,0)/ms.length:'';
+  const avgM=weightedMargin(act.filter(r=>r.total!==0));
   const latest=act.length?act[act.length-1]:null,lossMonths=act.filter(r=>r.net<0),be=breakeven();
   const heroCls=act.length==0?'idle':totNet>=0?'good':'bad';
   const statusTxt=act.length==0?'暂无数据':totNet>=0?'整体盈利 🎉':'整体亏损';
@@ -404,6 +661,9 @@ function renderOverview(){
     <td style="color:${r.net<0?'var(--bad)':'var(--good)'};font-weight:700">${r.net>=0?'+':''}${fmt(r.net)}</td>
     <td>${r.result===''?'—':`<span class="pill ${r.result==='盈利'?'g':'b'}">${r.result}</span>`}</td></tr>`).join('');
   const kpi=(label,val,cf,color,ic)=>`<div class="kpi"><div class="ic">${ic}</div><div class="v" style="color:${color}"><span data-cu="${val===''?'NaN':val}" data-cf="${cf}"></span></div><div class="l">${label}</div></div>`;
+  const today=localDate(),todayAps=active('appointments').filter(a=>(a.start||'').slice(0,10)===today&&a.status!=='已取消'),hotMap={};
+  active('orders').forEach(o=>(o.items||[]).filter(i=>i.kind!=='product').forEach(i=>hotMap[i.name]=money((hotMap[i.name]||0)+orderLineNet(o,i))));
+  const hot=Object.entries(hotMap).sort((a,b)=>b[1]-a[1]).slice(0,5),low=lowStock();
   document.getElementById('ovBody').innerHTML=`
     <div class="hero ${heroCls} mb-4 anim">
       <div class="flex items-center justify-between flex-wrap gap-3" style="position:relative;z-index:1">
@@ -418,15 +678,18 @@ function renderOverview(){
       </div>
     </div>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-      ${kpi('累计总营收',act.length?totRev:'NaN','money','var(--ink-1)','💰')}
-      ${kpi('累计毛利',act.length?totGross:'NaN','money','var(--auto)','✨')}
-      ${kpi('平均毛利率',avgM===''?'NaN':avgM,'pct','var(--auto)','📈')}
-      ${kpi('累计固定成本',act.length?totFixed:'NaN','money','var(--ink-1)','🏠')}
-      ${kpi(latest?latest.m+' 营收':'本月营收',latest?latest.total:'NaN','money','var(--ink-1)','🧾')}
-      ${kpi(latest?latest.m+' 净利润':'本月净利润',latest?latest.net:'NaN','signed',latest?(latest.net>=0?'var(--good)':'var(--bad)'):'var(--ink-1)','💵')}
-      ${kpi('月保本营收',be.beMonth===''?'NaN':be.beMonth,'money','var(--brand2)','🎯')}
-      ${kpi('亏损月份',act.length?lossMonths.length:'NaN','int',lossMonths.length?'var(--bad)':'var(--good)','⚠️')}
+      ${kpi('累计总营收',act.length?totRev:'NaN','money','var(--ink-1)','¥')}
+      ${kpi('累计毛利',act.length?totGross:'NaN','money','var(--auto)','毛')}
+      ${kpi('平均毛利率',avgM===''?'NaN':avgM,'pct','var(--auto)','%')}
+      ${kpi('累计固定成本',act.length?totFixed:'NaN','money','var(--ink-1)','固')}
+      ${kpi(latest?latest.m+' 营收':'本月营收',latest?latest.total:'NaN','money','var(--ink-1)','营')}
+      ${kpi(latest?latest.m+' 净利润':'本月净利润',latest?latest.net:'NaN','signed',latest?(latest.net>=0?'var(--good)':'var(--bad)'):'var(--ink-1)','净')}
+      ${kpi('月保本营收',be.beMonth===''?'NaN':be.beMonth,'money','var(--brand2)','保')}
+      ${kpi('亏损月份',act.length?lossMonths.length:'NaN','int',lossMonths.length?'var(--bad)':'var(--good)','!')}
     </div>
+    <div class="grid lg:grid-cols-3 gap-4 mb-4"><div class="card p-4 anim"><div class="font-bold mb-2">今日经营</div><div class="metric-line"><span>今日营收</span><b>¥${fmt(revenueOn(today))}</b></div><div class="metric-line"><span>预约完成</span><b>${todayAps.filter(a=>a.status==='已完成').length} / ${todayAps.length}</b></div><div class="metric-line"><span>会员预收（充值＋售卡）</span><b>¥${fmt(prepaidOn(today))}</b></div></div>
+    <div class="card p-4 anim"><div class="font-bold mb-2">热销服务</div>${hot.length?hot.map(([name,value])=>`<div class="metric-line"><span>${esc(name)}</span><b>¥${fmt(value)}</b></div>`).join(''):'<div class="note">完成服务订单后自动统计</div>'}</div>
+    <div class="card p-4 anim"><div class="font-bold mb-2">库存与会员</div><div class="metric-line"><span>客户 / 宠物档案</span><b>${active('customers').length} / ${active('pets').length}</b></div><div class="metric-line"><span>会员储值余额</span><b>¥${fmt(sumBy(active('customers'),c=>memberBalance(c.id)))}</b></div><div class="metric-line"><span>低库存商品</span><b style="color:${low.length?'var(--bad)':'var(--good)'}">${low.length}</b></div></div></div>
     ${act.length?`<div class="grid lg:grid-cols-2 gap-4">
       <div class="card p-4 sm:p-5 anim"><div class="font-bold mb-3">每月净利润</div>${bars}
         <div class="note mt-2">绿=盈利，红=亏损。每月固定成本 ¥${fmt(fixedTotal())}。</div></div>
@@ -443,15 +706,16 @@ function renderOverview(){
 }
 
 /* ===== 每日流水 ===== */
-function opts(list,cur,ph){const all=[...new Set([...(list||[]),...(cur&&!(list||[]).includes(cur)?[cur]:[])])];return `<option value="">${ph}</option>`+all.map(o=>`<option value="${esc(o)}" ${o===cur?'selected':''}>${esc(o)}</option>`).join('');}
 function flowRow(f){
-  const total=num(f.wash)+num(f.goods);
+  const total=num(f.wash)+num(f.board)+num(f.goods);
+  if(f.sourceOrderId)return `<tr><td>${esc(f.date)}</td><td class="boss auto">${monthOf(f.date)||'—'}</td><td class="l">${esc(f.customer)}</td><td class="l">${esc(f.service)}</td><td class="auto">${fmt(f.wash)}</td><td class="auto">${fmt(f.board)}</td><td class="auto">${fmt(f.goods)}</td><td>${esc(f.pay)}</td><td class="boss auto">${fmt(f.material)}</td><td>${esc(f.recorder)}</td><td class="l note">订单流水 · ${esc(f.note||'')}</td><td class="boss auto">${fmt(total)}</td><td><span class="status">锁定</span></td></tr>`;
   return `<tr>
     <td><input class="cell" type="date" value="${esc(f.date)}" oninput="uf('${f.id}','date',this.value,this)"></td>
     <td class="boss auto">${monthOf(f.date)||'—'}</td>
     <td><input class="cell" placeholder="如:豆豆/泰迪" value="${esc(f.customer)}" oninput="uf('${f.id}','customer',this.value,this)"></td>
     <td><input class="cell" placeholder="洗澡/精洗/驱虫" value="${esc(f.service)}" oninput="uf('${f.id}','service',this.value,this)"></td>
     <td class="edit"><input class="cell num" type="number" placeholder="¥ 如55" value="${esc(f.wash)}" oninput="uf('${f.id}','wash',this.value,this)"></td>
+    <td class="edit"><input class="cell num" type="number" placeholder="¥ 如80" value="${esc(f.board)}" oninput="uf('${f.id}','board',this.value,this)"></td>
     <td class="edit"><input class="cell num" type="number" placeholder="¥ 如30" value="${esc(f.goods)}" oninput="uf('${f.id}','goods',this.value,this)"></td>
     <td><select class="cell" onchange="uf('${f.id}','pay',this.value,this)">${opts(PAY_METHODS,f.pay,'选收款')}</select></td>
     <td class="boss edit"><input class="cell num" type="number" placeholder="¥ 如5" value="${esc(f.material)}" oninput="uf('${f.id}','material',this.value,this)"></td>
@@ -463,19 +727,20 @@ function flowRow(f){
 }
 function renderFlow(){
   const list=liveFlows().slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a._ts||0)-(b._ts||0));
-  document.getElementById('flowBody').innerHTML=list.map(flowRow).join('')||'<tr><td colspan="12" class="note" style="padding:24px"><svg class="empty-paw" aria-hidden="true" viewBox="0 0 64 64"><use href="#pet-paw"/></svg>还没有记录，点右上角「＋ 记一笔」开始</td></tr>';
+  document.getElementById('flowBody').innerHTML=list.map(flowRow).join('')||'<tr><td colspan="13" class="note" style="padding:24px"><svg class="empty-paw" aria-hidden="true" viewBox="0 0 64 64"><use href="#pet-paw"/></svg>还没有记录，点右上角「＋ 记一笔」开始</td></tr>';
   document.querySelectorAll('#sec-flow .boss').forEach(e=>e.style.display=boss?'':'none');
 }
 function uf(id,k,v,el){
   const f=S.flows.find(x=>x.id===id);if(!f)return;
-  f[k]=v;f._ts=Date.now();saveLocal();queueSave();
+  if(f.sourceOrderId)return toast('订单流水已锁定，请通过退款冲正');
+  f[k]=v;f._ts=nowTs();changed();
   const tr=el?el.closest('tr'):null;if(!tr)return;
   const autos=tr.querySelectorAll('.boss.auto');
   if(k==='date'&&autos[0])autos[0].textContent=monthOf(f.date)||'—';
-  if((k==='wash'||k==='goods')&&autos.length)autos[autos.length-1].textContent=fmt(num(f.wash)+num(f.goods));
+  if((k==='wash'||k==='board'||k==='goods')&&autos.length)autos[autos.length-1].textContent=fmt(num(f.wash)+num(f.board)+num(f.goods));
 }
-function addFlow(){S.flows.push({id:uid(),_ts:Date.now(),date:new Date().toISOString().slice(0,10),customer:'',service:'',wash:'',goods:'',pay:'',material:'',recorder:'',note:''});saveLocal();queueSave();renderFlow();}
-function delFlow(id){const f=S.flows.find(x=>x.id===id);if(!f)return;f._del=true;f._ts=Date.now();saveLocal();queueSave();renderFlow();}
+function addFlow(){S.flows.push(makeRec({date:localDate(),customer:'',service:'',wash:'',board:'',goods:'',pay:'',material:'',recorder:'',note:''}));changed();cur='flow';go('flow');}
+function delFlow(id){const f=S.flows.find(x=>x.id===id);if(!f)return;if(f.sourceOrderId)return toast('订单流水请通过整单退款冲正');f._del=true;f._ts=nowTs();changed();renderFlow();}
 
 /* ===== 月度台账 ===== */
 function ledgerRowHtml(m){
@@ -484,7 +749,7 @@ function ledgerRowHtml(m){
   const res=r.result===''?'—':`<span class="pill ${r.result==='盈利'?'g':'b'}">${r.result}</span>`;
   const inp=k=>`<input class="cell num" id="lg-${m}-${k}" type="number" placeholder="0" value="${esc(L[k])}" oninput="ul('${m}','${k}',this.value)">`;
   return `<tr><td class="auto">${m}</td><td class="auto">${fmt(r.wash)}</td>
-    <td class="edit">${inp('board')}</td><td class="auto">${fmt(r.goods)}</td><td class="calc auto">${fmt(r.total)}</td>
+    <td class="calc auto">${fmt(r.board)}</td><td class="edit">${inp('board')}</td><td class="auto">${fmt(r.goods)}</td><td class="calc auto">${fmt(r.total)}</td>
     <td class="edit">${inp('matWash')}</td><td class="edit">${inp('matBoard')}</td><td class="edit">${inp('matOther')}</td>
     <td class="calc auto">${fmt(r.direct)}</td><td class="calc auto">${fmt(r.gross)}</td><td class="calc auto">${pct(r.margin)}</td>
     <td class="calc auto">${fmt(r.ft)}</td><td class="calc auto" style="color:${r.net<0?'var(--bad)':'var(--good)'}">${fmt(r.net)}</td>
@@ -494,15 +759,15 @@ function renderLedger(keepFocus){
   const ae=document.activeElement,fid=keepFocus&&ae?ae.id:null,ss=ae&&ae.selectionStart!=null?ae.selectionStart:null;
   const months=allMonths();let html=months.map(ledgerRowHtml).join('');
   const rows=months.map(ledgerRow),sum=k=>rows.reduce((a,r)=>a+(num(r[k])||0),0);
-  const ms=rows.map(r=>r.margin).filter(x=>x!==''&&!isNaN(x)),avgM=ms.length?ms.reduce((a,b)=>a+b,0)/ms.length:'';
-  html+=`<tr class="totrow"><td>合计/平均</td><td>${fmt(sum('wash'))}</td><td>${fmt(sum('board'))}</td><td>${fmt(sum('goods'))}</td>
+  const avgM=weightedMargin(rows.filter(r=>r.total!==0));
+  html+=`<tr class="totrow"><td>合计/平均</td><td>${fmt(sum('wash'))}</td><td>${fmt(sum('board'))}</td><td>${fmt(months.reduce((a,m)=>a+num(S.ledger[m]&&S.ledger[m].board),0))}</td><td>${fmt(sum('goods'))}</td>
     <td class="auto">${fmt(sum('total'))}</td><td>${fmt(sum('matWash'))}</td><td>${fmt(sum('matBoard'))}</td><td>${fmt(sum('matOther'))}</td>
     <td class="auto">${fmt(sum('direct'))}</td><td class="auto">${fmt(sum('gross'))}</td><td class="auto">${pct(avgM)}</td>
     <td class="auto">${fmt(sum('ft'))}</td><td class="auto" style="color:${sum('net')<0?'var(--bad)':'var(--good)'}">${fmt(sum('net'))}</td><td colspan="3"></td></tr>`;
   document.getElementById('ledgerBody').innerHTML=html;
   if(fid){const el=document.getElementById(fid);if(el){el.focus();if(ss!=null&&el.setSelectionRange){try{el.setSelectionRange(ss,ss);}catch(e){}}}}
 }
-function ul(m,k,v){if(!S.ledger[m])S.ledger[m]={board:0,matWash:0,matBoard:0,matOther:0};S.ledger[m][k]=v;saveLocal();queueSave();renderLedger(true);}
+function ul(m,k,v){if(!S.ledger[m])S.ledger[m]=blankLedger();S.ledger[m][k]=v;S._fieldTs.ledger[m]=S._fieldTs.ledger[m]||{};S._fieldTs.ledger[m][k]=nowTs();changed();renderLedger(true);}
 
 /* ===== 保本测算 ===== */
 function renderBreakeven(){
@@ -512,7 +777,7 @@ function renderBreakeven(){
     kpi('固定成本 / 月',b.ft,'money','var(--ink-1)')+kpi('平均毛利率',b.am===''?'NaN':b.am,'pct','var(--auto)')+
     kpi('保本营收 / 月',b.beMonth===''?'NaN':b.beMonth,'money','var(--ink-1)')+kpi('每日需洗护单数',b.wash===''?'NaN':b.wash,'num1','var(--brand2)');
   const days=num(S.params.days)||30;
-  const rows=[['固定成本合计/月','¥'+fmt(b.ft),'房租+水电+两人工资+其他'],['平均毛利率',pct(b.am),S.manualMargin!==''?'当前使用手动毛利率':'取月度台账已填月份的平均'],
+  const rows=[['固定成本合计/月','¥'+fmt(b.ft),'房租+水电+两人工资+其他'],['平均毛利率',pct(b.am),S.manualMargin!==''?'当前使用手动毛利率':'按汇总毛利 ÷ 汇总营收计算'],
     ['保本营收/月',b.beMonth===''?'—':'¥'+fmt(b.beMonth),'固定成本 ÷ 毛利率'],['每日保本流水',b.daily===''?'—':'¥'+fmt(b.daily),'保本营收 ÷ 营业天数('+days+'天)'],
     ['每日需洗护单数',b.wash===''?'—':fmt1(b.wash)+' 单','洗护占比 '+pct(num(S.params.ratioWash))+'，均价 ¥'+fmt(num(S.params.priceSmall))],
     ['每日需寄养床位',b.board===''?'—':fmt1(b.board)+' 床','无寄养忽略，占比 '+pct(num(S.params.ratioBoard))],
@@ -521,7 +786,7 @@ function renderBreakeven(){
   const mm=document.getElementById('manualMargin');if(mm.value!==String(S.manualMargin))mm.value=S.manualMargin;
   animateCu(document.getElementById('beKpis'));
 }
-function onManualMargin(v){S.manualMargin=v===''?'':v;saveLocal();queueSave();renderBreakeven();}
+function onManualMargin(v){S.manualMargin=v===''?'':v;S._fieldTs.manualMargin=nowTs();changed();renderBreakeven();}
 
 /* ===== 参数设置 ===== */
 const FIXED=[['rent','房租','每月固定'],['water','水电费','洗护用水多，含保底'],['salaryMM','妹妹工资','底薪，可按实际改'],['salaryStaff','洗护员工工资','底薪+提成保底'],['otherFixed','其他固定费用','设备维护、垃圾费、平台费等']];
@@ -536,73 +801,44 @@ function renderParams(){
   document.getElementById('fixedTotal').textContent=fmt(fixedTotal());ratioWarn();renderStaff();
 }
 function renderStaff(){const box=document.getElementById('staffListBox');if(!box)return;box.innerHTML=(S.staffList||[]).map((n,i)=>`<div class="flex items-center gap-2 py-1" style="border-bottom:1px dashed var(--line)"><span class="flex-1">${esc(n)}</span><button class="del" title="删除" onclick="delStaff(${i})">✕</button></div>`).join('')||'<div class="note">暂无员工，请在下方添加</div>';}
-function addStaff(){const i=document.getElementById('staffInput'),v=i.value.trim();if(!v)return;if(!(S.staffList||[]).includes(v)){S.staffList=(S.staffList||[]).concat(v);saveLocal();queueSave();}i.value='';renderStaff();}
-function delStaff(i){S.staffList=(S.staffList||[]).filter((_,idx)=>idx!==i);saveLocal();queueSave();renderStaff();}
-function up(k,v,isP){S.params[k]=isP?num(v)/100:v;saveLocal();queueSave();document.getElementById('fixedTotal').textContent=fmt(fixedTotal());ratioWarn();}
+function addStaff(){const i=document.getElementById('staffInput'),v=i.value.trim();if(!v)return;if(!(S.staffList||[]).includes(v)){S.staffList=(S.staffList||[]).concat(v);S._fieldTs.staffList=nowTs();changed();}i.value='';renderStaff();}
+function delStaff(i){S.staffList=(S.staffList||[]).filter((_,idx)=>idx!==i);S._fieldTs.staffList=nowTs();changed();renderStaff();}
+function up(k,v,isP){S.params[k]=isP?num(v)/100:v;S._fieldTs.params[k]=nowTs();changed();document.getElementById('fixedTotal').textContent=fmt(fixedTotal());ratioWarn();}
 function ratioWarn(){const s=num(S.params.ratioWash)+num(S.params.ratioBoard)+num(S.params.ratioGoods);
   document.getElementById('ratioWarn').innerHTML=Math.abs(s-1)>0.001?`⚠️ 占比合计 <b style="color:var(--bad)">${Math.round(s*100)}%</b>，不等于100%时保本单量会算偏。`:`✅ 占比合计 ${Math.round(s*100)}%，正常。`;}
 
-/* ===== 云同步 ===== */
+/* ===== 云同步：全实体合并、墓碑保留、updated_at 条件更新 ===== */
+let syncPromise=null;
 function badge(st,tx){const b=document.getElementById('syncBadge');b.className='badge '+st;document.getElementById('syncText').textContent=tx;}
-function mergeFlows(local,cloud){const map=new Map();(cloud||[]).forEach(f=>map.set(f.id,f));(local||[]).forEach(f=>{const c=map.get(f.id);if(!c||(f._ts||0)>=(c._ts||0))map.set(f.id,f);});return [...map.values()];}
-async function loadCloud(){
-  if(!sb)return null;
-  try{const {data,error}=await sb.from(TABLE).select('data,updated_at').eq('workspace_id',WS).maybeSingle();
-    if(error){console.error('加载失败',error);badge('error','加载失败');return null;}
-    if(data&&data.updated_at)lastCloudTime=new Date(data.updated_at).getTime();
-    return data?data.data:null;
-  }catch(e){console.error(e);badge('error','网络错误');return null;}
+function mergeRecords(local,cloud){const map=new Map();(cloud||[]).forEach(f=>{if(f&&f.id)map.set(f.id,f);});(local||[]).forEach(f=>{if(!f||!f.id)return;const c=map.get(f.id);if(!c||num(f._ts)>=num(c._ts))map.set(f.id,f);});return [...map.values()];}
+function mergeStates(local,cloud){
+  if(!cloud)return migrateState(local);const l=migrateState(local),c=migrateState(cloud),out=defaultState();out.schemaVersion=SCHEMA_VERSION;
+  ENTITY_KEYS.forEach(k=>out[k]=mergeRecords(l[k],c[k]));
+  Object.keys(out.params).forEach(k=>{const lt=num(l._fieldTs.params[k]),ct=num(c._fieldTs.params[k]);out.params[k]=lt>ct||c.params[k]===undefined?l.params[k]:c.params[k];out._fieldTs.params[k]=Math.max(lt,ct);});
+  const months=new Set([...Object.keys(l.ledger),...Object.keys(c.ledger)]);months.forEach(m=>{out.ledger[m]=out.ledger[m]||blankLedger();out._fieldTs.ledger[m]=out._fieldTs.ledger[m]||{};Object.keys(blankLedger()).forEach(k=>{const lt=num(l._fieldTs.ledger[m]&&l._fieldTs.ledger[m][k]),ct=num(c._fieldTs.ledger[m]&&c._fieldTs.ledger[m][k]);out.ledger[m][k]=lt>ct||(c.ledger[m]||{})[k]===undefined?(l.ledger[m]||{})[k]:(c.ledger[m]||{})[k];out._fieldTs.ledger[m][k]=Math.max(lt,ct);});});
+  ['manualMargin','staffList'].forEach(k=>{const lt=num(l._fieldTs[k]),ct=num(c._fieldTs[k]);out[k]=lt>ct?clone(l[k]):clone(c[k]);out._fieldTs[k]=Math.max(lt,ct);});return out;
 }
-function queueSave(){if(saveTimer)clearTimeout(saveTimer);saveTimer=setTimeout(doSave,400);}
+async function readRemote(){if(!sb)throw new Error('尚未连接云端');const {data,error}=await sb.from(TABLE).select('data,updated_at').eq('workspace_id',WS).maybeSingle();if(error)throw error;return{state:data&&data.data?data.data:null,version:data&&data.updated_at?data.updated_at:null,time:data&&data.updated_at?new Date(data.updated_at).getTime():0};}
+async function writeRemote(state,version){
+  if(version){const {data,error}=await sb.from(TABLE).update({data:state}).eq('workspace_id',WS).eq('updated_at',version).select('updated_at').maybeSingle();if(error)throw error;if(!data)return null;return{version:data.updated_at,time:new Date(data.updated_at).getTime()};}
+  const {data,error}=await sb.from(TABLE).insert({workspace_id:WS,data:state}).select('updated_at').single();if(error){if(error.code==='23505')return null;throw error;}return{version:data.updated_at,time:new Date(data.updated_at).getTime()};
+}
+function queueSave(){if(saveTimer)clearTimeout(saveTimer);saveTimer=setTimeout(doSave,450);}
 async function doSave(){
-  if(!sb||!firstSync)return;
-  if(saving){queueSave();return;}
-  saving=true;badge('syncing','同步中…');const ts=new Date().toISOString();
-  try{
-    const cloud=await loadCloud();
-    if(cloud&&cloud.flows)S.flows=mergeFlows(S.flows,cloud.flows);
-    saveLocal();
-    const {error}=await sb.from(TABLE).upsert({workspace_id:WS,data:S,updated_at:ts});
-    if(error){console.error('保存失败',error);badge('error','同步失败');}
-    else{lastSaveTs=ts;lastCloudTime=Date.now();badge('online','已同步');}
-  }catch(e){console.error(e);badge('error','网络错误');}
-  saving=false;
+  if(saveTimer){clearTimeout(saveTimer);saveTimer=null;}if(!sb||!firstSync){badge('off','本地已保存');return;}if(syncPromise){queueSave();return syncPromise;}
+  syncPromise=(async()=>{saving=true;badge('syncing','同步中…');const revision=saveRevision;try{for(let attempt=0;attempt<4;attempt++){const remote=await readRemote(),candidate=mergeStates(S,remote.state),written=await writeRemote(candidate,remote.version);if(!written)continue;S=mergeStates(S,candidate);lastCloudVersion=written.version;lastCloudTime=written.time;lastSaveTs=written.version;saveLocal();badge('online','已同步');if(saveRevision!==revision)queueSave();return;}throw new Error('云端版本持续冲突，请稍后重试');}catch(e){console.error('保存失败',e);badge('error','同步失败');}finally{saving=false;}})();
+  try{return await syncPromise;}finally{syncPromise=null;}
 }
-function subscribe(){
-  if(!sb)return;
-  sbChannel=sb.channel('pet-sync').on('postgres_changes',{event:'*',schema:'public',table:TABLE,filter:'workspace_id=eq.'+WS},p=>{
-    if(p.eventType==='DELETE')return;
-    const nd=p.new&&p.new.data,cts=p.new&&p.new.updated_at;
-    if(cts&&lastSaveTs&&new Date(cts).getTime()===new Date(lastSaveTs).getTime()){lastSaveTs=null;return;}
-    if(nd&&!isRemote&&!saving&&!saveTimer)applyRemote(nd);
-  }).subscribe();
+async function transact(mutator){
+  if(!sb||!firstSync||navigator.onLine===false)throw new Error('该资金/库存操作必须联网完成，请检查连接');if(syncPromise){await syncPromise;return transact(mutator);}
+  const run=(async()=>{saving=true;badge('syncing','安全提交中…');try{for(let attempt=0;attempt<4;attempt++){const remote=await readRemote(),base=mergeStates(S,remote.state);S=base;const candidate=clone(base);S=candidate;let result;try{result=mutator();}catch(e){S=base;saveLocal();throw e;}let written;try{written=await writeRemote(candidate,remote.version);}catch(e){S=base;saveLocal();throw e;}if(!written){S=base;saveLocal();continue;}S=mergeStates(S,candidate);lastCloudVersion=written.version;lastCloudTime=written.time;lastSaveTs=written.version;saveLocal();badge('online','已同步');return result;}throw new Error('云端版本冲突较多，本次未提交，请重试');}catch(e){badge('error',e.message||'提交失败');throw e;}finally{saving=false;}})();syncPromise=run;try{return await run;}finally{if(syncPromise===run)syncPromise=null;}
 }
-function applyRemote(d){
-  if(!d||!d.params)return;isRemote=true;
-  S.flows=mergeFlows(S.flows,d.flows||[]);
-  S.params=d.params;S.ledger=Object.assign(defaultLedger(),d.ledger||{});S.manualMargin=d.manualMargin||'';
-  S.staffList=d.staffList||S.staffList||DEFAULT_STAFF.slice();
-  saveLocal();lastCloudTime=Date.now();isRemote=false;
-  if(cur!=='flow')render();  /* 流水录入页不强刷，避免打断输入 */
-  badge('online','已同步');
-}
+function subscribe(){if(!sb)return;sbChannel=sb.channel('pet-sync').on('postgres_changes',{event:'*',schema:'public',table:TABLE,filter:'workspace_id=eq.'+WS},p=>{if(p.eventType==='DELETE')return;const nd=p.new&&p.new.data,cts=p.new&&p.new.updated_at;if(cts&&lastSaveTs===cts){lastSaveTs=null;return;}if(nd&&!isRemote&&!saving&&!saveTimer)applyRemote(nd,cts);}).subscribe();}
+function applyRemote(d,version){if(!d||!d.params)return;isRemote=true;S=mergeStates(S,d);saveLocal();lastCloudTime=version?new Date(version).getTime():Date.now();lastCloudVersion=version||lastCloudVersion;isRemote=false;const ae=document.activeElement,editing=ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName),modalOpen=!document.getElementById('bizModal').classList.contains('hidden');if(!editing&&!modalOpen)render();badge('online','已同步');}
 async function startSync(){
-  if(typeof supabase==='undefined'){badge('off','离线模式');firstSync=true;return;}
-  try{sb=supabase.createClient(SB_URL,SB_KEY);}catch(e){badge('off','离线模式');firstSync=true;return;}
-  badge('syncing','连接中…');
-  const cloud=await loadCloud();
-  if(cloud&&cloud.params){
-    S.flows=mergeFlows(cloud.flows||[],S.flows);
-    S.params=cloud.params;S.ledger=Object.assign(defaultLedger(),cloud.ledger||{});S.manualMargin=cloud.manualMargin||'';
-    S.staffList=cloud.staffList||S.staffList||DEFAULT_STAFF.slice();
-  }
-  saveLocal();firstSync=true;badge('online','已连接');render();subscribe();
-  if(!cloud||!cloud.params)doSave();  /* 云端为空：把本地初始数据推上去，保证多端一致 */
-  setInterval(async()=>{  /* 每30秒轮询兜底（realtime 可能失效时） */
-    if(!sb||saving||saveTimer||isRemote)return;
-    try{const {data}=await sb.from(TABLE).select('data,updated_at').eq('workspace_id',WS).maybeSingle();
-      if(data&&data.data){const ct=new Date(data.updated_at).getTime();if(ct>lastCloudTime)applyRemote(data.data);}}catch(e){}
-  },30000);
+  if(typeof supabase==='undefined'){badge('off','离线模式');firstSync=true;return;}try{sb=supabase.createClient(SB_URL,SB_KEY);}catch(e){sb=null;badge('off','离线模式');firstSync=true;return;}
+  badge('syncing','连接中…');try{const remote=await readRemote();if(remote.state)S=mergeStates(S,remote.state);lastCloudVersion=remote.version;lastCloudTime=remote.time;saveLocal();firstSync=true;badge('online','已连接');render();subscribe();doSave();}catch(e){console.error('连接失败',e);firstSync=true;badge('off','离线模式，等待恢复');}
+  setInterval(async()=>{if(!sb||saving||saveTimer||isRemote)return;try{const remote=await readRemote();if(remote.state&&remote.time>lastCloudTime)applyRemote(remote.state,remote.version);}catch(e){}},30000);
 }
 
 /* ===== 启动 ===== */
