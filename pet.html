@@ -169,6 +169,15 @@
           <div class="note mt-2" id="ratioWarn"></div>
         </div>
         <div class="card p-4 sm:p-5">
+          <div class="font-bold mb-2">👥 员工名单（记录人）</div>
+          <div class="note mb-2">员工在「每日流水」的记录人一栏，从这里选自己的名字。名单会自动同步给所有员工。</div>
+          <div id="staffListBox"></div>
+          <div class="flex gap-2 mt-2">
+            <input id="staffInput" class="cell" style="border:1px solid var(--line);background:#fff;text-align:left;padding:8px" placeholder="输入员工名字" onkeydown="if(event.key==='Enter')addStaff()">
+            <button class="btn btn-accent" onclick="addStaff()">添加</button>
+          </div>
+        </div>
+        <div class="card p-4 sm:p-5">
           <div class="font-bold mb-2">🔒 老板密码</div>
           <div class="note mb-2">员工打开只能填流水；输入密码才能看总览、台账、毛利等经营数据。</div>
           <div class="flex gap-2 items-center flex-wrap">
@@ -210,12 +219,14 @@ let sb=null,sbChannel=null,lastCloudTime=0,lastSaveTs=null,isRemote=false,saveTi
 const BASE_MONTHS=['2026-12','2027-01','2027-02','2027-03','2027-04','2027-05','2027-06','2027-07','2027-08','2027-09','2027-10','2027-11'];
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 function defaultLedger(){const o={};BASE_MONTHS.forEach(m=>o[m]={board:0,matWash:0,matBoard:0,matOther:0});return o;}
+const DEFAULT_STAFF=['妹妹','洗护师'];
+const PAY_METHODS=['微信','支付宝','现金','银行卡','美团/团购','其他'];
 function defaultState(){return{
   params:{rent:1800,water:1200,salaryMM:4000,salaryStaff:4000,otherFixed:300,priceSmall:55,priceLarge:95,priceBoard:80,priceGoods:60,ratioWash:0.85,ratioBoard:0,ratioGoods:0.15,days:30},
   flows:[{id:uid(),_ts:Date.now(),date:'2026-11-25',customer:'',service:'',wash:55,goods:'',pay:'',material:'',recorder:'',note:''}],
-  ledger:defaultLedger(),manualMargin:''};}
+  ledger:defaultLedger(),manualMargin:'',staffList:DEFAULT_STAFF.slice()};}
 let S=loadLocal();
-function loadLocal(){try{const d=JSON.parse(localStorage.getItem(LKEY));if(d&&d.params&&d.flows)return d;}catch(e){}return defaultState();}
+function loadLocal(){try{const d=JSON.parse(localStorage.getItem(LKEY));if(d&&d.params&&d.flows){if(!d.staffList)d.staffList=DEFAULT_STAFF.slice();return d;}}catch(e){}return defaultState();}
 function saveLocal(){try{localStorage.setItem(LKEY,JSON.stringify(S));}catch(e){}}
 
 /* ============ 工具 ============ */
@@ -369,6 +380,7 @@ function renderOverview(){
 }
 
 /* ============ 每日流水 ============ */
+function opts(list,cur,ph){const all=[...new Set([...(list||[]),...(cur&&!(list||[]).includes(cur)?[cur]:[])])];return `<option value="">${ph}</option>`+all.map(o=>`<option value="${esc(o)}" ${o===cur?'selected':''}>${esc(o)}</option>`).join('');}
 function flowRow(f,i){
   const total=num(f.wash)+num(f.goods);
   return `<tr>
@@ -378,9 +390,9 @@ function flowRow(f,i){
     <td><input class="cell" placeholder="洗澡/精洗/驱虫" value="${esc(f.service)}" oninput="uf('${f.id}','service',this.value)"></td>
     <td class="edit"><input class="cell num" type="number" placeholder="¥ 如55" value="${esc(f.wash)}" oninput="uf('${f.id}','wash',this.value)"></td>
     <td class="edit"><input class="cell num" type="number" placeholder="¥ 如30" value="${esc(f.goods)}" oninput="uf('${f.id}','goods',this.value)"></td>
-    <td><input class="cell" placeholder="微信/现金" value="${esc(f.pay)}" oninput="uf('${f.id}','pay',this.value)"></td>
+    <td><select class="cell" onchange="uf('${f.id}','pay',this.value)">${opts(PAY_METHODS,f.pay,'选收款')}</select></td>
     <td class="boss edit"><input class="cell num" type="number" placeholder="¥ 如5" value="${esc(f.material)}" oninput="uf('${f.id}','material',this.value)"></td>
-    <td><input class="cell" placeholder="你的名字" value="${esc(f.recorder)}" oninput="uf('${f.id}','recorder',this.value)"></td>
+    <td><select class="cell" onchange="uf('${f.id}','recorder',this.value)">${opts(S.staffList||DEFAULT_STAFF,f.recorder,'选名字')}</select></td>
     <td><input class="cell" placeholder="选填" value="${esc(f.note)}" oninput="uf('${f.id}','note',this.value)"></td>
     <td class="boss auto">${fmt(total)}</td>
     <td><button class="del" title="删除" onclick="delFlow('${f.id}')">✕</button></td>
@@ -458,8 +470,11 @@ function renderParams(){
   document.getElementById('paramFixed').innerHTML=mk(FIXED,false);
   document.getElementById('paramPrice').innerHTML=mk(PRICE,false);
   document.getElementById('paramRatio').innerHTML=mk(RATIO,true);
-  document.getElementById('fixedTotal').textContent=fmt(fixedTotal());ratioWarn();
+  document.getElementById('fixedTotal').textContent=fmt(fixedTotal());ratioWarn();renderStaff();
 }
+function renderStaff(){const box=document.getElementById('staffListBox');if(!box)return;box.innerHTML=(S.staffList||[]).map(n=>`<div class="flex items-center gap-2 py-1" style="border-bottom:1px dashed var(--line)"><span class="flex-1">${esc(n)}</span><button class="del" title="删除" onclick="delStaff('${esc(n)}')">✕</button></div>`).join('')||'<div class="note">暂无员工，请在下方添加</div>';}
+function addStaff(){const i=document.getElementById('staffInput');const v=i.value.trim();if(!v)return;if(!(S.staffList||[]).includes(v)){S.staffList=(S.staffList||[]).concat(v);saveLocal();queueSave();}i.value='';renderStaff();}
+function delStaff(n){S.staffList=(S.staffList||[]).filter(x=>x!==n);saveLocal();queueSave();renderStaff();}
 function up(k,v,isP){S.params[k]=isP?num(v)/100:v;saveLocal();queueSave();document.getElementById('fixedTotal').textContent=fmt(fixedTotal());ratioWarn();}
 function ratioWarn(){const s=num(S.params.ratioWash)+num(S.params.ratioBoard)+num(S.params.ratioGoods);
   document.getElementById('ratioWarn').innerHTML=Math.abs(s-1)>0.001?`⚠️ 占比合计 <b style="color:var(--bad)">${Math.round(s*100)}%</b>，不等于100%时保本单量会算偏。`:`✅ 占比合计 ${Math.round(s*100)}%，正常。`;}
@@ -504,7 +519,7 @@ function applyRemote(d){
   if(!d||!d.params)return;
   isRemote=true;
   S.flows=mergeFlows(S.flows,d.flows||[]);
-  S.params=d.params;S.ledger=Object.assign(defaultLedger(),d.ledger||{});S.manualMargin=d.manualMargin||'';
+  S.params=d.params;S.ledger=Object.assign(defaultLedger(),d.ledger||{});S.manualMargin=d.manualMargin||'';S.staffList=d.staffList||S.staffList||DEFAULT_STAFF.slice();
   saveLocal();lastCloudTime=Date.now();isRemote=false;
   if(cur==='flow'){/* 录入中不强刷，避免打断输入 */}else render();
   badge('online','已同步');
@@ -516,7 +531,7 @@ async function startSync(){
   const cloud=await loadCloud();
   if(cloud&&cloud.params){
     S.flows=mergeFlows(cloud.flows||[],S.flows);
-    S.params=cloud.params;S.ledger=Object.assign(defaultLedger(),cloud.ledger||{});S.manualMargin=cloud.manualMargin||'';
+    S.params=cloud.params;S.ledger=Object.assign(defaultLedger(),cloud.ledger||{});S.manualMargin=cloud.manualMargin||'';S.staffList=cloud.staffList||S.staffList||DEFAULT_STAFF.slice();
   }else if(cloud===null){/* 云端为空，用本地并上传 */}
   saveLocal();firstSync=true;badge('online','已连接');
   render();subscribe();
