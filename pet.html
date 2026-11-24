@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>宠物店毛利率与保本自动测算表（无寄养版）</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --ink-1:#1f2933; --ink-2:#3e4c59; --ink-3:#7b8794;
+    --line:#e5e0d8; --bg:#faf7f2; --card:#ffffff;
+    --accent:#e8734a; --accent-soft:#fdeee6;
+    --auto:#2563eb; --auto-soft:#eff4ff;
+    --good:#15803d; --good-soft:#e8f6ec; --bad:#dc2626; --bad-soft:#fdecec;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink-1);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 16px 80px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 1px 2px rgba(31,41,51,.04)}
+  .tab{display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;color:var(--ink-3);cursor:pointer;white-space:nowrap;transition:.15s;border:1px solid transparent}
+  .tab:hover{background:#f1ece4;color:var(--ink-1)}
+  .tab.active{background:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(232,115,74,.28)}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  th,td{border:1px solid var(--line);padding:7px 8px;text-align:center;vertical-align:middle}
+  thead th{background:#f4efe8;color:var(--ink-2);font-weight:600;position:sticky;top:0;z-index:2}
+  .tbl-scroll{overflow:auto;border-radius:12px;border:1px solid var(--line);-webkit-overflow-scrolling:touch}
+  .tbl-scroll table{border:0}
+  td.l,th.l{text-align:left}
+  input.cell{width:100%;min-width:56px;border:1px solid transparent;background:transparent;text-align:center;font:inherit;color:var(--ink-1);padding:4px;border-radius:6px;outline:none}
+  input.cell:hover{background:#f6f1ea}
+  input.cell:focus{background:#fff;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+  input.cell.num{text-align:right}
+  .auto{color:var(--auto);font-variant-numeric:tabular-nums;font-weight:600}
+  .calc{background:var(--auto-soft)}
+  .edit{background:#fffdf7}
+  .totrow td{background:#f4efe8;font-weight:700}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink-2);transition:.15s}
+  .btn:hover{background:#f6f1ea}
+  .btn-accent{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn-accent:hover{background:#d9623a}
+  .pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700}
+  .pill.g{background:var(--good-soft);color:var(--good)}
+  .pill.b{background:var(--bad-soft);color:var(--bad)}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .kpi .v{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+  .kpi .l{font-size:12px;color:var(--ink-3);margin-top:4px}
+  .note{font-size:12.5px;color:var(--ink-3);line-height:1.7}
+  .del{color:var(--ink-3);cursor:pointer;border:none;background:none;font-size:16px;line-height:1;padding:2px 6px;border-radius:6px}
+  .del:hover{color:var(--bad);background:var(--bad-soft)}
+  .flash{animation:fl .4s}
+  @keyframes fl{from{background:var(--accent-soft)}to{background:transparent}}
+  @media(max-width:640px){.kpi .v{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 头部 -->
+  <header class="mb-5">
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="text-3xl">🐾</div>
+      <div>
+        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight">宠物店毛利率与保本自动测算表</h1>
+        <p class="text-xs sm:text-sm" style="color:var(--ink-3)">无寄养版 · 改参数 / 录流水，毛利率与保本线全自动重算 · 数据保存在本机浏览器</p>
+      </div>
+      <button class="btn ml-auto" onclick="resetAll()">↺ 重置为默认</button>
+    </div>
+  </header>
+
+  <!-- Tab 导航 -->
+  <nav class="flex gap-2 mb-5 overflow-auto pb-1" id="tabs">
+    <div class="tab active" data-t="breakeven" onclick="go('breakeven')">📊 保本测算</div>
+    <div class="tab" data-t="flow" onclick="go('flow')">📋 每日流水</div>
+    <div class="tab" data-t="ledger" onclick="go('ledger')">📅 月度台账</div>
+    <div class="tab" data-t="params" onclick="go('params')">⚙️ 参数设置</div>
+  </nav>
+
+  <!-- 保本测算 -->
+  <section id="sec-breakeven">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4" id="beKpis"></div>
+    <div class="card p-4 sm:p-5 mb-4">
+      <div class="font-bold mb-3">保本明细（自动）</div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th class="l" style="min-width:150px">指标</th><th style="min-width:110px">数值</th><th class="l" style="min-width:200px">含义</th></tr></thead>
+          <tbody id="beBody"></tbody>
+        </table>
+      </div>
+      <div class="mt-3 flex items-center gap-2 flex-wrap">
+        <span class="note">台账还没有数据时，可手动给个参考毛利率试算：</span>
+        <input id="manualMargin" class="cell num" style="max-width:90px;border:1px solid var(--line);background:#fff" type="number" step="1" min="0" max="100" placeholder="55" oninput="onManualMargin(this.value)">
+        <span class="note">%（留空则自动取月度台账平均）</span>
+      </div>
+    </div>
+    <div class="card p-4 sm:p-5">
+      <div class="font-bold mb-2">怎么用</div>
+      <ol class="note list-decimal pl-5 space-y-1">
+        <li>先在「参数设置」把房租、两人工资、水电改成真实数，全表自动更新。</li>
+        <li>每天/月底在「每日流水」录入洗护、用品收入；「月度台账」灰底格补寄养营收和耗材，蓝字格自动出毛利率、净利润、保本线。</li>
+        <li>「保本测算」的毛利率取已填月份的平均；前几个月没填时用上面的手动毛利率参考 50%～60%。</li>
+        <li>实际单量低于「每日需洗护单数」时，说明这个月大概率亏，优先砍耗材浪费、错峰排班。</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 每日流水 -->
+  <section id="sec-flow" class="hidden">
+    <div class="card p-4 sm:p-5">
+      <div class="flex items-center gap-3 mb-3 flex-wrap">
+        <div class="font-bold">每日流水</div>
+        <span class="note">月份、当日合计自动算；收入自动汇总进「月度台账」对应月份</span>
+        <button class="btn btn-accent ml-auto" onclick="addFlow()">＋ 添加一行</button>
+      </div>
+      <div class="tbl-scroll" style="max-height:70vh">
+        <table>
+          <thead><tr>
+            <th style="min-width:118px">日期</th><th style="min-width:76px">月份<br>(自动)</th>
+            <th class="l" style="min-width:90px">客户/宠物</th><th class="l" style="min-width:90px">服务项目</th>
+            <th style="min-width:76px">洗护收入</th><th style="min-width:76px">用品收入</th>
+            <th style="min-width:76px">收款方式</th><th style="min-width:76px">耗材支出</th>
+            <th style="min-width:64px">记录人</th><th class="l" style="min-width:90px">备注</th>
+            <th style="min-width:80px">当日合计<br>(自动)</th><th style="width:40px"></th>
+          </tr></thead>
+          <tbody id="flowBody"></tbody>
+        </table>
+      </div>
+      <div class="note mt-3">提示：日期一改，所属月份自动变；「当日合计」= 洗护收入 + 用品收入。</div>
+    </div>
+  </section>
+
+  <!-- 月度台账 -->
+  <section id="sec-ledger" class="hidden">
+    <div class="card p-4 sm:p-5">
+      <div class="font-bold mb-1">月度经营台账</div>
+      <div class="note mb-3"><span style="color:#b45309">■</span> 黄底格填寄养营收 / 耗材；<span style="color:var(--auto)">蓝字</span> 列自动算；洗护、用品营收自动取自「每日流水」。</div>
+      <div class="tbl-scroll" style="max-height:75vh">
+        <table id="ledgerTable">
+          <thead><tr>
+            <th style="min-width:78px">月份</th>
+            <th>洗护营收</th><th>寄养营收</th><th>用品营收</th><th class="calc">总营收</th>
+            <th>洗护耗材</th><th>寄养耗材</th><th>其他直接成本</th><th class="calc">直接成本</th>
+            <th class="calc">毛利</th><th class="calc">毛利率</th>
+            <th class="calc">固定成本</th><th class="calc">净利润</th>
+            <th class="calc">保本营收</th><th class="calc">保本差额</th><th class="calc">盈亏</th>
+          </tr></thead>
+          <tbody id="ledgerBody"></tbody>
+        </table>
+      </div>
+      <div class="note mt-3">看结果：毛利率盯着别长期低于 50%；出现「亏损」或保本差额为负，说明这个月没赚到钱。月份需与流水表自动月份一致。</div>
+    </div>
+  </section>
+
+  <!-- 参数设置 -->
+  <section id="sec-params" class="hidden">
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="card p-4 sm:p-5">
+        <div class="font-bold mb-3">固定成本（每月）</div>
+        <div class="tbl-scroll"><table>
+          <thead><tr><th class="l">项目</th><th class="l">说明</th><th style="min-width:96px">数值(元)</th></tr></thead>
+          <tbody id="paramFixed"></tbody>
+          <tfoot><tr class="totrow"><td class="l">固定成本合计/月</td><td></td><td class="auto" id="fixedTotal">0</td></tr></tfoot>
+        </table></div>
+      </div>
+      <div class="space-y-4">
+        <div class="card p-4 sm:p-5">
+          <div class="font-bold mb-3">服务单价（按当地实际改）</div>
+          <div class="tbl-scroll"><table>
+            <thead><tr><th class="l">项目</th><th class="l">说明</th><th style="min-width:96px">数值(元)</th></tr></thead>
+            <tbody id="paramPrice"></tbody>
+          </table></div>
+        </div>
+        <div class="card p-4 sm:p-5">
+          <div class="font-bold mb-3">营收结构占比 & 营业天数</div>
+          <div class="tbl-scroll"><table>
+            <thead><tr><th class="l">项目</th><th class="l">说明</th><th style="min-width:96px">数值</th></tr></thead>
+            <tbody id="paramRatio"></tbody>
+          </table></div>
+          <div class="note mt-2" id="ratioWarn"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="text-center mt-8 note">🐾 宠物店经营测算 · 独立网页版 · 数据仅保存在当前浏览器，清除缓存会丢失</footer>
+</div>
+
+<script>
+/* ================= 默认数据（与原 Excel 一致） ================= */
+const MONTHS=['2026-12','2027-01','2027-02','2027-03','2027-04','2027-05','2027-06','2027-07','2027-08','2027-09','2027-10','2027-11'];
+const KEY='pet_calc_v1';
+function defaultState(){
+  const ledger={};
+  MONTHS.forEach(m=>ledger[m]={board:0,matWash:0,matBoard:0,matOther:0});
+  return {
+    params:{rent:1800,water:1200,salaryMM:4000,salaryStaff:4000,otherFixed:300,
+      priceSmall:55,priceLarge:95,priceBoard:80,priceGoods:60,
+      ratioWash:0.85,ratioBoard:0,ratioGoods:0.15,days:30},
+    flows:[{date:'2026-11-25',customer:'',service:'',wash:55,goods:'',pay:'',material:'',recorder:'',note:''}],
+    ledger, manualMargin:''
+  };
+}
+let S=load();
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&d.params&&d.flows&&d.ledger){const base=defaultState();MONTHS.forEach(m=>{if(!d.ledger[m])d.ledger[m]=base.ledger[m]});return d;}}catch(e){}return defaultState();}
+function save(){localStorage.setItem(KEY,JSON.stringify(S));}
+function resetAll(){if(confirm('确定重置为默认数据？你录入的流水和修改会被清空。')){S=defaultState();save();render();}}
+
+/* ================= 工具 ================= */
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n;};
+const fmt=n=>{if(n===''||n==null||isNaN(n))return '—';return Math.round(n).toLocaleString('zh-CN');};
+const fmt1=n=>{if(n===''||n==null||isNaN(n))return '—';return (Math.round(n*10)/10).toLocaleString('zh-CN');};
+const pct=n=>{if(n===''||n==null||isNaN(n))return '—';return (n*100).toFixed(1)+'%';};
+function monthOf(date){if(!date)return '';const d=new Date(date);if(isNaN(d))return '';const m=d.getMonth()+1;return d.getFullYear()+'-'+(m<10?'0':'')+m;}
+
+/* ================= 计算引擎 ================= */
+function fixedTotal(){const p=S.params;return num(p.rent)+num(p.water)+num(p.salaryMM)+num(p.salaryStaff)+num(p.otherFixed);}
+// 月度台账：每月派生值
+function ledgerRow(m){
+  const p=S.params;
+  let wash=0,goods=0;
+  S.flows.forEach(f=>{if(monthOf(f.date)===m){wash+=num(f.wash);goods+=num(f.goods);}});
+  const L=S.ledger[m]||{board:0,matWash:0,matBoard:0,matOther:0};
+  const board=num(L.board);
+  const total=wash+board+goods;
+  const matWash=num(L.matWash),matBoard=num(L.matBoard),matOther=num(L.matOther);
+  const direct=matWash+matBoard+matOther;
+  const gross=total-direct;
+  const margin=total===0?'':gross/total;
+  const ft=fixedTotal();
+  const net=gross-ft;
+  const be=(margin===''||margin<=0)?'':ft/margin;
+  const gap=be===''?'':total-be;
+  const result=be===''?'':(total>=be?'盈利':'亏损');
+  return {m,wash,board,goods,total,matWash,matBoard,matOther,direct,gross,margin,ft,net,be,gap,result};
+}
+function avgMargin(){
+  if(S.manualMargin!==''&&!isNaN(parseFloat(S.manualMargin)))return num(S.manualMargin)/100;
+  const ms=MONTHS.map(m=>ledgerRow(m).margin).filter(x=>x!==''&&!isNaN(x));
+  if(!ms.length)return '';
+  return ms.reduce((a,b)=>a+b,0)/ms.length;
+}
+function breakeven(){
+  const p=S.params,ft=fixedTotal(),am=avgMargin();
+  const beMonth=(am===''||am<=0)?'':ft/am;
+  const days=num(p.days)||30;
+  const daily=beMonth===''?'':beMonth/days;
+  const wash=beMonth===''?'':beMonth*num(p.ratioWash)/(num(p.priceSmall)||1)/days;
+  const board=beMonth===''?'':beMonth*num(p.ratioBoard)/(num(p.priceBoard)||1)/days;
+  const goods=beMonth===''?'':beMonth*num(p.ratioGoods)/(num(p.priceGoods)||1)/days;
+  return {ft,am,beMonth,daily,wash,board,goods};
+}
+
+/* ================= 渲染：保本测算 ================= */
+function renderBreakeven(){
+  const b=breakeven();
+  const kpis=[
+    {l:'固定成本 / 月',v:'¥'+fmt(b.ft),c:'var(--ink-1)'},
+    {l:'平均毛利率',v:pct(b.am),c:'var(--auto)'},
+    {l:'保本营收 / 月',v:b.beMonth===''?'—':'¥'+fmt(b.beMonth),c:'var(--ink-1)'},
+    {l:'每日需洗护单数',v:b.wash===''?'—':fmt1(b.wash)+' 单',c:'var(--accent)'},
+  ];
+  document.getElementById('beKpis').innerHTML=kpis.map(k=>
+    `<div class="kpi"><div class="v" style="color:${k.c}">${k.v}</div><div class="l">${k.l}</div></div>`).join('');
+  const rows=[
+    ['固定成本合计/月','¥'+fmt(b.ft),'房租+水电+两人工资+其他'],
+    ['平均毛利率',pct(b.am),S.manualMargin!==''?'当前使用手动毛利率':'取月度台账已填月份的平均'],
+    ['保本营收/月',b.beMonth===''?'—':'¥'+fmt(b.beMonth),'固定成本 ÷ 毛利率'],
+    ['每日保本流水',b.daily===''?'—':'¥'+fmt(b.daily),'保本营收 ÷ 营业天数('+ (num(S.params.days)||30) +'天)'],
+    ['每日需洗护单数',b.wash===''?'—':fmt1(b.wash)+' 单','按洗护占比 '+pct(num(S.params.ratioWash))+' 与均价 ¥'+fmt(num(S.params.priceSmall))+' 折算'],
+    ['每日需寄养床位（无寄养忽略）',b.board===''?'—':fmt1(b.board)+' 床','按寄养占比 '+pct(num(S.params.ratioBoard))+' 折算'],
+    ['每日需用品单数',b.goods===''?'—':fmt1(b.goods)+' 单','零食驱虫等零售，占比 '+pct(num(S.params.ratioGoods))],
+  ];
+  document.getElementById('beBody').innerHTML=rows.map(r=>
+    `<tr><td class="l">${r[0]}</td><td class="auto">${r[1]}</td><td class="l note">${r[2]}</td></tr>`).join('');
+  const mm=document.getElementById('manualMargin');if(mm.value!==String(S.manualMargin))mm.value=S.manualMargin;
+}
+function onManualMargin(v){S.manualMargin=v===''?'':v;save();renderBreakeven();}
+
+/* ================= 渲染：每日流水 ================= */
+function flowRow(f,i){
+  const total=num(f.wash)+num(f.goods);
+  return `<tr>
+    <td><input class="cell" type="date" value="${esc(f.date)}" oninput="uf(${i},'date',this.value)"></td>
+    <td class="auto" id="fm${i}">${monthOf(f.date)||'—'}</td>
+    <td><input class="cell" value="${esc(f.customer)}" oninput="uf(${i},'customer',this.value)"></td>
+    <td><input class="cell" value="${esc(f.service)}" oninput="uf(${i},'service',this.value)"></td>
+    <td class="edit"><input class="cell num" type="number" value="${esc(f.wash)}" oninput="uf(${i},'wash',this.value)"></td>
+    <td class="edit"><input class="cell num" type="number" value="${esc(f.goods)}" oninput="uf(${i},'goods',this.value)"></td>
+    <td><input class="cell" value="${esc(f.pay)}" oninput="uf(${i},'pay',this.value)"></td>
+    <td class="edit"><input class="cell num" type="number" value="${esc(f.material)}" oninput="uf(${i},'material',this.value)"></td>
+    <td><input class="cell" value="${esc(f.recorder)}" oninput="uf(${i},'recorder',this.value)"></td>
+    <td><input class="cell" value="${esc(f.note)}" oninput="uf(${i},'note',this.value)"></td>
+    <td class="auto" id="ft${i}">${fmt(total)}</td>
+    <td><button class="del" title="删除本行" onclick="delFlow(${i})">✕</button></td>
+  </tr>`;
+}
+function renderFlow(){
+  document.getElementById('flowBody').innerHTML=S.flows.map(flowRow).join('')||
+    '<tr><td colspan="12" class="note" style="padding:20px">暂无流水，点右上角「添加一行」开始录入</td></tr>';
+}
+function uf(i,k,v){S.flows[i][k]=v;save();
+  document.getElementById('fm'+i).textContent=monthOf(S.flows[i].date)||'—';
+  document.getElementById('ft'+i).textContent=fmt(num(S.flows[i].wash)+num(S.flows[i].goods));
+}
+function addFlow(){S.flows.push({date:'',customer:'',service:'',wash:'',goods:'',pay:'',material:'',recorder:'',note:''});save();renderFlow();
+  const tb=document.getElementById('flowBody');tb.lastElementChild&&tb.lastElementChild.scrollIntoView({block:'nearest'});}
+function delFlow(i){S.flows.splice(i,1);save();renderFlow();}
+
+/* ================= 渲染：月度台账 ================= */
+function ledgerRowHtml(m){
+  const r=ledgerRow(m),L=S.ledger[m];
+  const gapCell=r.gap===''?'—':`<span style="color:${r.gap<0?'var(--bad)':'var(--good)'}">${fmt(r.gap)}</span>`;
+  const resCell=r.result===''?'—':`<span class="pill ${r.result==='盈利'?'g':'b'}">${r.result}</span>`;
+  return `<tr>
+    <td class="auto">${m}</td>
+    <td class="auto">${fmt(r.wash)}</td>
+    <td class="edit"><input class="cell num" type="number" value="${esc(L.board)}" oninput="ul('${m}','board',this.value)"></td>
+    <td class="auto">${fmt(r.goods)}</td>
+    <td class="calc auto">${fmt(r.total)}</td>
+    <td class="edit"><input class="cell num" type="number" value="${esc(L.matWash)}" oninput="ul('${m}','matWash',this.value)"></td>
+    <td class="edit"><input class="cell num" type="number" value="${esc(L.matBoard)}" oninput="ul('${m}','matBoard',this.value)"></td>
+    <td class="edit"><input class="cell num" type="number" value="${esc(L.matOther)}" oninput="ul('${m}','matOther',this.value)"></td>
+    <td class="calc auto">${fmt(r.direct)}</td>
+    <td class="calc auto">${fmt(r.gross)}</td>
+    <td class="calc auto">${pct(r.margin)}</td>
+    <td class="calc auto">${fmt(r.ft)}</td>
+    <td class="calc auto" style="color:${r.net<0?'var(--bad)':'var(--good)'}">${fmt(r.net)}</td>
+    <td class="calc auto">${r.be===''?'—':fmt(r.be)}</td>
+    <td class="calc auto">${gapCell}</td>
+    <td class="calc">${resCell}</td>
+  </tr>`;
+}
+function renderLedger(){
+  let html=MONTHS.map(ledgerRowHtml).join('');
+  const rows=MONTHS.map(m=>ledgerRow(m));
+  const sum=k=>rows.reduce((a,r)=>a+(num(r[k])||0),0);
+  const margins=rows.map(r=>r.margin).filter(x=>x!==''&&!isNaN(x));
+  const avgM=margins.length?margins.reduce((a,b)=>a+b,0)/margins.length:'';
+  html+=`<tr class="totrow"><td>合计/平均</td>
+    <td>${fmt(sum('wash'))}</td><td>${fmt(sum('board'))}</td><td>${fmt(sum('goods'))}</td><td class="auto">${fmt(sum('total'))}</td>
+    <td>${fmt(sum('matWash'))}</td><td>${fmt(sum('matBoard'))}</td><td>${fmt(sum('matOther'))}</td><td class="auto">${fmt(sum('direct'))}</td>
+    <td class="auto">${fmt(sum('gross'))}</td><td class="auto">${pct(avgM)}</td>
+    <td class="auto">${fmt(sum('ft'))}</td>
+    <td class="auto" style="color:${sum('net')<0?'var(--bad)':'var(--good)'}">${fmt(sum('net'))}</td>
+    <td colspan="3"></td></tr>`;
+  document.getElementById('ledgerBody').innerHTML=html;
+}
+function ul(m,k,v){S.ledger[m][k]=v;save();renderLedger();}
+
+/* ================= 渲染：参数设置 ================= */
+const FIXED=[['rent','房租','每月固定'],['water','水电费','洗护用水多，含保底部分'],['salaryMM','妹妹工资','底薪，可按实际改'],['salaryStaff','洗护员工工资','底薪+提成保底'],['otherFixed','其他固定费用','设备维护、垃圾费、平台费等']];
+const PRICE=[['priceSmall','小/中型洗护均价','洗澡+吹干打包价按中间值取'],['priceLarge','大型/精洗均价','大狗、长毛、精洗套餐'],['priceBoard','寄养单价（元/床/天）','短期寄养日均，长期可折算'],['priceGoods','用品类客单价','驱虫、零食、浴液等']];
+const RATIO=[['ratioWash','洗护营收占比','本店基本无寄养，寄养占比填0即可',1],['ratioBoard','寄养营收占比','无寄养填 0',1],['ratioGoods','用品营收占比','零食驱虫等',1],['days','月营业天数','保本按天折算用',0]];
+function renderParams(){
+  const mk=(arr,isRatio)=>arr.map(([k,label,desc,pctFlag])=>{
+    const val=S.params[k];
+    const disp=isRatio&&pctFlag?Math.round(num(val)*100):val;
+    const step=isRatio&&pctFlag?1:(k==='days'?1:1);
+    return `<tr><td class="l">${label}</td><td class="l note">${desc}</td>
+      <td class="edit"><input class="cell num" type="number" step="${step}" value="${esc(disp)}" oninput="up('${k}',this.value,${isRatio&&pctFlag?1:0})"></td></tr>`;
+  }).join('');
+  document.getElementById('paramFixed').innerHTML=mk(FIXED,false);
+  document.getElementById('paramPrice').innerHTML=mk(PRICE,false);
+  document.getElementById('paramRatio').innerHTML=mk(RATIO,true);
+  document.getElementById('fixedTotal').textContent=fmt(fixedTotal());
+  ratioWarning();
+}
+function up(k,v,isPct){S.params[k]=isPct?num(v)/100:v;save();
+  document.getElementById('fixedTotal').textContent=fmt(fixedTotal());ratioWarning();}
+function ratioWarning(){
+  const sum=num(S.params.ratioWash)+num(S.params.ratioBoard)+num(S.params.ratioGoods);
+  const el=document.getElementById('ratioWarn');
+  el.innerHTML=Math.abs(sum-1)>0.001
+    ?`⚠️ 占比合计 <b style="color:var(--bad)">${Math.round(sum*100)}%</b>，不等于 100% 时保本单量会算偏，请调整。`
+    :`✅ 占比合计 ${Math.round(sum*100)}%，正常。`;
+}
+
+/* ================= 路由 ================= */
+let cur='breakeven';
+function go(t){cur=t;
+  document.querySelectorAll('#tabs .tab').forEach(e=>e.classList.toggle('active',e.dataset.t===t));
+  ['breakeven','flow','ledger','params'].forEach(x=>document.getElementById('sec-'+x).classList.toggle('hidden',x!==t));
+  render();
+}
+function render(){
+  if(cur==='breakeven')renderBreakeven();
+  else if(cur==='flow')renderFlow();
+  else if(cur==='ledger')renderLedger();
+  else if(cur==='params')renderParams();
+}
+render();
+</script>
+</body>
+</html>
