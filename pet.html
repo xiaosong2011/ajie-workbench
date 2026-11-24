@@ -8,109 +8,131 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --ink-1:#1f2933;--ink-2:#3e4c59;--ink-3:#7b8794;--line:#e5e0d8;--bg:#faf7f2;--card:#fff;
-    --accent:#e8734a;--accent-soft:#fdeee6;--auto:#2563eb;--auto-soft:#eff4ff;
-    --good:#15803d;--good-soft:#e8f6ec;--bad:#dc2626;--bad-soft:#fdecec;
+    --ink-1:#22252b;--ink-2:#4a5160;--ink-3:#8a93a3;--line:#ece7df;--bg:#f6f4f0;--card:#fff;
+    --brand1:#ff8a5c;--brand2:#ff6b9d;--grad:linear-gradient(135deg,#ff8a5c,#ff6b9d);
+    --auto:#6366f1;--auto-soft:#eef0ff;--good:#10b981;--good-soft:#e7f8f0;--bad:#ef4444;--bad-soft:#fdecec;
+    --shadow:0 4px 20px rgba(34,37,43,.06);--shadow-lg:0 12px 36px rgba(34,37,43,.12);
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink-1);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:1180px;margin:0 auto;padding:18px 14px 80px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 1px 2px rgba(31,41,51,.04)}
-  .tab{display:flex;align-items:center;gap:6px;padding:10px 15px;border-radius:12px;font-size:14px;font-weight:600;color:var(--ink-3);cursor:pointer;white-space:nowrap;transition:.15s;border:1px solid transparent}
-  .tab:hover{background:#f1ece4;color:var(--ink-1)}
-  .tab.active{background:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(232,115,74,.28)}
-  table{border-collapse:collapse;width:100%;font-size:13px}
-  th,td{border:1px solid var(--line);padding:7px 8px;text-align:center;vertical-align:middle}
-  thead th{background:#f4efe8;color:var(--ink-2);font-weight:600}
-  .tbl-scroll{overflow:auto;border-radius:12px;border:1px solid var(--line);-webkit-overflow-scrolling:touch}
+  body{margin:0;min-height:100vh;color:var(--ink-1);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;
+    background:var(--bg);
+    background-image:radial-gradient(900px 400px at 100% -5%,#ffe6d6 0%,transparent 55%),radial-gradient(800px 400px at -10% 0%,#ffe0ec 0%,transparent 50%);
+    background-attachment:fixed;}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 16px 80px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s}
+  .card.hoverable:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .logo{width:52px;height:52px;border-radius:16px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 8px 20px rgba(255,107,157,.35);animation:float 4s ease-in-out infinite}
+  .tab{display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;color:var(--ink-3);cursor:pointer;white-space:nowrap;transition:all .2s;border:1px solid transparent;background:rgba(255,255,255,.6)}
+  .tab:hover{color:var(--ink-1);transform:translateY(-1px)}
+  .tab.active{background:var(--grad);color:#fff;box-shadow:0 6px 16px rgba(255,107,157,.35)}
+  table{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}
+  th,td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:8px;text-align:center;vertical-align:middle}
+  th:last-child,td:last-child{border-right:0}
+  tbody tr:last-child td{border-bottom:0}
+  thead th{background:#faf7f3;color:var(--ink-2);font-weight:600;position:sticky;top:0;z-index:2}
+  tbody tr:nth-child(even):not(.totrow){background:#fcfaf7}
+  tbody tr:hover:not(.totrow){background:#fff7f2}
+  .tbl-scroll{overflow:auto;border-radius:14px;border:1px solid var(--line);-webkit-overflow-scrolling:touch;background:#fff}
   .tbl-scroll table{border:0}
   td.l,th.l{text-align:left}
-  input.cell,select.cell{width:100%;min-width:56px;border:1px solid transparent;background:transparent;text-align:center;font:inherit;color:var(--ink-1);padding:5px 4px;border-radius:6px;outline:none}
-  input.cell::placeholder{color:#b6ada1;font-size:12px}
-  input.cell:hover{background:#f6f1ea}
-  input.cell:focus,select.cell:focus{background:#fff;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+  input.cell,select.cell{width:100%;min-width:56px;border:1px solid transparent;background:transparent;text-align:center;font:inherit;color:var(--ink-1);padding:6px 4px;border-radius:8px;outline:none;transition:box-shadow .15s,border-color .15s}
+  input.cell::placeholder{color:#c0b8ac;font-size:12px}
+  input.cell:hover,select.cell:hover{background:#f6f1ea}
+  input.cell:focus,select.cell:focus{background:#fff;border-color:var(--brand2);box-shadow:0 0 0 3px rgba(255,107,157,.18)}
   input.cell.num{text-align:right}
   .auto{color:var(--auto);font-variant-numeric:tabular-nums;font-weight:600}
   .calc{background:var(--auto-soft)}
   .edit{background:#fffdf7}
-  .totrow td{background:#f4efe8;font-weight:700}
-  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink-2);transition:.15s}
-  .btn:hover{background:#f6f1ea}
-  .btn-accent{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .btn-accent:hover{background:#d9623a}
-  .pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700}
+  .totrow td{background:#f4efe8!important;font-weight:700}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink-2);transition:all .18s}
+  .btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+  .btn:active{transform:translateY(0) scale(.97)}
+  .btn-accent{background:var(--grad);color:#fff;border:0;box-shadow:0 6px 16px rgba(255,107,157,.3)}
+  .btn-accent:hover{box-shadow:0 10px 22px rgba(255,107,157,.4)}
+  .pill{display:inline-block;padding:3px 11px;border-radius:999px;font-size:12px;font-weight:700}
   .pill.g{background:var(--good-soft);color:var(--good)}
   .pill.b{background:var(--bad-soft);color:var(--bad)}
-  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .kpi{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);transition:transform .25s}
+  .kpi:hover{transform:translateY(-3px)}
+  .kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--grad)}
   .kpi .v{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
-  .kpi .l{font-size:12px;color:var(--ink-3);margin-top:4px}
+  .kpi .l{font-size:12px;color:var(--ink-3);margin-top:5px}
+  .kpi .ic{position:absolute;right:12px;top:12px;font-size:20px;opacity:.35}
   .note{font-size:12.5px;color:var(--ink-3);line-height:1.7}
-  .del{color:var(--ink-3);cursor:pointer;border:none;background:none;font-size:16px;line-height:1;padding:2px 6px;border-radius:6px}
-  .del:hover{color:var(--bad);background:var(--bad-soft)}
-  .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:999px;font-weight:600}
+  .del{color:var(--ink-3);cursor:pointer;border:none;background:none;font-size:16px;line-height:1;padding:2px 6px;border-radius:6px;transition:all .15s}
+  .del:hover{color:var(--bad);background:var(--bad-soft);transform:scale(1.15)}
+  .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:4px 10px;border-radius:999px;font-weight:600;background:#fff;box-shadow:var(--shadow)}
   .badge.online{background:var(--good-soft);color:var(--good)}
   .badge.syncing{background:#fff4e0;color:#b45309}
   .badge.error,.badge.off{background:var(--bad-soft);color:var(--bad)}
-  .modal-mask{position:fixed;inset:0;background:rgba(31,41,51,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
-  .bar-track{background:#f0ece5;border-radius:6px;height:16px;position:relative;overflow:hidden}
-  .bar-fill{position:absolute;top:0;bottom:0;border-radius:6px}
-  .big-num{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
-  @media(max-width:640px){.kpi .v{font-size:20px}.big-num{font-size:28px}}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor}
+  .badge.syncing .dot{animation:blink 1s infinite}
+  .modal-mask{position:fixed;inset:0;background:rgba(34,37,43,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;animation:fadeIn .2s}
+  .modal-card{animation:pop .3s cubic-bezier(.2,.8,.3,1.2)}
+  .hero{border-radius:22px;padding:24px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
+  .hero.good{background:linear-gradient(135deg,#10b981,#34d399)}
+  .hero.bad{background:linear-gradient(135deg,#ef4444,#fb7185)}
+  .hero.idle{background:linear-gradient(135deg,#a8b0bd,#c3c9d4)}
+  .hero::after{content:'🐾';position:absolute;right:-10px;bottom:-18px;font-size:120px;opacity:.16;transform:rotate(-20deg)}
+  .big-num{font-size:40px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 2px 10px rgba(0,0,0,.12)}
+  .bar-track{background:#f0ece5;border-radius:8px;height:18px;position:relative;overflow:hidden}
+  .bar-fill{position:absolute;top:0;bottom:0;left:0;border-radius:8px;width:0;transition:width .9s cubic-bezier(.2,.7,.3,1)}
+  .anim{opacity:0;animation:fadeUp .55s cubic-bezier(.2,.7,.3,1) forwards}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-7px) rotate(5deg)}}
+  @keyframes blink{50%{opacity:.25}}
+  @media(max-width:640px){.kpi .v{font-size:20px}.big-num{font-size:32px}.logo{width:44px;height:44px;font-size:24px}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.anim{opacity:1}}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <header class="mb-4">
+  <header class="mb-5 anim">
     <div class="flex items-center gap-3 flex-wrap">
-      <div class="text-3xl">🐾</div>
+      <div class="logo">🐾</div>
       <div class="min-w-0">
-        <h1 class="text-lg sm:text-2xl font-extrabold tracking-tight">宠物店经营测算</h1>
+        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight grad-text">宠物店经营测算</h1>
         <p class="text-xs" style="color:var(--ink-3)" id="roleLine">员工录入 · 打开即填，自动同步</p>
       </div>
       <div class="ml-auto flex items-center gap-2">
-        <span class="badge off" id="syncBadge">● <span id="syncText">连接中…</span></span>
+        <span class="badge off" id="syncBadge"><span class="dot"></span><span id="syncText">连接中…</span></span>
         <button class="btn" id="roleBtn" onclick="onRoleBtn()">🔒 老板登录</button>
       </div>
     </div>
   </header>
 
-  <nav class="flex gap-2 mb-4 overflow-auto pb-1" id="tabs"></nav>
+  <nav class="flex gap-2 mb-5 overflow-auto pb-1 anim" id="tabs" style="animation-delay:.05s"></nav>
 
-  <!-- 总览（老板） -->
-  <section id="sec-overview" class="hidden">
-    <div id="ovBody"></div>
-  </section>
+  <section id="sec-overview" class="hidden"><div id="ovBody"></div></section>
 
-  <!-- 每日流水（所有人） -->
   <section id="sec-flow" class="hidden">
-    <div class="card p-4 sm:p-5">
+    <div class="card p-4 sm:p-5 anim">
       <div class="flex items-center gap-3 mb-1 flex-wrap">
-        <div class="font-bold">📋 每日流水</div>
+        <div class="font-bold text-base">📋 每日流水</div>
         <button class="btn btn-accent ml-auto" onclick="addFlow()">＋ 记一笔</button>
       </div>
       <div class="note mb-3">照着每格的提示填写即可，填完自动保存并同步给老板。<span id="flowBossHint"></span></div>
-      <div class="tbl-scroll" style="max-height:72vh">
-        <table>
-          <thead><tr>
-            <th style="min-width:120px">日期</th><th class="boss" style="min-width:72px">月份</th>
-            <th class="l" style="min-width:100px">客户/宠物</th><th class="l" style="min-width:96px">服务项目</th>
-            <th style="min-width:80px">洗护收入</th><th style="min-width:80px">用品收入</th>
-            <th style="min-width:84px">收款方式</th><th class="boss" style="min-width:80px">耗材支出</th>
-            <th style="min-width:76px">记录人</th><th class="l" style="min-width:90px">备注</th>
-            <th class="boss" style="min-width:80px">当日合计</th><th style="width:42px"></th>
-          </tr></thead>
-          <tbody id="flowBody"></tbody>
-        </table>
-      </div>
-      <div class="note mt-3">💡 灰色提示文字告诉你每格填什么；金额填数字即可。「当日合计」= 洗护+用品收入，自动算。</div>
+      <div class="tbl-scroll" style="max-height:72vh"><table>
+        <thead><tr>
+          <th style="min-width:118px">日期</th><th class="boss" style="min-width:72px">月份</th>
+          <th class="l" style="min-width:100px">客户/宠物</th><th class="l" style="min-width:96px">服务项目</th>
+          <th style="min-width:80px">洗护收入</th><th style="min-width:80px">用品收入</th>
+          <th style="min-width:86px">收款方式</th><th class="boss" style="min-width:80px">耗材支出</th>
+          <th style="min-width:82px">记录人</th><th class="l" style="min-width:90px">备注</th>
+          <th class="boss" style="min-width:80px">当日合计</th><th style="width:42px"></th>
+        </tr></thead><tbody id="flowBody"></tbody>
+      </table></div>
+      <div class="note mt-3">💡 灰色提示告诉你每格填什么；记录人、收款方式点下拉选择；「当日合计」自动算。</div>
     </div>
   </section>
 
-  <!-- 月度台账（老板） -->
   <section id="sec-ledger" class="hidden">
-    <div class="card p-4 sm:p-5">
-      <div class="font-bold mb-1">📅 月度经营台账</div>
+    <div class="card p-4 sm:p-5 anim">
+      <div class="font-bold text-base mb-1">📅 月度经营台账</div>
       <div class="note mb-3">黄底格填寄养营收 / 耗材；<span style="color:var(--auto)">蓝字</span> 列自动算；洗护、用品营收自动取自「每日流水」。</div>
       <div class="tbl-scroll" style="max-height:75vh"><table>
         <thead><tr>
@@ -124,11 +146,10 @@
     </div>
   </section>
 
-  <!-- 保本测算（老板） -->
   <section id="sec-breakeven" class="hidden">
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4" id="beKpis"></div>
-    <div class="card p-4 sm:p-5 mb-4">
-      <div class="font-bold mb-3">📊 保本明细（自动）</div>
+    <div class="card p-4 sm:p-5 anim">
+      <div class="font-bold text-base mb-3">📊 保本明细（自动）</div>
       <div class="tbl-scroll"><table>
         <thead><tr><th class="l" style="min-width:150px">指标</th><th style="min-width:110px">数值</th><th class="l" style="min-width:200px">含义</th></tr></thead>
         <tbody id="beBody"></tbody>
@@ -141,11 +162,10 @@
     </div>
   </section>
 
-  <!-- 参数设置（老板） -->
   <section id="sec-params" class="hidden">
     <div class="grid md:grid-cols-2 gap-4">
-      <div class="card p-4 sm:p-5">
-        <div class="font-bold mb-3">固定成本（每月）</div>
+      <div class="card p-4 sm:p-5 anim">
+        <div class="font-bold mb-3">💰 固定成本（每月）</div>
         <div class="tbl-scroll"><table>
           <thead><tr><th class="l">项目</th><th class="l">说明</th><th style="min-width:96px">数值(元)</th></tr></thead>
           <tbody id="paramFixed"></tbody>
@@ -153,31 +173,31 @@
         </table></div>
       </div>
       <div class="space-y-4">
-        <div class="card p-4 sm:p-5">
-          <div class="font-bold mb-3">服务单价</div>
+        <div class="card p-4 sm:p-5 anim" style="animation-delay:.05s">
+          <div class="font-bold mb-3">🛁 服务单价</div>
           <div class="tbl-scroll"><table>
             <thead><tr><th class="l">项目</th><th class="l">说明</th><th style="min-width:96px">数值(元)</th></tr></thead>
             <tbody id="paramPrice"></tbody>
           </table></div>
         </div>
-        <div class="card p-4 sm:p-5">
-          <div class="font-bold mb-3">营收结构占比 & 营业天数</div>
+        <div class="card p-4 sm:p-5 anim" style="animation-delay:.1s">
+          <div class="font-bold mb-3">📊 营收结构占比 & 营业天数</div>
           <div class="tbl-scroll"><table>
             <thead><tr><th class="l">项目</th><th class="l">说明</th><th style="min-width:96px">数值</th></tr></thead>
             <tbody id="paramRatio"></tbody>
           </table></div>
           <div class="note mt-2" id="ratioWarn"></div>
         </div>
-        <div class="card p-4 sm:p-5">
+        <div class="card p-4 sm:p-5 anim" style="animation-delay:.15s">
           <div class="font-bold mb-2">👥 员工名单（记录人）</div>
-          <div class="note mb-2">员工在「每日流水」的记录人一栏，从这里选自己的名字。名单会自动同步给所有员工。</div>
+          <div class="note mb-2">员工在「每日流水」的记录人一栏选自己的名字，名单自动同步给所有员工。</div>
           <div id="staffListBox"></div>
           <div class="flex gap-2 mt-2">
             <input id="staffInput" class="cell" style="border:1px solid var(--line);background:#fff;text-align:left;padding:8px" placeholder="输入员工名字" onkeydown="if(event.key==='Enter')addStaff()">
             <button class="btn btn-accent" onclick="addStaff()">添加</button>
           </div>
         </div>
-        <div class="card p-4 sm:p-5">
+        <div class="card p-4 sm:p-5 anim" style="animation-delay:.2s">
           <div class="font-bold mb-2">🔒 老板密码</div>
           <div class="note mb-2">员工打开只能填流水；输入密码才能看总览、台账、毛利等经营数据。</div>
           <div class="flex gap-2 items-center flex-wrap">
@@ -189,15 +209,14 @@
     </div>
   </section>
 
-  <footer class="text-center mt-8 note">🐾 宠物店经营测算 · 数据云端同步 · 员工免密录入，老板密码查看</footer>
+  <footer class="text-center mt-10 note">🐾 宠物店经营测算 · 数据云端同步 · 员工免密录入，老板密码查看</footer>
 </div>
 
-<!-- 密码弹窗 -->
 <div class="modal-mask hidden" id="pwdModal">
-  <div class="card p-6 w-full" style="max-width:340px">
+  <div class="card modal-card p-6 w-full" style="max-width:350px">
     <div class="text-lg font-bold mb-1">🔒 老板登录</div>
     <div class="note mb-4">输入老板密码，查看经营总览与利润数据</div>
-    <input id="pwdInput" class="cell" type="password" style="border:1px solid var(--line);background:#fff;text-align:left;padding:10px" placeholder="请输入密码" onkeydown="if(event.key==='Enter')tryLogin()">
+    <input id="pwdInput" class="cell" type="password" style="border:1px solid var(--line);background:#fff;text-align:left;padding:11px" placeholder="请输入密码" onkeydown="if(event.key==='Enter')tryLogin()">
     <div class="note mt-2" id="pwdErr" style="color:var(--bad)"></div>
     <div class="flex gap-2 mt-4">
       <button class="btn btn-accent flex-1 justify-center" onclick="tryLogin()">登录</button>
@@ -207,20 +226,18 @@
 </div>
 
 <script>
-/* ============ Supabase 配置（复用小松工作台，独立工作区 ajie-pet） ============ */
+/* ===== Supabase（复用小松工作台，独立工作区 ajie-pet） ===== */
 const SB_URL='https://aofcpsdmdzvzsfdvisxu.supabase.co';
 const SB_KEY='sb_publishable_fPeWq7ZPmMAGhNtEIgKqAg_l4oiZK7Y';
-const WS='ajie-pet';                 // 宠物店独立工作区，与工作台 ajie-team 隔离
-const TABLE='workbench_data';
-const LKEY='pet_calc_v2';
+const WS='ajie-pet',TABLE='workbench_data',LKEY='pet_calc_v2';
 let sb=null,sbChannel=null,lastCloudTime=0,lastSaveTs=null,isRemote=false,saveTimer=null,saving=false,firstSync=false;
 
-/* ============ 默认数据 ============ */
+/* ===== 默认数据 ===== */
 const BASE_MONTHS=['2026-12','2027-01','2027-02','2027-03','2027-04','2027-05','2027-06','2027-07','2027-08','2027-09','2027-10','2027-11'];
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-function defaultLedger(){const o={};BASE_MONTHS.forEach(m=>o[m]={board:0,matWash:0,matBoard:0,matOther:0});return o;}
 const DEFAULT_STAFF=['妹妹','洗护师'];
 const PAY_METHODS=['微信','支付宝','现金','银行卡','美团/团购','其他'];
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+function defaultLedger(){const o={};BASE_MONTHS.forEach(m=>o[m]={board:0,matWash:0,matBoard:0,matOther:0});return o;}
 function defaultState(){return{
   params:{rent:1800,water:1200,salaryMM:4000,salaryStaff:4000,otherFixed:300,priceSmall:55,priceLarge:95,priceBoard:80,priceGoods:60,ratioWash:0.85,ratioBoard:0,ratioGoods:0.15,days:30},
   flows:[{id:uid(),_ts:Date.now(),date:'2026-11-25',customer:'',service:'',wash:55,goods:'',pay:'',material:'',recorder:'',note:''}],
@@ -229,7 +246,7 @@ let S=loadLocal();
 function loadLocal(){try{const d=JSON.parse(localStorage.getItem(LKEY));if(d&&d.params&&d.flows){if(!d.staffList)d.staffList=DEFAULT_STAFF.slice();return d;}}catch(e){}return defaultState();}
 function saveLocal(){try{localStorage.setItem(LKEY,JSON.stringify(S));}catch(e){}}
 
-/* ============ 工具 ============ */
+/* ===== 工具 ===== */
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n;};
 const fmt=n=>(n===''||n==null||isNaN(n))?'—':Math.round(n).toLocaleString('zh-CN');
@@ -237,27 +254,24 @@ const fmt1=n=>(n===''||n==null||isNaN(n))?'—':(Math.round(n*10)/10).toLocaleSt
 const pct=n=>(n===''||n==null||isNaN(n))?'—':(n*100).toFixed(1)+'%';
 function monthOf(d){if(!d)return '';const t=new Date(d);if(isNaN(t))return '';const m=t.getMonth()+1;return t.getFullYear()+'-'+(m<10?'0':'')+m;}
 function liveFlows(){return S.flows.filter(f=>!f._del);}
-function allMonths(){
-  const set=new Set(BASE_MONTHS);
-  liveFlows().forEach(f=>{const m=monthOf(f.date);if(m)set.add(m);});
-  Object.keys(S.ledger||{}).forEach(m=>set.add(m));
-  return [...set].sort();
-}
+function allMonths(){const s=new Set(BASE_MONTHS);liveFlows().forEach(f=>{const m=monthOf(f.date);if(m)s.add(m);});Object.keys(S.ledger||{}).forEach(m=>s.add(m));return [...s].sort();}
+/* 数字滚动动画 */
+function fmtCf(v,cf){if(cf==='money')return '¥'+fmt(v);if(cf==='signed')return (v<0?'−':'+')+'¥'+fmt(Math.abs(v));if(cf==='pct')return pct(v);if(cf==='num1')return fmt1(v);return fmt(v);}
+function animateCu(root){if(!root)return;if(matchMedia('(prefers-reduced-motion: reduce)').matches){root.querySelectorAll('[data-cu]').forEach(el=>{el.textContent=fmtCf(parseFloat(el.dataset.cu)||0,el.dataset.cf);});return;}
+  root.querySelectorAll('[data-cu]').forEach(el=>{const to=parseFloat(el.dataset.cu);if(isNaN(to)){el.textContent='—';return;}const cf=el.dataset.cf,st=performance.now(),dur=750;
+    (function step(t){const p=Math.min(1,(t-st)/dur),e=1-Math.pow(1-p,3);el.textContent=fmtCf(to*e,cf);if(p<1)requestAnimationFrame(step);else el.textContent=fmtCf(to,cf);})(st);});}
 
-/* ============ 计算引擎 ============ */
+/* ===== 计算引擎 ===== */
 function fixedTotal(){const p=S.params;return num(p.rent)+num(p.water)+num(p.salaryMM)+num(p.salaryStaff)+num(p.otherFixed);}
 function ledgerRow(m){
-  const p=S.params;let wash=0,goods=0;
+  let wash=0,goods=0;
   liveFlows().forEach(f=>{if(monthOf(f.date)===m){wash+=num(f.wash);goods+=num(f.goods);}});
   const L=S.ledger[m]||{board:0,matWash:0,matBoard:0,matOther:0};
   const board=num(L.board),total=wash+board+goods;
   const matWash=num(L.matWash),matBoard=num(L.matBoard),matOther=num(L.matOther);
-  const direct=matWash+matBoard+matOther;
-  const gross=total-direct;
-  const margin=total===0?'':gross/total;
-  const ft=fixedTotal(),net=gross-ft;
-  const be=(margin===''||margin<=0)?'':ft/margin;
-  const gap=be===''?'':total-be;
+  const direct=matWash+matBoard+matOther,gross=total-direct;
+  const margin=total===0?'':gross/total,ft=fixedTotal(),net=gross-ft;
+  const be=(margin===''||margin<=0)?'':ft/margin,gap=be===''?'':total-be;
   const result=be===''?'':(total>=be?'盈利':'亏损');
   return {m,wash,board,goods,total,matWash,matBoard,matOther,direct,gross,margin,ft,net,be,gap,result,active:total>0||direct>0};
 }
@@ -269,38 +283,32 @@ function avgMargin(){
 function breakeven(){
   const p=S.params,ft=fixedTotal(),am=avgMargin();
   const beMonth=(am===''||am<=0)?'':ft/am,days=num(p.days)||30;
-  return {ft,am,beMonth,
-    daily:beMonth===''?'':beMonth/days,
+  return {ft,am,beMonth,daily:beMonth===''?'':beMonth/days,
     wash:beMonth===''?'':beMonth*num(p.ratioWash)/(num(p.priceSmall)||1)/days,
     board:beMonth===''?'':beMonth*num(p.ratioBoard)/(num(p.priceBoard)||1)/days,
     goods:beMonth===''?'':beMonth*num(p.ratioGoods)/(num(p.priceGoods)||1)/days};
 }
 
-/* ============ 角色 / 密码 ============ */
+/* ===== 角色 / 密码 ===== */
 let boss=localStorage.getItem('pet_boss')==='1';
 const getPwd=()=>localStorage.getItem('pet_boss_pwd')||'8888';
 function onRoleBtn(){boss?logout():openPwd();}
-function openPwd(){document.getElementById('pwdModal').classList.remove('hidden');document.getElementById('pwdErr').textContent='';const i=document.getElementById('pwdInput');i.value='';setTimeout(()=>i.focus(),50);}
+function openPwd(){document.getElementById('pwdModal').classList.remove('hidden');document.getElementById('pwdErr').textContent='';const i=document.getElementById('pwdInput');i.value='';setTimeout(()=>i.focus(),60);}
 function closePwd(){document.getElementById('pwdModal').classList.add('hidden');}
-function tryLogin(){
-  if(document.getElementById('pwdInput').value===getPwd()){boss=true;localStorage.setItem('pet_boss','1');closePwd();cur='overview';applyRole();}
-  else document.getElementById('pwdErr').textContent='密码错误，请重试';
-}
+function tryLogin(){if(document.getElementById('pwdInput').value===getPwd()){boss=true;localStorage.setItem('pet_boss','1');closePwd();cur='overview';applyRole();}else document.getElementById('pwdErr').textContent='密码错误，请重试';}
 function logout(){boss=false;localStorage.removeItem('pet_boss');cur='flow';applyRole();}
 function changePwd(){const v=document.getElementById('pwdChange').value.trim();if(!v){alert('请输入新密码');return;}localStorage.setItem('pet_boss_pwd',v);document.getElementById('pwdChange').value='';alert('✅ 密码已修改为：'+v);}
 const TABS=[['overview','📈 总览',1],['flow','📋 每日流水',0],['ledger','📅 月度台账',1],['breakeven','📊 保本测算',1],['params','⚙️ 参数设置',1]];
 function applyRole(){
-  document.getElementById('tabs').innerHTML=TABS.filter(t=>boss||!t[2]).map(t=>
-    `<div class="tab ${cur===t[0]?'active':''}" data-t="${t[0]}" onclick="go('${t[0]}')">${t[1]}</div>`).join('');
+  document.getElementById('tabs').innerHTML=TABS.filter(t=>boss||!t[2]).map(t=>`<div class="tab ${cur===t[0]?'active':''}" data-t="${t[0]}" onclick="go('${t[0]}')">${t[1]}</div>`).join('');
   document.getElementById('roleBtn').textContent=boss?'🚪 退出老板':'🔒 老板登录';
   document.getElementById('roleLine').textContent=boss?'老板模式 · 全店经营数据一览':'员工录入 · 打开即填，自动同步给老板';
   document.getElementById('flowBossHint').textContent=boss?'':'（毛利、利润等经营数据需老板密码查看）';
-  document.querySelectorAll('#sec-flow .boss').forEach(e=>e.style.display=boss?'':'none');
   if(!boss&&cur!=='flow')cur='flow';
   go(cur);
 }
 
-/* ============ 路由 ============ */
+/* ===== 路由 ===== */
 let cur=boss?'overview':'flow';
 function go(t){cur=t;
   document.querySelectorAll('#tabs .tab').forEach(e=>e.classList.toggle('active',e.dataset.t===t));
@@ -315,121 +323,108 @@ function render(){
   else if(cur==='params')renderParams();
 }
 
-/* ============ 总览 ============ */
+/* ===== 总览 ===== */
 function renderOverview(){
-  const rows=allMonths().map(ledgerRow);
-  const act=rows.filter(r=>r.active);
+  const rows=allMonths().map(ledgerRow),act=rows.filter(r=>r.active);
   const sum=(k,arr)=>arr.reduce((a,r)=>a+(num(r[k])||0),0);
   const totRev=sum('total',act),totDirect=sum('direct',act),totGross=sum('gross',act),totFixed=sum('ft',act),totNet=sum('net',act);
-  const ms=act.map(r=>r.margin).filter(x=>x!==''&&!isNaN(x));
-  const avgM=ms.length?ms.reduce((a,b)=>a+b,0)/ms.length:'';
-  const curMonth=monthOf(new Date().toISOString().slice(0,10));
-  const latest=act.length?act[act.length-1]:null;
-  const lossMonths=act.filter(r=>r.net<0);
-  const be=breakeven();
-  const netColor=totNet>=0?'var(--good)':'var(--bad)';
-  const statusPill=act.length==0?'<span class="pill" style="background:#f0ece5;color:var(--ink-3)">暂无数据</span>'
-    :totNet>=0?'<span class="pill g">整体盈利</span>':'<span class="pill b">整体亏损</span>';
+  const ms=act.map(r=>r.margin).filter(x=>x!==''&&!isNaN(x)),avgM=ms.length?ms.reduce((a,b)=>a+b,0)/ms.length:'';
+  const latest=act.length?act[act.length-1]:null,lossMonths=act.filter(r=>r.net<0),be=breakeven();
+  const heroCls=act.length==0?'idle':totNet>=0?'good':'bad';
+  const statusTxt=act.length==0?'暂无数据':totNet>=0?'整体盈利 🎉':'整体亏损';
   const maxAbs=Math.max(1,...act.map(r=>Math.abs(r.net)));
-  const bars=act.map(r=>{
-    const w=Math.round(Math.abs(r.net)/maxAbs*100);
-    const col=r.net>=0?'var(--good)':'var(--bad)';
-    return `<div class="flex items-center gap-2 mb-1">
-      <div style="width:64px;font-size:12px;color:var(--ink-2)">${r.m}</div>
-      <div class="bar-track flex-1"><div class="bar-fill" style="left:0;width:${w}%;background:${col}"></div></div>
-      <div style="width:80px;text-align:right;font-size:12px;font-weight:700;color:${col}">${r.net>=0?'+':''}${fmt(r.net)}</div>
-    </div>`;}).join('');
-  const monthRows=act.map(r=>`<tr>
-    <td class="auto">${r.m}</td><td>${fmt(r.total)}</td><td>${pct(r.margin)}</td><td>${fmt(r.ft)}</td>
+  const bars=act.map(r=>{const w=Math.round(Math.abs(r.net)/maxAbs*100),col=r.net>=0?'var(--good)':'var(--bad)';
+    return `<div class="flex items-center gap-2 mb-2"><div style="width:60px;font-size:12px;color:var(--ink-2)">${r.m}</div>
+      <div class="bar-track flex-1"><div class="bar-fill" data-w="${w}" style="background:${col}"></div></div>
+      <div style="width:82px;text-align:right;font-size:12px;font-weight:700;color:${col}">${r.net>=0?'+':''}${fmt(r.net)}</div></div>`;}).join('');
+  const monthRows=act.map(r=>`<tr><td class="auto">${r.m}</td><td>${fmt(r.total)}</td><td>${pct(r.margin)}</td><td>${fmt(r.ft)}</td>
     <td style="color:${r.net<0?'var(--bad)':'var(--good)'};font-weight:700">${r.net>=0?'+':''}${fmt(r.net)}</td>
     <td>${r.result===''?'—':`<span class="pill ${r.result==='盈利'?'g':'b'}">${r.result}</span>`}</td></tr>`).join('');
+  const kpi=(label,val,cf,color,ic)=>`<div class="kpi"><div class="ic">${ic}</div><div class="v" style="color:${color}"><span data-cu="${val===''?'NaN':val}" data-cf="${cf}"></span></div><div class="l">${label}</div></div>`;
   document.getElementById('ovBody').innerHTML=`
-    <div class="card p-5 mb-4" style="background:${totNet>=0?'var(--good-soft)':'var(--bad-soft)'};border-color:${totNet>=0?'#bce5c8':'#f3c8c8'}">
-      <div class="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <div class="note" style="margin-bottom:4px">累计净利润（${act.length} 个营业月）</div>
-          <div class="big-num" style="color:${netColor}">${totNet>=0?'+':'−'}¥${fmt(Math.abs(totNet))}</div>
-        </div>
-        <div class="text-right">
-          ${statusPill}
-          <div class="note mt-2">累计营收 ¥${fmt(totRev)} · 累计成本 ¥${fmt(totDirect+totFixed)}</div>
-        </div>
+    <div class="hero ${heroCls} mb-4 anim">
+      <div class="flex items-center justify-between flex-wrap gap-3" style="position:relative;z-index:1">
+        <div><div style="font-size:13px;opacity:.9;margin-bottom:6px">累计净利润（${act.length} 个营业月）</div>
+          <div class="big-num"><span data-cu="${act.length?totNet:'NaN'}" data-cf="signed"></span></div></div>
+        <div class="text-right"><span class="pill" style="background:rgba(255,255,255,.25);color:#fff">${statusTxt}</span>
+          <div style="font-size:12px;opacity:.92;margin-top:8px">累计营收 ¥${fmt(totRev)} · 累计成本 ¥${fmt(totDirect+totFixed)}</div></div>
       </div>
     </div>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-      ${[['累计总营收','¥'+fmt(totRev),'var(--ink-1)'],['累计毛利','¥'+fmt(totGross),'var(--auto)'],
-        ['平均毛利率',pct(avgM),'var(--auto)'],['累计固定成本','¥'+fmt(totFixed),'var(--ink-1)'],
-        [latest?latest.m+' 营收':'本月营收',latest?'¥'+fmt(latest.total):'—','var(--ink-1)'],
-        [latest?latest.m+' 净利润':'本月净利润',latest?(latest.net>=0?'+':'−')+'¥'+fmt(Math.abs(latest.net)):'—',latest?(latest.net>=0?'var(--good)':'var(--bad)'):'var(--ink-1)'],
-        ['月保本营收',be.beMonth===''?'—':'¥'+fmt(be.beMonth),'var(--accent)'],
-        ['亏损月份',lossMonths.length+' 个',lossMonths.length?'var(--bad)':'var(--good)']]
-        .map(k=>`<div class="kpi"><div class="v" style="color:${k[2]}">${k[1]}</div><div class="l">${k[0]}</div></div>`).join('')}
+      ${kpi('累计总营收',act.length?totRev:'NaN','money','var(--ink-1)','💰')}
+      ${kpi('累计毛利',act.length?totGross:'NaN','money','var(--auto)','✨')}
+      ${kpi('平均毛利率',avgM===''?'NaN':avgM,'pct','var(--auto)','📈')}
+      ${kpi('累计固定成本',act.length?totFixed:'NaN','money','var(--ink-1)','🏠')}
+      ${kpi(latest?latest.m+' 营收':'本月营收',latest?latest.total:'NaN','money','var(--ink-1)','🧾')}
+      ${kpi(latest?latest.m+' 净利润':'本月净利润',latest?latest.net:'NaN','signed',latest?(latest.net>=0?'var(--good)':'var(--bad)'):'var(--ink-1)','💵')}
+      ${kpi('月保本营收',be.beMonth===''?'NaN':be.beMonth,'money','var(--brand2)','🎯')}
+      ${kpi('亏损月份',act.length?lossMonths.length:'NaN','int',lossMonths.length?'var(--bad)':'var(--good)','⚠️')}
     </div>
     ${act.length?`<div class="grid lg:grid-cols-2 gap-4">
-      <div class="card p-4 sm:p-5"><div class="font-bold mb-3">每月净利润</div>${bars}
+      <div class="card p-4 sm:p-5 anim"><div class="font-bold mb-3">每月净利润</div>${bars}
         <div class="note mt-2">绿=盈利，红=亏损。每月固定成本 ¥${fmt(fixedTotal())}。</div></div>
-      <div class="card p-4 sm:p-5"><div class="font-bold mb-3">每月经营明细</div>
+      <div class="card p-4 sm:p-5 anim" style="animation-delay:.08s"><div class="font-bold mb-3">每月经营明细</div>
         <div class="tbl-scroll" style="max-height:320px"><table>
           <thead><tr><th>月份</th><th>总营收</th><th>毛利率</th><th>固定成本</th><th>净利润</th><th>盈亏</th></tr></thead>
-          <tbody>${monthRows}</tbody></table></div></div>
-    </div>`:`<div class="card p-8 text-center note">还没有营业数据。<br>员工在「每日流水」录入后，这里会自动生成全店盈亏总览。</div>`}
-    ${lossMonths.length?`<div class="card p-4 mt-4" style="background:var(--bad-soft);border-color:#f3c8c8">
+          <tbody>${monthRows}</tbody></table></div></div></div>`
+    :`<div class="card p-10 text-center note anim">还没有营业数据。<br>员工在「每日流水」录入后，这里会自动生成全店盈亏总览。</div>`}
+    ${lossMonths.length?`<div class="card p-4 mt-4 anim" style="background:var(--bad-soft);border-color:#f3c8c8">
       <div class="font-bold" style="color:var(--bad)">⚠️ 亏损预警</div>
-      <div class="note mt-1">${lossMonths.map(r=>r.m+'（'+fmt(r.net)+'）').join('、')} 出现亏损。建议优先砍耗材浪费、错峰排班，或提升洗护/用品营收。</div></div>`:''}
-  `;
+      <div class="note mt-1">${lossMonths.map(r=>r.m+'（'+fmt(r.net)+'）').join('、')} 出现亏损。建议优先砍耗材浪费、错峰排班，或提升洗护/用品营收。</div></div>`:''}`;
+  animateCu(document.getElementById('ovBody'));
+  requestAnimationFrame(()=>document.querySelectorAll('#ovBody .bar-fill').forEach(b=>b.style.width=b.dataset.w+'%'));
 }
 
-/* ============ 每日流水 ============ */
+/* ===== 每日流水 ===== */
 function opts(list,cur,ph){const all=[...new Set([...(list||[]),...(cur&&!(list||[]).includes(cur)?[cur]:[])])];return `<option value="">${ph}</option>`+all.map(o=>`<option value="${esc(o)}" ${o===cur?'selected':''}>${esc(o)}</option>`).join('');}
-function flowRow(f,i){
+function flowRow(f){
   const total=num(f.wash)+num(f.goods);
   return `<tr>
-    <td><input class="cell" type="date" value="${esc(f.date)}" oninput="uf('${f.id}','date',this.value)"></td>
+    <td><input class="cell" type="date" value="${esc(f.date)}" oninput="uf('${f.id}','date',this.value,this)"></td>
     <td class="boss auto">${monthOf(f.date)||'—'}</td>
-    <td><input class="cell" placeholder="如:豆豆/泰迪" value="${esc(f.customer)}" oninput="uf('${f.id}','customer',this.value)"></td>
-    <td><input class="cell" placeholder="洗澡/精洗/驱虫" value="${esc(f.service)}" oninput="uf('${f.id}','service',this.value)"></td>
-    <td class="edit"><input class="cell num" type="number" placeholder="¥ 如55" value="${esc(f.wash)}" oninput="uf('${f.id}','wash',this.value)"></td>
-    <td class="edit"><input class="cell num" type="number" placeholder="¥ 如30" value="${esc(f.goods)}" oninput="uf('${f.id}','goods',this.value)"></td>
-    <td><select class="cell" onchange="uf('${f.id}','pay',this.value)">${opts(PAY_METHODS,f.pay,'选收款')}</select></td>
-    <td class="boss edit"><input class="cell num" type="number" placeholder="¥ 如5" value="${esc(f.material)}" oninput="uf('${f.id}','material',this.value)"></td>
-    <td><select class="cell" onchange="uf('${f.id}','recorder',this.value)">${opts(S.staffList||DEFAULT_STAFF,f.recorder,'选名字')}</select></td>
-    <td><input class="cell" placeholder="选填" value="${esc(f.note)}" oninput="uf('${f.id}','note',this.value)"></td>
+    <td><input class="cell" placeholder="如:豆豆/泰迪" value="${esc(f.customer)}" oninput="uf('${f.id}','customer',this.value,this)"></td>
+    <td><input class="cell" placeholder="洗澡/精洗/驱虫" value="${esc(f.service)}" oninput="uf('${f.id}','service',this.value,this)"></td>
+    <td class="edit"><input class="cell num" type="number" placeholder="¥ 如55" value="${esc(f.wash)}" oninput="uf('${f.id}','wash',this.value,this)"></td>
+    <td class="edit"><input class="cell num" type="number" placeholder="¥ 如30" value="${esc(f.goods)}" oninput="uf('${f.id}','goods',this.value,this)"></td>
+    <td><select class="cell" onchange="uf('${f.id}','pay',this.value,this)">${opts(PAY_METHODS,f.pay,'选收款')}</select></td>
+    <td class="boss edit"><input class="cell num" type="number" placeholder="¥ 如5" value="${esc(f.material)}" oninput="uf('${f.id}','material',this.value,this)"></td>
+    <td><select class="cell" onchange="uf('${f.id}','recorder',this.value,this)">${opts(S.staffList||DEFAULT_STAFF,f.recorder,'选名字')}</select></td>
+    <td><input class="cell" placeholder="选填" value="${esc(f.note)}" oninput="uf('${f.id}','note',this.value,this)"></td>
     <td class="boss auto">${fmt(total)}</td>
     <td><button class="del" title="删除" onclick="delFlow('${f.id}')">✕</button></td>
   </tr>`;
 }
 function renderFlow(){
   const list=liveFlows().slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a._ts||0)-(b._ts||0));
-  document.getElementById('flowBody').innerHTML=list.map(flowRow).join('')||
-    '<tr><td colspan="12" class="note" style="padding:24px">还没有记录，点右上角「＋ 记一笔」开始</td></tr>';
+  document.getElementById('flowBody').innerHTML=list.map(flowRow).join('')||'<tr><td colspan="12" class="note" style="padding:24px">还没有记录，点右上角「＋ 记一笔」开始</td></tr>';
   document.querySelectorAll('#sec-flow .boss').forEach(e=>e.style.display=boss?'':'none');
 }
-function uf(id,k,v){
+function uf(id,k,v,el){
   const f=S.flows.find(x=>x.id===id);if(!f)return;
   f[k]=v;f._ts=Date.now();saveLocal();queueSave();
-  const tr=event&&event.target?event.target.closest('tr'):null;
-  if(tr){const m=tr.querySelector('.boss.auto');if(m&&(k==='date'))m.textContent=monthOf(f.date)||'—';
-    const cells=tr.querySelectorAll('.boss.auto');if(cells.length>1&&(k==='wash'||k==='goods'))cells[cells.length-1].textContent=fmt(num(f.wash)+num(f.goods));}
+  const tr=el?el.closest('tr'):null;if(!tr)return;
+  const autos=tr.querySelectorAll('.boss.auto');
+  if(k==='date'&&autos[0])autos[0].textContent=monthOf(f.date)||'—';
+  if((k==='wash'||k==='goods')&&autos.length)autos[autos.length-1].textContent=fmt(num(f.wash)+num(f.goods));
 }
-function addFlow(){const f={id:uid(),_ts:Date.now(),date:new Date().toISOString().slice(0,10),customer:'',service:'',wash:'',goods:'',pay:'',material:'',recorder:'',note:''};S.flows.push(f);saveLocal();queueSave();renderFlow();}
+function addFlow(){S.flows.push({id:uid(),_ts:Date.now(),date:new Date().toISOString().slice(0,10),customer:'',service:'',wash:'',goods:'',pay:'',material:'',recorder:'',note:''});saveLocal();queueSave();renderFlow();}
 function delFlow(id){const f=S.flows.find(x=>x.id===id);if(!f)return;f._del=true;f._ts=Date.now();saveLocal();queueSave();renderFlow();}
 
-/* ============ 月度台账 ============ */
+/* ===== 月度台账 ===== */
 function ledgerRowHtml(m){
   const r=ledgerRow(m),L=S.ledger[m]||(S.ledger[m]={board:0,matWash:0,matBoard:0,matOther:0});
   const gap=r.gap===''?'—':`<span style="color:${r.gap<0?'var(--bad)':'var(--good)'}">${fmt(r.gap)}</span>`;
   const res=r.result===''?'—':`<span class="pill ${r.result==='盈利'?'g':'b'}">${r.result}</span>`;
+  const inp=k=>`<input class="cell num" id="lg-${m}-${k}" type="number" placeholder="0" value="${esc(L[k])}" oninput="ul('${m}','${k}',this.value)">`;
   return `<tr><td class="auto">${m}</td><td class="auto">${fmt(r.wash)}</td>
-    <td class="edit"><input class="cell num" type="number" placeholder="0" value="${esc(L.board)}" oninput="ul('${m}','board',this.value)"></td>
-    <td class="auto">${fmt(r.goods)}</td><td class="calc auto">${fmt(r.total)}</td>
-    <td class="edit"><input class="cell num" type="number" placeholder="0" value="${esc(L.matWash)}" oninput="ul('${m}','matWash',this.value)"></td>
-    <td class="edit"><input class="cell num" type="number" placeholder="0" value="${esc(L.matBoard)}" oninput="ul('${m}','matBoard',this.value)"></td>
-    <td class="edit"><input class="cell num" type="number" placeholder="0" value="${esc(L.matOther)}" oninput="ul('${m}','matOther',this.value)"></td>
+    <td class="edit">${inp('board')}</td><td class="auto">${fmt(r.goods)}</td><td class="calc auto">${fmt(r.total)}</td>
+    <td class="edit">${inp('matWash')}</td><td class="edit">${inp('matBoard')}</td><td class="edit">${inp('matOther')}</td>
     <td class="calc auto">${fmt(r.direct)}</td><td class="calc auto">${fmt(r.gross)}</td><td class="calc auto">${pct(r.margin)}</td>
     <td class="calc auto">${fmt(r.ft)}</td><td class="calc auto" style="color:${r.net<0?'var(--bad)':'var(--good)'}">${fmt(r.net)}</td>
     <td class="calc auto">${r.be===''?'—':fmt(r.be)}</td><td class="calc auto">${gap}</td><td class="calc">${res}</td></tr>`;
 }
-function renderLedger(){
+function renderLedger(keepFocus){
+  const ae=document.activeElement,fid=keepFocus&&ae?ae.id:null,ss=ae&&ae.selectionStart!=null?ae.selectionStart:null;
   const months=allMonths();let html=months.map(ledgerRowHtml).join('');
   const rows=months.map(ledgerRow),sum=k=>rows.reduce((a,r)=>a+(num(r[k])||0),0);
   const ms=rows.map(r=>r.margin).filter(x=>x!==''&&!isNaN(x)),avgM=ms.length?ms.reduce((a,b)=>a+b,0)/ms.length:'';
@@ -438,15 +433,17 @@ function renderLedger(){
     <td class="auto">${fmt(sum('direct'))}</td><td class="auto">${fmt(sum('gross'))}</td><td class="auto">${pct(avgM)}</td>
     <td class="auto">${fmt(sum('ft'))}</td><td class="auto" style="color:${sum('net')<0?'var(--bad)':'var(--good)'}">${fmt(sum('net'))}</td><td colspan="3"></td></tr>`;
   document.getElementById('ledgerBody').innerHTML=html;
+  if(fid){const el=document.getElementById(fid);if(el){el.focus();if(ss!=null&&el.setSelectionRange){try{el.setSelectionRange(ss,ss);}catch(e){}}}}
 }
-function ul(m,k,v){if(!S.ledger[m])S.ledger[m]={board:0,matWash:0,matBoard:0,matOther:0};S.ledger[m][k]=v;saveLocal();queueSave();renderLedger();}
+function ul(m,k,v){if(!S.ledger[m])S.ledger[m]={board:0,matWash:0,matBoard:0,matOther:0};S.ledger[m][k]=v;saveLocal();queueSave();renderLedger(true);}
 
-/* ============ 保本测算 ============ */
+/* ===== 保本测算 ===== */
 function renderBreakeven(){
   const b=breakeven();
-  const kpis=[['固定成本 / 月','¥'+fmt(b.ft),'var(--ink-1)'],['平均毛利率',pct(b.am),'var(--auto)'],
-    ['保本营收 / 月',b.beMonth===''?'—':'¥'+fmt(b.beMonth),'var(--ink-1)'],['每日需洗护单数',b.wash===''?'—':fmt1(b.wash)+' 单','var(--accent)']];
-  document.getElementById('beKpis').innerHTML=kpis.map(k=>`<div class="kpi"><div class="v" style="color:${k[2]}">${k[1]}</div><div class="l">${k[0]}</div></div>`).join('');
+  const kpi=(l,v,cf,c)=>`<div class="kpi"><div class="v" style="color:${c}"><span data-cu="${v===''?'NaN':v}" data-cf="${cf}"></span></div><div class="l">${l}</div></div>`;
+  document.getElementById('beKpis').innerHTML=
+    kpi('固定成本 / 月',b.ft,'money','var(--ink-1)')+kpi('平均毛利率',b.am===''?'NaN':b.am,'pct','var(--auto)')+
+    kpi('保本营收 / 月',b.beMonth===''?'NaN':b.beMonth,'money','var(--ink-1)')+kpi('每日需洗护单数',b.wash===''?'NaN':b.wash,'num1','var(--brand2)');
   const days=num(S.params.days)||30;
   const rows=[['固定成本合计/月','¥'+fmt(b.ft),'房租+水电+两人工资+其他'],['平均毛利率',pct(b.am),S.manualMargin!==''?'当前使用手动毛利率':'取月度台账已填月份的平均'],
     ['保本营收/月',b.beMonth===''?'—':'¥'+fmt(b.beMonth),'固定成本 ÷ 毛利率'],['每日保本流水',b.daily===''?'—':'¥'+fmt(b.daily),'保本营收 ÷ 营业天数('+days+'天)'],
@@ -455,31 +452,30 @@ function renderBreakeven(){
     ['每日需用品单数',b.goods===''?'—':fmt1(b.goods)+' 单','用品占比 '+pct(num(S.params.ratioGoods))]];
   document.getElementById('beBody').innerHTML=rows.map(r=>`<tr><td class="l">${r[0]}</td><td class="auto">${r[1]}</td><td class="l note">${r[2]}</td></tr>`).join('');
   const mm=document.getElementById('manualMargin');if(mm.value!==String(S.manualMargin))mm.value=S.manualMargin;
+  animateCu(document.getElementById('beKpis'));
 }
 function onManualMargin(v){S.manualMargin=v===''?'':v;saveLocal();queueSave();renderBreakeven();}
 
-/* ============ 参数设置 ============ */
+/* ===== 参数设置 ===== */
 const FIXED=[['rent','房租','每月固定'],['water','水电费','洗护用水多，含保底'],['salaryMM','妹妹工资','底薪，可按实际改'],['salaryStaff','洗护员工工资','底薪+提成保底'],['otherFixed','其他固定费用','设备维护、垃圾费、平台费等']];
 const PRICE=[['priceSmall','小/中型洗护均价','洗澡+吹干打包价中间值'],['priceLarge','大型/精洗均价','大狗、长毛、精洗套餐'],['priceBoard','寄养单价（元/床/天）','短期寄养日均'],['priceGoods','用品类客单价','驱虫、零食、浴液等']];
 const RATIO=[['ratioWash','洗护营收占比','无寄养时寄养填0',1],['ratioBoard','寄养营收占比','无寄养填 0',1],['ratioGoods','用品营收占比','零食驱虫等',1],['days','月营业天数','保本按天折算',0]];
 function renderParams(){
-  const mk=(arr,isR)=>arr.map(([k,label,desc,pc])=>{
-    const disp=isR&&pc?Math.round(num(S.params[k])*100):S.params[k];
-    return `<tr><td class="l">${label}</td><td class="l note">${desc}</td>
-      <td class="edit"><input class="cell num" type="number" value="${esc(disp)}" oninput="up('${k}',this.value,${isR&&pc?1:0})"></td></tr>`;}).join('');
+  const mk=(arr,isR)=>arr.map(([k,label,desc,pc])=>{const disp=isR&&pc?Math.round(num(S.params[k])*100):S.params[k];
+    return `<tr><td class="l">${label}</td><td class="l note">${desc}</td><td class="edit"><input class="cell num" type="number" value="${esc(disp)}" oninput="up('${k}',this.value,${isR&&pc?1:0})"></td></tr>`;}).join('');
   document.getElementById('paramFixed').innerHTML=mk(FIXED,false);
   document.getElementById('paramPrice').innerHTML=mk(PRICE,false);
   document.getElementById('paramRatio').innerHTML=mk(RATIO,true);
   document.getElementById('fixedTotal').textContent=fmt(fixedTotal());ratioWarn();renderStaff();
 }
-function renderStaff(){const box=document.getElementById('staffListBox');if(!box)return;box.innerHTML=(S.staffList||[]).map(n=>`<div class="flex items-center gap-2 py-1" style="border-bottom:1px dashed var(--line)"><span class="flex-1">${esc(n)}</span><button class="del" title="删除" onclick="delStaff('${esc(n)}')">✕</button></div>`).join('')||'<div class="note">暂无员工，请在下方添加</div>';}
-function addStaff(){const i=document.getElementById('staffInput');const v=i.value.trim();if(!v)return;if(!(S.staffList||[]).includes(v)){S.staffList=(S.staffList||[]).concat(v);saveLocal();queueSave();}i.value='';renderStaff();}
-function delStaff(n){S.staffList=(S.staffList||[]).filter(x=>x!==n);saveLocal();queueSave();renderStaff();}
+function renderStaff(){const box=document.getElementById('staffListBox');if(!box)return;box.innerHTML=(S.staffList||[]).map((n,i)=>`<div class="flex items-center gap-2 py-1" style="border-bottom:1px dashed var(--line)"><span class="flex-1">${esc(n)}</span><button class="del" title="删除" onclick="delStaff(${i})">✕</button></div>`).join('')||'<div class="note">暂无员工，请在下方添加</div>';}
+function addStaff(){const i=document.getElementById('staffInput'),v=i.value.trim();if(!v)return;if(!(S.staffList||[]).includes(v)){S.staffList=(S.staffList||[]).concat(v);saveLocal();queueSave();}i.value='';renderStaff();}
+function delStaff(i){S.staffList=(S.staffList||[]).filter((_,idx)=>idx!==i);saveLocal();queueSave();renderStaff();}
 function up(k,v,isP){S.params[k]=isP?num(v)/100:v;saveLocal();queueSave();document.getElementById('fixedTotal').textContent=fmt(fixedTotal());ratioWarn();}
 function ratioWarn(){const s=num(S.params.ratioWash)+num(S.params.ratioBoard)+num(S.params.ratioGoods);
   document.getElementById('ratioWarn').innerHTML=Math.abs(s-1)>0.001?`⚠️ 占比合计 <b style="color:var(--bad)">${Math.round(s*100)}%</b>，不等于100%时保本单量会算偏。`:`✅ 占比合计 ${Math.round(s*100)}%，正常。`;}
 
-/* ============ 云同步 ============ */
+/* ===== 云同步 ===== */
 function badge(st,tx){const b=document.getElementById('syncBadge');b.className='badge '+st;document.getElementById('syncText').textContent=tx;}
 function mergeFlows(local,cloud){const map=new Map();(cloud||[]).forEach(f=>map.set(f.id,f));(local||[]).forEach(f=>{const c=map.get(f.id);if(!c||(f._ts||0)>=(c._ts||0))map.set(f.id,f);});return [...map.values()];}
 async function loadCloud(){
@@ -494,8 +490,7 @@ function queueSave(){if(saveTimer)clearTimeout(saveTimer);saveTimer=setTimeout(d
 async function doSave(){
   if(!sb||!firstSync)return;
   if(saving){queueSave();return;}
-  saving=true;badge('syncing','同步中…');
-  const ts=new Date().toISOString();
+  saving=true;badge('syncing','同步中…');const ts=new Date().toISOString();
   try{
     const cloud=await loadCloud();
     if(cloud&&cloud.flows)S.flows=mergeFlows(S.flows,cloud.flows);
@@ -512,16 +507,16 @@ function subscribe(){
     if(p.eventType==='DELETE')return;
     const nd=p.new&&p.new.data,cts=p.new&&p.new.updated_at;
     if(cts&&lastSaveTs&&new Date(cts).getTime()===new Date(lastSaveTs).getTime()){lastSaveTs=null;return;}
-    if(nd&&!isRemote&&!saving&&!saveTimer){applyRemote(nd);}
+    if(nd&&!isRemote&&!saving&&!saveTimer)applyRemote(nd);
   }).subscribe();
 }
 function applyRemote(d){
-  if(!d||!d.params)return;
-  isRemote=true;
+  if(!d||!d.params)return;isRemote=true;
   S.flows=mergeFlows(S.flows,d.flows||[]);
-  S.params=d.params;S.ledger=Object.assign(defaultLedger(),d.ledger||{});S.manualMargin=d.manualMargin||'';S.staffList=d.staffList||S.staffList||DEFAULT_STAFF.slice();
+  S.params=d.params;S.ledger=Object.assign(defaultLedger(),d.ledger||{});S.manualMargin=d.manualMargin||'';
+  S.staffList=d.staffList||S.staffList||DEFAULT_STAFF.slice();
   saveLocal();lastCloudTime=Date.now();isRemote=false;
-  if(cur==='flow'){/* 录入中不强刷，避免打断输入 */}else render();
+  if(cur!=='flow')render();  /* 流水录入页不强刷，避免打断输入 */
   badge('online','已同步');
 }
 async function startSync(){
@@ -531,18 +526,19 @@ async function startSync(){
   const cloud=await loadCloud();
   if(cloud&&cloud.params){
     S.flows=mergeFlows(cloud.flows||[],S.flows);
-    S.params=cloud.params;S.ledger=Object.assign(defaultLedger(),cloud.ledger||{});S.manualMargin=cloud.manualMargin||'';S.staffList=cloud.staffList||S.staffList||DEFAULT_STAFF.slice();
-  }else if(cloud===null){/* 云端为空，用本地并上传 */}
-  saveLocal();firstSync=true;badge('online','已连接');
-  render();subscribe();
-  setInterval(async()=>{if(!sb||saving||saveTimer||isRemote)return;const c=await loadCloud();if(c&&c.updated){}},30000);
-  setInterval(async()=>{if(!sb||saving||saveTimer||isRemote)return;
+    S.params=cloud.params;S.ledger=Object.assign(defaultLedger(),cloud.ledger||{});S.manualMargin=cloud.manualMargin||'';
+    S.staffList=cloud.staffList||S.staffList||DEFAULT_STAFF.slice();
+  }
+  saveLocal();firstSync=true;badge('online','已连接');render();subscribe();
+  if(!cloud||!cloud.params)doSave();  /* 云端为空：把本地初始数据推上去，保证多端一致 */
+  setInterval(async()=>{  /* 每30秒轮询兜底（realtime 可能失效时） */
+    if(!sb||saving||saveTimer||isRemote)return;
     try{const {data}=await sb.from(TABLE).select('data,updated_at').eq('workspace_id',WS).maybeSingle();
       if(data&&data.data){const ct=new Date(data.updated_at).getTime();if(ct>lastCloudTime)applyRemote(data.data);}}catch(e){}
   },30000);
 }
 
-/* ============ 启动 ============ */
+/* ===== 启动 ===== */
 applyRole();
 startSync();
 </script>
