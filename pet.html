@@ -8,48 +8,53 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --ink-1:#22252b;--ink-2:#4a5160;--ink-3:#8a93a3;--line:#ece7df;--bg:#f6f4f0;--card:#fff;
-    --brand1:#ff8a5c;--brand2:#ff6b9d;--grad:linear-gradient(135deg,#ff8a5c,#ff6b9d);
-    --auto:#6366f1;--auto-soft:#eef0ff;--good:#10b981;--good-soft:#e7f8f0;--bad:#ef4444;--bad-soft:#fdecec;
-    --shadow:0 4px 20px rgba(34,37,43,.06);--shadow-lg:0 12px 36px rgba(34,37,43,.12);
+    --ink-1:#18343c;--ink-2:#4b656d;--ink-3:#82999f;--line:#dfecea;--bg:#f3f8f7;--card:#fff;
+    --brand1:#20b8a6;--brand2:#3b82f6;--grad:linear-gradient(135deg,#20b8a6,#3b82f6);
+    --auto:#2583a2;--auto-soft:#e9f5f7;--good:#0ca678;--good-soft:#e5f7f0;--bad:#ef5b5b;--bad-soft:#fdeeee;
+    --amber:#f2b84b;--shadow:0 4px 20px rgba(28,74,80,.06);--shadow-lg:0 12px 36px rgba(28,74,80,.12);
   }
   *{box-sizing:border-box}
   body{margin:0;min-height:100vh;color:var(--ink-1);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;
     background:var(--bg);
-    background-image:radial-gradient(900px 400px at 100% -5%,#ffe6d6 0%,transparent 55%),radial-gradient(800px 400px at -10% 0%,#ffe0ec 0%,transparent 50%);
+    background-image:radial-gradient(900px 420px at 100% -5%,#dff5ee 0%,transparent 55%),radial-gradient(800px 420px at -10% 0%,#e2efff 0%,transparent 50%);
     background-attachment:fixed;}
-  .wrap{max-width:1180px;margin:0 auto;padding:22px 16px 80px}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 16px 80px;position:relative;z-index:1}
   .card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s}
   .card.hoverable:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
   .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .logo{width:52px;height:52px;border-radius:16px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 8px 20px rgba(255,107,157,.35);animation:float 4s ease-in-out infinite}
-  .tab{display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;color:var(--ink-3);cursor:pointer;white-space:nowrap;transition:all .2s;border:1px solid transparent;background:rgba(255,255,255,.6)}
-  .tab:hover{color:var(--ink-1);transform:translateY(-1px)}
-  .tab.active{background:var(--grad);color:#fff;box-shadow:0 6px 16px rgba(255,107,157,.35)}
+  .header-card{position:relative;padding:13px 16px;border:1px solid rgba(255,255,255,.9);border-radius:22px;background:rgba(255,255,255,.76);box-shadow:var(--shadow);backdrop-filter:blur(12px);overflow:hidden}
+  .logo{width:54px;height:54px;flex-shrink:0;border-radius:17px;background:var(--grad);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(42,145,180,.25);animation:float 4.5s ease-in-out infinite}
+  .logo svg{width:44px;height:44px;filter:drop-shadow(0 2px 2px rgba(24,52,60,.12))}
+  .header-pets{display:flex;align-items:center;gap:7px;margin-left:auto;padding:0 5px}
+  .pet-mini{width:46px;height:46px;padding:4px;border-radius:50%;background:#e9f7f3;border:2px solid #fff;box-shadow:0 4px 12px rgba(28,74,80,.1);animation:petBob 3.8s ease-in-out infinite}
+  .pet-mini.cat{background:#eaf1ff;animation-delay:-1.8s}
+  .tab{display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;color:var(--ink-3);cursor:pointer;white-space:nowrap;transition:all .2s;border:1px solid transparent;background:rgba(255,255,255,.72)}
+  .tab:hover{color:var(--ink-1);transform:translateY(-1px);background:#fff}
+  .tab.active{background:var(--grad);color:#fff;box-shadow:0 6px 16px rgba(43,139,176,.25)}
   table{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}
   th,td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:8px;text-align:center;vertical-align:middle}
   th:last-child,td:last-child{border-right:0}
   tbody tr:last-child td{border-bottom:0}
-  thead th{background:#faf7f3;color:var(--ink-2);font-weight:600;position:sticky;top:0;z-index:2}
-  tbody tr:nth-child(even):not(.totrow){background:#fcfaf7}
-  tbody tr:hover:not(.totrow){background:#fff7f2}
+  thead th{background:#f1f7f6;color:var(--ink-2);font-weight:600;position:sticky;top:0;z-index:2}
+  tbody tr:nth-child(even):not(.totrow){background:#f8fbfa}
+  tbody tr:hover:not(.totrow){background:#edf8f5}
   .tbl-scroll{overflow:auto;border-radius:14px;border:1px solid var(--line);-webkit-overflow-scrolling:touch;background:#fff}
   .tbl-scroll table{border:0}
   td.l,th.l{text-align:left}
   input.cell,select.cell{width:100%;min-width:56px;border:1px solid transparent;background:transparent;text-align:center;font:inherit;color:var(--ink-1);padding:6px 4px;border-radius:8px;outline:none;transition:box-shadow .15s,border-color .15s}
-  input.cell::placeholder{color:#c0b8ac;font-size:12px}
-  input.cell:hover,select.cell:hover{background:#f6f1ea}
-  input.cell:focus,select.cell:focus{background:#fff;border-color:var(--brand2);box-shadow:0 0 0 3px rgba(255,107,157,.18)}
+  input.cell::placeholder{color:#a8b9b6;font-size:12px}
+  input.cell:hover,select.cell:hover{background:#eef6f4}
+  input.cell:focus,select.cell:focus{background:#fff;border-color:var(--brand1);box-shadow:0 0 0 3px rgba(32,184,166,.15)}
   input.cell.num{text-align:right}
   .auto{color:var(--auto);font-variant-numeric:tabular-nums;font-weight:600}
   .calc{background:var(--auto-soft)}
-  .edit{background:#fffdf7}
-  .totrow td{background:#f4efe8!important;font-weight:700}
+  .edit{background:#fffaf0}
+  .totrow td{background:#eaf3f1!important;font-weight:700}
   .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink-2);transition:all .18s}
-  .btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+  .btn:hover{transform:translateY(-1px);box-shadow:var(--shadow);border-color:#c9e3de}
   .btn:active{transform:translateY(0) scale(.97)}
-  .btn-accent{background:var(--grad);color:#fff;border:0;box-shadow:0 6px 16px rgba(255,107,157,.3)}
-  .btn-accent:hover{box-shadow:0 10px 22px rgba(255,107,157,.4)}
+  .btn-accent{background:var(--grad);color:#fff;border:0;box-shadow:0 6px 16px rgba(43,139,176,.22)}
+  .btn-accent:hover{box-shadow:0 10px 22px rgba(43,139,176,.3)}
   .pill{display:inline-block;padding:3px 11px;border-radius:999px;font-size:12px;font-weight:700}
   .pill.g{background:var(--good-soft);color:var(--good)}
   .pill.b{background:var(--bad-soft);color:var(--bad)}
@@ -64,41 +69,99 @@
   .del:hover{color:var(--bad);background:var(--bad-soft);transform:scale(1.15)}
   .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:4px 10px;border-radius:999px;font-weight:600;background:#fff;box-shadow:var(--shadow)}
   .badge.online{background:var(--good-soft);color:var(--good)}
-  .badge.syncing{background:#fff4e0;color:#b45309}
+  .badge.syncing{background:#fff7e5;color:#a16a09}
   .badge.error,.badge.off{background:var(--bad-soft);color:var(--bad)}
   .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor}
   .badge.syncing .dot{animation:blink 1s infinite}
-  .modal-mask{position:fixed;inset:0;background:rgba(34,37,43,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;animation:fadeIn .2s}
+  .modal-mask{position:fixed;inset:0;background:rgba(24,52,60,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;animation:fadeIn .2s}
   .modal-card{animation:pop .3s cubic-bezier(.2,.8,.3,1.2)}
   .hero{border-radius:22px;padding:24px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
-  .hero.good{background:linear-gradient(135deg,#10b981,#34d399)}
-  .hero.bad{background:linear-gradient(135deg,#ef4444,#fb7185)}
-  .hero.idle{background:linear-gradient(135deg,#a8b0bd,#c3c9d4)}
-  .hero::after{content:'🐾';position:absolute;right:-10px;bottom:-18px;font-size:120px;opacity:.16;transform:rotate(-20deg)}
+  .hero.good{background:linear-gradient(135deg,#0ca678,#35bda5)}
+  .hero.bad{background:linear-gradient(135deg,#e85959,#f08a69)}
+  .hero.idle{background:linear-gradient(135deg,#527d8a,#6c9fa4)}
+  .hero::after{content:'';position:absolute;width:230px;height:230px;right:-80px;top:-110px;border:38px solid rgba(255,255,255,.09);border-radius:50%}
+  .hero-pets{display:flex;align-items:flex-end;gap:8px;margin-left:auto;position:relative;z-index:1}
+  .pet-bubble{width:82px;height:82px;padding:7px;border-radius:26px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.24);box-shadow:0 8px 20px rgba(24,52,60,.1);animation:petBob 4s ease-in-out infinite}
+  .pet-bubble.cat{height:74px;width:74px;border-radius:50%;animation-delay:-1.9s}
+  .pet-bubble svg,.pet-mini svg,.empty-pets svg{width:100%;height:100%;display:block}
+  .empty-pets{display:flex;justify-content:center;align-items:flex-end;gap:10px;margin-bottom:14px}
+  .empty-pets .dog{width:88px;height:88px;animation:petBob 4s ease-in-out infinite}
+  .empty-pets .cat{width:76px;height:76px;animation:petBob 4s ease-in-out -1.8s infinite}
+  .empty-paw{width:30px;height:30px;color:var(--brand1);vertical-align:middle;margin-right:7px;animation:petBob 3.5s ease-in-out infinite}
+  .section-pet{width:30px;height:30px;flex-shrink:0}
+  .paw-decor{position:fixed;width:74px;height:74px;color:#69bbae;opacity:.09;pointer-events:none;z-index:0;animation:pawDrift 8s ease-in-out infinite}
+  .paw-decor.one{left:3%;top:28%;transform:rotate(-18deg)}
+  .paw-decor.two{right:3%;top:65%;color:#6b9de0;animation-delay:-4s;transform:rotate(18deg)}
   .big-num{font-size:40px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 2px 10px rgba(0,0,0,.12)}
-  .bar-track{background:#f0ece5;border-radius:8px;height:18px;position:relative;overflow:hidden}
+  .bar-track{background:#eaf1ef;border-radius:8px;height:18px;position:relative;overflow:hidden}
   .bar-fill{position:absolute;top:0;bottom:0;left:0;border-radius:8px;width:0;transition:width .9s cubic-bezier(.2,.7,.3,1)}
   .anim{opacity:0;animation:fadeUp .55s cubic-bezier(.2,.7,.3,1) forwards}
   @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   @keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
-  @keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-7px) rotate(5deg)}}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+  @keyframes petBob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-4px) rotate(1.5deg)}}
+  @keyframes pawDrift{0%,100%{margin-top:0}50%{margin-top:-12px}}
   @keyframes blink{50%{opacity:.25}}
-  @media(max-width:640px){.kpi .v{font-size:20px}.big-num{font-size:32px}.logo{width:44px;height:44px;font-size:24px}}
+  @media(max-width:900px){.header-pets{display:none}.header-actions{margin-left:auto}.paw-decor{display:none}}
+  @media(max-width:640px){.kpi .v{font-size:20px}.big-num{font-size:32px}.logo{width:46px;height:46px}.logo svg{width:38px;height:38px}.hero-pets{display:none}.header-card{padding:11px 12px}}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.anim{opacity:1}}
 </style>
 </head>
 <body>
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <symbol id="pet-dog" viewBox="0 0 120 120">
+      <path d="M35 37C24 20 10 22 11 41c1 16 11 29 25 25L35 37Z" fill="#8b604b"/>
+      <path d="M85 37c11-17 25-15 24 4-1 16-11 29-25 25L85 37Z" fill="#8b604b"/>
+      <path d="M60 19c26 0 42 18 40 46-2 27-19 43-40 43S22 92 20 65c-2-28 14-46 40-46Z" fill="#f4c66d"/>
+      <path d="M50 23c5-3 15-3 20 0l5 27-15 12-15-12 5-27Z" fill="#fff1d2" opacity=".85"/>
+      <circle cx="43" cy="59" r="4.5" fill="#263e46"/><circle cx="77" cy="59" r="4.5" fill="#263e46"/>
+      <circle cx="41.5" cy="57.5" r="1.3" fill="#fff"/><circle cx="75.5" cy="57.5" r="1.3" fill="#fff"/>
+      <ellipse cx="60" cy="79" rx="27" ry="22" fill="#fff4df"/>
+      <path d="M51 69q9-7 18 0-1 9-9 9t-9-9Z" fill="#2d434a"/>
+      <path d="M60 78v6m0 0q-8 7-14 0m14 0q8 7 14 0" fill="none" stroke="#6e5546" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M53 86q7 17 14 0-7-5-14 0Z" fill="#ef8f91"/>
+      <path d="M31 97q29 16 58 0l-3 10q-26 14-52 0l-3-10Z" fill="#20b8a6"/>
+      <circle cx="60" cy="108" r="6" fill="#f2b84b"/>
+    </symbol>
+    <symbol id="pet-cat" viewBox="0 0 120 120">
+      <path d="M25 48 23 14q0-5 5-2l26 20m41 16 2-34q0-5-5-2L66 32" fill="#91abb6"/>
+      <path d="m31 22 3 19 14-12-17-7Zm58 0-3 19-14-12 17-7Z" fill="#efb3a7"/>
+      <ellipse cx="60" cy="66" rx="43" ry="43" fill="#a9bec7"/>
+      <path d="m48 27 5 14 7-17 7 17 5-14" fill="#718f9b" opacity=".8"/>
+      <path d="M29 56q9-7 18 0m26 0q9-7 18 0" fill="none" stroke="#718f9b" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="43" cy="63" rx="5" ry="6" fill="#263e46"/><ellipse cx="77" cy="63" rx="5" ry="6" fill="#263e46"/>
+      <circle cx="41.5" cy="61" r="1.4" fill="#fff"/><circle cx="75.5" cy="61" r="1.4" fill="#fff"/>
+      <ellipse cx="60" cy="82" rx="24" ry="18" fill="#e9f1f2"/>
+      <path d="m54 76 6-3 6 3-6 6-6-6Z" fill="#d98383"/>
+      <path d="M60 82v4m0 0q-6 6-12 0m12 0q6 6 12 0M36 78 12 74m24 12-23 4m71-12 24-4M84 86l23 4" fill="none" stroke="#617f89" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="pet-paw" viewBox="0 0 64 64">
+      <ellipse cx="32" cy="42" rx="17" ry="14" fill="currentColor"/>
+      <ellipse cx="13" cy="28" rx="7" ry="9" transform="rotate(-25 13 28)" fill="currentColor"/>
+      <ellipse cx="26" cy="15" rx="7" ry="9" transform="rotate(-8 26 15)" fill="currentColor"/>
+      <ellipse cx="42" cy="15" rx="7" ry="9" transform="rotate(8 42 15)" fill="currentColor"/>
+      <ellipse cx="54" cy="29" rx="7" ry="9" transform="rotate(25 54 29)" fill="currentColor"/>
+    </symbol>
+  </defs>
+</svg>
+<svg class="paw-decor one" aria-hidden="true"><use href="#pet-paw"/></svg>
+<svg class="paw-decor two" aria-hidden="true"><use href="#pet-paw"/></svg>
 <div class="wrap">
 
-  <header class="mb-5 anim">
+  <header class="mb-5 anim header-card">
     <div class="flex items-center gap-3 flex-wrap">
-      <div class="logo">🐾</div>
+      <div class="logo" aria-hidden="true"><svg viewBox="0 0 120 120"><use href="#pet-dog"/></svg></div>
       <div class="min-w-0">
         <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight grad-text">宠物店经营测算</h1>
         <p class="text-xs" style="color:var(--ink-3)" id="roleLine">员工录入 · 打开即填，自动同步</p>
       </div>
-      <div class="ml-auto flex items-center gap-2">
+      <div class="header-pets" aria-hidden="true">
+        <div class="pet-mini"><svg viewBox="0 0 120 120"><use href="#pet-dog"/></svg></div>
+        <div class="pet-mini cat"><svg viewBox="0 0 120 120"><use href="#pet-cat"/></svg></div>
+      </div>
+      <div class="header-actions flex items-center gap-2">
         <span class="badge off" id="syncBadge"><span class="dot"></span><span id="syncText">连接中…</span></span>
         <button class="btn" id="roleBtn" onclick="onRoleBtn()">🔒 老板登录</button>
       </div>
@@ -112,7 +175,7 @@
   <section id="sec-flow" class="hidden">
     <div class="card p-4 sm:p-5 anim">
       <div class="flex items-center gap-3 mb-1 flex-wrap">
-        <div class="font-bold text-base">📋 每日流水</div>
+        <div class="font-bold text-base flex items-center gap-2"><svg class="section-pet" aria-hidden="true" viewBox="0 0 120 120"><use href="#pet-cat"/></svg><span>每日流水</span></div>
         <button class="btn btn-accent ml-auto" onclick="addFlow()">＋ 记一笔</button>
       </div>
       <div class="note mb-3">照着每格的提示填写即可，填完自动保存并同步给老板。<span id="flowBossHint"></span></div>
@@ -240,7 +303,7 @@ const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 function defaultLedger(){const o={};BASE_MONTHS.forEach(m=>o[m]={board:0,matWash:0,matBoard:0,matOther:0});return o;}
 function defaultState(){return{
   params:{rent:1800,water:1200,salaryMM:4000,salaryStaff:4000,otherFixed:300,priceSmall:55,priceLarge:95,priceBoard:80,priceGoods:60,ratioWash:0.85,ratioBoard:0,ratioGoods:0.15,days:30},
-  flows:[{id:uid(),_ts:Date.now(),date:'2026-11-25',customer:'',service:'',wash:55,goods:'',pay:'',material:'',recorder:'',note:''}],
+  flows:[],
   ledger:defaultLedger(),manualMargin:'',staffList:DEFAULT_STAFF.slice()};}
 let S=loadLocal();
 function loadLocal(){try{const d=JSON.parse(localStorage.getItem(LKEY));if(d&&d.params&&d.flows){if(!d.staffList)d.staffList=DEFAULT_STAFF.slice();return d;}}catch(e){}return defaultState();}
@@ -346,6 +409,10 @@ function renderOverview(){
       <div class="flex items-center justify-between flex-wrap gap-3" style="position:relative;z-index:1">
         <div><div style="font-size:13px;opacity:.9;margin-bottom:6px">累计净利润（${act.length} 个营业月）</div>
           <div class="big-num"><span data-cu="${act.length?totNet:'NaN'}" data-cf="signed"></span></div></div>
+        <div class="hero-pets" aria-hidden="true">
+          <div class="pet-bubble"><svg viewBox="0 0 120 120"><use href="#pet-dog"/></svg></div>
+          <div class="pet-bubble cat"><svg viewBox="0 0 120 120"><use href="#pet-cat"/></svg></div>
+        </div>
         <div class="text-right"><span class="pill" style="background:rgba(255,255,255,.25);color:#fff">${statusTxt}</span>
           <div style="font-size:12px;opacity:.92;margin-top:8px">累计营收 ¥${fmt(totRev)} · 累计成本 ¥${fmt(totDirect+totFixed)}</div></div>
       </div>
@@ -367,7 +434,7 @@ function renderOverview(){
         <div class="tbl-scroll" style="max-height:320px"><table>
           <thead><tr><th>月份</th><th>总营收</th><th>毛利率</th><th>固定成本</th><th>净利润</th><th>盈亏</th></tr></thead>
           <tbody>${monthRows}</tbody></table></div></div></div>`
-    :`<div class="card p-10 text-center note anim">还没有营业数据。<br>员工在「每日流水」录入后，这里会自动生成全店盈亏总览。</div>`}
+    :`<div class="card p-10 text-center note anim"><div class="empty-pets" aria-hidden="true"><svg class="dog" viewBox="0 0 120 120"><use href="#pet-dog"/></svg><svg class="cat" viewBox="0 0 120 120"><use href="#pet-cat"/></svg></div><div style="font-size:16px;font-weight:700;color:var(--ink-2);margin-bottom:5px">还没有营业数据</div>员工在「每日流水」录入后，这里会自动生成全店盈亏总览。</div>`}
     ${lossMonths.length?`<div class="card p-4 mt-4 anim" style="background:var(--bad-soft);border-color:#f3c8c8">
       <div class="font-bold" style="color:var(--bad)">⚠️ 亏损预警</div>
       <div class="note mt-1">${lossMonths.map(r=>r.m+'（'+fmt(r.net)+'）').join('、')} 出现亏损。建议优先砍耗材浪费、错峰排班，或提升洗护/用品营收。</div></div>`:''}`;
@@ -396,7 +463,7 @@ function flowRow(f){
 }
 function renderFlow(){
   const list=liveFlows().slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a._ts||0)-(b._ts||0));
-  document.getElementById('flowBody').innerHTML=list.map(flowRow).join('')||'<tr><td colspan="12" class="note" style="padding:24px">还没有记录，点右上角「＋ 记一笔」开始</td></tr>';
+  document.getElementById('flowBody').innerHTML=list.map(flowRow).join('')||'<tr><td colspan="12" class="note" style="padding:24px"><svg class="empty-paw" aria-hidden="true" viewBox="0 0 64 64"><use href="#pet-paw"/></svg>还没有记录，点右上角「＋ 记一笔」开始</td></tr>';
   document.querySelectorAll('#sec-flow .boss').forEach(e=>e.style.display=boss?'':'none');
 }
 function uf(id,k,v,el){
