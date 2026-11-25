@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>阿杰宠物店 · 完整经营工作台</title>
+<title>Happy 小狗宠物店 · 完整经营工作台</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -172,7 +172,7 @@
     <div class="flex items-center gap-3 flex-wrap">
       <div class="logo" aria-hidden="true"><svg viewBox="0 0 120 120"><use href="#pet-dog"/></svg></div>
       <div class="min-w-0">
-        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight grad-text">阿杰宠物店 · 经营工作台</h1>
+        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight grad-text">Happy 小狗宠物店 · 经营工作台</h1>
         <p class="text-xs" style="color:var(--ink-3)" id="roleLine">员工工作台 · 客户、预约、开单一站式处理</p>
       </div>
       <div class="header-pets" aria-hidden="true">
@@ -298,7 +298,7 @@
     <div class="card p-4 sm:p-5 mt-4 anim"><div class="font-bold mb-2">数据备份与导出</div><div class="note mb-3">完整 JSON 用于备份全部业务数据；CSV 采用 UTF-8 BOM，可直接用 Excel 打开。</div><div class="flex gap-2 flex-wrap"><button class="btn btn-accent" onclick="exportBackup()">完整 JSON 备份</button><button class="btn" onclick="exportCSV('orders')">订单 CSV</button><button class="btn" onclick="exportCSV('flows')">流水 CSV</button><button class="btn" onclick="exportCSV('members')">会员账务 CSV</button><button class="btn" onclick="exportCSV('inventory')">库存 CSV</button><button class="btn" onclick="exportCSV('commissions')">提成 CSV</button></div><div class="note mt-4" style="color:var(--bad)">安全提示：老板密码目前仅用于网页界面隔离，并非数据库权限。正式收集大量客户敏感信息前，应升级 Supabase Auth 与行级安全策略。</div></div>
   </section>
 
-  <footer class="text-center mt-10 note"><svg aria-hidden="true" viewBox="0 0 64 64" style="width:15px;height:15px;vertical-align:-3px;margin-right:6px;color:var(--brand1)"><use href="#pet-paw"/></svg>阿杰宠物店经营工作台 · 客户、预约、收银、会员、库存与报表云端同步</footer>
+  <footer class="text-center mt-10 note"><svg aria-hidden="true" viewBox="0 0 64 64" style="width:15px;height:15px;vertical-align:-3px;margin-right:6px;color:var(--brand1)"><use href="#pet-paw"/></svg>Happy 小狗宠物店经营工作台 · 客户、预约、收银、会员、库存与报表云端同步</footer>
 </div>
 
 <div class="modal-mask hidden" id="pwdModal">
@@ -472,9 +472,9 @@ function exportCSV(type){
   else if(type==='members'){rows=[['日期','客户','业务','收款/确认额','余额变动','积分变动','说明','命令ID']];memberEntries().forEach(e=>rows.push([e.date,customerName(e.customerId),e.label,e.amount,e.balanceDelta,e.points,e.detail,e.source.commandId||'']));}
   else if(type==='inventory'){rows=[['日期','商品','业务','数量变动','变动后库存（按流水顺序）','说明','关联ID']];const moves=active('stockMoves').slice().sort((a,b)=>(a._ts||0)-(b._ts||0)),balances={};moves.forEach(m=>{const p=S.products.find(x=>x.id===m.productId)||{};balances[m.productId]=money((balances[m.productId]||0)+num(m.delta));rows.push([m.date,p.name||'已删除商品',m.type,m.delta,balances[m.productId],m.note,m.refId||'']);});}
   else if(type==='commissions'){rows=[['日期','员工','来源项目','订单号','提成率','提成金额','关联ID']];active('commissions').filter(c=>monthOf(c.date)===view.commissionMonth).forEach(c=>{const o=S.orders.find(x=>x.id===c.orderId)||{};rows.push([c.date,c.staff,c.source,o.orderNo||c.orderId,c.rate,c.amount,c.refId]);});}
-  else return;downloadFile(`阿杰宠物店-${name}-${localDate()}.csv`,csvText(rows),'text/csv;charset=utf-8');toast('CSV 已导出');
+  else return;downloadFile(`Happy小狗宠物店-${name}-${localDate()}.csv`,csvText(rows),'text/csv;charset=utf-8');toast('CSV 已导出');
 }
-function exportBackup(){downloadFile(`阿杰宠物店-完整备份-${localDate()}.json`,JSON.stringify(S,null,2),'application/json;charset=utf-8');toast('完整 JSON 备份已导出');}
+function exportBackup(){downloadFile(`Happy小狗宠物店-完整备份-${localDate()}.json`,JSON.stringify(S,null,2),'application/json;charset=utf-8');toast('完整 JSON 备份已导出');}
 
 /* ===== 商品、采购与库存 ===== */
 function renderInventory(){
